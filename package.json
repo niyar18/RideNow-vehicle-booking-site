@@ -28,6 +28,7 @@
     "react-leaflet": "^5.0.0",
     "react-redux": "^9.2.0",
     "recharts": "^3.7.0",
+    "resend": "^6.12.2",
     "socket.io-client": "^4.8.3",
     "stripe": "^20.3.0"
   },

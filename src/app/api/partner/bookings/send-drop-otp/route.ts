@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
       await sendMail(
         booking.user.email,
-        "Your Drop OTP - RYDEX",
+        "Your Drop OTP - RideNow",
         `
         <div style="font-family:sans-serif;padding:20px">
           <h2>Ride OTP</h2>
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
 
           <br/>
 
-          <b>RYDEX</b>
+          <b>RideNow</b>
         </div>
         `
       );
