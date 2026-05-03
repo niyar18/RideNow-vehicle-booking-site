@@ -5,6 +5,7 @@ if (!process.env.RESEND_API_KEY) {
 }
 
 const resend = new Resend(process.env.RESEND_API_KEY);
+resend.domains.create({ name: 'ridenow.publicvm.com' });
 
 export const sendMail = async (
   to: string,
@@ -13,7 +14,7 @@ export const sendMail = async (
 ) => {
   try {
     const response = await resend.emails.send({
-      from: "RideNow <onboarding@resend.dev>", // default sender
+      from: "RideNow <otp-verify@ridenow.publicvm.com>", // default sender
       to,
       subject,
       html,
