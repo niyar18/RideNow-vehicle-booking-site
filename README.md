@@ -66,3 +66,55 @@ src/
  │   └── user.model.ts
  ├── auth.ts
  └── proxy.ts
+```
+
+---
+
+## ⚙️ Environment Variables
+Create a .env.local file in the root directory:
+```Environment
+MONGODB_URI=your_mongodb_connection_string
+AUTH_SECRET=your_auth_secret
+
+GOOGLE_CLIENT_ID=your_google_client_id
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxx
+```
+
+---
+
+## 🚀 Getting Started
+1. Clone the repository
+```Bash
+git clone https://github.com/niyar18/RideNow-vehicle-booking-site.git
+cd RideNow-vehicle-booking-site
+```
+2. Install dependencies
+```Bash
+npm install
+```
+3. Run development server
+```Bash
+npm run dev
+```
+4. Open in browser
+```
+http://localhost:3000
+```
+
+---
+
+## 🔐 Admin Access
+To access the admin panel:
+Open MongoDB database
+1. Update a user role:
+```JSON
+{
+  "role": "admin"
+}
+```
+2. Visit:
+```
+http://localhost:3000/admin
+```

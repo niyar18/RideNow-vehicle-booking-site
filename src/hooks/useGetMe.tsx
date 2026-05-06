@@ -17,11 +17,14 @@ function useGetMe(enabled: boolean) {
     const getMe = async () => {
       try {
         const result = await axios.get('/api/me')
-        console.log(result)
         if (!cancelled) {
           dispatch(setUserData(result.data))
         }
-      } catch (error) {
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          // Not authenticated yet - ignore and stay logged out.
+          return
+        }
         console.error('GET ME FAILED:', error)
       }
     }

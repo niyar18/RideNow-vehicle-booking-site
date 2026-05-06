@@ -13,6 +13,7 @@ import {
   Car,
   Truck,
   ChevronRight,
+  ShieldCheck,
 } from "lucide-react";
 import AuthModal from "./AuthModal";
 import { useDispatch, useSelector } from "react-redux";
@@ -129,23 +130,36 @@ export default function Nav() {
       );
     }
 
-    return NAV_ITEMS.map((item) => {
-      const href = `/${item.toLowerCase()}`;
-      const active = pathname === href;
-      return (
-        <Link
-          key={item}
-          href={href}
-          className={`text-sm font-medium transition ${
-            active
-              ? "text-white"
-              : "text-gray-400 hover:text-white"
-          }`}
-        >
-          {item}
-        </Link>
-      );
-    });
+    return (
+      <>
+        {NAV_ITEMS.map((item) => {
+          const href = `/${item.toLowerCase()}`;
+          const active = pathname === href;
+          return (
+            <Link
+              key={item}
+              href={href}
+              className={`text-sm font-medium transition ${
+                active
+                  ? "text-white"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              {item}
+            </Link>
+          );
+        })}
+
+        {userData?.role === "admin" && (
+          <Link
+            href="/admin/dashboard"
+            className="text-sm font-medium transition text-gray-400 hover:text-white"
+          >
+            Admin Panel
+          </Link>
+        )}
+      </>
+    );
   };
 
   return (
@@ -306,16 +320,28 @@ export default function Nav() {
               </Link>
             </>
           ) : (
-            NAV_ITEMS.map((item) => (
-              <Link
-                key={item}
-                href={`/${item.toLowerCase()}`}
-                className="px-6 py-4 text-gray-300 hover:bg-white/5"
-                onClick={() => setMenuOpen(false)}
-              >
-                {item}
-              </Link>
-            ))
+            <>
+              {NAV_ITEMS.map((item) => (
+                <Link
+                  key={item}
+                  href={`/${item.toLowerCase()}`}
+                  className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item}
+                </Link>
+              ))}
+
+              {userData?.role === "admin" && (
+                <Link
+                  href="/admin/dashboard"
+                  className="px-6 py-4 text-gray-300 hover:bg-white/5"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Admin Panel
+                </Link>
+              )}
+            </>
           )}
 
         </div>
@@ -359,7 +385,16 @@ function ProfileContent({ userData, handleLogout, router, mobile }: any) {
       <p className="font-semibold text-lg">{userData.name}</p>
       <p className="text-xs uppercase text-gray-500 mb-4">{userData.role}</p>
 
-      {userData.role !== "vendor" && (
+      {userData.role === "admin" ? (
+        <button
+          onClick={() => router.push("/admin/dashboard")}
+          className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl"
+        >
+          <ShieldCheck size={16} />
+          Admin Dashboard
+          <ChevronRight size={16} className="ml-auto" />
+        </button>
+      ) : userData.role !== "vendor" ? (
         <button
           onClick={() => router.push("/partner/onboard/vehicle")}
           className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl"
@@ -368,7 +403,7 @@ function ProfileContent({ userData, handleLogout, router, mobile }: any) {
           Become a Partner
           <ChevronRight size={16} className="ml-auto" />
         </button>
-      )}
+      ) : null}
 
       <button
         onClick={handleLogout}

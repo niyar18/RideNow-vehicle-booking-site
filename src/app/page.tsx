@@ -47,7 +47,9 @@ export default async function Home() {
           vendorStep={vendorData.vendorStep}
           vendorStatus={vendorData.vendorStatus}
         />
-      ) :session?.user?.role==="admin"?(redirect(`${process.env.NEXT_PUBLIC_APP_URL}/admin/dashboard`,RedirectType.push)): (
+      ) : session?.user?.role === "admin" ? (
+        redirect("/admin/dashboard", RedirectType.push)
+      ) : (
         <PublicHome />
       )}
 
