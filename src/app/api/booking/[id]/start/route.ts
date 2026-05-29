@@ -4,18 +4,43 @@ import Booking from "@/models/booking.model";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  await connectDb();
+  try {
+    const { id } = await params;
 
-  const booking = await Booking.findById(params.id);
-  if (!booking)
-    return NextResponse.json({ message: "Not found" }, { status: 404 });
+    await connectDb();
 
-booking.status = "started";
-booking.startedAt = new Date();
+    const booking = await Booking.findById(id);
 
-  await booking.save();
+    if (!booking) {
+      return NextResponse.json(
+        { message: "Booking not found" },
+        { status: 404 }
+      );
+    }
 
-  return NextResponse.json({ success: true });
+    booking.status = "completed";
+    booking.completedAt = new Date();
+
+    await booking.save();
+
+    return NextResponse.json(
+      {
+        success: true,
+        message: "Ride completed successfully",
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Complete booking error:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Internal server error",
+      },
+      { status: 500 }
+    );
+  }
 }
