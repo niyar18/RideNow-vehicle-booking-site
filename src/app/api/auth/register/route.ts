@@ -73,13 +73,21 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    /* ---------- SEND OTP (PLACEHOLDER) ---------- */
-    // 🔥 Replace with real email service (Nodemailer / Resend / AWS SES)
-    console.log(`OTP for ${email}: ${otp}`);
+    /* ---------- SEND OTP  ---------- */
+
     await sendMail(
        email,
         "Your OTP for Email Verification",
-        `<h2>Your Email Verification OTP is <strong>${otp}</strong></h2>`
+    `
+        <div style="font-family: Arial; padding: 20px;">
+        <h2>Verify your email - RideNow</h2>
+        <p>Your OTP code is:</p>
+        <h1 style="letter-spacing: 3px;">${otp}</h1>
+        <p>This code expires in 5 minutes.</p>
+        <hr />
+        <p>If you didn’t request this, ignore this email.</p>
+       </div>
+    `
     )
 
     return NextResponse.json(
