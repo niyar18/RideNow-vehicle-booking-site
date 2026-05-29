@@ -9,16 +9,16 @@ export async function GET(req: NextRequest) {
         const session = await auth()
         if (!session || !session.user) {
             return NextResponse.json(
-                { message: "user is not authenticated" },
-                { status: 400 }
+                { message: "User is not authenticated" },
+                { status: 401 }
             )
         }
 
         const user = await User.findOne({ email: session.user.email }).select("-password")
         if (!user) {
             return NextResponse.json(
-                { message: "user not found" },
-                { status: 400 }
+                { message: "User not found" },
+                { status: 404 }
             )
         }
         return NextResponse.json(
