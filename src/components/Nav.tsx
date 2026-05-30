@@ -23,6 +23,13 @@ import { setUserData } from "@/redux/userSlice";
 import axios from "axios";
 
 const NAV_ITEMS = ["Home", "Bookings", "Fleet", "FAQ", "Contact"];
+const NAV_ROUTES: Record<string, string> = {
+  Home: "/",
+  Bookings: "/bookings",
+  Fleet: "/fleet",
+  FAQ: "/faq",
+  Contact: "/contact",
+};
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -133,7 +140,7 @@ export default function Nav() {
     return (
       <>
         {NAV_ITEMS.map((item) => {
-          const href = item === "Home" ? "/" : `/${item.toLowerCase()}`;
+          const href = NAV_ROUTES[item];
           const active = pathname === href;
           return (
             <Link
@@ -324,7 +331,7 @@ export default function Nav() {
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item}
-                  href={`/${item.toLowerCase()}`}
+                  href={NAV_ROUTES[item]}
                   className="px-6 py-4 text-gray-300 hover:bg-white/5"
                   onClick={() => setMenuOpen(false)}
                 >

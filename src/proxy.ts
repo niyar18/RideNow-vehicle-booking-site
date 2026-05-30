@@ -4,7 +4,16 @@ import { auth } from "./auth";
 
 /* ================= CONFIG ================= */
 
-const PUBLIC_ROUTES = ["/"];
+const PUBLIC_ROUTES = [
+  "/",
+  "/book",
+  "/booking",
+  "/bookings",
+  "/contact",
+  "/faq",
+  "/fleet",
+  "/search",
+];
 const PUBLIC_API_ROUTES = ["/api/auth"];
 
 const VENDOR_ONBOARDING_START = "/partner/onboard/vehicle";
