@@ -344,6 +344,7 @@ function Kpi({
   trendDir = "up",
   sub,
   variant = "totalVendors",
+  onClick,
 }: {
   label: string;
   value: number;
@@ -352,6 +353,7 @@ function Kpi({
   trendDir?: "up" | "down" | "flat";
   sub?: string;
   variant?: keyof typeof KPI_CONFIG;
+  onClick?: () => void;
 }) {
   const cfg = KPI_CONFIG[variant];
 
