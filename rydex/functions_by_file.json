@@ -1,0 +1,939 @@
+{
+  "Provider.tsx": [
+    "Provider"
+  ],
+  "app/admin/dashboard/AdminDashboardClient.tsx": [
+    "AdminDashboardClient",
+    "router",
+    "loadAll",
+    "TabButton",
+    "KYC_STATUS",
+    "AVATAR_COLORS",
+    "ContentList",
+    "startKyc",
+    "res",
+    "name",
+    "email",
+    "initials",
+    "avColor",
+    "s",
+    "KPI_CONFIG",
+    "Kpi",
+    "cfg",
+    "trendIcon",
+    "trendColor"
+  ],
+  "app/admin/dashboard/page.tsx": [
+    "AdminDashboardPage",
+    "session"
+  ],
+  "app/admin/vehicles/[id]/page.tsx": [
+    "AdminVehicleReviewPage",
+    "router",
+    "load",
+    "res",
+    "approve",
+    "reject",
+    "Card",
+    "Info",
+    "StatusBadge",
+    "ConfirmModal",
+    "RejectModal"
+  ],
+  "app/admin/vendors/[id]/page.tsx": [
+    "AdminVendorReviewPage",
+    "router",
+    "load",
+    "res",
+    "approveVendor",
+    "rejectVendor",
+    "AnimatedCard",
+    "DocPreview",
+    "isImage",
+    "isPdf",
+    "ConfirmModal",
+    "RejectModal",
+    "InfoRow",
+    "StatusBadge",
+    "Badge"
+  ],
+  "app/api/admin/dashboard/route.ts": [
+    "GET",
+    "session",
+    "totalVendors",
+    "approved",
+    "pending",
+    "rejected",
+    "pendingVendorUsers",
+    "vendorIds",
+    "vendorVehicles",
+    "vehicleTypeMap",
+    "pendingVendors",
+    "pendingVehiclesRaw",
+    "pendingVehicles"
+  ],
+  "app/api/admin/earnings/route.ts": [
+    "GET",
+    "session",
+    "sevenDaysAgo",
+    "bookings",
+    "earningsMap",
+    "date",
+    "earnings"
+  ],
+  "app/api/admin/vehicles/[id]/approve/route.ts": [
+    "POST",
+    "session",
+    "vehicleId",
+    "vehicle"
+  ],
+  "app/api/admin/vehicles/[id]/reject/route.ts": [
+    "POST",
+    "session",
+    "vehicleId",
+    "vehicle"
+  ],
+  "app/api/admin/vehicles/[id]/route.ts": [
+    "GET",
+    "session",
+    "vehicleId",
+    "vehicle"
+  ],
+  "app/api/admin/vendors/[id]/approve/route.ts": [
+    "POST",
+    "session",
+    "vendorId",
+    "user",
+    "docs",
+    "bank"
+  ],
+  "app/api/admin/vendors/[id]/reject/route.ts": [
+    "POST",
+    "session",
+    "vendorId",
+    "user"
+  ],
+  "app/api/admin/vendors/[id]/route.ts": [
+    "GET",
+    "session",
+    "vendorId",
+    "user",
+    "vehicle",
+    "documents",
+    "bank"
+  ],
+  "app/api/admin/vendors/video-kyc/complete/route.ts": [
+    "PATCH",
+    "session",
+    "vendor"
+  ],
+  "app/api/admin/vendors/video-kyc/pending/route.ts": [
+    "GET",
+    "vendors"
+  ],
+  "app/api/admin/vendors/video-kyc/start/[vendorId]/route.ts": [
+    "PATCH",
+    "session",
+    "vendor",
+    "roomId"
+  ],
+  "app/api/auth/register/route.ts": [
+    "POST",
+    "body",
+    "existingUser",
+    "hashedPassword",
+    "otp",
+    "otpExpiresAt"
+  ],
+  "app/api/auth/verify-otp/route.ts": [
+    "POST",
+    "body",
+    "user"
+  ],
+  "app/api/booking/[id]/accept/route.ts": [
+    "POST",
+    "id",
+    "booking"
+  ],
+  "app/api/booking/[id]/arrived/route.ts": [
+    "POST",
+    "booking"
+  ],
+  "app/api/booking/[id]/arriving/route.ts": [
+    "POST",
+    "booking"
+  ],
+  "app/api/booking/[id]/cancel/route.ts": [
+    "POST",
+    "id",
+    "booking"
+  ],
+  "app/api/booking/[id]/complete/route.ts": [
+    "POST",
+    "booking"
+  ],
+  "app/api/booking/[id]/confirm-payment/route.ts": [
+    "POST",
+    "id",
+    "booking"
+  ],
+  "app/api/booking/[id]/expire/route.ts": [
+    "POST",
+    "id",
+    "booking"
+  ],
+  "app/api/booking/[id]/reject/route.ts": [
+    "POST",
+    "id",
+    "session",
+    "driverId",
+    "booking"
+  ],
+  "app/api/booking/[id]/route.ts": [
+    "GET",
+    "id",
+    "booking"
+  ],
+  "app/api/booking/[id]/start/route.ts": [
+    "POST",
+    "booking"
+  ],
+  "app/api/booking/[id]/status/route.ts": [
+    "GET",
+    "id",
+    "booking"
+  ],
+  "app/api/booking/create/route.ts": [
+    "POST",
+    "session",
+    "body",
+    "driver",
+    "existing",
+    "booking"
+  ],
+  "app/api/booking/my-active/route.ts": [
+    "GET",
+    "session",
+    "booking"
+  ],
+  "app/api/chat/get-all/route.ts": [
+    "POST",
+    "messages"
+  ],
+  "app/api/chat/send/route.ts": [
+    "POST",
+    "msg"
+  ],
+  "app/api/me/route.ts": [
+    "GET",
+    "session",
+    "user"
+  ],
+  "app/api/partner/bank/route.ts": [
+    "POST",
+    "session",
+    "body",
+    "updateData",
+    "GET",
+    "bank"
+  ],
+  "app/api/partner/bookings/active/route.ts": [
+    "GET",
+    "session",
+    "booking"
+  ],
+  "app/api/partner/bookings/counts/route.ts": [
+    "GET",
+    "session",
+    "vendorId",
+    "pending",
+    "active"
+  ],
+  "app/api/partner/bookings/pending/route.ts": [
+    "GET",
+    "session",
+    "vendorId",
+    "bookings"
+  ],
+  "app/api/partner/bookings/route.ts": [
+    "GET",
+    "session",
+    "bookings"
+  ],
+  "app/api/partner/bookings/send-drop-otp/route.ts": [
+    "POST",
+    "booking",
+    "otp"
+  ],
+  "app/api/partner/bookings/send-pickup-otp/route.ts": [
+    "POST",
+    "booking",
+    "otp"
+  ],
+  "app/api/partner/bookings/verify-drop-otp/route.ts": [
+    "POST",
+    "booking"
+  ],
+  "app/api/partner/bookings/verify-pickup-otp/route.ts": [
+    "POST",
+    "booking"
+  ],
+  "app/api/partner/documents/route.ts": [
+    "GET",
+    "session",
+    "documents",
+    "POST",
+    "user",
+    "formData",
+    "aadhaar",
+    "license",
+    "rc",
+    "updatePayload",
+    "url"
+  ],
+  "app/api/partner/earnings/route.ts": [
+    "GET",
+    "session",
+    "driverId",
+    "bookings",
+    "earningsMap",
+    "date",
+    "earnings"
+  ],
+  "app/api/partner/vehicle/pricing/edit/route.ts": [
+    "PATCH",
+    "session",
+    "user",
+    "vehicle",
+    "formData",
+    "image",
+    "baseFare",
+    "pricePerKm",
+    "waitingCharge"
+  ],
+  "app/api/partner/vehicle/pricing/route.ts": [
+    "POST",
+    "session",
+    "user",
+    "vehicle",
+    "formData",
+    "image",
+    "baseFare",
+    "pricePerKm",
+    "waitingCharge",
+    "imageUrl",
+    "GET"
+  ],
+  "app/api/partner/vehicle/route.ts": [
+    "VEHICLE_REGEX",
+    "POST",
+    "session",
+    "user",
+    "vehicleNumber",
+    "duplicate",
+    "GET",
+    "vehicle"
+  ],
+  "app/api/partner/video-kyc/request/route.ts": [
+    "PATCH",
+    "session",
+    "vendor"
+  ],
+  "app/api/payment/create/route.ts": [
+    "POST",
+    "booking",
+    "order"
+  ],
+  "app/api/payment/verify/route.ts": [
+    "POST",
+    "body",
+    "expectedSignature",
+    "booking",
+    "adminCommission",
+    "partnerAmount"
+  ],
+  "app/api/socket/connect/route.ts": [
+    "POST",
+    "user"
+  ],
+  "app/api/user/bookings/route.ts": [
+    "GET",
+    "session",
+    "bookings"
+  ],
+  "app/api/vehicles/nearby/route.ts": [
+    "POST",
+    "vendors",
+    "vendorIds",
+    "vehicles"
+  ],
+  "app/api/zego/token/route.ts": [
+    "generateToken04",
+    "version",
+    "nonce",
+    "createTime",
+    "expireTime",
+    "jsonObject",
+    "jsonStr",
+    "hash",
+    "token",
+    "POST",
+    "session",
+    "appID",
+    "serverSecret"
+  ],
+  "app/book/page.tsx": [
+    "VEHICLES",
+    "stepVariants",
+    "BookPage",
+    "router",
+    "canContinue",
+    "searchAddress",
+    "res",
+    "data",
+    "fmt",
+    "useCurrentLocation",
+    "p",
+    "addr",
+    "progress",
+    "active"
+  ],
+  "app/bookings/page.tsx": [
+    "MyBookingsPage",
+    "fetchBookings",
+    "res",
+    "getStatusColor",
+    "colors",
+    "formatDate",
+    "date",
+    "filteredBookings"
+  ],
+  "app/checkout/CheckoutContent.tsx": [
+    "VEHICLE_ICONS",
+    "CheckoutContent",
+    "params",
+    "pickup",
+    "drop",
+    "vehicle",
+    "vehicleId",
+    "fare",
+    "mobileNumber",
+    "driverId",
+    "pickupLat",
+    "pickupLng",
+    "dropLat",
+    "dropLng",
+    "VehicleIcon",
+    "handleCreateBooking",
+    "res",
+    "data",
+    "handlePaymentConfirm",
+    "razorpayLoaded",
+    "orderRes",
+    "orderData",
+    "options",
+    "verify",
+    "verifyData",
+    "paymentObject",
+    "handleCancelBooking",
+    "socket",
+    "t",
+    "vehicleLabel",
+    "active",
+    "loadRazorpayScript",
+    "script"
+  ],
+  "app/checkout/page.tsx": [
+    "CheckoutPage"
+  ],
+  "app/checkout/page_new.tsx": [
+    "CheckoutPage"
+  ],
+  "app/contact/page.tsx": [
+    "ContactPage",
+    "handleChange",
+    "handleSubmit",
+    "contactInfo",
+    "Icon"
+  ],
+  "app/faq/page.tsx": [
+    "FAQPage",
+    "faqs"
+  ],
+  "app/fleet/page.tsx": [
+    "FleetPage",
+    "features",
+    "Icon"
+  ],
+  "app/layout.tsx": [
+    "geistSans",
+    "geistMono",
+    "metadata",
+    "RootLayout"
+  ],
+  "app/page.tsx": [
+    "Home",
+    "session",
+    "user"
+  ],
+  "app/partner/active-ride/page.tsx": [
+    "LiveRideMap",
+    "MAP_STATUS",
+    "STATUS_LABEL",
+    "PAYMENT_BADGE",
+    "TERMINAL",
+    "PEEK_H",
+    "DriverRidePage",
+    "bookingRef",
+    "socket",
+    "watchId",
+    "b",
+    "lat",
+    "lng",
+    "sendPickupOtp",
+    "handleVerifyOtp",
+    "res",
+    "data",
+    "sendDropOtp",
+    "handleVerifyDropOtp",
+    "status",
+    "cfg",
+    "mapStatus",
+    "isActive",
+    "canChat",
+    "displayEta",
+    "displayDistance",
+    "panelProps",
+    "startY",
+    "onUp",
+    "ActionBar",
+    "PanelContent",
+    "CompletedScreen",
+    "FailedScreen",
+    "isExpired"
+  ],
+  "app/partner/bookings/page.tsx": [
+    "PartnerBookingsPage",
+    "fetchBookings",
+    "res",
+    "data",
+    "getStatusColor",
+    "colors",
+    "getVehicleIcon",
+    "formatDate",
+    "date",
+    "filteredBookings"
+  ],
+  "app/partner/onboard/bank/page.tsx": [
+    "IFSC_REGEX",
+    "PartnerBankPage",
+    "router",
+    "bank",
+    "sanitizedIfsc",
+    "isNameValid",
+    "isAccountValid",
+    "isIfscValid",
+    "isMobileValid",
+    "canSubmit",
+    "handleSubmit",
+    "InputField"
+  ],
+  "app/partner/onboard/documents/page.tsx": [
+    "PartnerDocumentsPage",
+    "router",
+    "canContinue",
+    "handleFileChange",
+    "submitDocuments",
+    "formData",
+    "DocUpload"
+  ],
+  "app/partner/onboard/page.tsx": [
+    "STEPS",
+    "PartnerOnboard",
+    "router",
+    "Icon"
+  ],
+  "app/partner/onboard/vehicle/page.tsx": [
+    "VEHICLES",
+    "VEHICLE_REGEX",
+    "PartnerVehiclePage",
+    "router",
+    "load",
+    "res",
+    "submitVehicle",
+    "Icon",
+    "active"
+  ],
+  "app/partner/pending-requests/page.tsx": [
+    "VendorPendingPage",
+    "router",
+    "fetchPendingBookings",
+    "res",
+    "socket",
+    "handleAction"
+  ],
+  "app/ride/[id]/page.tsx": [
+    "LiveRideMap",
+    "STATUS_CONFIG",
+    "PAYMENT_LABEL",
+    "PEEK_H",
+    "RidePage",
+    "router",
+    "fetchBooking",
+    "res",
+    "data",
+    "socket",
+    "handleCancel",
+    "status",
+    "cfg",
+    "mapStatus",
+    "isActive",
+    "isFailed",
+    "isCompleted",
+    "canChat",
+    "showDriver",
+    "displayEta",
+    "displayDistance",
+    "panelProps",
+    "startY",
+    "onUp",
+    "CompletedScreen",
+    "FailedScreen",
+    "isExpired",
+    "PanelContent"
+  ],
+  "app/search/SearchPageContent.tsx": [
+    "RouteMap",
+    "VEHICLE_META",
+    "SearchPageContent",
+    "params",
+    "router",
+    "vehicle",
+    "mobileNumber",
+    "pickupLat",
+    "pickupLng",
+    "meta",
+    "eta",
+    "fetchNearbyVehicles",
+    "res",
+    "data",
+    "url"
+  ],
+  "app/search/page.tsx": [
+    "SearchPage"
+  ],
+  "app/video-kyc/[roomId]/page.tsx": [
+    "VideoKYCPage",
+    "containerRef",
+    "previewRef",
+    "zpRef",
+    "joinedRef",
+    "params",
+    "router",
+    "roomId",
+    "isAdmin",
+    "handleApprove",
+    "res",
+    "data",
+    "handleReject",
+    "init",
+    "toggleCamera",
+    "toggleMic",
+    "startCall",
+    "appID",
+    "serverSecret",
+    "displayName",
+    "userId",
+    "kitToken",
+    "zp",
+    "Modal"
+  ],
+  "auth/server.ts": [
+    "auth"
+  ],
+  "auth.ts": [
+    "email",
+    "password",
+    "user",
+    "isMatch"
+  ],
+  "components/AdminEarning.tsx": [
+    "CustomTooltip",
+    "fmt",
+    "AdminEarningsChart",
+    "last7Days",
+    "total",
+    "avg",
+    "max",
+    "bestDay",
+    "today",
+    "yesterday",
+    "delta",
+    "deltaPositive",
+    "deltaPct",
+    "metrics",
+    "isToday",
+    "isBest"
+  ],
+  "components/AdminStatusChart.tsx": [
+    "STATUS_CONFIG",
+    "RADIAN",
+    "StatusDonutChart",
+    "chartData",
+    "total",
+    "active",
+    "Icon",
+    "val",
+    "pct",
+    "isActive"
+  ],
+  "components/AuthModal.tsx": [
+    "AuthModal",
+    "handleOtpChange",
+    "updated",
+    "handleLogin",
+    "res",
+    "handleGoogleLogin",
+    "handleSignUp",
+    "handleVerifyOtp"
+  ],
+  "components/Footer.tsx": [
+    "Footer"
+  ],
+  "components/GeoUpdater.tsx": [
+    "GeoUpdater",
+    "socketRef",
+    "lastSentRef",
+    "watcher",
+    "now"
+  ],
+  "components/Herosection.tsx": [
+    "HeroSection",
+    "router",
+    "handleBookNow"
+  ],
+  "components/LiveTrackingMap.tsx": [
+    "driverIcon",
+    "pickupIcon",
+    "dropIcon",
+    "AutoFollow",
+    "map",
+    "z",
+    "LiveRideMap",
+    "prevLocation",
+    "prevStatus",
+    "showPickupMarker",
+    "showPickupRoute",
+    "showDropRoute",
+    "rotateCar",
+    "angle",
+    "el",
+    "base",
+    "qs",
+    "statusChanged"
+  ],
+  "components/Nav.tsx": [
+    "NAV_ITEMS",
+    "Nav",
+    "pathname",
+    "router",
+    "profileRef",
+    "dispatch",
+    "onScroll",
+    "fetchCounts",
+    "res",
+    "handler",
+    "handleLogout",
+    "renderNavItems",
+    "href",
+    "active",
+    "ProfileContent",
+    "VehicleStack",
+    "Icon"
+  ],
+  "components/PartnerEarningChart.tsx": [
+    "CustomTooltip",
+    "fmt",
+    "PartnerEarningsChart",
+    "last7Days",
+    "total",
+    "avg",
+    "max",
+    "bestDay",
+    "today",
+    "yesterday",
+    "delta",
+    "deltaPositive",
+    "deltaPct",
+    "metrics",
+    "isToday",
+    "isBest"
+  ],
+  "components/PublicHome.tsx": [
+    "PublicHome"
+  ],
+  "components/RideChat.tsx": [
+    "QUICK_REPLIES",
+    "AI_SUGGESTIONS",
+    "RideChat",
+    "messagesEndRef",
+    "containerRef",
+    "socket",
+    "sendMessage",
+    "res",
+    "message",
+    "handleScroll",
+    "scrollToBottom",
+    "formatTime",
+    "date",
+    "formatDate",
+    "today",
+    "yesterday",
+    "grouped",
+    "d",
+    "otherName",
+    "otherInitial",
+    "myInitial",
+    "isMine",
+    "isLast"
+  ],
+  "components/RouteMap.tsx": [
+    "pickupIcon",
+    "dropIcon",
+    "FitBounds",
+    "map",
+    "ZoomControlsWrapper",
+    "RouteMap",
+    "geocode",
+    "r",
+    "d",
+    "reverseGeocode",
+    "p",
+    "loadRoute",
+    "distKm",
+    "a",
+    "b",
+    "onDragPickup",
+    "addr",
+    "onDragDrop",
+    "m",
+    "DragHintBadge",
+    "t"
+  ],
+  "components/VehicleBookingCard.tsx": [
+    "TYPE_CONFIG",
+    "VehicleBookingCard",
+    "estimated"
+  ],
+  "components/VehicleCategoriesSlider.tsx": [
+    "VEHICLE_CATEGORIES",
+    "VehicleCategoriesSlider",
+    "sliderRef",
+    "sectionRef",
+    "inView",
+    "scroll",
+    "onScroll",
+    "isHovered"
+  ],
+  "components/VendorDashboard.tsx": [
+    "STEPS",
+    "TOTAL_STEPS",
+    "VendorDashboard",
+    "router",
+    "requestKycAgain",
+    "getActiveStep",
+    "activeStep",
+    "progressPercent",
+    "videoKycStatus",
+    "roomId",
+    "goToStep",
+    "renderStatus",
+    "completed",
+    "active",
+    "locked",
+    "PricingModal",
+    "submitPricing",
+    "formData",
+    "StatusCard",
+    "ActionCard",
+    "RejectionCard",
+    "PriceInput"
+  ],
+  "hooks/useGetMe.tsx": [
+    "useGetMe",
+    "dispatch",
+    "getMe",
+    "result"
+  ],
+  "initUser.ts": [
+    "InitUser"
+  ],
+  "lib/cloudinary.ts": [
+    "uploadOnCloudinary",
+    "arrayBuffer",
+    "buffer",
+    "uploadStream"
+  ],
+  "lib/db.ts": [
+    "mongodbUrl",
+    "connectDb",
+    "conn"
+  ],
+  "lib/mailer.ts": [
+    "resend",
+    "sendMail",
+    "response"
+  ],
+  "lib/razorpay.ts": [
+    "razorpay"
+  ],
+  "lib/socket.ts": [
+    "getSocket"
+  ],
+  "lib/stripe.ts": [
+    "stripe"
+  ],
+  "models/booking.model.ts": [
+    "BookingSchema",
+    "Booking"
+  ],
+  "models/chatMessage.model.ts": [
+    "ChatMessageSchema",
+    "ChatMessage"
+  ],
+  "models/partnerBank.model.ts": [
+    "VendorBankSchema",
+    "PartnerBank"
+  ],
+  "models/user.model.ts": [
+    "UserSchema",
+    "User"
+  ],
+  "models/vehicle.model.ts": [
+    "VehicleSchema",
+    "Vehicle"
+  ],
+  "models/vehicleDocument.model.ts": [
+    "DocumentSchema",
+    "VehicleDocument"
+  ],
+  "proxy.ts": [
+    "PUBLIC_ROUTES",
+    "PUBLIC_API_ROUTES",
+    "VENDOR_ONBOARDING_START",
+    "proxy",
+    "session",
+    "role",
+    "config"
+  ],
+  "redux/StoreProvider.tsx": [
+    "StoreProvider"
+  ],
+  "redux/store.ts": [
+    "store"
+  ],
+  "redux/userSlice.ts": [
+    "initialState",
+    "userSlice"
+  ]
+}

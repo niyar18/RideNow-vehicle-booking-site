@@ -1,0 +1,43 @@
+@import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+/* Hide scrollbar but keep scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari */
+}
+
+/* ===== GLOBAL PAGE SCROLLBAR ===== */
+
+/* ===== GLOBAL SCROLLBAR (CLEAN BLACK, NO WHITE TRACK) ===== */
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;   /* 👈 white track removed */
+}
+
+::-webkit-scrollbar-track-piece {
+  background: transparent;   /* 👈 extra safety */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #000;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #222;
+}
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #000 transparent; /* thumb | track */
+}
