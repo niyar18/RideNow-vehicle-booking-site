@@ -113,7 +113,7 @@ useEffect(() => {
                 animate={{ opacity: 1, y: 0 }}
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.25 }}
-                className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition"
+                className="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm hover:shadow-md transition cursor-pointer select-none"
               >
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
 

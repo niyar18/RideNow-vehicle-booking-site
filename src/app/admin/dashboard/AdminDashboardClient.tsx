@@ -256,7 +256,8 @@ function ContentList({ data, type }: any) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(0,0,0,0.08)" }}
-            className="bg-white border border-gray-100 rounded-2xl px-5 py-4 flex items-center justify-between gap-4 shadow-sm transition-shadow"
+            onClick={() => router.push(type === "vendor" ? `/admin/vendors/${item._id}` : `/admin/vehicles/${item._id}`)}
+            className="bg-white border border-gray-100 rounded-2xl px-5 py-4 flex items-center justify-between gap-4 shadow-sm transition-shadow cursor-pointer select-none"
           >
             <div className="flex items-center gap-3 min-w-0">
               <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${avColor}`}>
@@ -368,8 +369,9 @@ function Kpi({
     <motion.div
       whileHover={{ y: -5, boxShadow: "0 20px 48px rgba(0,0,0,0.10)" }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      onClick={onClick}
       className={`bg-white rounded-2xl p-5 border border-gray-100 shadow-sm
-        cursor-default relative overflow-hidden group ${cfg.cardHover}`}
+        cursor-pointer select-none relative overflow-hidden group ${cfg.cardHover}`}
     >
       <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
         rounded-2xl ${cfg.iconBg}`} style={{ zIndex: 0 }} />

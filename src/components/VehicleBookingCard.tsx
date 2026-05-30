@@ -48,7 +48,8 @@ export default function VehicleBookingCard({
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-      className="relative bg-white border border-zinc-200 rounded-3xl overflow-hidden flex flex-col group cursor-default"
+      onClick={onBook}
+      className="relative bg-white border border-zinc-200 rounded-3xl overflow-hidden flex flex-col group cursor-pointer select-none"
       style={{ boxShadow: "0 2px 16px rgba(0,0,0,0.06)" }}
     >
       {/* Hover border glow */}

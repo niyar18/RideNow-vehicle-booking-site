@@ -131,7 +131,7 @@ export default function VehicleCategoriesSlider() {
                   onHoverStart={() => setHovered(i)}
                   onHoverEnd={() => setHovered(null)}
                   whileHover={{ y: -8 }}
-                  className="group relative min-w-[220px] sm:min-w-[260px] flex-shrink-0 cursor-pointer"
+                  className="group relative min-w-[220px] sm:min-w-[260px] flex-shrink-0 cursor-pointer select-none"
                   
                 >
                   {/* Card */}

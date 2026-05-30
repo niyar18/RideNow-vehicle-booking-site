@@ -66,7 +66,7 @@ export default function FAQPage() {
             >
               <button
                 onClick={() => setOpenIdx(openIdx === idx ? null : idx)}
-                className="w-full flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 transition"
+                className="w-full flex items-center justify-between p-6 bg-white/5 hover:bg-white/10 transition cursor-pointer select-none"
               >
                 <h3 className="text-left text-lg font-semibold">{faq.q}</h3>
                 <motion.div

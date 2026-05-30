@@ -38,7 +38,7 @@ export default function Footer() {
                   key={i}
                   whileHover={{ y: -3 }}
                   href="#"
-                  className="w-10 h-10 flex items-center justify-center rounded-full border border-white/20 hover:bg-white hover:text-black transition"
+                  className="w-10 h-10 flex items-center justify-center rounded-full border border-white/20 hover:bg-white hover:text-black transition cursor-pointer select-none"
                 >
                   <Icon size={18} />
                 </motion.a>
