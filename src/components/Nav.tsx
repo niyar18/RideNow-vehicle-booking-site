@@ -133,7 +133,7 @@ export default function Nav() {
     return (
       <>
         {NAV_ITEMS.map((item) => {
-          const href = `/${item.toLowerCase()}`;
+          const href = item === "Home" ? "/" : `/${item.toLowerCase()}`;
           const active = pathname === href;
           return (
             <Link
