@@ -77,7 +77,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
          dbUser=await User.create({
           name:user.name,
           email:user.email,
+          isEmailVerified: true
          })
+       } else if (!dbUser.isEmailVerified) {
+         dbUser.isEmailVerified = true;
+         await dbUser.save();
        }
 
        user.id=dbUser._id.toString()
