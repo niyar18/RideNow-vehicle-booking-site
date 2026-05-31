@@ -89,17 +89,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
       return true
     },
-    jwt({token,user,trigger,session}) {
+    async jwt({token,user,trigger,session}) {
         if(user){
             token.id=user.id,
             token.name=user.name,
             token.email=user.email,
             token.role=user.role
         }
-  if(trigger=="update"){
-    token.role=session.role
-  }
 
+        // 🔥 CRITICAL FIX: Fetch role from database if it is missing (Google OAuth) or changed
+        if (!token.role && token.email) {
+            await connectDb()
+            const dbUser = await User.findOne({ email: token.email }).select("role")
+            if (dbUser) {
+                token.role = dbUser.role
+                token.id = dbUser._id.toString()
+            }
+        }
+
+        if(trigger=="update"){
+            token.role=session.role
+        }
 
         return token
     },
