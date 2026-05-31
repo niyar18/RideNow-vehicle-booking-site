@@ -20,7 +20,7 @@ const VENDOR_ONBOARDING_START = "/partner/onboard/vehicle";
 
 /* ================= MIDDLEWARE ================= */
 
-export async function proxy(req: NextRequest) {
+export const proxy = auth(async (req) => {
   const { pathname } = req.nextUrl;
 
   /* ---------- STATIC FILES ---------- */
@@ -42,10 +42,10 @@ export async function proxy(req: NextRequest) {
   }
 
   /* ---------- AUTH CHECK ---------- */
-  const session = await auth();
+  const session = req.auth;
 
   if (!session) {
-    return NextResponse.redirect(new URL("/", req.url));
+    return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
   const role = session.user?.role;
@@ -55,7 +55,7 @@ export async function proxy(req: NextRequest) {
   /* ----- ADMIN ----- */
   if (pathname.startsWith("/admin")) {
     if (role !== "admin") {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/", req.nextUrl));
     }
   }
 
@@ -68,7 +68,7 @@ export async function proxy(req: NextRequest) {
 
     // ❌ Rest partner routes only for vendors
     if (role !== "vendor") {
-      return NextResponse.redirect(new URL("/", req.url));
+      return NextResponse.redirect(new URL("/", req.nextUrl));
     }
   }
 
@@ -83,7 +83,9 @@ export async function proxy(req: NextRequest) {
   }
 
   return NextResponse.next();
-}
+});
+
+export default proxy;
 
 /* ================= MATCHER ================= */
 
