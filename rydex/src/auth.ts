@@ -97,8 +97,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.role=user.role
         }
 
-        // 🔥 CRITICAL FIX: Fetch role from database if it is missing (Google OAuth) or changed
-        if (!token.role && token.email) {
+        // 🔥 CRITICAL FIX: Always fetch role from database to sync transitions (user -> vendor)
+        if (token.email) {
             await connectDb()
             const dbUser = await User.findOne({ email: token.email }).select("role")
             if (dbUser) {
