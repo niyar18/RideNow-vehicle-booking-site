@@ -39,18 +39,42 @@ export default function AdminVendorReviewPage() {
   }, [id]);
 
   const approveVendor = async () => {
-    setActionLoading(true);
-    await axios.post(`/api/admin/vendors/${id}/approve`);
-    router.push("/admin/dashboard");
+    try {
+      setActionLoading(true);
+      const res = await axios.post(`/api/admin/vendors/${id}/approve`);
+      if (res.data.success) {
+        router.push("/admin/dashboard");
+      } else {
+        alert(res.data.message || "Approval failed");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.response?.data?.message || "Approval failed due to a server error");
+    } finally {
+      setActionLoading(false);
+      setShowApprove(false);
+    }
   };
 
   const rejectVendor = async () => {
     if (!rejectReason.trim()) return;
-    setActionLoading(true);
-    await axios.post(`/api/admin/vendors/${id}/reject`, {
-      reason: rejectReason,
-    });
-    router.push("/admin/dashboard");
+    try {
+      setActionLoading(true);
+      const res = await axios.post(`/api/admin/vendors/${id}/reject`, {
+        reason: rejectReason,
+      });
+      if (res.data.success) {
+        router.push("/admin/dashboard");
+      } else {
+        alert(res.data.message || "Rejection failed");
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.response?.data?.message || "Rejection failed due to a server error");
+    } finally {
+      setActionLoading(false);
+      setShowReject(false);
+    }
   };
 
   if (loading)
