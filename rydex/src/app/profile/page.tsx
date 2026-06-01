@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { setUserData } from "@/redux/userSlice";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, User, Phone, Mail, Award, Calendar, Check, Loader2, Save } from "lucide-react";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
