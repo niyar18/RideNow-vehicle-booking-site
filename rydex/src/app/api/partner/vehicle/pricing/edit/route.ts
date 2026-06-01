@@ -62,14 +62,19 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    // 🔥 ONLY VEHICLE GOES BACK TO REVIEW
-    vehicle.status = "pending";
+    // 🔥 Keep approved if already live
+    const isLive = user.vendorOnboardingStep === 7 || vehicle.status === "approved";
+    if (isLive) {
+      vehicle.status = "approved";
+    } else {
+      vehicle.status = "pending";
+    }
     vehicle.rejectionReason = undefined;
 
     await vehicle.save();
 
     return NextResponse.json({
-      message: "Pricing updated, sent for admin review",
+      message: isLive ? "Pricing updated successfully" : "Pricing updated, sent for admin review",
       vehicleStatus: vehicle.status,
     });
   } catch (err) {

@@ -6,6 +6,10 @@ import { X, Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/redux/store";
+import { setUserData } from "@/redux/userSlice";
+import { useRouter } from "next/navigation";
 
 type Props = {
   open: boolean;
@@ -45,6 +49,9 @@ export default function AuthModal({ open, onClose }: Props) {
     }
   };
 
+  const dispatch = useDispatch<AppDispatch>();
+  const router = useRouter();
+
   // 🔐 LOGIN (NextAuth Credentials)
   const handleLogin = async () => {
     const res = await signIn("credentials", {
@@ -57,6 +64,21 @@ export default function AuthModal({ open, onClose }: Props) {
       console.log(res.error)
       alert("Invalid email or password");
       return;
+    }
+
+    try {
+      const meRes = await axios.get("/api/me");
+      dispatch(setUserData(meRes.data));
+      if (meRes.data.role === "vendor") {
+        router.push("/partners/dashboard");
+      } else if (meRes.data.role === "admin") {
+        router.push("/admin/dashboard");
+      } else {
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error("Failed to load user info after login", err);
+      window.location.reload();
     }
 
     onClose();

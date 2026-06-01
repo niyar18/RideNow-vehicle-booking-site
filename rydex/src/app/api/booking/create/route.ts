@@ -68,28 +68,25 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, booking: existing });
   }
 
-  // 1️⃣ Find all active approved vehicles of this type
+  // 1️⃣ Find all vehicles of this type
   const activeVehicles = await Vehicle.find({
     type: vehicle,
-    status: "approved",
-    isActive: true,
   }).lean();
 
   if (!activeVehicles.length) {
     return NextResponse.json(
-      { message: "No vehicles of this category are registered or active" },
+      { message: "No vehicles of this category are registered" },
       { status: 404 }
     );
   }
 
   const vehicleOwnerIds = activeVehicles.map(v => v.owner.toString());
 
-  // 2️⃣ Query online approved vendors who own these vehicles, within 10km (10000m)
+  // 2️⃣ Query online vendors who own these vehicles, within 10km (10000m)
   const vendors = await User.find({
     _id: { $in: vehicleOwnerIds },
     role: "vendor",
     isOnline: true,
-    vendorStatus: "approved",
     location: {
       $near: {
         $geometry: {

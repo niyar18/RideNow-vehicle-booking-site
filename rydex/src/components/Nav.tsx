@@ -99,8 +99,19 @@ export default function Nav() {
       return (
         <>
          <Link
+            href="/partners/dashboard"
+            className={`text-sm font-medium transition ${
+              pathname === "/partners/dashboard"
+                ? "text-white"
+                : "text-gray-400 hover:text-white"
+            }`}
+          >
+            Dashboard
+          </Link>
+
+          <Link
             href="/partner/active-ride"
-            className="relative text-sm font-medium text-gray-300 hover:text-white transition"
+            className="relative text-sm font-medium text-zinc-400 hover:text-white transition"
           >
             Active Ride
             {pendingCount > 0 && (
@@ -184,7 +195,7 @@ export default function Nav() {
         <div className="max-w-7xl mx-auto px-4 md:px-8 flex items-center justify-between">
 
           {/* LOGO */}
-          <Link href="/" className="flex items-center">
+          <Link href={userData?.role === "vendor" ? "/partners/dashboard" : "/"} className="flex items-center">
             <Image src="/logo.jpeg" alt="RideNow" width={44} height={44} priority />
           </Link>
 
@@ -293,6 +304,16 @@ export default function Nav() {
           {userData?.role === "vendor" ? (
             <>
             <Link
+                href="/partners/dashboard"
+                className={`flex justify-between items-center px-6 py-4 hover:bg-white/5 ${
+                  pathname === "/partners/dashboard" ? "text-white font-bold" : "text-gray-300"
+                }`}
+                onClick={() => setMenuOpen(false)}
+              >
+                <span>Dashboard</span>
+              </Link>
+              
+              <Link
                 href="/partner/active-ride"
                 className="flex justify-between items-center px-6 py-4 text-gray-300 hover:bg-white/5"
                 onClick={() => setMenuOpen(false)}
@@ -401,7 +422,31 @@ function ProfileContent({ userData, handleLogout, router, mobile }: any) {
           Admin Dashboard
           <ChevronRight size={16} className="ml-auto" />
         </button>
-      ) : userData.role !== "vendor" ? (
+      ) : userData.role === "vendor" ? (
+        <button
+          onClick={() => router.push("/partners/dashboard")}
+          className="w-full flex items-center gap-3 py-3 px-3 hover:bg-gray-100 rounded-xl text-left text-sm font-semibold"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-gray-500"
+          >
+            <rect x="3" y="3" width="7" height="9" rx="1" />
+            <rect x="14" y="3" width="7" height="5" rx="1" />
+            <rect x="14" y="12" width="7" height="9" rx="1" />
+            <rect x="3" y="16" width="7" height="5" rx="1" />
+          </svg>
+          Partner Dashboard
+          <ChevronRight size={16} className="ml-auto text-gray-400" />
+        </button>
+      ) : (
         <button
           onClick={() => router.push("/partner/onboard/vehicle")}
           className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl"
@@ -410,7 +455,7 @@ function ProfileContent({ userData, handleLogout, router, mobile }: any) {
           Become a Partner
           <ChevronRight size={16} className="ml-auto" />
         </button>
-      ) : null}
+      )}
 
       <button
         onClick={() => router.push("/profile")}

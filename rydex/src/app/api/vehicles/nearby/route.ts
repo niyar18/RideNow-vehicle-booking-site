@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
     const vendors = await User.find({
       role: "vendor",
       isOnline: true,
-      vendorStatus: "approved",
       location: {
         $near: {
           $geometry: {
@@ -41,8 +40,6 @@ export async function POST(req: NextRequest) {
     // 2️⃣ Get vehicles of those vendors
     const vehicles = await Vehicle.find({
       owner: { $in: vendorIds },
-      status: "approved",
-      isActive: true,
       ...(vehicleType && { type: vehicleType })
     }).lean()
 

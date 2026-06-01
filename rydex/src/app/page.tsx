@@ -30,11 +30,7 @@ export default async function Home() {
       .lean();
 
     if (user?.role === "vendor") {
-      isVendor = true;
-      vendorData = {
-        vendorStep: user.vendorOnboardingStep ?? 0,
-        vendorStatus: user.vendorStatus ?? "pending",
-      };
+      redirect("/partners/dashboard");
     }
   }
 

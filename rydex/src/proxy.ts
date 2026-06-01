@@ -60,15 +60,15 @@ export const proxy = auth(async (req) => {
   }
 
   /* ----- PARTNER / VENDOR ----- */
-  if (pathname === "/partner" || pathname === "/partners") {
+  if (pathname === "/partner" || pathname === "/partners" || pathname === "/partner/dashboard") {
     if (role === "vendor") {
-      return NextResponse.redirect(new URL("/", req.nextUrl));
+      return NextResponse.redirect(new URL("/partners/dashboard", req.nextUrl));
     } else {
-      return NextResponse.redirect(new URL("/partner/onboard", req.nextUrl));
+      return NextResponse.redirect(new URL("/partner/onboard/vehicle", req.nextUrl));
     }
   }
 
-  if (pathname.startsWith("/partner/")) {
+  if (pathname.startsWith("/partner/") || pathname.startsWith("/partners/")) {
     // ✅ Allow all vendor onboarding routes for any logged-in user
     if (pathname.startsWith("/partner/onboard")) {
       return NextResponse.next();

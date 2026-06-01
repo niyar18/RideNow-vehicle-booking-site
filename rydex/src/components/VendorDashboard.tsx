@@ -68,9 +68,11 @@ const TOTAL_STEPS = STEPS.length;
 export default function VendorDashboard({
   vendorStep,
   vendorStatus,
+  videoKycStatus: propVideoKycStatus,
 }: {
   vendorStep: number;
   vendorStatus: VendorStatus;
+  videoKycStatus?: string;
 }) {
   const router = useRouter();
   const { userData } = useSelector(
@@ -88,10 +90,15 @@ export default function VendorDashboard({
   }
 };
 
+  const videoKycStatus: VideoKycStatus =
+    (propVideoKycStatus as any) ||
+    userData?.videoKycStatus ||
+    "not_required";
+
  const getActiveStep = () => {
   let step = vendorStep + 1;
 
-  if (step > 5 && userData?.videoKycStatus !== "approved") {
+  if (step > 5 && videoKycStatus !== "approved") {
     return 5;
   }
 
@@ -103,9 +110,6 @@ const activeStep = getActiveStep();
 
   const progressPercent =
     ((activeStep - 1) / (TOTAL_STEPS - 1)) * 100;
-
-  const videoKycStatus: VideoKycStatus =
-    userData?.videoKycStatus || "not_required";
 
   const roomId = userData?.videoKycRoomId;
 
@@ -269,6 +273,7 @@ const activeStep = getActiveStep();
         userData={userData}
         pricing={pricing}
         setShowPricing={setShowPricing}
+        showPricing={showPricing}
       />
     );
   }
@@ -355,7 +360,7 @@ const activeStep = getActiveStep();
 
 /* ================= PRICING MODAL ================= */
 
-function PricingModal({ open, onClose, pricing }: any){
+function PricingModal({ open, onClose, pricing, isLive }: any){
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [baseFare, setBaseFare] = useState("");
@@ -371,7 +376,11 @@ function PricingModal({ open, onClose, pricing }: any){
     formData.append("waitingCharge", waitingCharge);
 
     setLoading(true);
-    await axios.post("/api/partner/vehicle/pricing", formData);
+    if (isLive) {
+      await axios.patch("/api/partner/vehicle/pricing/edit", formData);
+    } else {
+      await axios.post("/api/partner/vehicle/pricing", formData);
+    }
     setLoading(false);
     window.location.reload();
   };
@@ -612,7 +621,7 @@ function PriceInput({ label, value, onChange }: any) {
   );
 }
 
-function LiveVendorDashboard({ userData, pricing, setShowPricing }: any) {
+function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }: any) {
   const [isOnline, setIsOnline] = useState(false);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -818,6 +827,13 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing }: any) {
         <div className="w-full">
           <PartnerEarningsChart />
         </div>
+
+        <PricingModal
+          open={showPricing}
+          onClose={() => setShowPricing(false)}
+          pricing={pricing}
+          isLive={true}
+        />
 
       </div>
     </section>
