@@ -60,9 +60,17 @@ export const proxy = auth(async (req) => {
   }
 
   /* ----- PARTNER / VENDOR ----- */
-  if (pathname.startsWith("/partner")) {
-    // ✅ Allow vendor onboarding start for any logged-in user
-    if (pathname === VENDOR_ONBOARDING_START) {
+  if (pathname === "/partner" || pathname === "/partners") {
+    if (role === "vendor") {
+      return NextResponse.redirect(new URL("/", req.nextUrl));
+    } else {
+      return NextResponse.redirect(new URL("/partner/onboard", req.nextUrl));
+    }
+  }
+
+  if (pathname.startsWith("/partner/")) {
+    // ✅ Allow all vendor onboarding routes for any logged-in user
+    if (pathname.startsWith("/partner/onboard")) {
       return NextResponse.next();
     }
 

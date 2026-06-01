@@ -11,7 +11,7 @@
   "dependencies": {
     "@auth/core": "^0.34.3",
     "@reduxjs/toolkit": "^2.11.2",
-    "@zegocloud/zego-uikit-prebuilt": "^2.17.2",
+    "@zegocloud/zego-uikit-prebuilt": "^2.17.3",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.3",
     "cloudinary": "^2.9.0",
