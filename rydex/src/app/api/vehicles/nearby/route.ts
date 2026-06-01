@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
             type: "Point",
             coordinates: [longitude, latitude]
           },
-          $maxDistance: 5000
+          $maxDistance: 10000
         }
       }
     }).select("_id")

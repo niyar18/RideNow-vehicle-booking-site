@@ -3,7 +3,6 @@ import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import { auth } from "@/auth";
-import axios from "async-retry"; // or just normal axios
 import axiosOriginal from "axios";
 
 async function notifySocket(userId: string, event: string, data: any) {
@@ -13,7 +12,7 @@ async function notifySocket(userId: string, event: string, data: any) {
       { userId, event, data }
     );
   } catch (err) {
-    console.error("Socket emit failed in reject route:", err);
+    console.error("Socket emit failed in timeout route:", err);
   }
 }
 
@@ -27,17 +26,15 @@ export async function POST(
   if (!session?.user?.id)
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
 
-  const driverId = session.user.id;
-
   const booking = await Booking.findOne({
     _id: id,
-    driver: driverId,
+    user: session.user.id,
     status: "requested",
   });
 
   if (!booking) {
     return NextResponse.json(
-      { message: "Ride already processed, invalid, or you are not the assigned driver" },
+      { message: "Booking already accepted, processed, or invalid" },
       { status: 400 }
     );
   }
@@ -57,7 +54,7 @@ export async function POST(
     // 1️⃣ Notify new driver
     await notifySocket(nextDriverId.toString(), "new-booking", booking);
 
-    // 2️⃣ Notify customer of status change
+    // 2️⃣ Notify customer of status change / pointer update
     await notifySocket(booking.user.toString(), "booking-updated", {
       bookingId: booking._id,
       status: "requested",

@@ -413,10 +413,32 @@ function ProfileContent({ userData, handleLogout, router, mobile }: any) {
       ) : null}
 
       <button
-        onClick={handleLogout}
-        className="w-full flex items-center gap-3 py-3 hover:bg-gray-100 rounded-xl mt-2"
+        onClick={() => router.push("/profile")}
+        className="w-full flex items-center gap-3 py-3 px-3 hover:bg-gray-100 rounded-xl text-left text-sm font-semibold mt-2"
       >
-        <LogOut size={16} />
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="text-gray-500"
+        >
+          <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        Edit Profile
+        <ChevronRight size={16} className="ml-auto text-gray-400" />
+      </button>
+
+      <button
+        onClick={handleLogout}
+        className="w-full flex items-center gap-3 py-3 px-3 hover:bg-gray-100 rounded-xl mt-2 text-left text-sm font-semibold"
+      >
+        <LogOut size={16} className="text-gray-500" />
         Logout
       </button>
     </div>

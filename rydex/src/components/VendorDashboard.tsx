@@ -259,6 +259,18 @@ const activeStep = getActiveStep();
 
   /* ================= UI ================= */
 
+  const isLive = activeStep === 8 && pricing?.status === "approved";
+
+  if (isLive) {
+    return (
+      <LiveVendorDashboard
+        userData={userData}
+        pricing={pricing}
+        setShowPricing={setShowPricing}
+      />
+    );
+  }
+
   return (
     <section className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 px-4 pt-28 pb-20">
       <div className="max-w-7xl mx-auto space-y-16">
@@ -595,5 +607,217 @@ function PriceInput({ label, value, onChange }: any) {
         />
       </div>
     </div>
+  );
+}
+
+function LiveVendorDashboard({ userData, pricing, setShowPricing }: any) {
+  const [isOnline, setIsOnline] = useState(false);
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    axios.get("/api/partner/status")
+      .then((res) => {
+        if (res.data.success) {
+          setIsOnline(res.data.isOnline || false);
+          if (res.data.location?.coordinates) {
+            setCoords({
+              longitude: res.data.location.coordinates[0],
+              latitude: res.data.location.coordinates[1]
+            });
+          }
+        }
+      })
+      .catch((err) => console.error("Error loading partner status:", err));
+  }, []);
+
+  const handleToggleOnline = async () => {
+    try {
+      setLoading(true);
+      const nextOnline = !isOnline;
+      let updatePayload: any = { isOnline: nextOnline };
+
+      if (nextOnline && navigator.geolocation) {
+        await new Promise<void>((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const { latitude, longitude } = position.coords;
+              setCoords({ latitude, longitude });
+              updatePayload.latitude = latitude;
+              updatePayload.longitude = longitude;
+              resolve();
+            },
+            (error) => {
+              console.error("Geolocation error:", error);
+              resolve();
+            },
+            { enableHighAccuracy: true, timeout: 5000 }
+          );
+        });
+      }
+
+      const res = await axios.patch("/api/partner/status", updatePayload);
+      if (res.data.success) {
+        setIsOnline(res.data.isOnline);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <section className="min-h-screen bg-zinc-50 px-4 pt-28 pb-20 relative">
+      <div className="fixed inset-0 pointer-events-none"
+        style={{ backgroundImage: "radial-gradient(circle, #e4e4e7 1px, transparent 1px)", backgroundSize: "24px 24px", opacity: 0.5 }}
+      />
+
+      <div className="relative max-w-7xl mx-auto space-y-8 z-10">
+        
+        {/* Header Block */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white rounded-3xl p-6 md:p-8 border border-zinc-200/65 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-zinc-950 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-zinc-950/20">
+              {userData?.name?.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-black text-zinc-900 tracking-tight">{userData?.name}</h1>
+                <span className="inline-flex items-center gap-1 bg-zinc-100 text-zinc-800 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md border border-zinc-200">
+                  Live Partner
+                </span>
+              </div>
+              <p className="text-zinc-400 text-sm mt-0.5 font-semibold">Manage your online status, vehicle details, and track performance</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => window.location.href = "/partner/pending-requests"}
+              className="flex items-center gap-2 bg-zinc-950 hover:bg-black text-white text-sm font-bold px-6 py-3.5 rounded-2xl shadow-lg shadow-zinc-950/10 transition-all active:scale-[0.98]"
+            >
+              <span>Incoming Requests</span>
+              <ArrowRight size={15} />
+            </button>
+            <button
+              onClick={() => window.location.href = "/partner/bookings"}
+              className="flex items-center gap-2 border border-zinc-200 hover:bg-zinc-50 bg-white text-zinc-800 text-sm font-bold px-5 py-3.5 rounded-2xl transition-all active:scale-[0.98]"
+            >
+              Ride History
+            </button>
+          </div>
+        </div>
+
+        {/* Dashboard Grid */}
+        <div className="grid md:grid-cols-2 gap-6">
+
+          {/* Online Toggle Card */}
+          <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm flex flex-col justify-between min-h-[260px]">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Service Status</p>
+              <h2 className="text-2xl font-black text-zinc-900 tracking-tight">Status Command</h2>
+              <p className="text-zinc-400 text-xs font-semibold mt-1">Toggle your availability to start receiving passenger requests</p>
+            </div>
+
+            <div className="bg-zinc-50 rounded-2xl p-4 border border-zinc-100 flex items-center justify-between my-4">
+              <div className="flex items-center gap-3">
+                <span className={`relative flex h-3.5 w-3.5 flex-shrink-0`}>
+                  {isOnline && (
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  )}
+                  <span className={`relative inline-flex rounded-full h-3.5 w-3.5 ${isOnline ? "bg-emerald-500" : "bg-zinc-300"}`}></span>
+                </span>
+                <div>
+                  <p className="text-sm font-bold text-zinc-900">{isOnline ? "Online" : "Offline"}</p>
+                  <p className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">
+                    {isOnline ? "Receiving Bookings" : "Inactive"}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleToggleOnline}
+                disabled={loading}
+                className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors focus:outline-none ${
+                  isOnline ? "bg-emerald-500" : "bg-zinc-200"
+                }`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+                    isOnline ? "translate-x-6" : "translate-x-1"
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div className="flex items-center gap-2 text-xs font-semibold text-zinc-400">
+              <MapPin size={13} />
+              <span>
+                {coords
+                  ? `Lat: ${coords.latitude.toFixed(5)}, Lng: ${coords.longitude.toFixed(5)}`
+                  : "Location tracking enabled"}
+              </span>
+            </div>
+          </div>
+
+          {/* Vehicle & Pricing Card */}
+          <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm flex flex-col justify-between min-h-[260px]">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Vehicle specs</p>
+                <h2 className="text-2xl font-black text-zinc-900 tracking-tight">Active Vehicle</h2>
+              </div>
+              <button
+                onClick={() => setShowPricing(true)}
+                className="text-zinc-500 hover:text-zinc-950 p-2 rounded-xl hover:bg-zinc-50 border border-transparent hover:border-zinc-200 transition-all"
+              >
+                <Edit3 size={16} />
+              </button>
+            </div>
+
+            <div className="flex gap-4 items-center my-4">
+              {pricing?.imageUrl ? (
+                <img
+                  src={pricing.imageUrl}
+                  alt="Vehicle"
+                  className="w-20 h-20 rounded-2xl object-cover border"
+                />
+              ) : (
+                <div className="w-20 h-20 rounded-2xl bg-zinc-100 flex items-center justify-center text-zinc-400">
+                  No Image
+                </div>
+              )}
+              <div className="space-y-1.5 flex-1">
+                <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
+                  <span>Base Fare:</span>
+                  <span className="font-mono text-zinc-900 font-bold">₹{pricing?.baseFare || 0}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
+                  <span>Price / KM:</span>
+                  <span className="font-mono text-zinc-900 font-bold">₹{pricing?.pricePerKm || 0}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
+                  <span>Waiting / Min:</span>
+                  <span className="font-mono text-zinc-900 font-bold">₹{pricing?.waitingCharge || 0}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100 mt-auto self-start">
+              <Check size={12} /> Pricing Approved
+            </div>
+          </div>
+
+        </div>
+
+        {/* Performance & Charts */}
+        <div className="w-full">
+          <PartnerEarningsChart />
+        </div>
+
+      </div>
+    </section>
   );
 }

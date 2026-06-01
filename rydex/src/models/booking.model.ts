@@ -47,10 +47,12 @@ export interface IBooking extends Document {
 partnerAmount: number
     pickupOtp: string
 
-pickupOtpExpires: Date
- dropOtp: string
+  pickupOtpExpires: Date
+  dropOtp: string
 
-dropOtpExpires: Date
+  dropOtpExpires: Date
+  candidateDrivers: Types.ObjectId[];
+  currentDriverIndex: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -137,6 +139,14 @@ dropOtpExpires: {
       type: String, 
       required: true,
       trim: true,
+    },
+    candidateDrivers: {
+      type: [{ type: Schema.Types.ObjectId, ref: "User" }],
+      default: [],
+    },
+    currentDriverIndex: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }

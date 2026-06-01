@@ -17,6 +17,7 @@ type Props = {
   drop: string;
   onDistance?: (km: number) => void;
   onChange?: (pickup: string, drop: string) => void;
+  onCoordinatesChange?: (p1: [number, number] | null, p2: [number, number] | null) => void;
 };
 
 /* ─── ICONS ── black/white theme ─────────────────────────────────── */
@@ -78,6 +79,16 @@ function FitBounds({ p1, p2 }: { p1: [number, number]; p2: [number, number] }) {
   return null;
 }
 
+function CenterMap({ center }: { center: [number, number] | null }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.setView(center, map.getZoom() < 13 ? 13 : map.getZoom(), { animate: true });
+    }
+  }, [center, map]);
+  return null;
+}
+
 /* ─── ZOOM CONTROLS (inside MapContainer) ────────────────────────── */
 function ZoomControlsWrapper() {
   const map = useMap();
@@ -113,12 +124,16 @@ function ZoomControlsWrapper() {
 }
 
 /* ─── MAIN ────────────────────────────────────────────────────────── */
-export default function RouteMap({ pickup, drop, onDistance, onChange }: Props) {
+export default function RouteMap({ pickup, drop, onDistance, onChange, onCoordinatesChange }: Props) {
   const [p1,    setP1]    = useState<[number, number] | null>(null);
   const [p2,    setP2]    = useState<[number, number] | null>(null);
   const [route, setRoute] = useState<[number, number][]>([]);
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(true);
   const [km,    setKm]    = useState<number | null>(null);
+
+  useEffect(() => {
+    onCoordinatesChange?.(p1, p2);
+  }, [p1, p2, onCoordinatesChange]);
 
   const geocode = async (q: string): Promise<[number, number] | null> => {
     const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=1`);
@@ -149,15 +164,25 @@ export default function RouteMap({ pickup, drop, onDistance, onChange }: Props) 
   };
 
   useEffect(() => {
-    setReady(false);
     setRoute([]);
     (async () => {
-      const a = await geocode(pickup);
-      const b = await geocode(drop);
-      if (!a || !b) return;
-      setP1(a); setP2(b);
-      await loadRoute(a, b);
-      setReady(true);
+      if (!pickup && !drop) {
+        setP1(null);
+        setP2(null);
+        return;
+      }
+
+      const a = pickup ? await geocode(pickup) : null;
+      const b = drop ? await geocode(drop) : null;
+
+      if (a) setP1(a);
+      if (b) setP2(b);
+
+      if (a && b) {
+        await loadRoute(a, b);
+      } else {
+        setRoute([]);
+      }
     })();
   }, [pickup, drop]);
 
@@ -187,10 +212,11 @@ export default function RouteMap({ pickup, drop, onDistance, onChange }: Props) 
         dragging
         zoomControl={false}
       >
-        {/* CartoDB light — clean white/grey streets */}
+        <CenterMap center={p1} />
+
         <TileLayer
-          attribution='&copy; <a href="https://carto.com">CARTO</a>'
-          url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+          attribution="&copy; Google Maps"
+          url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
         />
 
         {p1 && p2 && <FitBounds p1={p1} p2={p2} />}

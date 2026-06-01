@@ -2,8 +2,23 @@ import { NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
+import Vehicle from "@/models/vehicle.model";
 import { auth } from "@/auth";
 import axios from "axios";
+
+function haversineDistance(coords1: [number, number], coords2: [number, number]) {
+  const [lon1, lat1] = coords1;
+  const [lon2, lat2] = coords2;
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in km
+}
 
 export async function POST(req: Request) {
   await connectDb();
@@ -15,35 +30,29 @@ export async function POST(req: Request) {
   const body = await req.json();
 
   const {
-    driverId,
-    vehicleId,
-    pickupAddress,
-    dropAddress,
-    pickupLocation,
-    dropLocation,
+    pickup,
+    drop,
+    vehicle, // requested vehicle type: bike, auto, car, loading, truck
     fare,
-    mobileNumber, // This is user's mobile number from frontend
+    mobileNumber, // user's mobile number
+    pickupLat,
+    pickupLng,
+    dropLat,
+    dropLng,
   } = body;
 
   if (
-    !driverId ||
-    !vehicleId ||
-    !pickupLocation?.coordinates ||
-    !dropLocation?.coordinates
+    !pickup ||
+    !drop ||
+    !vehicle ||
+    pickupLat === undefined ||
+    pickupLng === undefined ||
+    dropLat === undefined ||
+    dropLng === undefined
   ) {
     return NextResponse.json(
       { message: "Missing required fields" },
       { status: 400 }
-    );
-  }
-
-  // Get driver's mobile number from database
-  const driver = await User.findById(driverId).select("mobileNumber");
-  
-  if (!driver) {
-    return NextResponse.json(
-      { message: "Driver not found" },
-      { status: 404 }
     );
   }
 
@@ -59,28 +68,91 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, booking: existing });
   }
 
+  // 1️⃣ Find all active approved vehicles of this type
+  const activeVehicles = await Vehicle.find({
+    type: vehicle,
+    status: "approved",
+    isActive: true,
+  }).lean();
+
+  if (!activeVehicles.length) {
+    return NextResponse.json(
+      { message: "No vehicles of this category are registered or active" },
+      { status: 404 }
+    );
+  }
+
+  const vehicleOwnerIds = activeVehicles.map(v => v.owner.toString());
+
+  // 2️⃣ Query online approved vendors who own these vehicles, within 10km (10000m)
+  const vendors = await User.find({
+    _id: { $in: vehicleOwnerIds },
+    role: "vendor",
+    isOnline: true,
+    vendorStatus: "approved",
+    location: {
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates: [Number(pickupLng), Number(pickupLat)], // [lng, lat]
+        },
+        $maxDistance: 10000, // 10km
+      },
+    },
+  }).lean();
+
+  if (!vendors.length) {
+    return NextResponse.json(
+      { message: "No drivers available nearby (10km limit)" },
+      { status: 404 }
+    );
+  }
+
+  // 3️⃣ Compute Haversine distance, and sort them explicitly
+  const sortedCandidates = vendors.map(v => {
+    const coords: [number, number] = v.location?.coordinates || [0, 0];
+    const distance = haversineDistance([Number(pickupLng), Number(pickupLat)], coords);
+    return { ...v, distance };
+  }).sort((a, b) => a.distance - b.distance);
+
+  const nearestVendor = sortedCandidates[0];
+  const nearestVehicle = activeVehicles.find(v => v.owner.toString() === nearestVendor._id.toString());
+
   const booking = await Booking.create({
     user: session.user.id,
-    driver: driverId,
-    vehicle: vehicleId,
-    pickupAddress,
-    dropAddress,
-    pickupLocation,
-    dropLocation,
+    driver: nearestVendor._id,
+    vehicle: nearestVehicle?._id,
+    pickupAddress: pickup,
+    dropAddress: drop,
+    pickupLocation: {
+      type: "Point",
+      coordinates: [Number(pickupLng), Number(pickupLat)],
+    },
+    dropLocation: {
+      type: "Point",
+      coordinates: [Number(dropLng), Number(dropLat)],
+    },
     fare,
-    userMobileNumber: mobileNumber, // Mobile number from frontend (user's)
-    driverMobileNumber: driver.mobileNumber, // Mobile number from database (driver's)
+    userMobileNumber: mobileNumber,
+    driverMobileNumber: nearestVendor.mobileNumber || "",
+    candidateDrivers: sortedCandidates.map(c => c._id),
+    currentDriverIndex: 0,
     status: "requested",
   });
-  
-  await axios.post(
-    `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
-    {
-      userId: driverId,
-      event: "new-booking",
-      data: booking,
-    }
-  );
+
+  // 4️⃣ Emit booking request to nearest driver
+  try {
+    await axios.post(
+      `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
+      {
+        userId: nearestVendor._id.toString(),
+        event: "new-booking",
+        data: booking,
+      }
+    );
+  } catch (err) {
+    console.error("Socket emission error:", err);
+  }
 
   return NextResponse.json({ success: true, booking });
 }

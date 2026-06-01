@@ -41,6 +41,7 @@ export default function CheckoutContent() {
   const [bookingId,     setBookingId]     = useState<string | null>(null);
   const [status,        setStatus]        = useState<Status>("idle");
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | null>(null);
+  const [countdown,     setCountdown]     = useState(20);
 
   /* ── CREATE BOOKING ── */
   const handleCreateBooking = async () => {
@@ -58,8 +59,9 @@ export default function CheckoutContent() {
       const data = await res.json();
 
       if(data.success){
-        setBookingId(data.bookingId);
+        setBookingId(data.booking._id);
         setStatus("requested");
+        setCountdown(20);
       }
 
     } catch(err){
@@ -169,9 +171,31 @@ export default function CheckoutContent() {
       if (data.status === "awaiting_payment") setStatus("awaiting_payment");
       if (data.status === "rejected")         setStatus("rejected");
       if (data.status === "confirmed")        setStatus("confirmed");
+      if (data.status === "requested") {
+        setStatus("requested");
+        setCountdown(20); // Reset timer for next driver
+      }
     });
     return () => { socket.off("booking-updated"); };
   }, []);
+
+  /* ── COUNTDOWN TIMER ── */
+  useEffect(() => {
+    if (status !== "requested" || !bookingId) return;
+
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          fetch(`/api/booking/${bookingId}/timeout`, { method: "POST" })
+            .catch(err => console.error("Timeout trigger error:", err));
+          return 20;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [status, bookingId]);
 
   /* ── RESTORE ── */
   useEffect(() => {
@@ -358,6 +382,12 @@ export default function CheckoutContent() {
                     <div>
                       <h3 className="text-xl font-black text-zinc-900 mb-1">Finding Your Driver</h3>
                       <p className="text-zinc-400 text-sm font-medium">Waiting for driver to accept…</p>
+                      <div className="bg-zinc-50 border border-zinc-200/80 rounded-2xl px-4 py-2 mt-4 inline-flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                        <p className="text-zinc-500 text-xs font-semibold">
+                          Trying next driver in <span className="font-mono text-zinc-900 font-bold">{countdown}s</span>
+                        </p>
+                      </div>
                     </div>
                     {/* Animated dots */}
                     <div className="flex gap-1.5">

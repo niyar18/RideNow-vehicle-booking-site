@@ -23,6 +23,7 @@ import {
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import AdminEarningsChart from "@/components/AdminEarning";
 import StatusAreaChart from "@/components/AdminStatusChart";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
@@ -95,9 +96,17 @@ export default function AdminDashboardClient() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-green-100 text-green-700">
-            <ShieldCheck size={14} />
-            Secure Mode
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-green-100 text-green-700 font-semibold select-none">
+              <ShieldCheck size={14} />
+              Secure Mode
+            </div>
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="text-xs font-bold text-gray-500 hover:text-red-600 transition-colors border px-3 py-1.5 rounded-full bg-white hover:bg-zinc-50 shadow-sm"
+            >
+              Logout
+            </button>
           </div>
         </div>
       </header>
