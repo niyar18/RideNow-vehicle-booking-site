@@ -3,12 +3,11 @@ import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import { auth } from "@/auth";
-import axios from "async-retry"; // or just normal axios
-import axiosOriginal from "axios";
+import axios from "axios";
 
 async function notifySocket(userId: string, event: string, data: any) {
   try {
-    await axiosOriginal.post(
+    await axios.post(
       `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
       { userId, event, data }
     );
