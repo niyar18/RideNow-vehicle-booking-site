@@ -10,6 +10,8 @@ import {
   ImagePlus,
   AlertTriangle,
   Video,
+  MapPin,
+  Edit3,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
