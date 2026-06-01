@@ -48,7 +48,6 @@ export default function VideoKYCPage() {
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
-  const [isMockCall, setIsMockCall] = useState(false);
 
   /* ================= CAMERA PREVIEW ================= */
 
@@ -178,20 +177,6 @@ const handleReject = async () => {
         return;
       }
 
-      const isZegoPlaceholder =
-        isNaN(appID) ||
-        !serverSecret ||
-        serverSecret.includes("add your") ||
-        appID === 0;
-
-      if (isZegoPlaceholder) {
-        console.log("Zego credentials not configured. Running mock video call simulation.");
-        setIsMockCall(true);
-        setJoined(true);
-        setLoading(false);
-        return;
-      }
-
       const displayName = isAdmin
         ? "Admin"
         : `${userData?.name || "Vendor"} (${userData?.email || ""})`;
@@ -287,77 +272,12 @@ const handleReject = async () => {
       {/* BODY */}
       <div className="flex-1 relative">
 
-        {joined && !isMockCall && (
-          <div
-            ref={containerRef}
-            className="absolute inset-0"
-          />
-        )}
-
-        {joined && isMockCall && (
-          <div className="absolute inset-0 flex flex-col md:flex-row gap-6 p-6 bg-zinc-950">
-            {/* Local Video Stream */}
-            <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 bg-black flex items-center justify-center">
-              <video
-                ref={(el) => {
-                  if (el && stream) {
-                    el.srcObject = stream;
-                  }
-                }}
-                autoPlay
-                muted
-                playsInline
-                className="w-full h-full object-cover"
-              />
-              {!cameraOn && (
-                <div className="absolute inset-0 bg-zinc-900 flex items-center justify-center">
-                  <VideoOff size={40} className="text-gray-500" />
-                </div>
-              )}
-              <div className="absolute bottom-4 left-4 px-3 py-1 rounded bg-black/60 text-xs">
-                You ({isAdmin ? "Admin" : userData?.name || "Vendor"})
-              </div>
-            </div>
-
-            {/* Remote Video Stream (Simulated Admin or Vendor) */}
-            <div className="flex-1 relative rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 flex flex-col items-center justify-center">
-              {isAdmin ? (
-                // Admin sees the vendor's details / simulation
-                <div className="text-center space-y-4 px-6">
-                  <div className="w-20 h-20 rounded-full bg-zinc-800 flex items-center justify-center mx-auto text-2xl font-bold">
-                    V
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-white">Vendor Video Feed</h3>
-                    <p className="text-sm text-gray-400">Verifying documents & license in real-time</p>
-                  </div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs">
-                    <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                    Simulated Live Connection
-                  </div>
-                </div>
-              ) : (
-                // Vendor sees the Admin's details / simulation
-                <div className="text-center space-y-4 px-6">
-                  <div className="w-20 h-20 rounded-full bg-zinc-800 flex items-center justify-center mx-auto text-2xl font-bold">
-                    A
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-lg text-white">RideNow Agent (Admin)</h3>
-                    <p className="text-sm text-gray-400">Conducting secure verification session...</p>
-                  </div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-xs">
-                    <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-                    Waiting for agent to review
-                  </div>
-                </div>
-              )}
-              <div className="absolute bottom-4 left-4 px-3 py-1 rounded bg-black/60 text-xs">
-                {isAdmin ? "Vendor (Live)" : "RideNow Admin"}
-              </div>
-            </div>
-          </div>
-        )}
+        <div
+          ref={containerRef}
+          className={`absolute inset-0 ${
+            joined ? "block" : "hidden"
+          }`}
+        />
 
         {!joined && (
           <div className="h-full flex items-center justify-center px-4 py-10">

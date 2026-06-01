@@ -245,7 +245,7 @@ const activeStep = getActiveStep();
         </h2>
 
         <button
-          onClick={() => router.push("/vendor/orders")}
+          onClick={() => router.push("/partner/bookings")}
           className="mt-6 bg-white text-black px-6 py-3 rounded-xl font-semibold flex items-center gap-2"
         >
           Go to Orders <ArrowRight size={16} />

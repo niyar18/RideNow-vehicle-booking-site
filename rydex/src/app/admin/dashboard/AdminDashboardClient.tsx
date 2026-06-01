@@ -256,7 +256,13 @@ function ContentList({ data, type }: any) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(0,0,0,0.08)" }}
-            onClick={() => router.push(type === "vendor" ? `/admin/vendors/${item._id}` : `/admin/vehicles/${item._id}`)}
+            onClick={() =>
+              router.push(
+                type === "vehicle"
+                  ? `/admin/vehicles/${item._id}`
+                  : `/admin/vendors/${item._id}`
+              )
+            }
             className="bg-white border border-gray-100 rounded-2xl px-5 py-4 flex items-center justify-between gap-4 shadow-sm transition-shadow cursor-pointer select-none"
           >
             <div className="flex items-center gap-3 min-w-0">
@@ -282,14 +288,20 @@ function ContentList({ data, type }: any) {
                     whileTap={{ scale: 0.96 }}
                     animate={{ opacity: [1, 0.7, 1] }}
                     transition={{ repeat: Infinity, duration: 1.8 }}
-                    onClick={() => router.push(`/video-kyc/${item.videoKycRoomId}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/video-kyc/${item.videoKycRoomId}`);
+                    }}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition-colors"
                   >
                     <Video size={13} /> Join Call
                   </motion.button>
                 ) : (
                   <motion.button whileTap={{ scale: 0.96 }}
-                    onClick={() => startKyc(item._id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      startKyc(item._id);
+                    }}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white text-sm font-semibold transition-colors"
                   >
                     <Video size={13} /> Start KYC
@@ -297,7 +309,14 @@ function ContentList({ data, type }: any) {
                 )
               ) : (
                 <motion.button whileTap={{ scale: 0.96 }}
-                  onClick={() => router.push(type === "vendor" ? `/admin/vendors/${item._id}` : `/admin/vehicles/${item._id}`)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(
+                      type === "vehicle"
+                        ? `/admin/vehicles/${item._id}`
+                        : `/admin/vendors/${item._id}`
+                    );
+                  }}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white text-sm font-semibold transition-colors"
                 >
                   Review <ArrowRight size={13} />
