@@ -7,7 +7,7 @@ import {
   CheckCircle2, ChevronRight
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 
 const RouteMap = dynamic(() => import("@/components/RouteMap"), { ssr: false });
