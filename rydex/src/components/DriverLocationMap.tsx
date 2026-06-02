@@ -1,11 +1,12 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Tooltip, useMap } from "react-leaflet";
 import L from "leaflet";
 import { useEffect } from "react";
 
 type Props = {
   coords: { latitude: number; longitude: number } | null;
+  onLocationChange?: (lat: number, lng: number) => void;
 };
 
 const driverIcon = new L.DivIcon({
@@ -33,13 +34,13 @@ function CenterMap({ center }: { center: [number, number] | null }) {
   const map = useMap();
   useEffect(() => {
     if (center) {
-      map.setView(center, 15, { animate: true });
+      map.setView(center, map.getZoom() < 13 ? 13 : map.getZoom(), { animate: true });
     }
   }, [center, map]);
   return null;
 }
 
-export default function DriverLocationMap({ coords }: Props) {
+export default function DriverLocationMap({ coords, onLocationChange }: Props) {
   const defaultCenter: [number, number] = [20.5937, 78.9629];
   const center: [number, number] | null = coords
     ? [coords.latitude, coords.longitude]
@@ -49,7 +50,7 @@ export default function DriverLocationMap({ coords }: Props) {
     <div className="w-full h-full rounded-2xl overflow-hidden border border-zinc-200 shadow-inner">
       <MapContainer
         center={center ?? defaultCenter}
-        zoom={center ? 15 : 5}
+        zoom={center ? 14 : 5}
         style={{ height: "100%", width: "100%" }}
         scrollWheelZoom
         zoomControl={false}
@@ -59,7 +60,27 @@ export default function DriverLocationMap({ coords }: Props) {
           attribution="&copy; Google Maps"
           url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
         />
-        {center && <Marker position={center} icon={driverIcon} />}
+        {center && (
+          <Marker 
+            position={center} 
+            icon={driverIcon}
+            draggable={!!onLocationChange}
+            eventHandlers={{
+              dragend: (e) => {
+                const m = e.target.getLatLng();
+                onLocationChange?.(m.lat, m.lng);
+              }
+            }}
+          >
+            {onLocationChange && (
+              <Tooltip direction="top" offset={[0, -10]} permanent={false}>
+                <span style={{ fontWeight: "bold", fontSize: "11px" }}>
+                  Drag to mock location
+                </span>
+              </Tooltip>
+            )}
+          </Marker>
+        )}
       </MapContainer>
     </div>
   );

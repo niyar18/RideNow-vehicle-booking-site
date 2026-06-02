@@ -82,25 +82,43 @@ export async function POST(req: Request) {
 
   const vehicleOwnerIds = activeVehicles.map(v => v.owner.toString());
 
-  // 2️⃣ Query online vendors who own these vehicles, within 10km (10000m)
-  const vendors = await User.find({
-    _id: { $in: vehicleOwnerIds },
-    role: "vendor",
-    isOnline: true,
-    location: {
-      $near: {
-        $geometry: {
-          type: "Point",
-          coordinates: [Number(pickupLng), Number(pickupLat)], // [lng, lat]
+  // 2️⃣ Query online vendors who own these vehicles, within 50km (Try $near first, fallback to $geoWithin)
+  let vendors = [];
+  try {
+    vendors = await User.find({
+      _id: { $in: vehicleOwnerIds },
+      role: "vendor",
+      isOnline: true,
+      location: {
+        $near: {
+          $geometry: {
+            type: "Point",
+            coordinates: [Number(pickupLng), Number(pickupLat)], // [lng, lat]
+          },
+          $maxDistance: 50000, // 50km
         },
-        $maxDistance: 10000, // 10km
       },
-    },
-  }).lean();
+    }).lean();
+  } catch (geoError) {
+    console.warn("Geospatial index matching query failed in booking creation, falling back to $geoWithin:", geoError);
+    vendors = await User.find({
+      _id: { $in: vehicleOwnerIds },
+      role: "vendor",
+      isOnline: true,
+      location: {
+        $geoWithin: {
+          $centerSphere: [
+            [Number(pickupLng), Number(pickupLat)],
+            50 / 6378.1 // 50km in radians
+          ]
+        }
+      }
+    }).lean();
+  }
 
   if (!vendors.length) {
     return NextResponse.json(
-      { message: "No drivers available nearby (10km limit)" },
+      { message: "No drivers available nearby (50km limit)" },
       { status: 404 }
     );
   }

@@ -630,6 +630,22 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const handleDragMockLocation = async (lat: number, lng: number) => {
+    setCoords({ latitude: lat, longitude: lng });
+    try {
+      await axios.patch("/api/partner/status", {
+        isOnline: true,
+        latitude: lat,
+        longitude: lng,
+      });
+      if (!isOnline) {
+        setIsOnline(true);
+      }
+    } catch (err) {
+      console.error("Failed to update dragged location:", err);
+    }
+  };
+
   useEffect(() => {
     axios.get("/api/partner/status")
       .then((res) => {
@@ -654,11 +670,16 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       (position) => {
         const { latitude, longitude } = position.coords;
         setCoords({ latitude, longitude });
+
+        if (isOnline) {
+          axios.patch("/api/partner/status", { isOnline: true, latitude, longitude })
+            .catch(err => console.error("Initial db location update error:", err));
+        }
       },
       (error) => console.error("Initial geolocation error:", error),
       { enableHighAccuracy: true }
     );
-  }, []);
+  }, [isOnline]);
 
   useEffect(() => {
     if (!isOnline || !navigator.geolocation) return;
@@ -667,11 +688,14 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       (position) => {
         const { latitude, longitude } = position.coords;
         setCoords({ latitude, longitude });
+
+        axios.patch("/api/partner/status", { isOnline: true, latitude, longitude })
+          .catch(err => console.error("Continuous location sync error:", err));
       },
       (error) => {
         console.error("Watch location error:", error);
       },
-      { enableHighAccuracy: true, maximumAge: 5000 }
+      { enableHighAccuracy: true, maximumAge: 10000 }
     );
 
     return () => {
@@ -812,13 +836,21 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
           {/* Driver Location Map Card */}
           <div className="bg-white rounded-3xl border border-zinc-200 p-6 shadow-sm flex flex-col min-h-[280px]">
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Your Location</p>
-              <h2 className="text-2xl font-black text-zinc-900 tracking-tight mb-2">Live Tracker</h2>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Your Location</p>
+                <h2 className="text-2xl font-black text-zinc-900 tracking-tight mb-2">Live Tracker</h2>
+              </div>
+              <span className="text-[10px] font-bold text-zinc-400 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md mt-1">
+                Draggable
+              </span>
             </div>
             <div className="flex-1 w-full h-[140px] relative">
-              <DriverLocationMap coords={coords} />
+              <DriverLocationMap coords={coords} onLocationChange={handleDragMockLocation} />
             </div>
+            <p className="text-[10px] text-zinc-400 font-semibold mt-2 text-center">
+              💡 Drag the black car marker to mock your location anywhere for testing.
+            </p>
           </div>
 
           {/* Vehicle & Pricing Card */}
