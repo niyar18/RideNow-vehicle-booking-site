@@ -5,6 +5,7 @@ import {
   TileLayer,
   Marker,
   Polyline,
+  Tooltip,
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
@@ -18,6 +19,7 @@ type Props = {
   onDistance?: (km: number) => void;
   onChange?: (pickup: string, drop: string) => void;
   onCoordinatesChange?: (p1: [number, number] | null, p2: [number, number] | null) => void;
+  vehicles?: any[];
 };
 
 /* ─── ICONS ── black/white theme ─────────────────────────────────── */
@@ -67,6 +69,27 @@ const dropIcon = new L.DivIcon({
   className: "",
   iconSize: [80, 58],
   iconAnchor: [40, 58],
+});
+
+const carMarkerIcon = new L.DivIcon({
+  html: `
+    <div style="
+      background:#0a0a0a;
+      width:34px; height:34px;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 0 0 2px #fff, 0 4px 12px rgba(0,0,0,0.3);
+    ">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M5 11L6.5 6.5H17.5L19 11" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <rect x="3" y="11" width="18" height="7" rx="2" stroke="white" stroke-width="2"/>
+        <circle cx="7.5" cy="18.5" r="1.5" fill="white"/>
+        <circle cx="16.5" cy="18.5" r="1.5" fill="white"/>
+      </svg>
+    </div>`,
+  className: "",
+  iconSize: [34, 34],
+  iconAnchor: [17, 17],
 });
 
 /* ─── FIT BOUNDS ──────────────────────────────────────────────────── */
@@ -124,7 +147,7 @@ function ZoomControlsWrapper() {
 }
 
 /* ─── MAIN ────────────────────────────────────────────────────────── */
-export default function RouteMap({ pickup, drop, onDistance, onChange, onCoordinatesChange }: Props) {
+export default function RouteMap({ pickup, drop, onDistance, onChange, onCoordinatesChange, vehicles }: Props) {
   const [p1,    setP1]    = useState<[number, number] | null>(null);
   const [p2,    setP2]    = useState<[number, number] | null>(null);
   const [route, setRoute] = useState<[number, number][]>([]);
@@ -238,6 +261,24 @@ export default function RouteMap({ pickup, drop, onDistance, onChange, onCoordin
             eventHandlers={{ dragend: e => { const m = e.target.getLatLng(); onDragDrop(m.lat, m.lng); } }}
           />
         )}
+
+        {vehicles && vehicles.map((v) => {
+          if (!v.location?.coordinates) return null;
+          const [lng, lat] = v.location.coordinates;
+          return (
+            <Marker
+              key={v._id}
+              position={[lat, lng]}
+              icon={carMarkerIcon}
+            >
+              <Tooltip direction="top" offset={[0, -10]}>
+                <span style={{ textTransform: "capitalize", fontWeight: "bold", fontSize: "11px" }}>
+                  {v.type} ({v.vehicleModel})
+                </span>
+              </Tooltip>
+            </Marker>
+          );
+        })}
 
         {/* Route — black triple layer on white map */}
         {route.length > 0 && (

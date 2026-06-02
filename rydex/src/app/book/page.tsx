@@ -48,6 +48,7 @@ export default function BookPage() {
   const [dropLat,   setDropLat]   = useState<number | null>(null);
   const [dropLng,   setDropLng]   = useState<number | null>(null);
   const [locating,  setLocating]  = useState(false);
+  const [vehicles,  setVehicles]  = useState<any[]>([]);
 
   const canContinue = !!(pickup && drop && vehicle && mobile && pickupLat && pickupLng && dropLat && dropLng);
 
@@ -98,6 +99,32 @@ export default function BookPage() {
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
   };
+
+  /* ── FETCH NEARBY VEHICLES ── */
+  useEffect(() => {
+    if (!pickupLat || !pickupLng) {
+      setVehicles([]);
+      return;
+    }
+    const fetchVehicles = async () => {
+      try {
+        const res = await fetch("/api/vehicles/nearby", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            latitude: pickupLat,
+            longitude: pickupLng,
+            vehicleType: vehicle || undefined
+          })
+        });
+        const data = await res.json();
+        if (data.success) setVehicles(data.vehicles);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchVehicles();
+  }, [pickupLat, pickupLng, vehicle]);
 
   /* ── SYNC COORDS FROM MAP DRAG ── */
   const handleCoordinatesChange = (p1: [number, number] | null, p2: [number, number] | null) => {
@@ -391,6 +418,7 @@ export default function BookPage() {
           drop={drop}
           onChange={(p, d) => { setPickup(p); setDrop(d); }}
           onCoordinatesChange={handleCoordinatesChange}
+          vehicles={vehicles}
         />
       </div>
 

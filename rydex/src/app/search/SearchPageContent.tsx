@@ -78,6 +78,7 @@ export default function SearchPageContent() {
           drop={drop}
           onDistance={setKm}
           onChange={(p, d) => { setPickup(p); setDrop(d); }}
+          vehicles={vehicles}
         />
 
         <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-zinc-100 to-transparent pointer-events-none z-10" />

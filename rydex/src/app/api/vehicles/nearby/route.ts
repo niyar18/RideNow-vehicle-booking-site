@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
           $maxDistance: 10000
         }
       }
-    }).select("_id")
+    }).select("_id location").lean()
 
     const vendorIds = vendors.map(v => v._id)
 
@@ -37,15 +37,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, vehicles: [] })
     }
 
+    const vendorMap = new Map(vendors.map(v => [v._id.toString(), v.location]))
+
     // 2️⃣ Get vehicles of those vendors
     const vehicles = await Vehicle.find({
       owner: { $in: vendorIds },
       ...(vehicleType && { type: vehicleType })
     }).lean()
 
+    const vehiclesWithLocation = vehicles.map(v => ({
+      ...v,
+      location: vendorMap.get(v.owner.toString()) || null
+    }))
+
     return NextResponse.json({
       success: true,
-      vehicles
+      vehicles: vehiclesWithLocation
     })
 
   } catch (error) {

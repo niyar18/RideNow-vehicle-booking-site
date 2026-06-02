@@ -19,6 +19,10 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import PartnerEarningsChart from "./PartnerEarningChart";
+import dynamic from "next/dynamic";
+
+const DriverLocationMap = dynamic(() => import("./DriverLocationMap"), { ssr: false });
+
 
 /* ================= TYPES ================= */
 
@@ -722,10 +726,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         </div>
 
         {/* Dashboard Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
 
           {/* Online Toggle Card */}
-          <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm flex flex-col justify-between min-h-[260px]">
+          <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm flex flex-col justify-between min-h-[280px]">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Service Status</p>
               <h2 className="text-2xl font-black text-zinc-900 tracking-tight">Status Command</h2>
@@ -773,8 +777,19 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
           </div>
 
+          {/* Driver Location Map Card */}
+          <div className="bg-white rounded-3xl border border-zinc-200 p-6 shadow-sm flex flex-col min-h-[280px]">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Your Location</p>
+              <h2 className="text-2xl font-black text-zinc-900 tracking-tight mb-2">Live Tracker</h2>
+            </div>
+            <div className="flex-1 w-full h-[140px] relative">
+              <DriverLocationMap coords={coords} />
+            </div>
+          </div>
+
           {/* Vehicle & Pricing Card */}
-          <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm flex flex-col justify-between min-h-[260px]">
+          <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm flex flex-col justify-between min-h-[280px]">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Vehicle specs</p>
