@@ -100,6 +100,11 @@ export default function BookPage() {
     );
   };
 
+  /* ── INITIAL LOCATION ON MOUNT ── */
+  useEffect(() => {
+    useCurrentLocation();
+  }, []);
+
   /* ── FETCH NEARBY VEHICLES ── */
   useEffect(() => {
     if (!pickupLat || !pickupLng) {

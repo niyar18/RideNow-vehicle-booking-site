@@ -55,14 +55,17 @@ app.post("/emit", async (req, res) => {
 io.on("connection", (socket) => {
 
   socket.on("identity", async (userId) => {
-
-    socket.userId = userId
-
-    await User.findByIdAndUpdate(userId, {
-      socketId: socket.id,
-      isOnline: true
-    })
-
+    socket.userId = userId;
+    try {
+      const user = await User.findById(userId);
+      const updateData = { socketId: socket.id };
+      if (user && user.role !== "vendor") {
+        updateData.isOnline = true;
+      }
+      await User.findByIdAndUpdate(userId, updateData);
+    } catch (err) {
+      console.error("Socket identity error:", err);
+    }
   })
 
 // server.js — sab jagah ek hi format rakho
@@ -101,14 +104,17 @@ socket.on("chat-message", (msg) => {
  
 
   socket.on("disconnect", async () => {
-
-    if (!socket.userId) return
-
-    await User.findByIdAndUpdate(socket.userId, {
-      isOnline: false,
-      socketId: null
-    })
-
+    if (!socket.userId) return;
+    try {
+      const user = await User.findById(socket.userId);
+      const updateData = { socketId: null };
+      if (user && user.role !== "vendor") {
+        updateData.isOnline = false;
+      }
+      await User.findByIdAndUpdate(socket.userId, updateData);
+    } catch (err) {
+      console.error("Socket disconnect error:", err);
+    }
   })
 
 })
