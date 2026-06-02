@@ -646,6 +646,39 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       .catch((err) => console.error("Error loading partner status:", err));
   }, []);
 
+  useEffect(() => {
+    if (!navigator.geolocation) return;
+
+    // Get current position on mount so map centers on their current location immediately
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setCoords({ latitude, longitude });
+      },
+      (error) => console.error("Initial geolocation error:", error),
+      { enableHighAccuracy: true }
+    );
+  }, []);
+
+  useEffect(() => {
+    if (!isOnline || !navigator.geolocation) return;
+
+    const watcher = navigator.geolocation.watchPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setCoords({ latitude, longitude });
+      },
+      (error) => {
+        console.error("Watch location error:", error);
+      },
+      { enableHighAccuracy: true, maximumAge: 5000 }
+    );
+
+    return () => {
+      navigator.geolocation.clearWatch(watcher);
+    };
+  }, [isOnline]);
+
   const handleToggleOnline = async () => {
     try {
       setLoading(true);
