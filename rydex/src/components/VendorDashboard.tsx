@@ -12,6 +12,7 @@ import {
   Video,
   MapPin,
   Edit3,
+  Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -630,6 +631,21 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   const [isOnline, setIsOnline] = useState(false);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [pendingRequest, setPendingRequest] = useState<any | null>(null);
+  const [processingAction, setProcessingAction] = useState<string | null>(null);
+
+  const fetchPendingRequest = async () => {
+    try {
+      const res = await axios.get("/api/partner/bookings/pending");
+      if (res.data.bookings && res.data.bookings.length > 0) {
+        setPendingRequest(res.data.bookings[0]);
+      } else {
+        setPendingRequest(null);
+      }
+    } catch (err) {
+      console.error("Failed to fetch pending requests:", err);
+    }
+  };
 
   useEffect(() => {
     // 1. Check if there is an active booking on mount
@@ -641,16 +657,45 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       })
       .catch(() => {});
 
-    // 2. Setup socket listener for new bookings
+    // 2. Check for pending requests on mount
+    fetchPendingRequest();
+
+    // 3. Setup socket listener for incoming requests
     const socket = getSocket();
-    socket.on("new-booking", () => {
-      window.location.href = "/partner/pending-requests";
+    socket.on("new-booking", (booking) => {
+      setPendingRequest(booking);
+    });
+
+    socket.on("booking-updated", (data) => {
+      setPendingRequest((prev) => {
+        if (prev && prev._id === data.bookingId) {
+          return null;
+        }
+        return prev;
+      });
     });
 
     return () => {
       socket.off("new-booking");
+      socket.off("booking-updated");
     };
   }, []);
+
+  const handleRequestAction = async (bookingId: string, action: "accept" | "reject") => {
+    try {
+      setProcessingAction(action);
+      await axios.post(`/api/booking/${bookingId}/${action}`);
+      setPendingRequest(null);
+      if (action === "accept") {
+        window.location.href = "/partner/active-ride";
+      }
+    } catch (err) {
+      console.error("Failed to process request action:", err);
+      alert("Action failed");
+    } finally {
+      setProcessingAction(null);
+    }
+  };
 
 
   useEffect(() => {
@@ -918,6 +963,103 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           pricing={pricing}
           isLive={true}
         />
+
+        {/* ── NEW RIDE REQUEST POPUP MODAL ── */}
+        <AnimatePresence>
+          {pendingRequest && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 350 }}
+                className="bg-white w-full max-w-md rounded-3xl shadow-2xl border border-zinc-100 overflow-hidden flex flex-col"
+              >
+                {/* Header */}
+                <div className="bg-zinc-950 px-6 py-5 flex items-center justify-between text-white">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                    <h3 className="font-black text-sm uppercase tracking-widest text-zinc-300">Incoming Request</h3>
+                  </div>
+                  <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-xs font-semibold">
+                    <Clock size={12} className="text-amber-400" />
+                    <span>20s left</span>
+                  </div>
+                </div>
+
+                {/* Ride Details */}
+                <div className="p-6 space-y-5">
+                  
+                  {/* Locations */}
+                  <div className="bg-zinc-50 border border-zinc-100 rounded-2xl p-4 space-y-4">
+                    <div className="flex gap-3 items-start">
+                      <div className="flex flex-col items-center flex-shrink-0 pt-1">
+                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm" />
+                        <div className="w-px bg-zinc-200 mt-1 h-8" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Pickup Location</p>
+                        <p className="text-xs text-zinc-800 font-bold leading-snug truncate">{pendingRequest.pickupAddress}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <div className="flex-shrink-0 pt-1">
+                        <div className="w-2.5 h-2.5 rounded-sm bg-zinc-900 border-2 border-white shadow-sm" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Drop Location</p>
+                        <p className="text-xs text-zinc-800 font-bold leading-snug truncate">{pendingRequest.dropAddress}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Earnings Display */}
+                  <div className="bg-zinc-950 rounded-2xl p-5 text-center border border-zinc-800 flex flex-col items-center justify-center">
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1">Your Net Fare</p>
+                    <div className="flex items-center gap-1.5 text-white text-4xl font-black tracking-tight leading-none">
+                      <IndianRupee size={24} className="text-amber-400" />
+                      <span>{pendingRequest.fare}</span>
+                    </div>
+                    <p className="text-[9px] text-zinc-500 mt-2 font-medium">90% partner amount. Cash or Digital payment.</p>
+                  </div>
+
+                </div>
+
+                {/* Actions */}
+                <div className="px-6 pb-6 pt-2 border-t border-zinc-100 flex gap-3">
+                  <button
+                    onClick={() => handleRequestAction(pendingRequest._id, "reject")}
+                    disabled={processingAction !== null}
+                    className="flex-1 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 py-3.5 rounded-2xl text-sm font-bold active:scale-[0.97] transition-all disabled:opacity-40"
+                  >
+                    {processingAction === "reject" ? (
+                      <Loader2 className="animate-spin w-4 h-4 mx-auto text-zinc-500" />
+                    ) : (
+                      "Reject"
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleRequestAction(pendingRequest._id, "accept")}
+                    disabled={processingAction !== null}
+                    className="flex-1 bg-zinc-950 hover:bg-black text-white py-3.5 rounded-2xl text-sm font-black tracking-wide active:scale-[0.97] transition-all shadow-lg shadow-zinc-900/10 disabled:opacity-40"
+                  >
+                    {processingAction === "accept" ? (
+                      <Loader2 className="animate-spin w-4 h-4 mx-auto text-white" />
+                    ) : (
+                      "Accept Ride"
+                    )}
+                  </button>
+                </div>
+
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
       </div>
     </section>

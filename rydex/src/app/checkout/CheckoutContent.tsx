@@ -23,17 +23,22 @@ type Status =
 export default function CheckoutContent() {
   const params = useSearchParams();
 
-  const pickup    = params.get("pickup")    || "Pickup Location";
-  const drop      = params.get("drop")      || "Drop Location";
-  const vehicle   = params.get("vehicle")   || "car";
+  const pickupParam    = params.get("pickup")    || "Pickup Location";
+  const dropParam      = params.get("drop")      || "Drop Location";
+  const vehicleParam   = params.get("vehicle")   || "car";
   const vehicleId = params.get("vehicleId");
-  const fare      = Number(params.get("fare")) || 249;
+  const fareParam      = Number(params.get("fare")) || 249;
   const mobileNumber = params.get("mobileNumber") || "";
   const driverId  = params.get("driverId");
   const pickupLat = Number(params.get("pickupLat"));
   const pickupLng = Number(params.get("pickupLng"));
   const dropLat   = Number(params.get("dropLat"));
   const dropLng   = Number(params.get("dropLng"));
+
+  const [pickup,   setPickup]   = useState(pickupParam);
+  const [drop,     setDrop]     = useState(dropParam);
+  const [vehicle,  setVehicle]  = useState(vehicleParam);
+  const [fare,     setFare]     = useState(fareParam);
 
   const VehicleIcon = VEHICLE_ICONS[vehicle.toLowerCase()] || Car;
 
@@ -60,6 +65,9 @@ export default function CheckoutContent() {
 
       if(data.success){
         setBookingId(data.booking._id);
+        setFare(data.booking.fare);
+        if (data.booking.pickupAddress) setPickup(data.booking.pickupAddress);
+        if (data.booking.dropAddress) setDrop(data.booking.dropAddress);
         setStatus("requested");
         setCountdown(20);
       }
@@ -212,6 +220,12 @@ export default function CheckoutContent() {
         const data = await res.json();
         if (data.booking) {
           setBookingId(data.booking._id);
+          setFare(data.booking.fare);
+          setPickup(data.booking.pickupAddress);
+          setDrop(data.booking.dropAddress);
+          if (data.booking.vehicle?.type) {
+            setVehicle(data.booking.vehicle.type);
+          }
           // If server state is awaiting_payment but local state is already payment, do not revert
           if (data.booking.status === "awaiting_payment" && status === "payment") {
             return;

@@ -243,6 +243,11 @@ export default function BookPage() {
                     <div className="min-w-0">
                       <p className={`text-sm font-bold truncate ${active ? "text-white" : "text-zinc-900"}`}>{v.label}</p>
                       <p className={`text-[10px] truncate ${active ? "text-zinc-400" : "text-zinc-400"}`}>{v.desc}</p>
+                      {pickupLat && pickupLng && dropLat && dropLng && (
+                        <p className={`text-xs font-black mt-1.5 leading-none ${active ? "text-amber-400" : "text-zinc-900"}`}>
+                          ₹{estimateFare(v.id, getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng))}
+                        </p>
+                      )}
                     </div>
                     {active && (
                       <motion.div

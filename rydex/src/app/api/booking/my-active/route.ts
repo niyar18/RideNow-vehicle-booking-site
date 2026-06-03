@@ -15,7 +15,7 @@ export async function GET() {
     status: {
       $in: ["requested", "awaiting_payment", "confirmed", "started"],
     },
-  }).sort({ createdAt: -1 });
+  }).sort({ createdAt: -1 }).populate("vehicle");
 
   return NextResponse.json({ booking });
 }
