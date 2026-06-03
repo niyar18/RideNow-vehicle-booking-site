@@ -21,16 +21,16 @@ export async function POST(
   await booking.save();
 
   await axios.post(
-  `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
-  {
-    userId: booking.user,
-    event: "booking-updated",
-    data: {
-      bookingId: booking._id,
-      status: "awaiting_payment",
-    },
-  }
-);
+    `${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`,
+    {
+      userId: booking.user.toString(),
+      event: "booking-updated",
+      data: {
+        bookingId: booking._id.toString(),
+        status: "awaiting_payment",
+      },
+    }
+  );
 
   return NextResponse.json({ success: true });
 }

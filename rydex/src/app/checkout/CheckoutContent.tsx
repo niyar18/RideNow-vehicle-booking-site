@@ -202,14 +202,32 @@ export default function CheckoutContent() {
     return () => clearInterval(interval);
   }, [status, bookingId]);
 
-  /* ── RESTORE ── */
+  /* ── RESTORE & BACKGROUND POLLING FALLBACK ── */
   useEffect(() => {
-    (async () => {
-      const res  = await fetch("/api/booking/my-active");
-      const data = await res.json();
-      if (data.booking) { setBookingId(data.booking._id); setStatus(data.booking.status); }
-    })();
-  }, []);
+    const checkActiveBooking = async () => {
+      try {
+        const res  = await fetch("/api/booking/my-active");
+        const data = await res.json();
+        if (data.booking) {
+          setBookingId(data.booking._id);
+          setStatus(data.booking.status);
+        }
+      } catch (err) {
+        console.error("Failed to check active booking:", err);
+      }
+    };
+
+    checkActiveBooking();
+
+    // Poll every 3 seconds as a fallback while booking is requested or awaiting payment
+    const interval = setInterval(() => {
+      if (status === "requested" || status === "awaiting_payment") {
+        checkActiveBooking();
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [status]);
 
   /* ── awaiting_payment → payment after 2s ── */
   useEffect(() => {

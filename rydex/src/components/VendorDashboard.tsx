@@ -652,21 +652,6 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     };
   }, []);
 
-  const handleDragMockLocation = async (lat: number, lng: number) => {
-    setCoords({ latitude: lat, longitude: lng });
-    try {
-      await axios.patch("/api/partner/status", {
-        isOnline: true,
-        latitude: lat,
-        longitude: lng,
-      });
-      if (!isOnline) {
-        setIsOnline(true);
-      }
-    } catch (err) {
-      console.error("Failed to update dragged location:", err);
-    }
-  };
 
   useEffect(() => {
     axios.get("/api/partner/status")
@@ -863,15 +848,12 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Your Location</p>
                 <h2 className="text-2xl font-black text-zinc-900 tracking-tight mb-2">Live Tracker</h2>
               </div>
-              <span className="text-[10px] font-bold text-zinc-400 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded-md mt-1">
-                Draggable
-              </span>
             </div>
             <div className="flex-1 w-full h-[140px] relative">
-              <DriverLocationMap coords={coords} onLocationChange={handleDragMockLocation} />
+              <DriverLocationMap coords={coords} />
             </div>
             <p className="text-[10px] text-zinc-400 font-semibold mt-2 text-center">
-              💡 Drag the black car marker to mock your location anywhere for testing.
+              💡 Showing your live GPS coordinates tracked from your device.
             </p>
           </div>
 

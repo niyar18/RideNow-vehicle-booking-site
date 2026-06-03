@@ -6,7 +6,6 @@ import { useEffect } from "react";
 
 type Props = {
   coords: { latitude: number; longitude: number } | null;
-  onLocationChange?: (lat: number, lng: number) => void;
 };
 
 const driverIcon = new L.DivIcon({
@@ -40,7 +39,7 @@ function CenterMap({ center }: { center: [number, number] | null }) {
   return null;
 }
 
-export default function DriverLocationMap({ coords, onLocationChange }: Props) {
+export default function DriverLocationMap({ coords }: Props) {
   const defaultCenter: [number, number] = [20.5937, 78.9629];
   const center: [number, number] | null = coords
     ? [coords.latitude, coords.longitude]
@@ -64,22 +63,7 @@ export default function DriverLocationMap({ coords, onLocationChange }: Props) {
           <Marker 
             position={center} 
             icon={driverIcon}
-            draggable={!!onLocationChange}
-            eventHandlers={{
-              dragend: (e) => {
-                const m = e.target.getLatLng();
-                onLocationChange?.(m.lat, m.lng);
-              }
-            }}
-          >
-            {onLocationChange && (
-              <Tooltip direction="top" offset={[0, -10]} permanent={false}>
-                <span style={{ fontWeight: "bold", fontSize: "11px" }}>
-                  Drag to mock location
-                </span>
-              </Tooltip>
-            )}
-          </Marker>
+          />
         )}
       </MapContainer>
     </div>
