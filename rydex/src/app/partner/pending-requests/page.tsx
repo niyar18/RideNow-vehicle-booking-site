@@ -68,7 +68,9 @@ useEffect(() => {
       setProcessingId(bookingId);
       await axios.post(`/api/booking/${bookingId}/${action}`);
       fetchPendingBookings();
-      router.push("/partner/bookings")
+      if (action === "accept") {
+        router.push("/partner/active-ride");
+      }
     } catch {
       alert("Action failed");
     } finally {

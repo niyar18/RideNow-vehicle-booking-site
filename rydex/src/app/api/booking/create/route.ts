@@ -82,7 +82,7 @@ export async function POST(req: Request) {
 
   const vehicleOwnerIds = activeVehicles.map(v => v.owner.toString());
 
-  // 2️⃣ Query online vendors who own these vehicles, within 50km (Try $near first, fallback to $geoWithin)
+  // 2️⃣ Query online vendors who own these vehicles, within 15km (Try $near first, fallback to $geoWithin)
   let vendors = [];
   try {
     vendors = await User.find({
@@ -95,7 +95,7 @@ export async function POST(req: Request) {
             type: "Point",
             coordinates: [Number(pickupLng), Number(pickupLat)], // [lng, lat]
           },
-          $maxDistance: 50000, // 50km
+          $maxDistance: 15000, // 15km
         },
       },
     }).lean();
@@ -109,7 +109,7 @@ export async function POST(req: Request) {
         $geoWithin: {
           $centerSphere: [
             [Number(pickupLng), Number(pickupLat)],
-            50 / 6378.1 // 50km in radians
+            15 / 6378.1 // 15km in radians
           ]
         }
       }
@@ -118,7 +118,7 @@ export async function POST(req: Request) {
 
   if (!vendors.length) {
     return NextResponse.json(
-      { message: "No drivers available nearby (50km limit)" },
+      { message: "No drivers available nearby (15km limit)" },
       { status: 404 }
     );
   }
@@ -148,6 +148,8 @@ export async function POST(req: Request) {
       coordinates: [Number(dropLng), Number(dropLat)],
     },
     fare,
+    adminCommission: Number((fare * 0.10).toFixed(2)),
+    partnerAmount: Number((fare - (fare * 0.10)).toFixed(2)),
     userMobileNumber: mobileNumber,
     driverMobileNumber: nearestVendor.mobileNumber || "",
     candidateDrivers: sortedCandidates.map(c => c._id),

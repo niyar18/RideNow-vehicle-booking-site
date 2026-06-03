@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
               type: "Point",
               coordinates: [longitude, latitude]
             },
-            $maxDistance: 50000 // 50km
+            $maxDistance: 15000 // 15km
           }
         }
       }).select("_id location").lean()
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
           $geoWithin: {
             $centerSphere: [
               [longitude, latitude],
-              50 / 6378.1 // 50km in radians
+              15 / 6378.1 // 15km in radians
             ]
           }
         }

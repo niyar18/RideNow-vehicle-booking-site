@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getSocket } from "@/lib/socket";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
@@ -629,6 +630,27 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   const [isOnline, setIsOnline] = useState(false);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // 1. Check if there is an active booking on mount
+    axios.get("/api/partner/bookings/active")
+      .then((res) => {
+        if (res.data && res.data._id) {
+          window.location.href = "/partner/active-ride";
+        }
+      })
+      .catch(() => {});
+
+    // 2. Setup socket listener for new bookings
+    const socket = getSocket();
+    socket.on("new-booking", () => {
+      window.location.href = "/partner/pending-requests";
+    });
+
+    return () => {
+      socket.off("new-booking");
+    };
+  }, []);
 
   const handleDragMockLocation = async (lat: number, lng: number) => {
     setCoords({ latitude: lat, longitude: lng });

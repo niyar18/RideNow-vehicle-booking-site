@@ -59,6 +59,24 @@ export async function POST(req: Request) {
 
     }
 
+    /* Notify passenger via socket */
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: booking.user._id.toString(),
+          event: "booking-updated",
+          data: {
+            bookingId: booking._id.toString(),
+            pickupOtp: otp,
+          },
+        }),
+      });
+    } catch (err) {
+      console.error("Socket notification for pickup OTP failed:", err);
+    }
+
     return NextResponse.json({
       success: true,
       message: "Pickup OTP sent",

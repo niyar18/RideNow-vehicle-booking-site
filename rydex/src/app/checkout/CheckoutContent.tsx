@@ -166,7 +166,10 @@ export default function CheckoutContent() {
 
   /* ── SOCKET ── */
   useEffect(() => {
+    if (!bookingId) return;
     const socket = getSocket();
+    socket.emit("join-booking", bookingId);
+
     socket.on("booking-updated", (data) => {
       if (data.status === "awaiting_payment") setStatus("awaiting_payment");
       if (data.status === "rejected")         setStatus("rejected");
@@ -176,8 +179,10 @@ export default function CheckoutContent() {
         setCountdown(20); // Reset timer for next driver
       }
     });
-    return () => { socket.off("booking-updated"); };
-  }, []);
+    return () => {
+      socket.off("booking-updated");
+    };
+  }, [bookingId]);
 
   /* ── COUNTDOWN TIMER ── */
   useEffect(() => {
@@ -212,6 +217,16 @@ export default function CheckoutContent() {
     const t = setTimeout(() => setStatus("payment"), 2000);
     return () => clearTimeout(t);
   }, [status]);
+
+  /* ── AUTO REDIRECT TO RIDE PAGE ── */
+  useEffect(() => {
+    if (status === "confirmed" && bookingId) {
+      const t = setTimeout(() => {
+        window.location.href = `/ride/${bookingId}`;
+      }, 1500);
+      return () => clearTimeout(t);
+    }
+  }, [status, bookingId]);
 
   /* ── label ── */
   const vehicleLabel = vehicle.charAt(0).toUpperCase() + vehicle.slice(1);

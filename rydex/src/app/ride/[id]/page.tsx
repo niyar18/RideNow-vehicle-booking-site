@@ -37,6 +37,7 @@ interface BookingDetails {
   userMobileNumber: string;
   driverMobileNumber: string;
   pickupOtp?: string;
+  dropOtp?: string;
 }
 
 /* ─── STATUS CONFIG ──────────────────────────────────────────────────── */
@@ -83,23 +84,37 @@ export default function RidePage() {
   const [error,            setError]            = useState<string | null>(null);
 
   /* ── FETCH ── */
-  const fetchBooking = async () => {
+  const fetchBooking = async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const res  = await fetch(`/api/booking/${id}`);
       if (!res.ok) throw new Error("Failed to fetch booking");
       const data = await res.json();
       setBooking(data);
       setPickupPos([data.pickupLocation.coordinates[1], data.pickupLocation.coordinates[0]]);
       setDropPos  ([data.dropLocation.coordinates[1],   data.dropLocation.coordinates[0]]);
+      
+      // Update driver location dynamically from database coords if present
+      if (data.driver?.location?.coordinates) {
+        setDriverPos([data.driver.location.coordinates[1], data.driver.location.coordinates[0]]);
+      }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Something went wrong");
+      if (!silent) setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
-  useEffect(() => { fetchBooking(); }, [id]);
+  useEffect(() => { 
+    fetchBooking(); 
+
+    // Poll ride details, OTPs, and driver location every 5 seconds
+    const interval = setInterval(() => {
+      fetchBooking(true);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [id]);
 
   /* ── SOCKET ── */
   useEffect(() => {
@@ -676,6 +691,12 @@ function PanelContent({
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Drop</p>
               <p className="text-sm text-zinc-800 leading-snug">{booking.dropAddress || "—"}</p>
+              {booking.dropOtp && status === "started" && (
+                <div className="mt-1.5 inline-flex items-center gap-1.5 bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-lg">
+                  <p className="text-emerald-700 text-xs font-black tracking-widest font-mono">{booking.dropOtp}</p>
+                  <p className="text-emerald-600 text-[10px] font-semibold">OTP</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

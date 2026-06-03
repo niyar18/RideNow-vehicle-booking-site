@@ -40,14 +40,23 @@ app.post("/emit", async (req, res) => {
   const { userId, event, data } = req.body;
 
   try {
-    const user = await User.findById(userId);
+    // 1. Emit to specific user if socketId is set
+    if (userId) {
+      const user = await User.findById(userId);
+      if (user?.socketId) {
+        io.to(user.socketId).emit(event, data);
+      }
+    }
 
-    if (user?.socketId) {
-      io.to(user.socketId).emit(event, data);
+    // 2. Also broadcast to the booking room if bookingId is present
+    const bookingId = data?.bookingId || data?._id;
+    if (bookingId) {
+      io.to(`booking-${bookingId}`).emit(event, data);
     }
 
     res.json({ success: true });
   } catch (error) {
+    console.error("Socket emit endpoint error:", error);
     res.status(500).json({ success: false });
   }
 });

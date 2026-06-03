@@ -129,6 +129,10 @@ export default function BookPage() {
       }
     };
     fetchVehicles();
+
+    // Auto-refresh drivers location every 8 seconds
+    const interval = setInterval(fetchVehicles, 8000);
+    return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
 
   /* ── SYNC COORDS FROM MAP DRAG ── */

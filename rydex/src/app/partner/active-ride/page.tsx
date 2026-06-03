@@ -112,7 +112,7 @@ export default function DriverRidePage() {
   bookingRef.current = booking;
 
   /* ── FETCH ── */
-  useEffect(() => {
+  const fetchBookingDetails = () => {
     fetch("/api/partner/bookings/active")
       .then(r => r.ok ? r.json() : null)
       .then(data => {
@@ -130,6 +130,14 @@ export default function DriverRidePage() {
       })
       .catch(err => console.error("Fetch error:", err))
       .finally(() => setFetchDone(true));
+  };
+
+  useEffect(() => {
+    fetchBookingDetails();
+
+    // Poll active ride details every 5 seconds
+    const interval = setInterval(fetchBookingDetails, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   /* ── GPS — only for active rides, uses ref to avoid stale closure ── */
@@ -163,7 +171,13 @@ export default function DriverRidePage() {
     const socket = getSocket();
     socket.emit("join-booking", booking._id);
     socket.on("driver-location", (d: any) => setDriverPos([d.latitude, d.longitude]));
-    return () => { socket.off("driver-location"); };
+    socket.on("booking-updated", (data: any) => {
+      setBooking(prev => prev ? { ...prev, ...data } : null);
+    });
+    return () => {
+      socket.off("driver-location");
+      socket.off("booking-updated");
+    };
   }, [booking?._id, booking?.status]);
 
   /* ── OTP HANDLERS ── */

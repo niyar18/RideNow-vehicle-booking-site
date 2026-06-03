@@ -38,9 +38,9 @@ export default function SearchPageContent() {
   const meta         = VEHICLE_META[vehicle];
   const eta          = km !== null ? Math.max(3, Math.round((km / 25) * 60)) : null;
 
-  async function fetchNearbyVehicles(lat: number, lng: number) {
+  async function fetchNearbyVehicles(lat: number, lng: number, silent = false) {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const res  = await fetch("/api/vehicles/nearby", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,13 +51,20 @@ export default function SearchPageContent() {
     } catch (err) {
       console.error(err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }
 
   useEffect(() => {
     if (!pickupLat || !pickupLng) return;
     fetchNearbyVehicles(pickupLat, pickupLng);
+
+    // Auto-refresh drivers location every 8 seconds silently
+    const interval = setInterval(() => {
+      fetchNearbyVehicles(pickupLat, pickupLng, true);
+    }, 8000);
+
+    return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
 
   return (

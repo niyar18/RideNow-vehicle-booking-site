@@ -45,6 +45,24 @@ export async function POST(req: Request) {
 
   await booking.save()
 
+  try {
+    await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId: booking.driver ? booking.driver.toString() : undefined,
+        event: "booking-updated",
+        data: {
+          bookingId: booking._id.toString(),
+          status: "confirmed",
+          paymentStatus: "paid",
+        },
+      }),
+    });
+  } catch (err) {
+    console.error("Socket digital payment verify emit failed:", err);
+  }
+
   return Response.json({
     success:true,
     adminCommission,
