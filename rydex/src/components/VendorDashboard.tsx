@@ -662,12 +662,12 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
     // 3. Setup socket listener for incoming requests
     const socket = getSocket();
-    socket.on("new-booking", (booking) => {
+    socket.on("new-booking", (booking: any) => {
       setPendingRequest(booking);
     });
 
-    socket.on("booking-updated", (data) => {
-      setPendingRequest((prev) => {
+    socket.on("booking-updated", (data: any) => {
+      setPendingRequest((prev: any) => {
         if (prev && prev._id === data.bookingId) {
           return null;
         }

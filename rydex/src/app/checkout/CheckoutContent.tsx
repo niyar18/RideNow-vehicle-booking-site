@@ -178,7 +178,7 @@ export default function CheckoutContent() {
     const socket = getSocket();
     socket.emit("join-booking", bookingId);
 
-    socket.on("booking-updated", (data) => {
+    socket.on("booking-updated", (data: any) => {
       if (data.status === "awaiting_payment") {
         setStatus((prev) => (prev === "payment" ? "payment" : "awaiting_payment"));
       }
