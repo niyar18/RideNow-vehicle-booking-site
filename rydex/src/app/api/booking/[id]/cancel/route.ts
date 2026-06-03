@@ -7,26 +7,39 @@ export async function POST(
   context: { params: Promise<{ id: string }> }
 ) {
   await connectDb();
-const id =(await context.params).id
-  const booking =await Booking.findOneAndUpdate(
-  { _id: id, status: "requested" },
-  { status: "cancelled" }
-);
+  const id = (await context.params).id;
+  const booking = await Booking.findOneAndUpdate(
+    { _id: id, status: { $in: ["requested", "awaiting_payment", "confirmed"] } },
+    { status: "cancelled" },
+    { new: true }
+  );
 
   if (!booking)
     return NextResponse.json({ message: "Not found" }, { status: 404 });
-booking.status = "cancelled";
-
-
-
-  await booking.save();
 
   try {
+    // Emit to driver socket
+    if (booking.driver) {
+      await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: booking.driver.toString(),
+          event: "booking-updated",
+          data: {
+            bookingId: booking._id.toString(),
+            status: "cancelled"
+          }
+        })
+      });
+    }
+
+    // Emit to passenger socket
     await fetch(`${process.env.NEXT_PUBLIC_SOCKET_SERVER}/emit`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        userId: booking.driver ? booking.driver.toString() : undefined,
+        userId: booking.user.toString(),
         event: "booking-updated",
         data: {
           bookingId: booking._id.toString(),

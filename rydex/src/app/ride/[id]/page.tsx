@@ -137,11 +137,19 @@ export default function RidePage() {
     };
   }, [id, booking?._id]);
 
-  /* ── CANCEL ── */
   const handleCancel = async () => {
     if (!confirm("Cancel this ride?")) return;
-    await fetch(`/api/booking/${id}/cancel`, { method: "POST" });
-    fetchBooking();
+    try {
+      const res = await fetch(`/api/booking/${id}/cancel`, { method: "POST" });
+      if (res.ok) {
+        setBooking(prev => prev ? { ...prev, status: "cancelled" } : null);
+      } else {
+        alert("Failed to cancel booking");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to cancel booking");
+    }
   };
 
   /* ── LOADING ── */
@@ -721,7 +729,16 @@ function PanelContent({
       )}
 
       {/* CANCEL BUTTON */}
-     
+      {["requested", "awaiting_payment", "confirmed"].includes(status) && (
+        <div className="mx-5 lg:mx-6 mt-2">
+          <button
+            onClick={onCancel}
+            className="w-full bg-zinc-100 hover:bg-red-50 hover:text-red-600 text-zinc-700 py-3.5 rounded-xl text-sm font-semibold active:scale-[0.97] transition-all border border-transparent hover:border-red-100 flex items-center justify-center gap-2"
+          >
+            Cancel Ride
+          </button>
+        </div>
+      )}
 
     </div>
   );
