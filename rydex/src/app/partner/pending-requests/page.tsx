@@ -39,6 +39,8 @@ export default function VendorPendingPage() {
 
   useEffect(() => {
     fetchPendingBookings();
+    const interval = setInterval(fetchPendingBookings, 5000);
+    return () => clearInterval(interval);
   }, []);
 useEffect(() => {
   const socket = getSocket();

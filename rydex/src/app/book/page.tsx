@@ -43,18 +43,6 @@ function getHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: nu
   return R * c; // Distance in km
 }
 
-function estimateFare(type: string, distanceKm: number) {
-  const rates: Record<string, { base: number; perKm: number }> = {
-    bike: { base: 30, perKm: 6 },
-    auto: { base: 50, perKm: 10 },
-    car: { base: 80, perKm: 15 },
-    loading: { base: 120, perKm: 20 },
-    truck: { base: 180, perKm: 25 },
-  };
-  const cfg = rates[type.toLowerCase()] || rates.car;
-  return Math.round(cfg.base + distanceKm * cfg.perKm);
-}
-
 export default function BookPage() {
   const router = useRouter();
 
@@ -62,6 +50,39 @@ export default function BookPage() {
   const [drop,     setDrop]     = useState("");
   const [vehicle,  setVehicle]  = useState<VehicleType | null>(null);
   const [mobile,   setMobile]   = useState("");
+
+  const [rates, setRates] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchRates = async () => {
+      try {
+        const res = await fetch("/api/vehicles/pricing");
+        const data = await res.json();
+        if (data.success) {
+          setRates(data.rates);
+        }
+      } catch (err) {
+        console.error("Failed to fetch dynamic rates:", err);
+      }
+    };
+    fetchRates();
+  }, []);
+
+  const estimateFare = (type: string, distanceKm: number) => {
+    const defaultRates: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number }> = {
+      bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0 },
+      auto:    { baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2 },
+      car:     { baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5 },
+      loading: { baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8 },
+      truck:   { baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2 },
+    };
+
+    const source = rates || defaultRates;
+    const cfg = source[type.toLowerCase()] || defaultRates.car;
+    const timeMinutes = (distanceKm / 25) * 60;
+    const fare = (cfg.baseFare + distanceKm * cfg.pricePerKm + timeMinutes * cfg.pricePerMinute) * cfg.multiplier;
+    return Math.round(fare);
+  };
 
   const [pickupResults, setPickupResults] = useState<Place[]>([]);
   const [dropResults,   setDropResults]   = useState<Place[]>([]);

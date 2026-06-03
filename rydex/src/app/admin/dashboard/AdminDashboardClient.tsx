@@ -19,6 +19,7 @@ import {
   ArrowRight,
   Truck,
   Video,
+  IndianRupee,
 } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -37,7 +38,7 @@ type Stats = {
   rejected: number;
 };
 
-type TabType = "kyc" | "vendor" | "vehicle";
+type TabType = "kyc" | "vendor" | "vehicle" | "pricing";
 
 /* ================= PAGE ================= */
 
@@ -151,7 +152,11 @@ export default function AdminDashboardClient() {
           </TabButton>
           <TabButton active={activeTab === "vehicle"} count={vehicleReviews.length}
             onClick={() => setActiveTab("vehicle")} icon={<Truck size={15} />}>
-            Pricing &amp; Images
+            Vehicle Reviews
+          </TabButton>
+          <TabButton active={activeTab === "pricing"} count={0}
+            onClick={() => setActiveTab("pricing")} icon={<IndianRupee size={15} />}>
+            Category Fares
           </TabButton>
         </div>
 
@@ -164,6 +169,7 @@ export default function AdminDashboardClient() {
             {activeTab === "kyc"     && <ContentList data={videoKycReviews} type="kyc" />}
             {activeTab === "vendor"  && <ContentList data={vendorReviews}   type="vendor" />}
             {activeTab === "vehicle" && <ContentList data={vehicleReviews}  type="vehicle" />}
+            {activeTab === "pricing" && <PricingConfigEditor />}
           </motion.div>
         </AnimatePresence>
       </main>
@@ -447,5 +453,139 @@ function Kpi({
         )}
       </div>
     </motion.div>
+  );
+}
+
+function PricingConfigEditor() {
+  const [configs, setConfigs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchConfigs();
+  }, []);
+
+  const fetchConfigs = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/admin/pricing");
+      if (res.data.success) {
+        setConfigs(res.data.configs || []);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = (index: number, field: string, value: number) => {
+    setConfigs((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const handleSave = async (index: number) => {
+    const config = configs[index];
+    try {
+      setSavingId(config.vehicleType);
+      const res = await axios.post("/api/admin/pricing", config);
+      if (res.data.success) {
+        alert(`Successfully updated dynamic pricing for ${config.vehicleType.toUpperCase()}!`);
+      }
+    } catch (err) {
+      alert("Failed to save pricing config.");
+    } finally {
+      setSavingId(null);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-3xl p-12 text-center border text-zinc-500 font-medium flex items-center justify-center gap-3">
+        <Clock className="animate-spin text-zinc-400" size={18} />
+        Loading pricing configurations...
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-lg border border-gray-100 space-y-6">
+      <div>
+        <h3 className="text-xl font-bold text-gray-900">Dynamic Fare Pricing</h3>
+        <p className="text-sm text-gray-500 mt-1">Configure the base rates, distance charges, duration charges, and multipliers for each category.</p>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="border-b border-gray-200 text-xs font-black uppercase text-gray-400 tracking-wider">
+              <th className="py-4 px-3">Category</th>
+              <th className="py-4 px-3">Base Fare (₹)</th>
+              <th className="py-4 px-3">Per KM Rate (₹)</th>
+              <th className="py-4 px-3">Per Min Rate (₹)</th>
+              <th className="py-4 px-3">Multiplier</th>
+              <th className="py-4 px-3 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {configs.map((config, idx) => (
+              <tr key={config._id} className="text-sm text-gray-700">
+                <td className="py-4 px-3 font-bold uppercase text-black">{config.vehicleType}</td>
+                
+                <td className="py-4 px-3">
+                  <input
+                    type="number"
+                    value={config.baseFare}
+                    onChange={(e) => handleUpdate(idx, "baseFare", Number(e.target.value))}
+                    className="w-24 border rounded-xl px-3 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                  />
+                </td>
+
+                <td className="py-4 px-3">
+                  <input
+                    type="number"
+                    value={config.pricePerKm}
+                    onChange={(e) => handleUpdate(idx, "pricePerKm", Number(e.target.value))}
+                    className="w-24 border rounded-xl px-3 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                  />
+                </td>
+
+                <td className="py-4 px-3">
+                  <input
+                    type="number"
+                    value={config.pricePerMinute}
+                    onChange={(e) => handleUpdate(idx, "pricePerMinute", Number(e.target.value))}
+                    className="w-24 border rounded-xl px-3 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                  />
+                </td>
+
+                <td className="py-4 px-3">
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={config.multiplier}
+                    onChange={(e) => handleUpdate(idx, "multiplier", Number(e.target.value))}
+                    className="w-20 border rounded-xl px-3 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                  />
+                </td>
+
+                <td className="py-4 px-3 text-right">
+                  <button
+                    onClick={() => handleSave(idx)}
+                    disabled={savingId === config.vehicleType}
+                    className="bg-black text-white hover:bg-neutral-900 font-bold px-4 py-2 rounded-xl text-xs transition disabled:opacity-50"
+                  >
+                    {savingId === config.vehicleType ? "Saving..." : "Save"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

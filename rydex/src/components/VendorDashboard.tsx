@@ -62,9 +62,7 @@ const STEPS: Step[] = [
   { id: 3, title: "Bank", route: "/partner/onboard/bank" },
   { id: 4, title: "Review" },
   { id: 5, title: "Video KYC" },
-  { id: 6, title: "Pricing" },
-  { id: 7, title: "Final Review" },
-  { id: 8, title: "Live" },
+  { id: 6, title: "Live" },
 ];
 
 const TOTAL_STEPS = STEPS.length;
@@ -108,6 +106,10 @@ export default function VendorDashboard({
     return 5;
   }
 
+  if (vendorStep >= 7) {
+    return 6; // Live
+  }
+
   return Math.min(step, TOTAL_STEPS);
 };
 
@@ -131,11 +133,6 @@ const activeStep = getActiveStep();
   /* ================= NAVIGATION ================= */
 
   const goToStep = (step: Step) => {
-    if (step.id === 6 && vendorStatus === "approved") {
-      setShowPricing(true);
-      return;
-    }
-
     if (step.route && step.id <= activeStep) {
       router.push(step.route);
     }
@@ -180,7 +177,7 @@ const activeStep = getActiveStep();
         <StatusCard
           icon={<Check size={20} />}
           title="Video KYC Approved"
-          desc="You can now proceed to pricing."
+          desc="Your account is approved! Waiting for vehicle verification."
         />
       );
     }
@@ -218,32 +215,32 @@ const activeStep = getActiveStep();
     );
   }
 
-  /* ===== PRICING REVIEW ===== */
-  if (activeStep === 7 && pricing?.status === "pending") {
+  /* ===== VEHICLE REVIEW ===== */
+  if (activeStep === 6 && pricing?.status === "pending") {
     return (
       <StatusCard
         icon={<Clock size={20} />}
-        title="Pricing Under Review"
-        desc="Admin is reviewing your pricing."
+        title="Vehicle Under Review"
+        desc="Admin is reviewing your vehicle details and registration."
       />
     );
   }
 
-  /* ===== PRICING REJECTED ===== */
+  /* ===== VEHICLE REJECTED ===== */
   if (pricing?.status === "rejected") {
     return (
       <RejectionCard
-        title="Pricing Rejected"
+        title="Vehicle Rejected"
         reason={pricing.rejectionReason}
-        actionLabel="Edit & Resubmit"
-        onAction={() => setShowPricing(true)}
+        actionLabel="Update Details"
+        onAction={() => router.push("/partner/onboard/vehicle")}
       />
     );
   }
 
   /* ===== LIVE ===== */
   if (
-    activeStep === 8 &&
+    activeStep === 6 &&
     pricing?.status === "approved"
   ) {
     return (
@@ -271,7 +268,7 @@ const activeStep = getActiveStep();
 
   /* ================= UI ================= */
 
-  const isLive = activeStep === 8 && pricing?.status === "approved";
+  const isLive = activeStep === 6 && pricing?.status === "approved";
 
   if (isLive) {
     return (
@@ -359,6 +356,7 @@ const activeStep = getActiveStep();
   open={showPricing}
   onClose={() => setShowPricing(false)}
   pricing={pricing}
+  isLive={isLive}
 />
     </section>
   );
@@ -369,17 +367,11 @@ const activeStep = getActiveStep();
 function PricingModal({ open, onClose, pricing, isLive }: any){
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [baseFare, setBaseFare] = useState("");
-  const [pricePerKm, setPricePerKm] = useState("");
-  const [waitingCharge, setWaitingCharge] = useState("");
   const [loading, setLoading] = useState(false);
 
   const submitPricing = async () => {
     const formData = new FormData();
     if (image) formData.append("image", image);
-    formData.append("baseFare", baseFare);
-    formData.append("pricePerKm", pricePerKm);
-    formData.append("waitingCharge", waitingCharge);
 
     setLoading(true);
     if (isLive) {
@@ -393,9 +385,6 @@ function PricingModal({ open, onClose, pricing, isLive }: any){
 
    useEffect(() => {
     if (pricing) {
-      setBaseFare(pricing.baseFare?.toString() || "");
-      setPricePerKm(pricing.pricePerKm?.toString() || "");
-      setWaitingCharge(pricing.waitingCharge?.toString() || "");
       setPreview(pricing.imageUrl || null);
     }
   }, [pricing, open]);
@@ -416,11 +405,15 @@ function PricingModal({ open, onClose, pricing, isLive }: any){
           >
             <div className="p-6 border-b">
               <h2 className="text-xl font-bold">
-                Pricing & Vehicle Image
+                Vehicle Image Upload
               </h2>
             </div>
 
             <div className="p-6 space-y-6">
+              <p className="text-xs text-zinc-500 font-semibold leading-relaxed">
+                Please upload a clear picture of your vehicle. This helps passengers identify you during pickup.
+              </p>
+
               <label className="relative h-44 border-2 border-dashed rounded-2xl flex items-center justify-center cursor-pointer">
                 {!preview ? (
                   <ImagePlus size={28} />
@@ -444,25 +437,21 @@ function PricingModal({ open, onClose, pricing, isLive }: any){
                   }}
                 />
               </label>
-
-              <PriceInput label="Base Fare" value={baseFare} onChange={setBaseFare} />
-              <PriceInput label="Price per KM" value={pricePerKm} onChange={setPricePerKm} />
-              <PriceInput label="Waiting charge / min" value={waitingCharge} onChange={setWaitingCharge} />
             </div>
 
             <div className="p-6 border-t flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 border rounded-xl py-2"
+                className="flex-1 py-3 border rounded-xl font-semibold text-zinc-700 hover:bg-zinc-50 transition"
               >
                 Cancel
               </button>
               <button
                 onClick={submitPricing}
-                disabled={loading}
-                className="flex-1 bg-black text-white rounded-xl py-2"
+                disabled={loading || !image}
+                className="flex-1 py-3 bg-black text-white font-semibold rounded-xl hover:bg-zinc-900 transition flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {loading ? "Saving..." : "Save"}
+                {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Image"}
               </button>
             </div>
           </motion.div>
@@ -633,6 +622,28 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   const [loading, setLoading] = useState(false);
   const [pendingRequest, setPendingRequest] = useState<any | null>(null);
   const [processingAction, setProcessingAction] = useState<string | null>(null);
+  const [rates, setRates] = useState<any>(null);
+
+  const standardRates: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number }> = {
+    bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0 },
+    auto:    { baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2 },
+    car:     { baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5 },
+    loading: { baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8 },
+    truck:   { baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2 },
+  };
+
+  const vType = pricing?.type || "car";
+  const cfg = (rates && rates[vType.toLowerCase()]) || standardRates[vType.toLowerCase()] || standardRates.car;
+
+  useEffect(() => {
+    axios.get("/api/vehicles/pricing")
+      .then((res) => {
+        if (res.data.success) {
+          setRates(res.data.rates);
+        }
+      })
+      .catch((err) => console.error("Error loading rates:", err));
+  }, []);
 
   const fetchPendingRequest = async () => {
     try {
@@ -649,16 +660,26 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
   useEffect(() => {
     // 1. Check if there is an active booking on mount
-    axios.get("/api/partner/bookings/active")
-      .then((res) => {
-        if (res.data && res.data._id) {
-          window.location.href = "/partner/active-ride";
-        }
-      })
-      .catch(() => {});
+    const checkActiveRide = () => {
+      axios.get("/api/partner/bookings/active")
+        .then((res) => {
+          if (res.data && res.data._id) {
+            window.location.href = "/partner/active-ride";
+          }
+        })
+        .catch(() => {});
+    };
+
+    checkActiveRide();
 
     // 2. Check for pending requests on mount
     fetchPendingRequest();
+
+    // 🔁 Polling fallback every 5 seconds in case socket drops
+    const interval = setInterval(() => {
+      checkActiveRide();
+      fetchPendingRequest();
+    }, 5000);
 
     // 3. Setup socket listener for incoming requests
     const socket = getSocket();
@@ -676,6 +697,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
     });
 
     return () => {
+      clearInterval(interval);
       socket.off("new-booking");
       socket.off("booking-updated");
     };
@@ -932,15 +954,19 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               <div className="space-y-1.5 flex-1">
                 <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
                   <span>Base Fare:</span>
-                  <span className="font-mono text-zinc-900 font-bold">₹{pricing?.baseFare || 0}</span>
+                  <span className="font-mono text-zinc-900 font-bold">₹{cfg.baseFare}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
                   <span>Price / KM:</span>
-                  <span className="font-mono text-zinc-900 font-bold">₹{pricing?.pricePerKm || 0}</span>
+                  <span className="font-mono text-zinc-900 font-bold">₹{cfg.pricePerKm}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
-                  <span>Waiting / Min:</span>
-                  <span className="font-mono text-zinc-900 font-bold">₹{pricing?.waitingCharge || 0}</span>
+                  <span>Time / Min:</span>
+                  <span className="font-mono text-zinc-900 font-bold">₹{cfg.pricePerMinute}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs font-semibold text-zinc-500">
+                  <span>Multiplier:</span>
+                  <span className="font-mono text-zinc-900 font-bold">{cfg.multiplier}x</span>
                 </div>
               </div>
             </div>

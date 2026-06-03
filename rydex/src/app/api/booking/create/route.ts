@@ -3,6 +3,7 @@ import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
+import FareConfig from "@/models/fareConfig.model";
 import { auth } from "@/auth";
 import axios from "axios";
 
@@ -133,11 +134,31 @@ export async function POST(req: Request) {
   const nearestVendor = sortedCandidates[0];
   const nearestVehicle = activeVehicles.find(v => v.owner.toString() === nearestVendor._id.toString());
 
-  // Calculate exact fare dynamically based on matched vehicle pricing rates
+  // 1️⃣ Find category rates from FareConfig collection
+  const rates = await FareConfig.find({});
+  const ratesMap: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number }> = {};
+  rates.forEach((c) => {
+    ratesMap[c.vehicleType.toLowerCase()] = {
+      baseFare: c.baseFare,
+      pricePerKm: c.pricePerKm,
+      pricePerMinute: c.pricePerMinute,
+      multiplier: c.multiplier,
+    };
+  });
+
+  const DEFAULT_RATES = {
+    bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0 },
+    auto:    { baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2 },
+    car:     { baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5 },
+    loading: { baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8 },
+    truck:   { baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2 },
+  };
+
+  const cfg = ratesMap[vehicle.toLowerCase()] || DEFAULT_RATES[vehicle.toLowerCase() as keyof typeof DEFAULT_RATES] || DEFAULT_RATES.car;
   const routeDistance = haversineDistance([Number(pickupLng), Number(pickupLat)], [Number(dropLng), Number(dropLat)]);
-  const calculatedFare = nearestVehicle
-    ? Math.round((nearestVehicle.baseFare || 0) + routeDistance * (nearestVehicle.pricePerKm || 0))
-    : fare;
+  const timeMinutes = (routeDistance / 25) * 60; // Travel duration estimation
+
+  const calculatedFare = Math.round((cfg.baseFare + routeDistance * cfg.pricePerKm + timeMinutes * cfg.pricePerMinute) * cfg.multiplier);
 
   const booking = await Booking.create({
     user: session.user.id,

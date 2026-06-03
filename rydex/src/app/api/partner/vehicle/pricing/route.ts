@@ -135,6 +135,7 @@ export async function GET() {
         waitingCharge: vehicle.waitingCharge || 0,
         status: vehicle.status,
         rejectionReason: vehicle.rejectionReason || null,
+        type: vehicle.type,
       },
     });
   } catch (error) {

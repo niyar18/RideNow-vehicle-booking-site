@@ -26,8 +26,23 @@ export default function AdminVehicleReviewPage() {
   const [showReject, setShowReject] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
   const [actionLoading, setActionLoading] = useState(false);
+  const [rates, setRates] = useState<any>(null);
 
   /* ================= LOAD ================= */
+
+  useEffect(() => {
+    async function loadRates() {
+      try {
+        const res = await axios.get("/api/vehicles/pricing");
+        if (res.data.success) {
+          setRates(res.data.rates);
+        }
+      } catch (err) {
+        console.error("Failed to load rates:", err);
+      }
+    }
+    loadRates();
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -84,6 +99,17 @@ export default function AdminVehicleReviewPage() {
 
   if (!data) return null;
 
+  const standardRates: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number }> = {
+    bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0 },
+    auto:    { baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2 },
+    car:     { baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5 },
+    loading: { baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8 },
+    truck:   { baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2 },
+  };
+
+  const vType = data.type || "car";
+  const cfg = (rates && rates[vType.toLowerCase()]) || standardRates[vType.toLowerCase()] || standardRates.car;
+
   return (
     <div className="min-h-screen bg-gray-50">
 
@@ -136,10 +162,11 @@ export default function AdminVehicleReviewPage() {
             <Info label="Model" value={data.model} />
           </Card>
 
-          <Card title="Pricing Configuration" icon={<IndianRupee size={18} />}>
-            <Info label="Base Fare" value={`₹${data.baseFare}`} />
-            <Info label="Price per KM" value={`₹${data.pricePerKm}`} />
-            <Info label="Waiting Charge" value={`₹${data.waitingCharge}`} />
+          <Card title="Pricing Configuration (Standard)" icon={<IndianRupee size={18} />}>
+            <Info label="Base Fare" value={`₹${cfg.baseFare}`} />
+            <Info label="Price per KM" value={`₹${cfg.pricePerKm}`} />
+            <Info label="Price per Minute" value={`₹${cfg.pricePerMinute}`} />
+            <Info label="Multiplier" value={`${cfg.multiplier}x`} />
           </Card>
 
           {data.status === "pending" && (
