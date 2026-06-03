@@ -133,6 +133,12 @@ export async function POST(req: Request) {
   const nearestVendor = sortedCandidates[0];
   const nearestVehicle = activeVehicles.find(v => v.owner.toString() === nearestVendor._id.toString());
 
+  // Calculate exact fare dynamically based on matched vehicle pricing rates
+  const routeDistance = haversineDistance([Number(pickupLng), Number(pickupLat)], [Number(dropLng), Number(dropLat)]);
+  const calculatedFare = nearestVehicle
+    ? Math.round((nearestVehicle.baseFare || 0) + routeDistance * (nearestVehicle.pricePerKm || 0))
+    : fare;
+
   const booking = await Booking.create({
     user: session.user.id,
     driver: nearestVendor._id,
@@ -147,9 +153,9 @@ export async function POST(req: Request) {
       type: "Point",
       coordinates: [Number(dropLng), Number(dropLat)],
     },
-    fare,
-    adminCommission: Number((fare * 0.10).toFixed(2)),
-    partnerAmount: Number((fare - (fare * 0.10)).toFixed(2)),
+    fare: calculatedFare,
+    adminCommission: Number((calculatedFare * 0.10).toFixed(2)),
+    partnerAmount: Number((calculatedFare - (calculatedFare * 0.10)).toFixed(2)),
     userMobileNumber: mobileNumber,
     driverMobileNumber: nearestVendor.mobileNumber || "",
     candidateDrivers: sortedCandidates.map(c => c._id),

@@ -171,7 +171,9 @@ export default function CheckoutContent() {
     socket.emit("join-booking", bookingId);
 
     socket.on("booking-updated", (data) => {
-      if (data.status === "awaiting_payment") setStatus("awaiting_payment");
+      if (data.status === "awaiting_payment") {
+        setStatus((prev) => (prev === "payment" ? "payment" : "awaiting_payment"));
+      }
       if (data.status === "rejected")         setStatus("rejected");
       if (data.status === "confirmed")        setStatus("confirmed");
       if (data.status === "requested") {
@@ -210,6 +212,10 @@ export default function CheckoutContent() {
         const data = await res.json();
         if (data.booking) {
           setBookingId(data.booking._id);
+          // If server state is awaiting_payment but local state is already payment, do not revert
+          if (data.booking.status === "awaiting_payment" && status === "payment") {
+            return;
+          }
           setStatus(data.booking.status);
         }
       } catch (err) {

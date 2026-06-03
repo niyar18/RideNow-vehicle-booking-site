@@ -31,6 +31,30 @@ const stepVariants = {
   visible: { opacity: 1, y: 0 },
 };
 
+function getHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // Radius of the earth in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c; // Distance in km
+}
+
+function estimateFare(type: string, distanceKm: number) {
+  const rates: Record<string, { base: number; perKm: number }> = {
+    bike: { base: 30, perKm: 6 },
+    auto: { base: 50, perKm: 10 },
+    car: { base: 80, perKm: 15 },
+    loading: { base: 120, perKm: 20 },
+    truck: { base: 180, perKm: 25 },
+  };
+  const cfg = rates[type.toLowerCase()] || rates.car;
+  return Math.round(cfg.base + distanceKm * cfg.perKm);
+}
+
 export default function BookPage() {
   const router = useRouter();
 
@@ -388,12 +412,17 @@ export default function BookPage() {
               whileTap={{ scale: 0.97 }}
               whileHover={canContinue ? { scale: 1.02 } : {}}
               disabled={!canContinue}
-              onClick={() => router.push(
-                `/search?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobileNumber=${encodeURIComponent(mobile)}&pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropLat=${dropLat}&dropLng=${dropLng}`
-              )}
+              onClick={() => {
+                if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return;
+                const distanceKm = getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+                const estFare = estimateFare(vehicle, distanceKm);
+                router.push(
+                  `/checkout?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobileNumber=${encodeURIComponent(mobile)}&pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropLat=${dropLat}&dropLng=${dropLng}&fare=${estFare}`
+                );
+              }}
               className="w-full h-14 rounded-2xl bg-zinc-900 hover:bg-black disabled:opacity-35 text-white font-black text-sm tracking-wide flex items-center justify-center gap-2.5 transition-colors shadow-lg disabled:shadow-none"
             >
-              <span>Search Available Rides</span>
+              <span>Request Ride</span>
               <motion.div
                 animate={canContinue ? { x: [0, 4, 0] } : {}}
                 transition={{ duration: 1.2, repeat: Infinity, repeatDelay: 1 }}
