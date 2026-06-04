@@ -143,59 +143,51 @@ export default function BookPage() {
   const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null) => {
     if (!q || q.trim().length < 3) { setResults([]); return; }
     try {
-      let url = `/api/places?action=autocomplete&input=${encodeURIComponent(q.trim())}`;
+      let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}`;
       if (restrict) {
-        url += `&country=${restrict}`;
+        url += `&countrycode=${restrict}`;
       }
       const res  = await fetch(url);
       const data = await res.json();
-      if (data?.status === "REQUEST_DENIED") {
-        console.error("Google Maps Autocomplete Request Denied:", data.error_message);
-      }
-      const results: Place[] = (data?.predictions ?? []).map((pred: any) => ({
-        id: pred.place_id,
-        name: pred.description,
-      }));
+      
+      const results: Place[] = (data?.features || []).map((feature: any) => {
+        const props = feature.properties || {};
+        const coords = feature.geometry?.coordinates || [0, 0];
+        const description = [props.name, props.city, props.state, props.country]
+          .filter(Boolean)
+          .join(", ");
+        return {
+          id: `${props.osm_type || "N"}-${props.osm_id || Math.random()}`,
+          name: description,
+          city: props.city,
+          state: props.state,
+          country: props.country,
+          countrycode: String(props.countrycode || "in").toLowerCase(),
+          lat: coords[1],
+          lng: coords[0],
+        };
+      });
       setResults(results);
     } catch (err) {
-      console.error("Autocomplete fetch error:", err);
+      console.error("Photon autocomplete error:", err);
       setResults([]);
     }
   };
 
   const fmt = (p: Place) => p.name;
 
-  const selectPlace = async (p: Place, isPickup: boolean) => {
-    try {
-      const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
-      const data = await res.json();
-      if (data?.status === "REQUEST_DENIED") {
-        console.error("Google Maps Details Request Denied:", data.error_message);
-      }
-      if (data?.result) {
-        const result = data.result;
-        const addr = result.formatted_address;
-        const lat = result.geometry.location.lat;
-        const lng = result.geometry.location.lng;
-
-        if (isPickup) {
-          const countryComp = result.address_components?.find((c: any) => c.types.includes("country"));
-          const countryCode = countryComp?.short_name?.toLowerCase() || null;
-
-          setPickup(addr);
-          setPickupCountry(countryCode);
-          setPickupLat(lat);
-          setPickupLng(lng);
-          setPickupResults([]);
-        } else {
-          setDrop(addr);
-          setDropLat(lat);
-          setDropLng(lng);
-          setDropResults([]);
-        }
-      }
-    } catch (err) {
-      console.error("Failed to select place:", err);
+  const selectPlace = (p: Place, isPickup: boolean) => {
+    if (isPickup) {
+      setPickup(p.name);
+      setPickupCountry(p.countrycode || null);
+      setPickupLat(p.lat);
+      setPickupLng(p.lng);
+      setPickupResults([]);
+    } else {
+      setDrop(p.name);
+      setDropLat(p.lat);
+      setDropLng(p.lng);
+      setDropResults([]);
     }
   };
 
@@ -205,16 +197,15 @@ export default function BookPage() {
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          const res  = await fetch(`/api/places?action=geocode&lat=${coords.latitude}&lng=${coords.longitude}`);
+          const res  = await fetch(`https://photon.komoot.io/reverse?lat=${coords.latitude}&lon=${coords.longitude}`);
           const data = await res.json();
-          if (data?.status === "REQUEST_DENIED") {
-            console.error("Google Maps Geocode Request Denied:", data.error_message);
-          }
-          if (data?.results?.length) {
-            const result = data.results[0];
-            const addr = result.formatted_address;
-            const countryComp = result.address_components?.find((c: any) => c.types.includes("country"));
-            const countryCode = countryComp?.short_name?.toLowerCase() || null;
+          if (data?.features?.length) {
+            const first = data.features[0];
+            const props = first.properties || {};
+            const addr = [props.name, props.city, props.state, props.country]
+              .filter(Boolean)
+              .join(", ");
+            const countryCode = String(props.countrycode || "in").toLowerCase();
 
             setPickup(addr);
             setPickupCountry(countryCode);
@@ -266,42 +257,16 @@ export default function BookPage() {
     return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
 
-  const handleCoordinatesChange = async (p1: [number, number] | null, p2: [number, number] | null) => {
-    if (p1) {
-      setPickupLat(p1[0]);
-      setPickupLng(p1[1]);
-      try {
-        const res = await fetch(`/api/places?action=geocode&lat=${p1[0]}&lng=${p1[1]}`);
-        const data = await res.json();
-        if (data?.status === "REQUEST_DENIED") {
-          console.error("Google Maps Geocode Request Denied (Pickup):", data.error_message);
-        }
-        if (data?.results?.length) {
-          const result = data.results[0];
-          setPickup(result.formatted_address);
-          const countryComp = result.address_components?.find((c: any) => c.types.includes("country"));
-          setPickupCountry(countryComp?.short_name?.toLowerCase() || null);
-        }
-      } catch (err) {
-        console.error("Reverse geocoding pickup error:", err);
-      }
+  const handleMapChange = (p: string, d: string, c1?: [number, number] | null, c2?: [number, number] | null) => {
+    setPickup(p);
+    setDrop(d);
+    if (c1) {
+      setPickupLat(c1[0]);
+      setPickupLng(c1[1]);
     }
-    if (p2) {
-      setDropLat(p2[0]);
-      setDropLng(p2[1]);
-      try {
-        const res = await fetch(`/api/places?action=geocode&lat=${p2[0]}&lng=${p2[1]}`);
-        const data = await res.json();
-        if (data?.status === "REQUEST_DENIED") {
-          console.error("Google Maps Geocode Request Denied (Drop):", data.error_message);
-        }
-        if (data?.results?.length) {
-          const result = data.results[0];
-          setDrop(result.formatted_address);
-        }
-      } catch (err) {
-        console.error("Reverse geocoding drop error:", err);
-      }
+    if (c2) {
+      setDropLat(c2[0]);
+      setDropLng(c2[1]);
     }
   };
 
@@ -596,8 +561,9 @@ export default function BookPage() {
         <RouteMap
           pickup={pickup}
           drop={drop}
-          onChange={(p, d) => { setPickup(p); setDrop(d); }}
-          onCoordinatesChange={handleCoordinatesChange}
+          pickupCoords={pickupLat && pickupLng ? [pickupLat, pickupLng] : null}
+          dropCoords={dropLat && dropLng ? [dropLat, dropLng] : null}
+          onChange={handleMapChange}
           vehicles={vehicles}
         />
       </div>

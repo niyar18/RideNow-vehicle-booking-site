@@ -16,8 +16,10 @@ import { MapPin, Navigation2 } from "lucide-react";
 type Props = {
   pickup: string;
   drop: string;
+  pickupCoords?: [number, number] | null;
+  dropCoords?: [number, number] | null;
   onDistance?: (km: number) => void;
-  onChange?: (pickup: string, drop: string) => void;
+  onChange?: (pickup: string, drop: string, p1?: [number, number] | null, p2?: [number, number] | null) => void;
   onCoordinatesChange?: (p1: [number, number] | null, p2: [number, number] | null) => void;
   vehicles?: any[];
 };
@@ -132,7 +134,7 @@ function ZoomControlsWrapper() {
             background: "#fff",
             border: "1.5px solid #e4e4e7",
             borderRadius: 12,
-            display: "flex", alignItems: "center", justifyContent: "center",
+            display: "flex", alignItems: "center", justifycontent: "center",
             cursor: "pointer", color: "#0a0a0a",
             fontSize: 18, fontWeight: 400,
             boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
@@ -147,7 +149,16 @@ function ZoomControlsWrapper() {
 }
 
 /* ─── MAIN ────────────────────────────────────────────────────────── */
-export default function RouteMap({ pickup, drop, onDistance, onChange, onCoordinatesChange, vehicles }: Props) {
+export default function RouteMap({
+  pickup,
+  drop,
+  pickupCoords,
+  dropCoords,
+  onDistance,
+  onChange,
+  onCoordinatesChange,
+  vehicles,
+}: Props) {
   const [p1,    setP1]    = useState<[number, number] | null>(null);
   const [p2,    setP2]    = useState<[number, number] | null>(null);
   const [route, setRoute] = useState<[number, number][]>([]);
@@ -155,16 +166,25 @@ export default function RouteMap({ pickup, drop, onDistance, onChange, onCoordin
   const [km,    setKm]    = useState<number | null>(null);
 
   useEffect(() => {
-    onCoordinatesChange?.(p1, p2);
-  }, [p1, p2, onCoordinatesChange]);
+    if (pickupCoords) {
+      setP1(pickupCoords);
+    }
+  }, [pickupCoords]);
+
+  useEffect(() => {
+    if (dropCoords) {
+      setP2(dropCoords);
+    }
+  }, [dropCoords]);
 
   const geocode = async (q: string): Promise<[number, number] | null> => {
+    if (!q) return null;
     try {
-      const r = await fetch(`/api/places?action=geocode&address=${encodeURIComponent(q)}`);
+      const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=1`);
       const d = await r.json();
-      if (d?.results?.length) {
-        const loc = d.results[0].geometry.location;
-        return [loc.lat, loc.lng];
+      if (d?.features?.length) {
+        const coords = d.features[0].geometry.coordinates; // [lng, lat]
+        return [coords[1], coords[0]];
       }
     } catch (err) {
       console.error("Geocoding failed in RouteMap:", err);
@@ -174,10 +194,13 @@ export default function RouteMap({ pickup, drop, onDistance, onChange, onCoordin
 
   const reverseGeocode = async (lat: number, lon: number): Promise<string> => {
     try {
-      const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
+      const r = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`);
       const d = await r.json();
-      if (d?.results?.length) {
-        return d.results[0].formatted_address;
+      if (d?.features?.length) {
+        const props = d.features[0].properties || {};
+        return [props.name, props.city, props.state, props.country]
+          .filter(Boolean)
+          .join(", ");
       }
     } catch (err) {
       console.error("Reverse geocoding failed in RouteMap:", err);
@@ -186,52 +209,68 @@ export default function RouteMap({ pickup, drop, onDistance, onChange, onCoordin
   };
 
   const loadRoute = async (a: [number, number], b: [number, number]) => {
-    const r = await fetch(
-      `https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`
-    );
-    const d = await r.json();
-    if (!d?.routes?.length) return;
-    setRoute(d.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon]));
-    const distKm = +((d.routes[0].distance / 1000).toFixed(2));
-    setKm(distKm);
-    onDistance?.(distKm);
+    try {
+      const r = await fetch(
+        `https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`
+      );
+      const d = await r.json();
+      if (!d?.routes?.length) return;
+      setRoute(d.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon]));
+      const distKm = +((d.routes[0].distance / 1000).toFixed(2));
+      setKm(distKm);
+      onDistance?.(distKm);
+    } catch (err) {
+      console.error("Failed to load route in RouteMap:", err);
+    }
   };
 
+  // Fallback geocoding for string-only inputs (like search results page)
   useEffect(() => {
-    setRoute([]);
     (async () => {
-      if (!pickup && !drop) {
+      if (!pickupCoords && pickup) {
+        const a = await geocode(pickup);
+        if (a) setP1(a);
+      } else if (!pickup) {
         setP1(null);
-        setP2(null);
-        return;
-      }
-
-      const a = pickup ? await geocode(pickup) : null;
-      const b = drop ? await geocode(drop) : null;
-
-      if (a) setP1(a);
-      if (b) setP2(b);
-
-      if (a && b) {
-        await loadRoute(a, b);
-      } else {
-        setRoute([]);
       }
     })();
-  }, [pickup, drop]);
+  }, [pickup, pickupCoords]);
+
+  useEffect(() => {
+    (async () => {
+      if (!dropCoords && drop) {
+        const b = await geocode(drop);
+        if (b) setP2(b);
+      } else if (!drop) {
+        setP2(null);
+      }
+    })();
+  }, [drop, dropCoords]);
+
+  // Sync coords back if they change
+  useEffect(() => {
+    onCoordinatesChange?.(p1, p2);
+  }, [p1, p2, onCoordinatesChange]);
+
+  useEffect(() => {
+    if (p1 && p2) {
+      loadRoute(p1, p2);
+    } else {
+      setRoute([]);
+      setKm(null);
+    }
+  }, [p1, p2]);
 
   const onDragPickup = async (lat: number, lon: number) => {
     const addr = await reverseGeocode(lat, lon);
     setP1([lat, lon]);
-    onChange?.(addr, drop);
-    if (p2) loadRoute([lat, lon], p2);
+    onChange?.(addr, drop, [lat, lon], p2);
   };
 
   const onDragDrop = async (lat: number, lon: number) => {
     const addr = await reverseGeocode(lat, lon);
     setP2([lat, lon]);
-    onChange?.(pickup, addr);
-    if (p1) loadRoute(p1, [lat, lon]);
+    onChange?.(pickup, addr, p1, [lat, lon]);
   };
 
   return (
