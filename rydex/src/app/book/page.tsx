@@ -149,12 +149,18 @@ export default function BookPage() {
       }
       const res  = await fetch(url);
       const data = await res.json();
+      if (data?.status === "REQUEST_DENIED") {
+        console.error("Google Maps Autocomplete Request Denied:", data.error_message);
+      }
       const results: Place[] = (data?.predictions ?? []).map((pred: any) => ({
         id: pred.place_id,
         name: pred.description,
       }));
       setResults(results);
-    } catch { setResults([]); }
+    } catch (err) {
+      console.error("Autocomplete fetch error:", err);
+      setResults([]);
+    }
   };
 
   const fmt = (p: Place) => p.name;
@@ -163,6 +169,9 @@ export default function BookPage() {
     try {
       const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
       const data = await res.json();
+      if (data?.status === "REQUEST_DENIED") {
+        console.error("Google Maps Details Request Denied:", data.error_message);
+      }
       if (data?.result) {
         const result = data.result;
         const addr = result.formatted_address;
@@ -190,7 +199,6 @@ export default function BookPage() {
     }
   };
 
-  /* ── GPS ── */
   const useCurrentLocation = () => {
     if (!navigator.geolocation) return;
     setLocating(true);
@@ -199,6 +207,9 @@ export default function BookPage() {
         try {
           const res  = await fetch(`/api/places?action=geocode&lat=${coords.latitude}&lng=${coords.longitude}`);
           const data = await res.json();
+          if (data?.status === "REQUEST_DENIED") {
+            console.error("Google Maps Geocode Request Denied:", data.error_message);
+          }
           if (data?.results?.length) {
             const result = data.results[0];
             const addr = result.formatted_address;
@@ -255,7 +266,6 @@ export default function BookPage() {
     return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
 
-  /* ── SYNC COORDS FROM MAP DRAG ── */
   const handleCoordinatesChange = async (p1: [number, number] | null, p2: [number, number] | null) => {
     if (p1) {
       setPickupLat(p1[0]);
@@ -263,6 +273,9 @@ export default function BookPage() {
       try {
         const res = await fetch(`/api/places?action=geocode&lat=${p1[0]}&lng=${p1[1]}`);
         const data = await res.json();
+        if (data?.status === "REQUEST_DENIED") {
+          console.error("Google Maps Geocode Request Denied (Pickup):", data.error_message);
+        }
         if (data?.results?.length) {
           const result = data.results[0];
           setPickup(result.formatted_address);
@@ -279,6 +292,9 @@ export default function BookPage() {
       try {
         const res = await fetch(`/api/places?action=geocode&lat=${p2[0]}&lng=${p2[1]}`);
         const data = await res.json();
+        if (data?.status === "REQUEST_DENIED") {
+          console.error("Google Maps Geocode Request Denied (Drop):", data.error_message);
+        }
         if (data?.results?.length) {
           const result = data.results[0];
           setDrop(result.formatted_address);
