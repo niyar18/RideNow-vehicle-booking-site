@@ -363,7 +363,7 @@ export default function BookPage() {
                     <div className="min-w-0 font-sans">
                       <p className={`text-sm font-bold truncate ${active ? "text-white" : "text-zinc-900"}`}>{v.label}</p>
                       <p className={`text-[10px] truncate ${active ? "text-zinc-400" : "text-zinc-400"}`}>{v.desc}</p>
-                      {pickupLat && pickupLng && dropLat && dropLng && (
+                      {distanceKm !== null && (
                         <div className="mt-1.5 flex flex-wrap gap-1 items-center">
                           <p className={`text-xs font-black leading-none ${active ? "text-amber-400" : "text-zinc-900"}`}>
                             ₹{estimateFare(v.id, distanceKm)}
