@@ -1,14 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-  if (!apiKey) {
-    return NextResponse.json(
-      { message: "Google Maps API Key is not configured on the server." },
-      { status: 500 }
-    );
-  }
-
   const { searchParams } = new URL(req.url);
   const action = searchParams.get("action");
 
@@ -16,21 +8,62 @@ export async function GET(req: NextRequest) {
     if (action === "autocomplete") {
       const input = searchParams.get("input") || "";
       const country = searchParams.get("country");
-      let url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
+      let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}`;
       if (country && country !== "null") {
-        url += `&components=country:${country}`;
+        url += `&countrycode=${country}`;
       }
       const res = await fetch(url);
       const data = await res.json();
-      return NextResponse.json(data);
+
+      // Map Photon FeatureCollection to Google-compatible Places Autocomplete format
+      const predictions = (data?.features || []).map((feature: any) => {
+        const props = feature.properties || {};
+        const coords = feature.geometry?.coordinates || [0, 0]; // [lng, lat]
+        const description = [props.name, props.city, props.state, props.country]
+          .filter(Boolean)
+          .join(", ");
+
+        // Encode coordinates and country code in place_id to make details retrieval zero-latency
+        const place_id = `photon_${coords[1]}_${coords[0]}_${props.countrycode || "in"}_${encodeURIComponent(description)}`;
+
+        return {
+          place_id,
+          description,
+        };
+      });
+
+      return NextResponse.json({ predictions, status: "OK" });
     } 
     
     if (action === "details") {
       const placeId = searchParams.get("placeId") || "";
-      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry,formatted_address,address_components&key=${apiKey}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      return NextResponse.json(data);
+      if (placeId.startsWith("photon_")) {
+        const parts = placeId.split("_");
+        if (parts.length >= 5) {
+          const [_, lat, lng, countrycode, ...descParts] = parts;
+          const description = decodeURIComponent(descParts.join("_"));
+          return NextResponse.json({
+            status: "OK",
+            result: {
+              formatted_address: description,
+              geometry: {
+                location: {
+                  lat: Number(lat),
+                  lng: Number(lng),
+                },
+              },
+              address_components: [
+                {
+                  long_name: countrycode.toUpperCase(),
+                  short_name: countrycode.toLowerCase(),
+                  types: ["country"],
+                },
+              ],
+            },
+          });
+        }
+      }
+      return NextResponse.json({ status: "INVALID_REQUEST", message: "Invalid placeId format" }, { status: 400 });
     } 
     
     if (action === "geocode") {
@@ -38,15 +71,70 @@ export async function GET(req: NextRequest) {
       const lng = searchParams.get("lng");
       const address = searchParams.get("address");
       
-      let url = "";
       if (address) {
-        url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`;
-      } else {
-        url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+        const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        const results = (data?.features || []).map((feature: any) => {
+          const props = feature.properties || {};
+          const coords = feature.geometry?.coordinates || [0, 0];
+          const description = [props.name, props.city, props.state, props.country]
+            .filter(Boolean)
+            .join(", ");
+          
+          return {
+            formatted_address: description,
+            geometry: {
+              location: {
+                lat: coords[1],
+                lng: coords[0],
+              },
+            },
+            address_components: [
+              {
+                long_name: props.country || "India",
+                short_name: (props.countrycode || "in").toLowerCase(),
+                types: ["country"],
+              },
+            ],
+          };
+        });
+        
+        return NextResponse.json({ results, status: "OK" });
+      } else if (lat && lng) {
+        const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        
+        const results = (data?.features || []).map((feature: any) => {
+          const props = feature.properties || {};
+          const coords = feature.geometry?.coordinates || [0, 0];
+          const description = [props.name, props.city, props.state, props.country]
+            .filter(Boolean)
+            .join(", ");
+          
+          return {
+            formatted_address: description,
+            geometry: {
+              location: {
+                lat: coords[1],
+                lng: coords[0],
+              },
+            },
+            address_components: [
+              {
+                long_name: props.country || "India",
+                short_name: (props.countrycode || "in").toLowerCase(),
+                types: ["country"],
+              },
+            ],
+          };
+        });
+        
+        return NextResponse.json({ results, status: "OK" });
       }
-      const res = await fetch(url);
-      const data = await res.json();
-      return NextResponse.json(data);
+      return NextResponse.json({ status: "INVALID_REQUEST", message: "Missing coordinates or address" }, { status: 400 });
     }
 
     return NextResponse.json({ message: "Invalid action" }, { status: 400 });

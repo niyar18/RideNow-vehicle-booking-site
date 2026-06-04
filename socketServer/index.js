@@ -28,9 +28,11 @@ app.use(express.json())
 const server=http.createServer(app)
 const port=process.env.PORT || 5000
 
+const nextBaseUrl = process.env.NEXT_BASE_URL ? process.env.NEXT_BASE_URL.replace(/\/$/, "") : "http://localhost:3000";
+
 const io=new Server(server,{
     cors:{
-        origin:process.env.NEXT_BASE_URL
+        origin: nextBaseUrl
     }
 })
 
