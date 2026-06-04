@@ -159,19 +159,30 @@ export default function RouteMap({ pickup, drop, onDistance, onChange, onCoordin
   }, [p1, p2, onCoordinatesChange]);
 
   const geocode = async (q: string): Promise<[number, number] | null> => {
-    const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=1`);
-    const d = await r.json();
-    if (!d?.features?.length) return null;
-    const [lon, lat] = d.features[0].geometry.coordinates;
-    return [lat, lon];
+    try {
+      const r = await fetch(`/api/places?action=geocode&address=${encodeURIComponent(q)}`);
+      const d = await r.json();
+      if (d?.results?.length) {
+        const loc = d.results[0].geometry.location;
+        return [loc.lat, loc.lng];
+      }
+    } catch (err) {
+      console.error("Geocoding failed in RouteMap:", err);
+    }
+    return null;
   };
 
   const reverseGeocode = async (lat: number, lon: number): Promise<string> => {
-    const r = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}&limit=1`);
-    const d = await r.json();
-    if (!d?.features?.length) return "";
-    const p = d.features[0].properties;
-    return [p.name, p.city, p.state, p.country].filter(Boolean).join(", ");
+    try {
+      const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
+      const d = await r.json();
+      if (d?.results?.length) {
+        return d.results[0].formatted_address;
+      }
+    } catch (err) {
+      console.error("Reverse geocoding failed in RouteMap:", err);
+    }
+    return "";
   };
 
   const loadRoute = async (a: [number, number], b: [number, number]) => {

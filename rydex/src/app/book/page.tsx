@@ -101,24 +101,52 @@ export default function BookPage() {
   const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null) => {
     if (!q || q.trim().length < 3) { setResults([]); return; }
     try {
-      const res  = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}&limit=8&lang=en`);
+      let url = `/api/places?action=autocomplete&input=${encodeURIComponent(q.trim())}`;
+      if (restrict) {
+        url += `&country=${restrict}`;
+      }
+      const res  = await fetch(url);
       const data = await res.json();
-      let results: Place[] = (data?.features ?? []).map((f: any) => ({
-        id: String(f.properties.osm_id),
-        name: f.properties.name,
-        city: f.properties.city,
-        state: f.properties.state,
-        country: f.properties.country,
-        countrycode: f.properties.countrycode?.toLowerCase(),
-        lat: f.geometry.coordinates[1],
-        lng: f.geometry.coordinates[0],
+      const results: Place[] = (data?.predictions ?? []).map((pred: any) => ({
+        id: pred.place_id,
+        name: pred.description,
       }));
-      if (restrict) results = results.filter(p => p.countrycode === restrict);
       setResults(results);
     } catch { setResults([]); }
   };
 
-  const fmt = (p: Place) => [p.name, p.city, p.state, p.country].filter(Boolean).join(", ");
+  const fmt = (p: Place) => p.name;
+
+  const selectPlace = async (p: Place, isPickup: boolean) => {
+    try {
+      const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
+      const data = await res.json();
+      if (data?.result) {
+        const result = data.result;
+        const addr = result.formatted_address;
+        const lat = result.geometry.location.lat;
+        const lng = result.geometry.location.lng;
+
+        if (isPickup) {
+          const countryComp = result.address_components?.find((c: any) => c.types.includes("country"));
+          const countryCode = countryComp?.short_name?.toLowerCase() || null;
+
+          setPickup(addr);
+          setPickupCountry(countryCode);
+          setPickupLat(lat);
+          setPickupLng(lng);
+          setPickupResults([]);
+        } else {
+          setDrop(addr);
+          setDropLat(lat);
+          setDropLng(lng);
+          setDropResults([]);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to select place:", err);
+    }
+  };
 
   /* ── GPS ── */
   const useCurrentLocation = () => {
@@ -127,17 +155,22 @@ export default function BookPage() {
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          const res  = await fetch(`https://photon.komoot.io/reverse?lat=${coords.latitude}&lon=${coords.longitude}&limit=1`);
+          const res  = await fetch(`/api/places?action=geocode&lat=${coords.latitude}&lng=${coords.longitude}`);
           const data = await res.json();
-          if (data?.features?.length) {
-            const p    = data.features[0].properties;
-            const addr = [p.name, p.street, p.city, p.state, p.country].filter(Boolean).join(", ");
+          if (data?.results?.length) {
+            const result = data.results[0];
+            const addr = result.formatted_address;
+            const countryComp = result.address_components?.find((c: any) => c.types.includes("country"));
+            const countryCode = countryComp?.short_name?.toLowerCase() || null;
+
             setPickup(addr);
-            setPickupCountry(p.countrycode?.toLowerCase() || null);
+            setPickupCountry(countryCode);
             setPickupLat(coords.latitude);
             setPickupLng(coords.longitude);
             setPickupResults([]);
           }
+        } catch (err) {
+          console.error("Failed to reverse geocode current location:", err);
         } finally { setLocating(false); }
       },
       () => setLocating(false),
@@ -181,14 +214,36 @@ export default function BookPage() {
   }, [pickupLat, pickupLng, vehicle]);
 
   /* ── SYNC COORDS FROM MAP DRAG ── */
-  const handleCoordinatesChange = (p1: [number, number] | null, p2: [number, number] | null) => {
+  const handleCoordinatesChange = async (p1: [number, number] | null, p2: [number, number] | null) => {
     if (p1) {
       setPickupLat(p1[0]);
       setPickupLng(p1[1]);
+      try {
+        const res = await fetch(`/api/places?action=geocode&lat=${p1[0]}&lng=${p1[1]}`);
+        const data = await res.json();
+        if (data?.results?.length) {
+          const result = data.results[0];
+          setPickup(result.formatted_address);
+          const countryComp = result.address_components?.find((c: any) => c.types.includes("country"));
+          setPickupCountry(countryComp?.short_name?.toLowerCase() || null);
+        }
+      } catch (err) {
+        console.error("Reverse geocoding pickup error:", err);
+      }
     }
     if (p2) {
       setDropLat(p2[0]);
       setDropLng(p2[1]);
+      try {
+        const res = await fetch(`/api/places?action=geocode&lat=${p2[0]}&lng=${p2[1]}`);
+        const data = await res.json();
+        if (data?.results?.length) {
+          const result = data.results[0];
+          setDrop(result.formatted_address);
+        }
+      } catch (err) {
+        console.error("Reverse geocoding drop error:", err);
+      }
     }
   };
 
@@ -365,12 +420,7 @@ export default function BookPage() {
                       {pickupResults.map((p, i) => (
                         <button
                           key={p.id}
-                          onClick={() => {
-                            setPickup(fmt(p));
-                            setPickupCountry(p.countrycode || null);
-                            setPickupLat(p.lat); setPickupLng(p.lng);
-                            setPickupResults([]);
-                          }}
+                          onClick={() => selectPlace(p, true)}
                           className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
                         >
                           <MapPin size={13} className="text-zinc-400 flex-shrink-0" />
@@ -412,11 +462,7 @@ export default function BookPage() {
                       {dropResults.map((p, i) => (
                         <button
                           key={p.id}
-                          onClick={() => {
-                            setDrop(fmt(p));
-                            setDropLat(p.lat); setDropLng(p.lng);
-                            setDropResults([]);
-                          }}
+                          onClick={() => selectPlace(p, false)}
                           className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
                         >
                           <Navigation size={13} className="text-zinc-400 flex-shrink-0" />

@@ -6,7 +6,7 @@ import {
   ChevronUp, Clock, Zap,
   CheckCircle2, KeyRound, ArrowRight,
   MapPin, Navigation, MessageCircle,
-  AlertCircle, XCircle
+  AlertCircle, XCircle, AlertTriangle
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useEffect, useRef, useState } from "react";
@@ -102,6 +102,8 @@ export default function DriverRidePage() {
   const [dropOtp,        setDropOtp]        = useState("");
   const [loadingDropOtp, setLoadingDropOtp] = useState(false);
   const [dropOtpError,   setDropOtpError]   = useState("");
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showCancelError, setShowCancelError] = useState<string | null>(null);
 
   /* Chat & Sheet */
   const [chatOpen, setChatOpen] = useState(false);
@@ -113,7 +115,9 @@ export default function DriverRidePage() {
 
   /* ── FETCH ── */
   const fetchBookingDetails = () => {
-    fetch("/api/partner/bookings/active")
+    const bookingId = bookingRef.current?._id;
+    const url = bookingId ? `/api/booking/${bookingId}` : "/api/partner/bookings/active";
+    fetch(url)
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         if (data && data._id) {
@@ -126,6 +130,12 @@ export default function DriverRidePage() {
           }
           if (data.status === "started")   { setOtpVerified(true); setOtpMode(false); }
           if (data.status === "completed") { setOtpVerified(true); }
+        } else {
+          if (!bookingId) {
+            setBooking(null);
+          } else {
+            setBooking(prev => prev ? { ...prev, status: "cancelled" } : null);
+          }
         }
       })
       .catch(err => console.error("Fetch error:", err))
@@ -235,19 +245,22 @@ export default function DriverRidePage() {
     finally   { setLoadingDropOtp(false); }
   };
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
+    setShowCancelConfirm(true);
+  };
+
+  const confirmCancelRide = async () => {
     if (!booking?._id) return;
-    if (!confirm("Cancel this ride?")) return;
     try {
       const res = await fetch(`/api/booking/${booking._id}/cancel`, { method: "POST" });
       if (res.ok) {
         setBooking(prev => prev ? { ...prev, status: "cancelled" } : null);
       } else {
-        alert("Failed to cancel booking");
+        setShowCancelError("Failed to cancel booking. Please try again.");
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to cancel booking");
+      setShowCancelError("Failed to cancel booking due to a network error.");
     }
   };
 
@@ -439,8 +452,92 @@ export default function DriverRidePage() {
             <PanelContent {...panelProps} />
           </div>
           <ActionBar {...panelProps} />
-        </motion.div>
-      </div>
+      {/* Custom Confirm Cancel Modal */}
+      <AnimatePresence>
+        {showCancelConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-zinc-100"
+            >
+              <div className="p-6 text-center space-y-4">
+                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500 animate-pulse">
+                  <AlertTriangle size={28} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-black text-zinc-900">Cancel Ride?</h3>
+                  <p className="text-zinc-500 text-xs font-semibold leading-relaxed">
+                    Are you sure you want to cancel this ride? This action cannot be undone.
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 pb-6 pt-2 flex gap-3">
+                <button
+                  onClick={() => setShowCancelConfirm(false)}
+                  className="flex-1 py-3 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-700 rounded-xl text-sm font-semibold transition active:scale-[0.98]"
+                >
+                  Go Back
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCancelConfirm(false);
+                    confirmCancelRide();
+                  }}
+                  className="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition active:scale-[0.98] shadow-lg shadow-red-600/10"
+                >
+                  Cancel Ride
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Custom Error Modal */}
+      <AnimatePresence>
+        {showCancelError && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-md flex items-center justify-center z-[9999] px-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="bg-white w-full max-w-sm rounded-3xl shadow-2xl overflow-hidden border border-zinc-100"
+            >
+              <div className="p-6 text-center space-y-4">
+                <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto text-red-500">
+                  <XCircle size={28} />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-black text-zinc-900">Error</h3>
+                  <p className="text-zinc-500 text-xs font-semibold leading-relaxed">
+                    {showCancelError}
+                  </p>
+                </div>
+              </div>
+              <div className="px-6 pb-6 pt-2">
+                <button
+                  onClick={() => setShowCancelError(null)}
+                  className="w-full py-3 bg-zinc-900 hover:bg-black text-white rounded-xl text-sm font-bold transition active:scale-[0.98]"
+                >
+                  Okay
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
