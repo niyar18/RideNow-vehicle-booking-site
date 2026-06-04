@@ -69,12 +69,12 @@ export default function BookPage() {
   }, []);
 
   const estimateFare = (type: string, distanceKm: number) => {
-    const defaultRates: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number }> = {
-      bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0 },
-      auto:    { baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2 },
-      car:     { baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5 },
-      loading: { baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8 },
-      truck:   { baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2 },
+    const defaultRates: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number; minDistance: number; maxDistance: number }> = {
+      bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0, minDistance: 0, maxDistance: 15 },
+      auto:    { baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2, minDistance: 0, maxDistance: 30 },
+      car:     { baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5, minDistance: 0, maxDistance: 100 },
+      loading: { baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8, minDistance: 0, maxDistance: 150 },
+      truck:   { baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2, minDistance: 0, maxDistance: 500 },
     };
 
     const source = rates || defaultRates;
@@ -82,6 +82,47 @@ export default function BookPage() {
     const timeMinutes = (distanceKm / 25) * 60;
     const fare = (cfg.baseFare + distanceKm * cfg.pricePerKm + timeMinutes * cfg.pricePerMinute) * cfg.multiplier;
     return Math.round(fare);
+  };
+
+  const checkLimit = (type: string, dist: number) => {
+    const defaultLimits: Record<string, { minDistance: number; maxDistance: number }> = {
+      bike:    { minDistance: 0, maxDistance: 15 },
+      auto:    { minDistance: 0, maxDistance: 30 },
+      car:     { minDistance: 0, maxDistance: 100 },
+      loading: { minDistance: 0, maxDistance: 150 },
+      truck:   { minDistance: 0, maxDistance: 500 },
+    };
+    const source = rates || defaultLimits;
+    const cfg = source[type.toLowerCase()] || defaultLimits.car;
+    const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
+    const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
+    return dist >= min && dist <= max;
+  };
+
+  const getDistanceValidity = () => {
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return { valid: true };
+    const distanceKm = getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+    
+    const defaultLimits: Record<string, { minDistance: number; maxDistance: number }> = {
+      bike:    { minDistance: 0, maxDistance: 15 },
+      auto:    { minDistance: 0, maxDistance: 30 },
+      car:     { minDistance: 0, maxDistance: 100 },
+      loading: { minDistance: 0, maxDistance: 150 },
+      truck:   { minDistance: 0, maxDistance: 500 },
+    };
+    
+    const source = rates || defaultLimits;
+    const cfg = source[vehicle.toLowerCase()] || defaultLimits.car;
+    const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
+    const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
+    
+    if (distanceKm < min) {
+      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} requires a minimum ride distance of ${min} km (Current: ${distanceKm.toFixed(1)} km)` };
+    }
+    if (distanceKm > max) {
+      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} is limited to a maximum ride distance of ${max} km (Current: ${distanceKm.toFixed(1)} km)` };
+    }
+    return { valid: true };
   };
 
   const [pickupResults, setPickupResults] = useState<Place[]>([]);
@@ -95,7 +136,8 @@ export default function BookPage() {
   const [locating,  setLocating]  = useState(false);
   const [vehicles,  setVehicles]  = useState<any[]>([]);
 
-  const canContinue = !!(pickup && drop && vehicle && mobile && pickupLat && pickupLng && dropLat && dropLng);
+  const distanceValidity = getDistanceValidity();
+  const canContinue = !!(pickup && drop && vehicle && mobile && pickupLat && pickupLng && dropLat && dropLng && distanceValidity.valid);
 
   /* ── SEARCH ── */
   const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null) => {
@@ -297,32 +339,41 @@ export default function BookPage() {
             <div className="grid grid-cols-2 gap-2.5">
               {VEHICLES.map((v, i) => {
                 const active = vehicle === v.id;
+                const distanceKm = (pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null;
+                const isLimitOk = distanceKm !== null ? checkLimit(v.id, distanceKm) : true;
                 return (
                   <motion.button
                     key={v.id}
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.07 + i * 0.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={isLimitOk ? { scale: 0.95 } : {}}
                     onClick={() => setVehicle(v.id as VehicleType)}
                     className={`relative p-3.5 rounded-2xl border flex items-center gap-3 text-left transition-all duration-200 ${
                       active
                         ? "bg-zinc-900 border-zinc-900 shadow-lg"
                         : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
-                    }`}
+                    } ${!isLimitOk ? "opacity-45 hover:border-zinc-200 cursor-not-allowed" : ""}`}
                   >
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
                       active ? "bg-white" : "bg-zinc-200"
                     }`}>
                       <v.Icon size={18} className={active ? "text-zinc-900" : "text-zinc-600"} />
                     </div>
-                    <div className="min-w-0">
+                    <div className="min-w-0 font-sans">
                       <p className={`text-sm font-bold truncate ${active ? "text-white" : "text-zinc-900"}`}>{v.label}</p>
                       <p className={`text-[10px] truncate ${active ? "text-zinc-400" : "text-zinc-400"}`}>{v.desc}</p>
                       {pickupLat && pickupLng && dropLat && dropLng && (
-                        <p className={`text-xs font-black mt-1.5 leading-none ${active ? "text-amber-400" : "text-zinc-900"}`}>
-                          ₹{estimateFare(v.id, getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng))}
-                        </p>
+                        <div className="mt-1.5 flex flex-wrap gap-1 items-center">
+                          <p className={`text-xs font-black leading-none ${active ? "text-amber-400" : "text-zinc-900"}`}>
+                            ₹{estimateFare(v.id, distanceKm)}
+                          </p>
+                          {!isLimitOk && (
+                            <span className="text-[8px] font-black uppercase tracking-wider bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-md leading-none border border-rose-200 shadow-sm">
+                              Limit Exceeded
+                            </span>
+                          )}
+                        </div>
                       )}
                     </div>
                     {active && (
@@ -507,12 +558,15 @@ export default function BookPage() {
               {!canContinue && (
                 <motion.p
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="text-center text-zinc-400 text-[10px] font-semibold mt-2.5 uppercase tracking-wider"
+                  className={`text-center text-[10px] font-bold mt-2.5 uppercase tracking-wider ${
+                    !distanceValidity.valid ? "text-rose-500" : "text-zinc-400"
+                  }`}
                 >
                   {!vehicle ? "Select a vehicle type" :
                    mobile.length < 10 ? "Enter mobile number" :
                    !pickup ? "Set pickup location" :
-                   !drop ? "Set drop location" : ""}
+                   !drop ? "Set drop location" :
+                   !distanceValidity.valid ? distanceValidity.message : ""}
                 </motion.p>
               )}
             </AnimatePresence>

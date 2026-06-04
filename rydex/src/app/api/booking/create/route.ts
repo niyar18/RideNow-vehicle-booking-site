@@ -136,26 +136,45 @@ export async function POST(req: Request) {
 
   // 1️⃣ Find category rates from FareConfig collection
   const rates = await FareConfig.find({});
-  const ratesMap: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number }> = {};
+  const ratesMap: Record<string, { baseFare: number; pricePerKm: number; pricePerMinute: number; multiplier: number; minDistance: number; maxDistance: number }> = {};
   rates.forEach((c) => {
     ratesMap[c.vehicleType.toLowerCase()] = {
       baseFare: c.baseFare,
       pricePerKm: c.pricePerKm,
       pricePerMinute: c.pricePerMinute,
       multiplier: c.multiplier,
+      minDistance: c.minDistance !== undefined ? c.minDistance : 0,
+      maxDistance: c.maxDistance !== undefined ? c.maxDistance : 9999,
     };
   });
 
   const DEFAULT_RATES = {
-    bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0 },
-    auto:    { baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2 },
-    car:     { baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5 },
-    loading: { baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8 },
-    truck:   { baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2 },
+    bike:    { baseFare: 30,  pricePerKm: 8,   pricePerMinute: 1.5, multiplier: 1.0, minDistance: 0, maxDistance: 15 },
+    auto:    { baseFare: 50,  pricePerKm: 12,  pricePerMinute: 2.0, multiplier: 1.2, minDistance: 0, maxDistance: 30 },
+    car:     { baseFare: 80,  pricePerKm: 18,  pricePerMinute: 3.0, multiplier: 1.5, minDistance: 0, maxDistance: 100 },
+    loading: { baseFare: 120, pricePerKm: 24,  pricePerMinute: 4.0, multiplier: 1.8, minDistance: 0, maxDistance: 150 },
+    truck:   { baseFare: 180, pricePerKm: 30,  pricePerMinute: 5.0, multiplier: 2.2, minDistance: 0, maxDistance: 500 },
   };
 
   const cfg = ratesMap[vehicle.toLowerCase()] || DEFAULT_RATES[vehicle.toLowerCase() as keyof typeof DEFAULT_RATES] || DEFAULT_RATES.car;
   const routeDistance = haversineDistance([Number(pickupLng), Number(pickupLat)], [Number(dropLng), Number(dropLat)]);
+
+  // Validate distance limits
+  const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
+  const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
+  if (routeDistance < min) {
+    return NextResponse.json(
+      { message: `Selected vehicle type requires a minimum ride distance of ${min} km (Current: ${routeDistance.toFixed(1)} km)` },
+      { status: 400 }
+    );
+  }
+  if (routeDistance > max) {
+    return NextResponse.json(
+      { message: `Selected vehicle type is limited to a maximum ride distance of ${max} km (Current: ${routeDistance.toFixed(1)} km)` },
+      { status: 400 }
+    );
+  }
+
   const timeMinutes = (routeDistance / 25) * 60; // Travel duration estimation
 
   const calculatedFare = Math.round((cfg.baseFare + routeDistance * cfg.pricePerKm + timeMinutes * cfg.pricePerMinute) * cfg.multiplier);

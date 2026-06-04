@@ -452,6 +452,8 @@ export default function DriverRidePage() {
             <PanelContent {...panelProps} />
           </div>
           <ActionBar {...panelProps} />
+        </motion.div>
+      </div>
       {/* Custom Confirm Cancel Modal */}
       <AnimatePresence>
         {showCancelConfirm && (

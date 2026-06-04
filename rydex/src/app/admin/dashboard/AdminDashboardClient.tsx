@@ -527,6 +527,8 @@ function PricingConfigEditor() {
               <th className="py-4 px-3">Per KM Rate (₹)</th>
               <th className="py-4 px-3">Per Min Rate (₹)</th>
               <th className="py-4 px-3">Multiplier</th>
+              <th className="py-4 px-3">Min Dist (km)</th>
+              <th className="py-4 px-3">Max Dist (km)</th>
               <th className="py-4 px-3 text-right">Actions</th>
             </tr>
           </thead>
@@ -540,7 +542,7 @@ function PricingConfigEditor() {
                     type="number"
                     value={config.baseFare}
                     onChange={(e) => handleUpdate(idx, "baseFare", Number(e.target.value))}
-                    className="w-24 border rounded-xl px-3 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 
@@ -549,7 +551,7 @@ function PricingConfigEditor() {
                     type="number"
                     value={config.pricePerKm}
                     onChange={(e) => handleUpdate(idx, "pricePerKm", Number(e.target.value))}
-                    className="w-24 border rounded-xl px-3 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 
@@ -558,7 +560,7 @@ function PricingConfigEditor() {
                     type="number"
                     value={config.pricePerMinute}
                     onChange={(e) => handleUpdate(idx, "pricePerMinute", Number(e.target.value))}
-                    className="w-24 border rounded-xl px-3 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 
@@ -568,7 +570,25 @@ function PricingConfigEditor() {
                     step="0.1"
                     value={config.multiplier}
                     onChange={(e) => handleUpdate(idx, "multiplier", Number(e.target.value))}
-                    className="w-20 border rounded-xl px-3 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                    className="w-16 border rounded-xl px-2 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                  />
+                </td>
+
+                <td className="py-4 px-3">
+                  <input
+                    type="number"
+                    value={config.minDistance !== undefined ? config.minDistance : 0}
+                    onChange={(e) => handleUpdate(idx, "minDistance", Number(e.target.value))}
+                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
+                  />
+                </td>
+
+                <td className="py-4 px-3">
+                  <input
+                    type="number"
+                    value={config.maxDistance !== undefined ? config.maxDistance : 9999}
+                    onChange={(e) => handleUpdate(idx, "maxDistance", Number(e.target.value))}
+                    className="w-20 border rounded-xl px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
                   />
                 </td>
 

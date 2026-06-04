@@ -6,6 +6,8 @@ export interface IFareConfig extends Document {
   pricePerKm: number;
   pricePerMinute: number;
   multiplier: number;
+  minDistance: number;
+  maxDistance: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,6 +19,8 @@ const FareConfigSchema = new Schema<IFareConfig>(
     pricePerKm: { type: Number, required: true, default: 0 },
     pricePerMinute: { type: Number, required: true, default: 0 },
     multiplier: { type: Number, required: true, default: 1.0 },
+    minDistance: { type: Number, required: true, default: 0 },
+    maxDistance: { type: Number, required: true, default: 9999 },
   },
   { timestamps: true }
 );
