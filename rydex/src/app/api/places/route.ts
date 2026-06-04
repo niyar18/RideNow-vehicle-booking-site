@@ -12,7 +12,18 @@ export async function GET(req: NextRequest) {
       if (country && country !== "null") {
         url += `&countrycode=${country}`;
       }
-      const res = await fetch(url);
+      
+      const res = await fetch(url, {
+        headers: {
+          "User-Agent": "RideNow-Vehicle-Booking/1.0 (contact: support@ridenow.app)"
+        }
+      });
+      
+      if (!res.ok) {
+        console.error(`Photon Autocomplete failed with status ${res.status}`);
+        return NextResponse.json({ predictions: [], status: "OK" });
+      }
+      
       const data = await res.json();
 
       // Map Photon FeatureCollection to Google-compatible Places Autocomplete format
@@ -73,7 +84,17 @@ export async function GET(req: NextRequest) {
       
       if (address) {
         const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}`;
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: {
+            "User-Agent": "RideNow-Vehicle-Booking/1.0 (contact: support@ridenow.app)"
+          }
+        });
+        
+        if (!res.ok) {
+          console.error(`Photon Geocode address failed with status ${res.status}`);
+          return NextResponse.json({ results: [], status: "OK" });
+        }
+        
         const data = await res.json();
         
         const results = (data?.features || []).map((feature: any) => {
@@ -94,7 +115,7 @@ export async function GET(req: NextRequest) {
             address_components: [
               {
                 long_name: props.country || "India",
-                short_name: (props.countrycode || "in").toLowerCase(),
+                short_name: String(props.countrycode || "in").toLowerCase(),
                 types: ["country"],
               },
             ],
@@ -104,7 +125,17 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ results, status: "OK" });
       } else if (lat && lng) {
         const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`;
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: {
+            "User-Agent": "RideNow-Vehicle-Booking/1.0 (contact: support@ridenow.app)"
+          }
+        });
+        
+        if (!res.ok) {
+          console.error(`Photon Reverse Geocode failed with status ${res.status}`);
+          return NextResponse.json({ results: [], status: "OK" });
+        }
+        
         const data = await res.json();
         
         const results = (data?.features || []).map((feature: any) => {
@@ -125,7 +156,7 @@ export async function GET(req: NextRequest) {
             address_components: [
               {
                 long_name: props.country || "India",
-                short_name: (props.countrycode || "in").toLowerCase(),
+                short_name: String(props.countrycode || "in").toLowerCase(),
                 types: ["country"],
               },
             ],
