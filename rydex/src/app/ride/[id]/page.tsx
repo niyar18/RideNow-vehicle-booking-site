@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import RideChat from "@/components/RideChat";
 
