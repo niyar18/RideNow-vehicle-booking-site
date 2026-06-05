@@ -134,7 +134,7 @@ function ZoomControlsWrapper() {
             background: "#fff",
             border: "1.5px solid #e4e4e7",
             borderRadius: 12,
-            display: "flex", alignItems: "center", justifycontent: "center",
+            display: "flex", alignItems: "center", justifyContent: "center",
             cursor: "pointer", color: "#0a0a0a",
             fontSize: 18, fontWeight: 400,
             boxShadow: "0 2px 12px rgba(0,0,0,0.1)",
