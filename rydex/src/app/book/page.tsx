@@ -9,6 +9,9 @@ import {
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import useGetMe from "@/hooks/useGetMe";
 
 const RouteMap = dynamic(() => import("@/components/RouteMap"), { ssr: false });
 
@@ -46,12 +49,24 @@ function getHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: nu
 export default function BookPage() {
   const router = useRouter();
 
+  const { userData } = useSelector((state: RootState) => state.user);
+  useGetMe(true);
+
   const [pickup,   setPickup]   = useState("");
   const [drop,     setDrop]     = useState("");
   const [vehicle,  setVehicle]  = useState<VehicleType | null>(null);
   const [mobile,   setMobile]   = useState("");
 
   const [rates, setRates] = useState<any>(null);
+  const [routeDistance, setRouteDistance] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (userData?.mobileNumber && !mobile) {
+      const cleaned = userData.mobileNumber.replace(/\D/g, "");
+      const tenDigits = cleaned.length >= 10 ? cleaned.slice(-10) : cleaned;
+      setMobile(tenDigits);
+    }
+  }, [userData]);
 
   useEffect(() => {
     const fetchRates = async () => {
@@ -100,8 +115,14 @@ export default function BookPage() {
   };
 
   const getDistanceValidity = () => {
-    if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return { valid: true };
-    const distanceKm = getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+    if (routeDistance === -1) {
+      return { valid: false, message: "No rides available (impossible route - no road connection found)" };
+    }
+    const dist = (routeDistance !== null && routeDistance >= 0)
+      ? routeDistance
+      : ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null);
+
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle || dist === null) return { valid: true };
     
     const defaultLimits: Record<string, { minDistance: number; maxDistance: number }> = {
       bike:    { minDistance: 0, maxDistance: 15 },
@@ -116,18 +137,18 @@ export default function BookPage() {
     const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
     const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
     
-    if (distanceKm < min) {
-      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} requires a minimum ride distance of ${min} km (Current: ${distanceKm.toFixed(1)} km)` };
+    if (dist < min) {
+      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} requires a minimum ride distance of ${min} km (Current: ${dist.toFixed(1)} km)` };
     }
-    if (distanceKm > max) {
-      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} is limited to a maximum ride distance of ${max} km (Current: ${distanceKm.toFixed(1)} km)` };
+    if (dist > max) {
+      return { valid: false, message: `${VEHICLES.find(v => v.id === vehicle)?.label} is limited to a maximum ride distance of ${max} km (Current: ${dist.toFixed(1)} km)` };
     }
     return { valid: true };
   };
 
   const [pickupResults, setPickupResults] = useState<Place[]>([]);
   const [dropResults,   setDropResults]   = useState<Place[]>([]);
-  const [pickupCountry, setPickupCountry] = useState<string | null>(null);
+  const [pickupCountry, setPickupCountry] = useState<string | null>("in");
 
   const [pickupLat, setPickupLat] = useState<number | null>(null);
   const [pickupLng, setPickupLng] = useState<number | null>(null);
@@ -137,16 +158,15 @@ export default function BookPage() {
   const [vehicles,  setVehicles]  = useState<any[]>([]);
 
   const distanceValidity = getDistanceValidity();
-  const canContinue = !!(pickup && drop && vehicle && mobile && pickupLat && pickupLng && dropLat && dropLng && distanceValidity.valid);
+  const canContinue = !!(pickup && drop && vehicle && mobile.length === 10 && pickupLat && pickupLng && dropLat && dropLng && distanceValidity.valid && routeDistance !== -1);
 
   /* ── SEARCH ── */
   const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null) => {
     if (!q || q.trim().length < 3) { setResults([]); return; }
     try {
       let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}`;
-      if (restrict) {
-        url += `&countrycode=${restrict}`;
-      }
+      const countryFilter = restrict || pickupCountry || "in";
+      url += `&countrycode=${countryFilter}`;
       const res  = await fetch(url);
       const data = await res.json();
       
@@ -189,6 +209,41 @@ export default function BookPage() {
       setDropLng(p.lng);
       setDropResults([]);
     }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, isPickup: boolean) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (isPickup) {
+        if (pickupResults.length > 0) {
+          selectPlace(pickupResults[0], true);
+        }
+      } else {
+        if (dropResults.length > 0) {
+          selectPlace(dropResults[0], false);
+        }
+      }
+    }
+  };
+
+  const handleBlur = (isPickup: boolean) => {
+    setTimeout(() => {
+      if (isPickup) {
+        setPickupResults(prev => {
+          if (prev.length > 0) {
+            selectPlace(prev[0], true);
+          }
+          return [];
+        });
+      } else {
+        setDropResults(prev => {
+          if (prev.length > 0) {
+            selectPlace(prev[0], false);
+          }
+          return [];
+        });
+      }
+    }, 200);
   };
 
   const useCurrentLocation = () => {
@@ -257,7 +312,7 @@ export default function BookPage() {
     return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
 
-  const handleMapChange = (p: string, d: string, c1?: [number, number] | null, c2?: [number, number] | null) => {
+  const handleMapChange = (p: string, d: string, c1?: [number, number] | null, c2?: [number, number] | null, countryCode?: string | null) => {
     setPickup(p);
     setDrop(d);
     if (c1) {
@@ -268,10 +323,13 @@ export default function BookPage() {
       setDropLat(c2[0]);
       setDropLng(c2[1]);
     }
+    if (countryCode) {
+      setPickupCountry(countryCode);
+    }
   };
 
   /* ── PROGRESS ── */
-  const progress = [!!vehicle, !!(mobile.length >= 10), !!pickup, !!drop].filter(Boolean).length;
+  const progress = [!!vehicle, !!(mobile.length === 10), !!pickup, !!drop].filter(Boolean).length;
 
   return (
     <div className="relative min-h-screen w-full bg-zinc-100 flex flex-col md:flex-row overflow-hidden">
@@ -317,58 +375,67 @@ export default function BookPage() {
               <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Choose Vehicle</p>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
-              {VEHICLES.map((v, i) => {
-                const active = vehicle === v.id;
-                const distanceKm = (pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null;
-                const isLimitOk = distanceKm !== null ? checkLimit(v.id, distanceKm) : true;
-                return (
-                  <motion.button
-                    key={v.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.07 + i * 0.05 }}
-                    whileTap={isLimitOk ? { scale: 0.95 } : {}}
-                    onClick={() => setVehicle(v.id as VehicleType)}
-                    className={`relative p-3.5 rounded-2xl border flex items-center gap-3 text-left transition-all duration-200 ${
-                      active
-                        ? "bg-zinc-900 border-zinc-900 shadow-lg"
-                        : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
-                    } ${!isLimitOk ? "opacity-45 hover:border-zinc-200 cursor-not-allowed" : ""}`}
-                  >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
-                      active ? "bg-white" : "bg-zinc-200"
-                    }`}>
-                      <v.Icon size={18} className={active ? "text-zinc-900" : "text-zinc-600"} />
-                    </div>
-                    <div className="min-w-0 font-sans">
-                      <p className={`text-sm font-bold truncate ${active ? "text-white" : "text-zinc-900"}`}>{v.label}</p>
-                      <p className={`text-[10px] truncate ${active ? "text-zinc-400" : "text-zinc-400"}`}>{v.desc}</p>
-                      {distanceKm !== null && (
-                        <div className="mt-1.5 flex flex-wrap gap-1 items-center">
-                          <p className={`text-xs font-black leading-none ${active ? "text-amber-400" : "text-zinc-900"}`}>
-                            ₹{estimateFare(v.id, distanceKm)}
-                          </p>
-                          {!isLimitOk && (
-                            <span className="text-[8px] font-black uppercase tracking-wider bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-md leading-none border border-rose-200 shadow-sm">
-                              Limit Exceeded
-                            </span>
-                          )}
-                        </div>
+            {routeDistance === -1 ? (
+              <div className="p-5 bg-rose-50 border border-rose-200 rounded-2xl text-center shadow-sm">
+                <p className="text-rose-600 text-xs font-black uppercase tracking-wider">No Rides Available</p>
+                <p className="text-zinc-500 text-[10px] mt-1 font-bold">No road connection or driving route found between these locations.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2.5">
+                {VEHICLES.map((v, i) => {
+                  const active = vehicle === v.id;
+                  const distanceKm = (routeDistance !== null && routeDistance >= 0)
+                    ? routeDistance
+                    : ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null);
+                  const isLimitOk = distanceKm !== null ? checkLimit(v.id, distanceKm) : true;
+                  return (
+                    <motion.button
+                      key={v.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.07 + i * 0.05 }}
+                      whileTap={isLimitOk ? { scale: 0.95 } : {}}
+                      onClick={() => setVehicle(v.id as VehicleType)}
+                      className={`relative p-3.5 rounded-2xl border flex items-center gap-3 text-left transition-all duration-200 ${
+                        active
+                          ? "bg-zinc-900 border-zinc-900 shadow-lg"
+                          : "bg-zinc-50 border-zinc-200 hover:border-zinc-400"
+                      } ${!isLimitOk ? "opacity-45 hover:border-zinc-200 cursor-not-allowed" : ""}`}
+                    >
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors ${
+                        active ? "bg-white" : "bg-zinc-200"
+                      }`}>
+                        <v.Icon size={18} className={active ? "text-zinc-900" : "text-zinc-600"} />
+                      </div>
+                      <div className="min-w-0 font-sans">
+                        <p className={`text-sm font-bold truncate ${active ? "text-white" : "text-zinc-900"}`}>{v.label}</p>
+                        <p className={`text-[10px] truncate ${active ? "text-zinc-400" : "text-zinc-400"}`}>{v.desc}</p>
+                        {distanceKm !== null && (
+                          <div className="mt-1.5 flex flex-wrap gap-1 items-center">
+                            <p className={`text-xs font-black leading-none ${active ? "text-amber-400" : "text-zinc-900"}`}>
+                              ₹{estimateFare(v.id, distanceKm)}
+                            </p>
+                            {!isLimitOk && (
+                              <span className="text-[8px] font-black uppercase tracking-wider bg-rose-100 text-rose-600 px-1.5 py-0.5 rounded-md leading-none border border-rose-200 shadow-sm">
+                                Limit Exceeded
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {active && (
+                        <motion.div
+                          initial={{ scale: 0 }} animate={{ scale: 1 }}
+                          className="absolute top-2.5 right-2.5"
+                        >
+                          <CheckCircle2 size={13} className="text-white fill-white/20" />
+                        </motion.div>
                       )}
-                    </div>
-                    {active && (
-                      <motion.div
-                        initial={{ scale: 0 }} animate={{ scale: 1 }}
-                        className="absolute top-2.5 right-2.5"
-                      >
-                        <CheckCircle2 size={13} className="text-white fill-white/20" />
-                      </motion.div>
-                    )}
-                  </motion.button>
-                );
-              })}
-            </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            )}
           </motion.div>
 
           <div className="h-px bg-zinc-100" />
@@ -389,14 +456,14 @@ export default function BookPage() {
               <input
                 type="tel"
                 value={mobile}
-                onChange={e => setMobile(e.target.value.replace(/\D/g, ""))}
-                placeholder="Enter your mobile number"
+                onChange={e => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                placeholder="Enter 10-digit mobile number"
                 inputMode="numeric"
-                maxLength={15}
+                maxLength={10}
                 className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
               />
               <AnimatePresence>
-                {mobile.length >= 10 && (
+                {mobile.length === 10 && (
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }}>
                     <CheckCircle2 size={16} className="text-emerald-500 fill-emerald-50 flex-shrink-0" />
                   </motion.div>
@@ -428,6 +495,8 @@ export default function BookPage() {
                   <input
                     value={pickup}
                     onChange={e => { setPickup(e.target.value); searchAddress(e.target.value, setPickupResults); }}
+                    onKeyDown={e => handleKeyDown(e, true)}
+                    onBlur={() => handleBlur(true)}
                     placeholder="Pickup location"
                     className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none"
                   />
@@ -452,7 +521,7 @@ export default function BookPage() {
                       {pickupResults.map((p, i) => (
                         <button
                           key={p.id}
-                          onClick={() => selectPlace(p, true)}
+                          onMouseDown={e => { e.preventDefault(); selectPlace(p, true); }}
                           className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
                         >
                           <MapPin size={13} className="text-zinc-400 flex-shrink-0" />
@@ -475,9 +544,11 @@ export default function BookPage() {
                   </div>
                   <input
                     value={drop}
-                    onChange={e => { setDrop(e.target.value); searchAddress(e.target.value, setDropResults, pickupCountry); }}
-                    disabled={!pickupCountry}
-                    placeholder={pickupCountry ? "Drop location" : "Select pickup first"}
+                    onChange={e => { setDrop(e.target.value); searchAddress(e.target.value, setDropResults, pickupCountry || "in"); }}
+                    onKeyDown={e => handleKeyDown(e, false)}
+                    onBlur={() => handleBlur(false)}
+                    disabled={!pickup}
+                    placeholder={pickup ? "Drop location" : "Select pickup first"}
                     className="flex-1 bg-transparent text-sm font-semibold text-zinc-900 placeholder:text-zinc-400 outline-none disabled:opacity-50"
                   />
                   <Navigation size={14} className="text-zinc-300 flex-shrink-0" />
@@ -494,7 +565,7 @@ export default function BookPage() {
                       {dropResults.map((p, i) => (
                         <button
                           key={p.id}
-                          onClick={() => selectPlace(p, false)}
+                          onMouseDown={e => { e.preventDefault(); selectPlace(p, false); }}
                           className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-zinc-50 transition-colors border-b border-zinc-100 last:border-0"
                         >
                           <Navigation size={13} className="text-zinc-400 flex-shrink-0" />
@@ -518,7 +589,9 @@ export default function BookPage() {
               disabled={!canContinue}
               onClick={() => {
                 if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return;
-                const distanceKm = getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
+                const distanceKm = (routeDistance !== null && routeDistance >= 0)
+                  ? routeDistance
+                  : getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
                 const estFare = estimateFare(vehicle, distanceKm);
                 router.push(
                   `/checkout?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobileNumber=${encodeURIComponent(mobile)}&pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropLat=${dropLat}&dropLng=${dropLng}&fare=${estFare}`
@@ -540,13 +613,14 @@ export default function BookPage() {
                 <motion.p
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                   className={`text-center text-[10px] font-bold mt-2.5 uppercase tracking-wider ${
-                    !distanceValidity.valid ? "text-rose-500" : "text-zinc-400"
+                    (!distanceValidity.valid || routeDistance === -1) ? "text-rose-500" : "text-zinc-400"
                   }`}
                 >
                   {!vehicle ? "Select a vehicle type" :
-                   mobile.length < 10 ? "Enter mobile number" :
+                   mobile.length !== 10 ? "Enter a 10-digit mobile number" :
                    !pickup ? "Set pickup location" :
                    !drop ? "Set drop location" :
+                   routeDistance === -1 ? "No rides available (impossible route - no road connection found)" :
                    !distanceValidity.valid ? distanceValidity.message : ""}
                 </motion.p>
               )}
@@ -564,6 +638,7 @@ export default function BookPage() {
           pickupCoords={pickupLat && pickupLng ? [pickupLat, pickupLng] : null}
           dropCoords={dropLat && dropLng ? [dropLat, dropLng] : null}
           onChange={handleMapChange}
+          onDistance={setRouteDistance}
           vehicles={vehicles}
         />
       </div>

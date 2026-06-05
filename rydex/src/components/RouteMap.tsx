@@ -19,7 +19,7 @@ type Props = {
   pickupCoords?: [number, number] | null;
   dropCoords?: [number, number] | null;
   onDistance?: (km: number) => void;
-  onChange?: (pickup: string, drop: string, p1?: [number, number] | null, p2?: [number, number] | null) => void;
+  onChange?: (pickup: string, drop: string, p1?: [number, number] | null, p2?: [number, number] | null, pickupCountry?: string | null) => void;
   onCoordinatesChange?: (p1: [number, number] | null, p2: [number, number] | null) => void;
   vehicles?: any[];
 };
@@ -214,13 +214,21 @@ export default function RouteMap({
         `https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`
       );
       const d = await r.json();
-      if (!d?.routes?.length) return;
+      if (!d?.routes?.length) {
+        setRoute([]);
+        setKm(null);
+        onDistance?.(-1);
+        return;
+      }
       setRoute(d.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon]));
       const distKm = +((d.routes[0].distance / 1000).toFixed(2));
       setKm(distKm);
       onDistance?.(distKm);
     } catch (err) {
       console.error("Failed to load route in RouteMap:", err);
+      setRoute([]);
+      setKm(null);
+      onDistance?.(-1);
     }
   };
 
@@ -262,9 +270,26 @@ export default function RouteMap({
   }, [p1, p2]);
 
   const onDragPickup = async (lat: number, lon: number) => {
-    const addr = await reverseGeocode(lat, lon);
-    setP1([lat, lon]);
-    onChange?.(addr, drop, [lat, lon], p2);
+    try {
+      const r = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`);
+      const d = await r.json();
+      if (d?.features?.length) {
+        const props = d.features[0].properties || {};
+        const addr = [props.name, props.city, props.state, props.country]
+          .filter(Boolean)
+          .join(", ");
+        const cc = String(props.countrycode || "in").toLowerCase();
+        setP1([lat, lon]);
+        onChange?.(addr, drop, [lat, lon], p2, cc);
+      } else {
+        setP1([lat, lon]);
+        onChange?.("", drop, [lat, lon], p2, null);
+      }
+    } catch (err) {
+      console.error("onDragPickup reverse geocoding failed:", err);
+      setP1([lat, lon]);
+      onChange?.("", drop, [lat, lon], p2, null);
+    }
   };
 
   const onDragDrop = async (lat: number, lon: number) => {
