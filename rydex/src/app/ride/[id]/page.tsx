@@ -121,6 +121,9 @@ export default function RidePage() {
         
         zp.joinRoom({
           container: zegoContainerRef.current,
+          roomID: `call-${booking?._id}`,
+          userID: data.userID,
+          userName: data.userName,
           scenario: {
             mode: ZegoUIKitPrebuilt.OneONoneCall,
           },

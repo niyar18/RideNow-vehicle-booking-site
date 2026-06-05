@@ -30,9 +30,17 @@ export async function GET(req: NextRequest) {
       const predictions = (data?.features || []).map((feature: any) => {
         const props = feature.properties || {};
         const coords = feature.geometry?.coordinates || [0, 0]; // [lng, lat]
-        const description = [props.name, props.city, props.state, props.country]
-          .filter(Boolean)
-          .join(", ");
+        const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+        const localArea = props.district || props.suburb || props.locality;
+        const cityTown = props.city || props.town || props.village;
+        const parts: string[] = [props.name];
+        if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
+        if (localArea && localArea !== props.name) parts.push(localArea);
+        if (cityTown && cityTown !== props.name) parts.push(cityTown);
+        if (props.postcode) parts.push(props.postcode);
+        if (props.state && props.state !== props.name) parts.push(props.state);
+        if (props.country && props.country !== props.name) parts.push(props.country);
+        const description = parts.filter(Boolean).join(", ");
 
         // Encode coordinates and country code in place_id to make details retrieval zero-latency
         const place_id = `photon_${coords[1]}_${coords[0]}_${props.countrycode || "in"}_${encodeURIComponent(description)}`;
@@ -100,9 +108,17 @@ export async function GET(req: NextRequest) {
         const results = (data?.features || []).map((feature: any) => {
           const props = feature.properties || {};
           const coords = feature.geometry?.coordinates || [0, 0];
-          const description = [props.name, props.city, props.state, props.country]
-            .filter(Boolean)
-            .join(", ");
+          const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+          const localArea = props.district || props.suburb || props.locality;
+          const cityTown = props.city || props.town || props.village;
+          const parts: string[] = [props.name];
+          if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
+          if (localArea && localArea !== props.name) parts.push(localArea);
+          if (cityTown && cityTown !== props.name) parts.push(cityTown);
+          if (props.postcode) parts.push(props.postcode);
+          if (props.state && props.state !== props.name) parts.push(props.state);
+          if (props.country && props.country !== props.name) parts.push(props.country);
+          const description = parts.filter(Boolean).join(", ");
           
           return {
             formatted_address: description,
@@ -141,9 +157,17 @@ export async function GET(req: NextRequest) {
         const results = (data?.features || []).map((feature: any) => {
           const props = feature.properties || {};
           const coords = feature.geometry?.coordinates || [0, 0];
-          const description = [props.name, props.city, props.state, props.country]
-            .filter(Boolean)
-            .join(", ");
+          const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+          const localArea = props.district || props.suburb || props.locality;
+          const cityTown = props.city || props.town || props.village;
+          const parts: string[] = [props.name];
+          if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
+          if (localArea && localArea !== props.name) parts.push(localArea);
+          if (cityTown && cityTown !== props.name) parts.push(cityTown);
+          if (props.postcode) parts.push(props.postcode);
+          if (props.state && props.state !== props.name) parts.push(props.state);
+          if (props.country && props.country !== props.name) parts.push(props.country);
+          const description = parts.filter(Boolean).join(", ");
           
           return {
             formatted_address: description,

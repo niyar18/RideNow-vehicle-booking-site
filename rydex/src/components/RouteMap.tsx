@@ -198,9 +198,17 @@ export default function RouteMap({
       const d = await r.json();
       if (d?.features?.length) {
         const props = d.features[0].properties || {};
-        return [props.name, props.city, props.state, props.country]
-          .filter(Boolean)
-          .join(", ");
+        const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+        const localArea = props.district || props.suburb || props.locality;
+        const cityTown = props.city || props.town || props.village;
+        const parts: string[] = [props.name];
+        if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
+        if (localArea && localArea !== props.name) parts.push(localArea);
+        if (cityTown && cityTown !== props.name) parts.push(cityTown);
+        if (props.postcode) parts.push(props.postcode);
+        if (props.state && props.state !== props.name) parts.push(props.state);
+        if (props.country && props.country !== props.name) parts.push(props.country);
+        return parts.filter(Boolean).join(", ");
       }
     } catch (err) {
       console.error("Reverse geocoding failed in RouteMap:", err);
@@ -275,9 +283,17 @@ export default function RouteMap({
       const d = await r.json();
       if (d?.features?.length) {
         const props = d.features[0].properties || {};
-        const addr = [props.name, props.city, props.state, props.country]
-          .filter(Boolean)
-          .join(", ");
+        const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+        const localArea = props.district || props.suburb || props.locality;
+        const cityTown = props.city || props.town || props.village;
+        const parts: string[] = [props.name];
+        if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
+        if (localArea && localArea !== props.name) parts.push(localArea);
+        if (cityTown && cityTown !== props.name) parts.push(cityTown);
+        if (props.postcode) parts.push(props.postcode);
+        if (props.state && props.state !== props.name) parts.push(props.state);
+        if (props.country && props.country !== props.name) parts.push(props.country);
+        const addr = parts.filter(Boolean).join(", ");
         const cc = String(props.countrycode || "in").toLowerCase();
         setP1([lat, lon]);
         onChange?.(addr, drop, [lat, lon], p2, cc);

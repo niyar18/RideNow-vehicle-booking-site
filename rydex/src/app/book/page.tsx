@@ -161,21 +161,61 @@ export default function BookPage() {
   const canContinue = !!(pickup && drop && vehicle && mobile.length === 10 && pickupLat && pickupLng && dropLat && dropLng && distanceValidity.valid && routeDistance !== -1);
 
   /* ── SEARCH ── */
-  const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null) => {
+  const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null, isDrop?: boolean) => {
     if (!q || q.trim().length < 3) { setResults([]); return; }
     try {
       let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}`;
       const countryFilter = restrict || pickupCountry || "in";
       url += `&countrycode=${countryFilter}`;
+      
+      if (isDrop && pickupLat !== null && pickupLng !== null) {
+        const defaultLimits: Record<string, { maxDistance: number }> = {
+          bike:    { maxDistance: 15 },
+          auto:    { maxDistance: 30 },
+          car:     { maxDistance: 100 },
+          loading: { maxDistance: 150 },
+          truck:   { maxDistance: 500 },
+        };
+        const source = rates || defaultLimits;
+        const cfg = source[(vehicle || "car").toLowerCase()] || defaultLimits.car;
+        
+        // Use maxDistance as radius, add a small 20% buffer to allow suggestions slightly beyond the boundary
+        const radiusKm = (cfg.maxDistance || 100) * 1.2;
+        
+        // Calculate bbox
+        const deltaLat = radiusKm / 111;
+        const deltaLng = radiusKm / (111 * Math.cos(pickupLat * Math.PI / 180));
+        
+        const minLat = pickupLat - deltaLat;
+        const maxLat = pickupLat + deltaLat;
+        const minLon = pickupLng - deltaLng;
+        const maxLon = pickupLng + deltaLng;
+        
+        url += `&bbox=${minLon},${minLat},${maxLon},${maxLat}`;
+        // Also add lat/lon for biasing within the bbox
+        url += `&lat=${pickupLat}&lon=${pickupLng}`;
+      } else if (!isDrop && pickupLat !== null && pickupLng !== null) {
+        // Bias pickup autocomplete near current coordinates if available
+        url += `&lat=${pickupLat}&lon=${pickupLng}`;
+      }
+      
       const res  = await fetch(url);
       const data = await res.json();
       
       const results: Place[] = (data?.features || []).map((feature: any) => {
         const props = feature.properties || {};
         const coords = feature.geometry?.coordinates || [0, 0];
-        const description = [props.name, props.city, props.state, props.country]
-          .filter(Boolean)
-          .join(", ");
+        const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+        const localArea = props.district || props.suburb || props.locality;
+        const cityTown = props.city || props.town || props.village;
+        const parts: string[] = [props.name];
+        if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
+        if (localArea && localArea !== props.name) parts.push(localArea);
+        if (cityTown && cityTown !== props.name) parts.push(cityTown);
+        if (props.postcode) parts.push(props.postcode);
+        if (props.state && props.state !== props.name) parts.push(props.state);
+        if (props.country && props.country !== props.name) parts.push(props.country);
+        const description = parts.filter(Boolean).join(", ");
         return {
           id: `${props.osm_type || "N"}-${props.osm_id || Math.random()}`,
           name: description,
@@ -257,9 +297,17 @@ export default function BookPage() {
           if (data?.features?.length) {
             const first = data.features[0];
             const props = first.properties || {};
-            const addr = [props.name, props.city, props.state, props.country]
-              .filter(Boolean)
-              .join(", ");
+            const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
+            const localArea = props.district || props.suburb || props.locality;
+            const cityTown = props.city || props.town || props.village;
+            const parts: string[] = [props.name];
+            if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
+            if (localArea && localArea !== props.name) parts.push(localArea);
+            if (cityTown && cityTown !== props.name) parts.push(cityTown);
+            if (props.postcode) parts.push(props.postcode);
+            if (props.state && props.state !== props.name) parts.push(props.state);
+            if (props.country && props.country !== props.name) parts.push(props.country);
+            const addr = parts.filter(Boolean).join(", ");
             const countryCode = String(props.countrycode || "in").toLowerCase();
 
             setPickup(addr);
@@ -544,7 +592,7 @@ export default function BookPage() {
                   </div>
                   <input
                     value={drop}
-                    onChange={e => { setDrop(e.target.value); searchAddress(e.target.value, setDropResults, pickupCountry || "in"); }}
+                    onChange={e => { setDrop(e.target.value); searchAddress(e.target.value, setDropResults, pickupCountry || "in", true); }}
                     onKeyDown={e => handleKeyDown(e, false)}
                     onBlur={() => handleBlur(false)}
                     disabled={!pickup}

@@ -71,5 +71,7 @@ export async function POST(req: Request) {
   return NextResponse.json({
     token,
     appID,
+    userID: session.user.id,
+    userName: session.user.name || "User",
   });
 }
