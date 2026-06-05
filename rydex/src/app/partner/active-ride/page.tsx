@@ -6,7 +6,8 @@ import {
   ChevronUp, Clock, Zap,
   CheckCircle2, KeyRound, ArrowRight,
   MapPin, Navigation, MessageCircle,
-  AlertCircle, XCircle, AlertTriangle
+  AlertCircle, XCircle, AlertTriangle,
+  Mic, MicOff, Volume2, PhoneOff
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useEffect, useRef, useState } from "react";
@@ -108,6 +109,73 @@ export default function DriverRidePage() {
   /* Chat & Sheet */
   const [chatOpen, setChatOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
+
+  /* Secure VoIP Call State */
+  const [activeCall, setActiveCall] = useState<{ isOpen: boolean } | null>(null);
+  const zegoContainerRef = useRef<HTMLDivElement>(null);
+  const zegoCallJoined = useRef(false);
+  const zpRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (!activeCall?.isOpen || !zegoContainerRef.current || zegoCallJoined.current) return;
+    
+    let active = true;
+    zegoCallJoined.current = true;
+    
+    const initZego = async () => {
+      try {
+        const res = await fetch("/api/zego/token", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ roomId: `call-${booking?._id}` }),
+        });
+        
+        if (!res.ok) {
+          throw new Error("Failed to fetch Zego token");
+        }
+        
+        const data = await res.json();
+        if (!active) return;
+        
+        const { ZegoUIKitPrebuilt } = await import("@zegocloud/zego-uikit-prebuilt");
+        
+        const zp = ZegoUIKitPrebuilt.create(data.token);
+        zpRef.current = zp;
+        
+        zp.joinRoom({
+          container: zegoContainerRef.current,
+          scenario: {
+            mode: ZegoUIKitPrebuilt.OneONoneCall,
+          },
+          showPreJoinView: false,
+          turnOnCameraWhenJoining: false,
+          showMyCameraToggleButton: false,
+          showAudioVideoSettingsButton: false,
+          showScreenSharingButton: false,
+          showUserList: false,
+          onLeaveRoom: () => {
+            if (active) {
+              setActiveCall(null);
+              zegoCallJoined.current = false;
+            }
+          },
+        });
+      } catch (err) {
+        console.error("Zego connection failed:", err);
+        if (active) {
+          zegoCallJoined.current = false;
+        }
+      }
+    };
+    
+    initZego();
+    
+    return () => {
+      active = false;
+    };
+  }, [activeCall?.isOpen, booking?._id]);
 
   /* Keep latest booking in a ref so GPS callback never has stale closure */
   const bookingRef = useRef<IBooking | null>(null);
@@ -346,7 +414,8 @@ export default function DriverRidePage() {
     dropOtpMode, dropOtp, loadingDropOtp, dropOtpError,
     setDropOtpMode, setDropOtp, setDropOtpError, handleVerifyDropOtp, sendDropOtp,
     chatOpen, onChatToggle: () => canChat && setChatOpen(v => !v),
-    onCancel: handleCancel,
+    onCancel: onCancel,
+    onCallClick: () => setActiveCall({ isOpen: true }),
   };
 
   return (
@@ -540,6 +609,50 @@ export default function DriverRidePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* SECURE MASKED VOIP CALL OVERLAY */}
+      <AnimatePresence>
+        {activeCall && activeCall.isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[9999] bg-zinc-950/85 backdrop-blur-lg flex items-center justify-center p-4"
+          >
+            <div className="bg-zinc-900 border border-zinc-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl relative flex flex-col items-center">
+              {/* Header */}
+              <div className="flex items-center gap-2 bg-zinc-800/80 px-3 py-1 rounded-full border border-zinc-700/50 shadow-sm mb-4">
+                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Secure Voice Bridge</span>
+              </div>
+              
+              {/* Zego Container */}
+              <div 
+                ref={zegoContainerRef} 
+                className="w-full h-[400px] rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800"
+              />
+              
+              {/* Close button */}
+              <button
+                onClick={() => {
+                  if (zpRef.current && typeof zpRef.current.destroy === 'function') {
+                    try {
+                      zpRef.current.destroy();
+                    } catch (e) {
+                      console.error("Error destroying Zego instance:", e);
+                    }
+                  }
+                  setActiveCall(null);
+                  zegoCallJoined.current = false;
+                }}
+                className="mt-4 bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm px-6 py-2.5 rounded-xl transition active:scale-95"
+              >
+                Close Call Screen
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -672,7 +785,7 @@ function ActionBar({
 /* ══════════════════════════════════════════════════════════════════════
    PANEL CONTENT
 ══════════════════════════════════════════════════════════════════════ */
-function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen, onChatToggle, onCancel }: any) {
+function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen, onChatToggle, onCancel, onCallClick }: any) {
   return (
     <div className="flex flex-col pt-5 pb-4 gap-3">
 
@@ -733,11 +846,12 @@ function PanelContent({ booking, status, isActive, canChat, displayEta, chatOpen
           {isActive && (
             <div className="flex gap-2 mt-2">
               {booking.userMobileNumber && (
-                <a href={`tel:${booking.userMobileNumber}`}
+                <button
+                  onClick={onCallClick}
                   className={`flex items-center justify-center gap-2 bg-zinc-100 hover:bg-zinc-200 active:scale-[0.97] transition-all text-zinc-900 py-3 rounded-xl text-sm font-semibold ${canChat ? "flex-1" : "w-full"}`}
                 >
                   <Phone size={15} /> Call
-                </a>
+                </button>
               )}
               {canChat && (
                 <button onClick={onChatToggle}
@@ -995,6 +1109,8 @@ function FailedScreen({ booking, status, cfg }: {
           Back to Dashboard
         </motion.button>
       </motion.div>
+
+
     </motion.div>
   );
 }

@@ -33,14 +33,21 @@ export default function Footer() {
 
             {/* SOCIAL */}
             <div className="flex gap-4 mt-6">
-              {[Facebook, Instagram, Twitter, Linkedin].map((Icon, i) => (
+              {[
+                { Icon: Facebook, href: "https://facebook.com" },
+                { Icon: Instagram, href: "https://instagram.com" },
+                { Icon: Twitter, href: "https://twitter.com" },
+                { Icon: Linkedin, href: "https://linkedin.com" },
+              ].map((item, i) => (
                 <motion.a
                   key={i}
                   whileHover={{ y: -3 }}
-                  href="#"
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="w-10 h-10 flex items-center justify-center rounded-full border border-white/20 hover:bg-white hover:text-black transition cursor-pointer select-none"
                 >
-                  <Icon size={18} />
+                  <item.Icon size={18} />
                 </motion.a>
               ))}
             </div>
@@ -52,13 +59,19 @@ export default function Footer() {
               COMPANY
             </h3>
             <ul className="mt-4 space-y-3 text-sm">
-              {["About", "Careers", "Blog", "Contact"].map((item) => (
-                <li key={item}>
+              {[
+                { label: "About", href: "/" },
+                { label: "Careers", href: "/" },
+                { label: "Blog", href: "/" },
+                { label: "Contact Us", href: "/contact" },
+                { label: "Help & FAQs", href: "/faq" },
+              ].map((item) => (
+                <li key={item.label}>
                   <Link
-                    href="/"
+                    href={item.href}
                     className="text-gray-400 hover:text-white transition"
                   >
-                    {item}
+                    {item.label}
                   </Link>
                 </li>
               ))}
@@ -72,17 +85,17 @@ export default function Footer() {
             </h3>
             <ul className="mt-4 space-y-3 text-sm">
               {[
-                "Bike Rental",
-                "Car Rental",
-                "SUV & Van",
-                "Truck Booking",
+                { label: "Our Fleet", href: "/fleet" },
+                { label: "Book a Ride", href: "/book" },
+                { label: "My Bookings", href: "/bookings" },
+                { label: "User Profile", href: "/profile" },
               ].map((item) => (
-                <li key={item}>
+                <li key={item.label}>
                   <Link
-                    href="/"
+                    href={item.href}
                     className="text-gray-400 hover:text-white transition"
                   >
-                    {item}
+                    {item.label}
                   </Link>
                 </li>
               ))}

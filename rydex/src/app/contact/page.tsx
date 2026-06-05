@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { Mail, Phone, MapPin, Send } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -60,13 +62,15 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white pt-40 pb-20">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="max-w-6xl mx-auto px-4"
-      >
+    <div className="min-h-screen flex flex-col bg-black text-white justify-between">
+      <Nav />
+      <div className="flex-1 pt-40 pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-6xl mx-auto px-4"
+        >
         <div className="mb-16">
           <h1 className="text-5xl font-bold mb-4">Get In Touch</h1>
           <p className="text-xl text-gray-400 max-w-2xl">
@@ -217,6 +221,8 @@ export default function ContactPage() {
           </motion.div>
         </div>
       </motion.div>
+      </div>
+      <Footer />
     </div>
   );
 }

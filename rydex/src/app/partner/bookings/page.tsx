@@ -198,7 +198,16 @@ export default function PartnerBookingsPage() {
                         {(booking.userMobileNumber || booking.user?.phone) && (
                           <div className="flex items-center gap-1 mt-1 text-xs text-gray-600">
                             <Phone className="w-3 h-3" />
-                            <span>{booking.userMobileNumber || booking.user?.phone}</span>
+                            <span>
+                              {(() => {
+                                const num = booking.userMobileNumber || booking.user?.phone;
+                                if (!num) return "";
+                                const cleaned = num.replace(/\D/g, "");
+                                return cleaned.length >= 4 
+                                  ? `XXXXXX${cleaned.slice(-4)}`
+                                  : "Masked for Security";
+                              })()}
+                            </span>
                           </div>
                         )}
                       </div>

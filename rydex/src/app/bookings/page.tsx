@@ -12,6 +12,8 @@ import {
   Phone,
 } from "lucide-react";
 import axios from "axios";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 
 interface Booking {
   _id: string;
@@ -82,10 +84,11 @@ export default function MyBookingsPage() {
     : bookings.filter(b => b.status === statusFilter.toLowerCase());
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      
-      {/* HEADER - CENTERED CONTENT */}
-      <div className="bg-white border-b border-gray-200">
+    <div className="min-h-screen flex flex-col bg-gray-50 justify-between">
+      <Nav />
+      <div className="flex-1 pt-28">
+        {/* HEADER - CENTERED CONTENT */}
+        <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto py-6">
             <h1 className="text-2xl font-semibold text-gray-900">My Bookings</h1>
@@ -236,7 +239,12 @@ export default function MyBookingsPage() {
                             <div className="flex-1">
                               <span className="text-xs font-medium text-purple-600 uppercase tracking-wider">DRIVER CONTACT</span>
                               <p className="text-sm text-gray-700 mt-0.5">
-                                {booking.driverMobileNumber}
+                                {(() => {
+                                  const cleaned = booking.driverMobileNumber.replace(/\D/g, "");
+                                  return cleaned.length >= 4 
+                                    ? `XXXXXX${cleaned.slice(-4)}`
+                                    : "Masked for Security";
+                                })()}
                               </p>
                             </div>
                           </div>
@@ -284,6 +292,8 @@ export default function MyBookingsPage() {
           )}
         </div>
       </div>
+      </div>
+      <Footer />
     </div>
   );
 }

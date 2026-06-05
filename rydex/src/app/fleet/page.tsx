@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Car, Zap, Shield, TrendingUp } from "lucide-react";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 
 export default function FleetPage() {
   const features = [
@@ -28,9 +30,11 @@ export default function FleetPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white pt-40">
-      {/* Hero Section */}
-      <motion.div
+    <div className="min-h-screen flex flex-col bg-black text-white justify-between">
+      <Nav />
+      <div className="flex-1 pt-40">
+        {/* Hero Section */}
+        <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -117,6 +121,8 @@ export default function FleetPage() {
           Book Now
         </a>
       </motion.div>
+      </div>
+      <Footer />
     </div>
   );
 }

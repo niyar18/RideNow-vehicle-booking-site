@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import Nav from "@/components/Nav";
+import Footer from "@/components/Footer";
 
 export default function FAQPage() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
@@ -43,13 +45,15 @@ export default function FAQPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-black text-white pt-40 pb-20">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="max-w-3xl mx-auto px-4"
-      >
+    <div className="min-h-screen flex flex-col bg-black text-white justify-between">
+      <Nav />
+      <div className="flex-1 pt-40 pb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="max-w-3xl mx-auto px-4"
+        >
         <h1 className="text-5xl font-bold mb-4">Frequently Asked Questions</h1>
         <p className="text-xl text-gray-400 mb-12">
           Find answers to common questions about RideNow services.
@@ -112,6 +116,8 @@ export default function FAQPage() {
           </a>
         </motion.div>
       </motion.div>
+      </div>
+      <Footer />
     </div>
   );
 }
