@@ -664,7 +664,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       axios.get("/api/partner/bookings/active")
         .then((res) => {
           if (res.data && res.data._id) {
-            window.location.href = "/partner/active-ride";
+            router.push("/partner/active-ride");
           }
         })
         .catch(() => {});
@@ -709,7 +709,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
       await axios.post(`/api/booking/${bookingId}/${action}`);
       setPendingRequest(null);
       if (action === "accept") {
-        window.location.href = "/partner/active-ride";
+        router.push("/partner/active-ride");
       }
     } catch (err) {
       console.error("Failed to process request action:", err);

@@ -22,6 +22,7 @@ type Props = {
   onChange?: (pickup: string, drop: string, p1?: [number, number] | null, p2?: [number, number] | null, pickupCountry?: string | null) => void;
   onCoordinatesChange?: (p1: [number, number] | null, p2: [number, number] | null) => void;
   vehicles?: any[];
+  disableFallbackGeocode?: boolean;
 };
 
 /* ─── ICONS ── black/white theme ─────────────────────────────────── */
@@ -158,6 +159,7 @@ export default function RouteMap({
   onChange,
   onCoordinatesChange,
   vehicles,
+  disableFallbackGeocode,
 }: Props) {
   const [p1,    setP1]    = useState<[number, number] | null>(null);
   const [p2,    setP2]    = useState<[number, number] | null>(null);
@@ -166,25 +168,21 @@ export default function RouteMap({
   const [km,    setKm]    = useState<number | null>(null);
 
   useEffect(() => {
-    if (pickupCoords) {
-      setP1(pickupCoords);
-    }
+    setP1(pickupCoords ?? null);
   }, [pickupCoords]);
 
   useEffect(() => {
-    if (dropCoords) {
-      setP2(dropCoords);
-    }
+    setP2(dropCoords ?? null);
   }, [dropCoords]);
 
   const geocode = async (q: string): Promise<[number, number] | null> => {
     if (!q) return null;
     try {
-      const r = await fetch(`https://photon.komoot.io/api/?q=${encodeURIComponent(q)}&limit=1`);
+      const r = await fetch(`/api/places?action=geocode&address=${encodeURIComponent(q)}`);
       const d = await r.json();
-      if (d?.features?.length) {
-        const coords = d.features[0].geometry.coordinates; // [lng, lat]
-        return [coords[1], coords[0]];
+      if (d?.results?.length) {
+        const loc = d.results[0].geometry.location;
+        return [loc.lat, loc.lng];
       }
     } catch (err) {
       console.error("Geocoding failed in RouteMap:", err);
@@ -194,21 +192,10 @@ export default function RouteMap({
 
   const reverseGeocode = async (lat: number, lon: number): Promise<string> => {
     try {
-      const r = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`);
+      const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
       const d = await r.json();
-      if (d?.features?.length) {
-        const props = d.features[0].properties || {};
-        const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-        const localArea = props.district || props.suburb || props.locality;
-        const cityTown = props.city || props.town || props.village;
-        const parts: string[] = [props.name];
-        if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
-        if (localArea && localArea !== props.name) parts.push(localArea);
-        if (cityTown && cityTown !== props.name) parts.push(cityTown);
-        if (props.postcode) parts.push(props.postcode);
-        if (props.state && props.state !== props.name) parts.push(props.state);
-        if (props.country && props.country !== props.name) parts.push(props.country);
-        return parts.filter(Boolean).join(", ");
+      if (d?.results?.length) {
+        return d.results[0].formatted_address;
       }
     } catch (err) {
       console.error("Reverse geocoding failed in RouteMap:", err);
@@ -242,6 +229,7 @@ export default function RouteMap({
 
   // Fallback geocoding for string-only inputs (like search results page)
   useEffect(() => {
+    if (disableFallbackGeocode) return;
     (async () => {
       if (!pickupCoords && pickup) {
         const a = await geocode(pickup);
@@ -250,9 +238,10 @@ export default function RouteMap({
         setP1(null);
       }
     })();
-  }, [pickup, pickupCoords]);
+  }, [pickup, pickupCoords, disableFallbackGeocode]);
 
   useEffect(() => {
+    if (disableFallbackGeocode) return;
     (async () => {
       if (!dropCoords && drop) {
         const b = await geocode(drop);
@@ -261,7 +250,7 @@ export default function RouteMap({
         setP2(null);
       }
     })();
-  }, [drop, dropCoords]);
+  }, [drop, dropCoords, disableFallbackGeocode]);
 
   // Sync coords back if they change
   useEffect(() => {
@@ -279,37 +268,38 @@ export default function RouteMap({
 
   const onDragPickup = async (lat: number, lon: number) => {
     try {
-      const r = await fetch(`https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`);
+      const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
       const d = await r.json();
-      if (d?.features?.length) {
-        const props = d.features[0].properties || {};
-        const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-        const localArea = props.district || props.suburb || props.locality;
-        const cityTown = props.city || props.town || props.village;
-        const parts: string[] = [props.name];
-        if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
-        if (localArea && localArea !== props.name) parts.push(localArea);
-        if (cityTown && cityTown !== props.name) parts.push(cityTown);
-        if (props.postcode) parts.push(props.postcode);
-        if (props.state && props.state !== props.name) parts.push(props.state);
-        if (props.country && props.country !== props.name) parts.push(props.country);
-        const addr = parts.filter(Boolean).join(", ");
-        const cc = String(props.countrycode || "in").toLowerCase();
+      if (d?.results?.length) {
+        const first = d.results[0];
+        const addr = first.formatted_address;
+        let cc = "in";
+        if (first.address_components) {
+          const countryComp = first.address_components.find((c: any) => c.types.includes("country"));
+          if (countryComp) {
+            cc = String(countryComp.short_name || "in").toLowerCase();
+          }
+        }
         setP1([lat, lon]);
         onChange?.(addr, drop, [lat, lon], p2, cc);
       } else {
+        const fallbackAddr = `Map Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
         setP1([lat, lon]);
-        onChange?.("", drop, [lat, lon], p2, null);
+        onChange?.(fallbackAddr, drop, [lat, lon], p2, null);
       }
     } catch (err) {
       console.error("onDragPickup reverse geocoding failed:", err);
+      const fallbackAddr = `Map Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
       setP1([lat, lon]);
-      onChange?.("", drop, [lat, lon], p2, null);
+      onChange?.(fallbackAddr, drop, [lat, lon], p2, null);
     }
   };
 
   const onDragDrop = async (lat: number, lon: number) => {
-    const addr = await reverseGeocode(lat, lon);
+    let addr = await reverseGeocode(lat, lon);
+    if (!addr) {
+      addr = `Map Location (${lat.toFixed(5)}, ${lon.toFixed(5)})`;
+    }
     setP2([lat, lon]);
     onChange?.(pickup, addr, p1, [lat, lon]);
   };

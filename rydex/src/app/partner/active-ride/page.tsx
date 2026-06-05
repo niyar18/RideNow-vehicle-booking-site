@@ -112,12 +112,12 @@ export default function DriverRidePage() {
 
   /* Secure VoIP Call State */
   const [activeCall, setActiveCall] = useState<{ isOpen: boolean } | null>(null);
-  const zegoContainerRef = useRef<HTMLDivElement>(null);
+  const [zegoContainer, setZegoContainer] = useState<HTMLDivElement | null>(null);
   const zegoCallJoined = useRef(false);
   const zpRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!activeCall?.isOpen || !zegoContainerRef.current || zegoCallJoined.current) return;
+    if (!activeCall?.isOpen || !zegoContainer || zegoCallJoined.current) return;
     
     let active = true;
     zegoCallJoined.current = true;
@@ -152,7 +152,7 @@ export default function DriverRidePage() {
         zpRef.current = zp;
         
         zp.joinRoom({
-          container: zegoContainerRef.current,
+          container: zegoContainer,
           scenario: {
             mode: ZegoUIKitPrebuilt.OneONoneCall,
           },
@@ -182,7 +182,7 @@ export default function DriverRidePage() {
     return () => {
       active = false;
     };
-  }, [activeCall?.isOpen, booking?._id]);
+  }, [activeCall?.isOpen, booking?._id, zegoContainer]);
 
   /* Keep latest booking in a ref so GPS callback never has stale closure */
   const bookingRef = useRef<IBooking | null>(null);
@@ -376,7 +376,7 @@ export default function DriverRidePage() {
         <p className="text-zinc-500 text-sm mb-8 max-w-xs">You don't have any active booking right now. Go online to start receiving ride requests.</p>
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => window.location.href = "/partner"}
+          onClick={() => window.location.href = "/partners/dashboard"}
           className="bg-white text-zinc-900 px-8 py-4 rounded-2xl text-sm font-bold hover:bg-zinc-100 transition-colors"
         >
           Back to Dashboard
@@ -635,7 +635,7 @@ export default function DriverRidePage() {
               
               {/* Zego Container */}
               <div 
-                ref={zegoContainerRef} 
+                ref={setZegoContainer} 
                 className="w-full h-[400px] rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800"
               />
               
@@ -1029,7 +1029,7 @@ function CompletedScreen({ booking }: { booking: IBooking }) {
 
           <motion.button
             whileTap={{ scale: 0.97 }}
-            onClick={() => window.location.href = "/partner"}
+            onClick={() => window.location.href = "/partners/dashboard"}
             className="w-full bg-white text-zinc-900 py-4 rounded-2xl text-sm font-bold hover:bg-zinc-100 transition-colors"
           >
             Back to Dashboard
@@ -1110,7 +1110,7 @@ function FailedScreen({ booking, status, cfg }: {
 
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => window.location.href = "/partner"}
+          onClick={() => window.location.href = "/partners/dashboard"}
           className="w-full bg-white text-zinc-900 py-4 rounded-2xl text-sm font-bold hover:bg-zinc-100 transition-colors"
         >
           Back to Dashboard

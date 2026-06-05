@@ -87,12 +87,12 @@ export default function RidePage() {
 
   /* Secure VoIP Call State */
   const [activeCall, setActiveCall] = useState<{ isOpen: boolean } | null>(null);
-  const zegoContainerRef = useRef<HTMLDivElement>(null);
+  const [zegoContainer, setZegoContainer] = useState<HTMLDivElement | null>(null);
   const zegoCallJoined = useRef(false);
   const zpRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!activeCall?.isOpen || !zegoContainerRef.current || zegoCallJoined.current) return;
+    if (!activeCall?.isOpen || !zegoContainer || zegoCallJoined.current) return;
     
     let active = true;
     zegoCallJoined.current = true;
@@ -127,7 +127,7 @@ export default function RidePage() {
         zpRef.current = zp;
         
         zp.joinRoom({
-          container: zegoContainerRef.current,
+          container: zegoContainer,
           scenario: {
             mode: ZegoUIKitPrebuilt.OneONoneCall,
           },
@@ -157,7 +157,7 @@ export default function RidePage() {
     return () => {
       active = false;
     };
-  }, [activeCall?.isOpen, booking?._id]);
+  }, [activeCall?.isOpen, booking?._id, zegoContainer]);
 
   /* ── FETCH ── */
   const fetchBooking = async (silent = false) => {
@@ -494,7 +494,7 @@ export default function RidePage() {
               
               {/* Zego Container */}
               <div 
-                ref={zegoContainerRef} 
+                ref={setZegoContainer} 
                 className="w-full h-[400px] rounded-2xl overflow-hidden bg-zinc-950 border border-zinc-800"
               />
               

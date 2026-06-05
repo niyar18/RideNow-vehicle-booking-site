@@ -16,8 +16,14 @@ import useGetMe from "@/hooks/useGetMe";
 const RouteMap = dynamic(() => import("@/components/RouteMap"), { ssr: false });
 
 type Place = {
-  id: string; name: string; city?: string; state?: string;
-  country?: string; countrycode?: string; lat: number; lng: number;
+  id: string;
+  name: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  countrycode?: string;
+  lat?: number;
+  lng?: number;
 };
 type VehicleType = "bike" | "auto" | "car" | "loading" | "truck";
 
@@ -164,9 +170,8 @@ export default function BookPage() {
   const searchAddress = async (q: string, setResults: (r: Place[]) => void, restrict?: string | null, isDrop?: boolean) => {
     if (!q || q.trim().length < 3) { setResults([]); return; }
     try {
-      let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(q.trim())}`;
       const countryFilter = restrict || pickupCountry || "in";
-      url += `&countrycode=${countryFilter}`;
+      let url = `/api/places?action=autocomplete&input=${encodeURIComponent(q.trim())}&country=${countryFilter}`;
       
       if (isDrop && pickupLat !== null && pickupLng !== null) {
         const defaultLimits: Record<string, { maxDistance: number }> = {
@@ -192,62 +197,64 @@ export default function BookPage() {
         const maxLon = pickupLng + deltaLng;
         
         url += `&bbox=${minLon},${minLat},${maxLon},${maxLat}`;
-        // Also add lat/lon for biasing within the bbox
-        url += `&lat=${pickupLat}&lon=${pickupLng}`;
+        url += `&lat=${pickupLat}&lng=${pickupLng}`;
       } else if (!isDrop && pickupLat !== null && pickupLng !== null) {
-        // Bias pickup autocomplete near current coordinates if available
-        url += `&lat=${pickupLat}&lon=${pickupLng}`;
+        url += `&lat=${pickupLat}&lng=${pickupLng}`;
       }
       
-      const res  = await fetch(url);
+      const res = await fetch(url);
       const data = await res.json();
       
-      const results: Place[] = (data?.features || []).map((feature: any) => {
-        const props = feature.properties || {};
-        const coords = feature.geometry?.coordinates || [0, 0];
-        const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-        const localArea = props.district || props.suburb || props.locality;
-        const cityTown = props.city || props.town || props.village;
-        const parts: string[] = [props.name];
-        if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
-        if (localArea && localArea !== props.name) parts.push(localArea);
-        if (cityTown && cityTown !== props.name) parts.push(cityTown);
-        if (props.postcode) parts.push(props.postcode);
-        if (props.state && props.state !== props.name) parts.push(props.state);
-        if (props.country && props.country !== props.name) parts.push(props.country);
-        const description = parts.filter(Boolean).join(", ");
-        return {
-          id: `${props.osm_type || "N"}-${props.osm_id || Math.random()}`,
-          name: description,
-          city: props.city,
-          state: props.state,
-          country: props.country,
-          countrycode: String(props.countrycode || "in").toLowerCase(),
-          lat: coords[1],
-          lng: coords[0],
-        };
-      });
-      setResults(results);
+      if (data.status === "OK" && data.predictions) {
+        const results: Place[] = data.predictions.map((p: any) => ({
+          id: p.place_id,
+          name: p.description,
+        }));
+        setResults(results);
+      } else {
+        setResults([]);
+      }
     } catch (err) {
-      console.error("Photon autocomplete error:", err);
+      console.error("Autocomplete error:", err);
       setResults([]);
     }
   };
 
   const fmt = (p: Place) => p.name;
 
-  const selectPlace = (p: Place, isPickup: boolean) => {
-    if (isPickup) {
-      setPickup(p.name);
-      setPickupCountry(p.countrycode || null);
-      setPickupLat(p.lat);
-      setPickupLng(p.lng);
-      setPickupResults([]);
-    } else {
-      setDrop(p.name);
-      setDropLat(p.lat);
-      setDropLng(p.lng);
-      setDropResults([]);
+  const selectPlace = async (p: Place, isPickup: boolean) => {
+    try {
+      const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
+      const data = await res.json();
+      if (data.status === "OK" && data.result) {
+        const result = data.result;
+        const formattedAddress = result.formatted_address;
+        const lat = result.geometry.location.lat;
+        const lng = result.geometry.location.lng;
+        
+        let countrycode = "in";
+        if (result.address_components) {
+          const countryComp = result.address_components.find((c: any) => c.types.includes("country"));
+          if (countryComp) {
+            countrycode = String(countryComp.short_name || "in").toLowerCase();
+          }
+        }
+
+        if (isPickup) {
+          setPickup(formattedAddress);
+          setPickupCountry(countrycode);
+          setPickupLat(lat);
+          setPickupLng(lng);
+          setPickupResults([]);
+        } else {
+          setDrop(formattedAddress);
+          setDropLat(lat);
+          setDropLng(lng);
+          setDropResults([]);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching place details:", err);
     }
   };
 
@@ -292,23 +299,18 @@ export default function BookPage() {
     navigator.geolocation.getCurrentPosition(
       async ({ coords }) => {
         try {
-          const res  = await fetch(`https://photon.komoot.io/reverse?lat=${coords.latitude}&lon=${coords.longitude}`);
+          const res  = await fetch(`/api/places?action=geocode&lat=${coords.latitude}&lng=${coords.longitude}`);
           const data = await res.json();
-          if (data?.features?.length) {
-            const first = data.features[0];
-            const props = first.properties || {};
-            const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-            const localArea = props.district || props.suburb || props.locality;
-            const cityTown = props.city || props.town || props.village;
-            const parts: string[] = [props.name];
-            if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
-            if (localArea && localArea !== props.name) parts.push(localArea);
-            if (cityTown && cityTown !== props.name) parts.push(cityTown);
-            if (props.postcode) parts.push(props.postcode);
-            if (props.state && props.state !== props.name) parts.push(props.state);
-            if (props.country && props.country !== props.name) parts.push(props.country);
-            const addr = parts.filter(Boolean).join(", ");
-            const countryCode = String(props.countrycode || "in").toLowerCase();
+          if (data?.results?.length) {
+            const first = data.results[0];
+            const addr = first.formatted_address;
+            let countryCode = "in";
+            if (first.address_components) {
+              const countryComp = first.address_components.find((c: any) => c.types.includes("country"));
+              if (countryComp) {
+                countryCode = String(countryComp.short_name || "in").toLowerCase();
+              }
+            }
 
             setPickup(addr);
             setPickupCountry(countryCode);
@@ -542,7 +544,16 @@ export default function BookPage() {
                   </div>
                   <input
                     value={pickup}
-                    onChange={e => { setPickup(e.target.value); searchAddress(e.target.value, setPickupResults); }}
+                    onChange={e => {
+                      setPickup(e.target.value);
+                      setPickupLat(null);
+                      setPickupLng(null);
+                      if (e.target.value.trim().length === 0) {
+                        setPickupResults([]);
+                      } else {
+                        searchAddress(e.target.value, setPickupResults);
+                      }
+                    }}
                     onKeyDown={e => handleKeyDown(e, true)}
                     onBlur={() => handleBlur(true)}
                     placeholder="Pickup location"
@@ -592,7 +603,16 @@ export default function BookPage() {
                   </div>
                   <input
                     value={drop}
-                    onChange={e => { setDrop(e.target.value); searchAddress(e.target.value, setDropResults, pickupCountry || "in", true); }}
+                    onChange={e => {
+                      setDrop(e.target.value);
+                      setDropLat(null);
+                      setDropLng(null);
+                      if (e.target.value.trim().length === 0) {
+                        setDropResults([]);
+                      } else {
+                        searchAddress(e.target.value, setDropResults, pickupCountry || "in", true);
+                      }
+                    }}
                     onKeyDown={e => handleKeyDown(e, false)}
                     onBlur={() => handleBlur(false)}
                     disabled={!pickup}
@@ -688,6 +708,7 @@ export default function BookPage() {
           onChange={handleMapChange}
           onDistance={setRouteDistance}
           vehicles={vehicles}
+          disableFallbackGeocode={true}
         />
       </div>
 

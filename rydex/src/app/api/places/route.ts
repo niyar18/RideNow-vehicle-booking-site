@@ -4,36 +4,71 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const action = searchParams.get("action");
 
+  // Descriptive User-Agent to prevent rate-limiting from public Photon servers
+  const headers = {
+    "User-Agent": "RideNow-Vehicle-Booking-Site/1.0 (contact: support@ridenow.app; contact_page: https://ride-now-vehicle-booking-site.vercel.app/contact)"
+  };
+
   try {
     if (action === "autocomplete") {
       const input = searchParams.get("input") || "";
-      const country = searchParams.get("country");
-      let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}`;
-      if (country && country !== "null") {
+      const country = (searchParams.get("country") || "in").toUpperCase();
+      const lat = searchParams.get("lat");
+      const lng = searchParams.get("lng");
+      const bbox = searchParams.get("bbox");
+
+      let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(input.trim())}`;
+      
+      if (country && country !== "NULL") {
         url += `&countrycode=${country}`;
       }
-      
-      const res = await fetch(url, {
-        headers: {
-          "User-Agent": "RideNow-Vehicle-Booking/1.0 (contact: support@ridenow.app)"
-        }
-      });
-      
-      if (!res.ok) {
-        console.error(`Photon Autocomplete failed with status ${res.status}`);
-        return NextResponse.json({ predictions: [], status: "OK" });
+      if (bbox) {
+        url += `&bbox=${bbox}`;
       }
-      
-      const data = await res.json();
+      if (lat && lng) {
+        url += `&lat=${lat}&lon=${lng}`;
+      }
 
-      // Map Photon FeatureCollection to Google-compatible Places Autocomplete format
+      let res = await fetch(url, { headers });
+      let data = await res.json();
+
+      // Fallback 1: If search within bounding box (bbox) returns nothing, try without bbox
+      if (bbox && (!data?.features || data.features.length === 0)) {
+        let fallbackUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(input.trim())}`;
+        if (country && country !== "NULL") {
+          fallbackUrl += `&countrycode=${country}`;
+        }
+        if (lat && lng) {
+          fallbackUrl += `&lat=${lat}&lon=${lng}`;
+        }
+        const fallbackRes = await fetch(fallbackUrl, { headers });
+        if (fallbackRes.ok) {
+          data = await fallbackRes.json();
+        }
+      }
+
+      // Fallback 2: If still nothing, try without country constraint to capture edge results
+      if (!data?.features || data.features.length === 0) {
+        let fallbackUrl2 = `https://photon.komoot.io/api/?q=${encodeURIComponent(input.trim())}`;
+        if (lat && lng) {
+          fallbackUrl2 += `&lat=${lat}&lon=${lng}`;
+        }
+        const fallbackRes2 = await fetch(fallbackUrl2, { headers });
+        if (fallbackRes2.ok) {
+          data = await fallbackRes2.json();
+        }
+      }
+
+      // Map Photon FeatureCollection to client-compatible autocomplete predictions
       const predictions = (data?.features || []).map((feature: any) => {
         const props = feature.properties || {};
-        const coords = feature.geometry?.coordinates || [0, 0]; // [lng, lat]
+        const coords = feature.geometry?.coordinates || [0, 0];
+        
         const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
         const localArea = props.district || props.suburb || props.locality;
         const cityTown = props.city || props.town || props.village;
         const parts: string[] = [props.name];
+        
         if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
         if (localArea && localArea !== props.name) parts.push(localArea);
         if (cityTown && cityTown !== props.name) parts.push(cityTown);
@@ -42,8 +77,7 @@ export async function GET(req: NextRequest) {
         if (props.country && props.country !== props.name) parts.push(props.country);
         const description = parts.filter(Boolean).join(", ");
 
-        // Encode coordinates and country code in place_id to make details retrieval zero-latency
-        const place_id = `photon_${coords[1]}_${coords[0]}_${props.countrycode || "in"}_${encodeURIComponent(description)}`;
+        const place_id = `photon_${coords[1]}_${coords[0]}_${(props.countrycode || "in").toLowerCase()}_${encodeURIComponent(description)}`;
 
         return {
           place_id,
@@ -52,10 +86,11 @@ export async function GET(req: NextRequest) {
       });
 
       return NextResponse.json({ predictions, status: "OK" });
-    } 
-    
+    }
+
     if (action === "details") {
       const placeId = searchParams.get("placeId") || "";
+      
       if (placeId.startsWith("photon_")) {
         const parts = placeId.split("_");
         if (parts.length >= 5) {
@@ -83,28 +118,21 @@ export async function GET(req: NextRequest) {
         }
       }
       return NextResponse.json({ status: "INVALID_REQUEST", message: "Invalid placeId format" }, { status: 400 });
-    } 
-    
+    }
+
     if (action === "geocode") {
       const lat = searchParams.get("lat");
       const lng = searchParams.get("lng");
       const address = searchParams.get("address");
-      
+
       if (address) {
         const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}`;
-        const res = await fetch(url, {
-          headers: {
-            "User-Agent": "RideNow-Vehicle-Booking/1.0 (contact: support@ridenow.app)"
-          }
-        });
-        
+        const res = await fetch(url, { headers });
         if (!res.ok) {
-          console.error(`Photon Geocode address failed with status ${res.status}`);
           return NextResponse.json({ results: [], status: "OK" });
         }
         
         const data = await res.json();
-        
         const results = (data?.features || []).map((feature: any) => {
           const props = feature.properties || {};
           const coords = feature.geometry?.coordinates || [0, 0];
@@ -141,19 +169,12 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ results, status: "OK" });
       } else if (lat && lng) {
         const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`;
-        const res = await fetch(url, {
-          headers: {
-            "User-Agent": "RideNow-Vehicle-Booking/1.0 (contact: support@ridenow.app)"
-          }
-        });
-        
+        const res = await fetch(url, { headers });
         if (!res.ok) {
-          console.error(`Photon Reverse Geocode failed with status ${res.status}`);
           return NextResponse.json({ results: [], status: "OK" });
         }
         
         const data = await res.json();
-        
         const results = (data?.features || []).map((feature: any) => {
           const props = feature.properties || {};
           const coords = feature.geometry?.coordinates || [0, 0];
