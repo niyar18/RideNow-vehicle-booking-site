@@ -116,14 +116,18 @@ export default function RidePage() {
         
         const { ZegoUIKitPrebuilt } = await import("@zegocloud/zego-uikit-prebuilt");
         
-        const zp = ZegoUIKitPrebuilt.create(data.token);
+        const kitToken = ZegoUIKitPrebuilt.generateKitTokenForProduction(
+          data.appID,
+          data.token,
+          `call-${booking?._id}`,
+          data.userID,
+          data.userName
+        );
+        const zp = ZegoUIKitPrebuilt.create(kitToken);
         zpRef.current = zp;
         
         zp.joinRoom({
           container: zegoContainerRef.current,
-          roomID: `call-${booking?._id}`,
-          userID: data.userID,
-          userName: data.userName,
           scenario: {
             mode: ZegoUIKitPrebuilt.OneONoneCall,
           },
