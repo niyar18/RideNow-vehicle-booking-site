@@ -414,7 +414,7 @@ export default function DriverRidePage() {
     dropOtpMode, dropOtp, loadingDropOtp, dropOtpError,
     setDropOtpMode, setDropOtp, setDropOtpError, handleVerifyDropOtp, sendDropOtp,
     chatOpen, onChatToggle: () => canChat && setChatOpen(v => !v),
-    onCancel: onCancel,
+    onCancel: handleCancel,
     onCallClick: () => setActiveCall({ isOpen: true }),
   };
 
