@@ -20,8 +20,44 @@ try {
   console.error("Error setting up logo favicon:", err);
 }
 
+const securityHeaders = [
+  {
+    key: "X-Frame-Options",
+    value: "SAMEORIGIN",
+  },
+  {
+    key: "X-Content-Type-Options",
+    value: "nosniff",
+  },
+  {
+    key: "Referrer-Policy",
+    value: "strict-origin-when-cross-origin",
+  },
+  {
+    key: "Content-Security-Policy",
+    value:
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://checkout.razorpay.com https://*.zegocloud.com https://*.zego.im; " +
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.zegocloud.com; " +
+      "img-src 'self' blob: data: https:; " +
+      "connect-src 'self' https: wss: ws:; " +
+      "font-src 'self' data: https://fonts.gstatic.com; " +
+      "frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com https://*.zegocloud.com https://*.zego.im; " +
+      "media-src 'self' blob: data: https://*.zegocloud.com https://*.zego.im; " +
+      "object-src 'none';",
+  },
+];
+
 const nextConfig: NextConfig = {
   /* config options here */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
