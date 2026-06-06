@@ -617,6 +617,7 @@ function PriceInput({ label, value, onChange }: any) {
 }
 
 function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }: any) {
+  const router = useRouter();
   const [isOnline, setIsOnline] = useState(false);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [loading, setLoading] = useState(false);
