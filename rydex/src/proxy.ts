@@ -23,6 +23,26 @@ const VENDOR_ONBOARDING_START = "/partner/onboard/vehicle";
 export const proxy = auth(async (req) => {
   const { pathname } = req.nextUrl;
 
+  /* ---------- SECURE SCANNER PROBES ---------- */
+  const lowercasePath = pathname.toLowerCase();
+  const isProbe = [
+    "/metrics",
+    "/actuator",
+    "/swagger",
+    "/api-docs",
+    "/graphiql",
+    "/graphql",
+    "/docs",
+    "/health",
+    "/healthz",
+    "/ready",
+    "/ping",
+  ].some((probe) => lowercasePath === probe || lowercasePath.startsWith(probe + "/"));
+
+  if (isProbe) {
+    return new NextResponse("Not Found", { status: 404 });
+  }
+
   /* ---------- STATIC FILES ---------- */
   if (
     pathname.startsWith("/_next") ||

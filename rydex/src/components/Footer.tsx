@@ -34,10 +34,10 @@ export default function Footer() {
             {/* SOCIAL */}
             <div className="flex gap-4 mt-6">
               {[
-                { Icon: Facebook, href: "https://facebook.com" },
-                { Icon: Instagram, href: "https://instagram.com" },
-                { Icon: Twitter, href: "https://twitter.com" },
-                { Icon: Linkedin, href: "https://linkedin.com" },
+                { Icon: Facebook, href: "https://facebook.com", name: "Facebook" },
+                { Icon: Instagram, href: "https://instagram.com", name: "Instagram" },
+                { Icon: Twitter, href: "https://twitter.com", name: "Twitter" },
+                { Icon: Linkedin, href: "https://linkedin.com", name: "LinkedIn" },
               ].map((item, i) => (
                 <motion.a
                   key={i}
@@ -45,6 +45,7 @@ export default function Footer() {
                   href={item.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  aria-label={item.name}
                   className="w-10 h-10 flex items-center justify-center rounded-full border border-white/20 hover:bg-white hover:text-black transition cursor-pointer select-none"
                 >
                   <item.Icon size={18} />
@@ -113,11 +114,16 @@ export default function Footer() {
 
             <div className="mt-4 flex">
               <input
+                id="footerEmail"
                 type="email"
                 placeholder="Enter email"
+                aria-label="Email address for newsletter"
                 className="flex-1 bg-black border border-white/20 rounded-l-lg px-4 py-2 text-sm text-white focus:outline-none"
               />
-              <button className="px-4 py-2 bg-white text-black rounded-r-lg hover:bg-gray-200 transition">
+              <button 
+                aria-label="Subscribe to newsletter"
+                className="px-4 py-2 bg-white text-black rounded-r-lg hover:bg-gray-200 transition"
+              >
                 <Mail size={16} />
               </button>
             </div>
