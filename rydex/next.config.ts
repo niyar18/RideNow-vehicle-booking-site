@@ -34,6 +34,14 @@ const securityHeaders = [
     value: "strict-origin-when-cross-origin",
   },
   {
+    key: "Server",
+    value: "RideNow",
+  },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(self), microphone=(self), geolocation=(self), payment=(self)",
+  },
+  {
     key: "Content-Security-Policy",
     value:
       "default-src 'self'; " +
@@ -44,12 +52,14 @@ const securityHeaders = [
       "font-src 'self' data: https://fonts.gstatic.com; " +
       "frame-src 'self' https://checkout.razorpay.com https://api.razorpay.com https://*.zegocloud.com https://*.zego.im; " +
       "media-src 'self' blob: data: https://*.zegocloud.com https://*.zego.im; " +
+      "frame-ancestors 'self'; " +
       "object-src 'none';",
   },
 ];
 
 const nextConfig: NextConfig = {
   /* config options here */
+  poweredByHeader: false,
   async headers() {
     return [
       {
