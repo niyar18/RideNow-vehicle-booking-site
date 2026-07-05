@@ -496,7 +496,7 @@ export default function BookPage() {
               <div className="w-5 h-5 rounded-full bg-zinc-900 flex items-center justify-center flex-shrink-0">
                 <span className="text-white text-[9px] font-black">2</span>
               </div>
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest">Mobile Number</p>
+              <label htmlFor="mobileInput" className="text-xs font-bold text-zinc-500 uppercase tracking-widest cursor-pointer">Mobile Number</label>
             </div>
 
             <div className="flex items-center gap-3 bg-zinc-50 border border-zinc-200 rounded-2xl px-4 py-3 focus-within:border-zinc-900 focus-within:bg-white transition-all">
@@ -504,6 +504,7 @@ export default function BookPage() {
                 <Phone size={14} className="text-zinc-600" />
               </div>
               <input
+                id="mobileInput"
                 type="tel"
                 value={mobile}
                 onChange={e => setMobile(e.target.value.replace(/\D/g, "").slice(0, 10))}
@@ -543,6 +544,8 @@ export default function BookPage() {
                     <div className="w-px h-5 bg-zinc-300 mt-1" />
                   </div>
                   <input
+                    id="pickupInput"
+                    aria-label="Pickup location"
                     value={pickup}
                     onChange={e => {
                       setPickup(e.target.value);
@@ -602,6 +605,8 @@ export default function BookPage() {
                     <div className="w-3 h-3 rounded-sm bg-zinc-900 border-2 border-white shadow" />
                   </div>
                   <input
+                    id="dropInput"
+                    aria-label="Drop location"
                     value={drop}
                     onChange={e => {
                       setDrop(e.target.value);

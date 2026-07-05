@@ -211,6 +211,7 @@ export default function ContactPage() {
                   <a
                     key={social}
                     href="#"
+                    aria-label={social}
                     className="w-12 h-12 bg-white/5 border border-white/10 rounded-full flex items-center justify-center hover:bg-white/10 hover:border-white/20 transition"
                   >
                     {social[0]}
