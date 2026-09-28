@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ridenow-socket-server
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 8000
+      - key: NEXT_BASE_URL
+        sync: false
+        placeholder: "The URL of your frontend (e.g. http://localhost:3000 or your Vercel URL)"
+      - key: MONGODB_URI
+        sync: false
+        placeholder: "Your MongoDB connection string"

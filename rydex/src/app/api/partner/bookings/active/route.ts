@@ -1,0 +1,31 @@
+import { NextResponse } from "next/server";
+import connectDb from "@/lib/db";
+import Booking from "@/models/booking.model";
+import { auth } from "@/auth";
+
+export async function GET() {
+  await connectDb();
+
+  const session = await auth();
+  if (!session?.user?.id)
+    return NextResponse.json({ booking: null });
+
+  const booking = await Booking.findOne({
+    driver: session.user.id,
+    status: {
+      $in: ["awaiting_payment", "confirmed", "started"],
+    },
+  }).sort({ createdAt: -1 }).populate("user driver vehicle");
+
+  if (!booking) return NextResponse.json(null);
+
+  const bookingObj = booking.toObject();
+  if (bookingObj.userMobileNumber) {
+    const raw = bookingObj.userMobileNumber;
+    const suffix = raw.slice(-3);
+    const prefix = raw.startsWith("+") ? raw.slice(0, 3) : "";
+    bookingObj.userMobileNumber = `${prefix} ••••• ••${suffix}`;
+  }
+
+  return NextResponse.json(bookingObj);
+}

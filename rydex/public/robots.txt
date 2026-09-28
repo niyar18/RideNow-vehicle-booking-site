@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /profile
+Disallow: /admin/
+Disallow: /partner/
+Disallow: /partners/
+Disallow: /checkout
+Disallow: /ride/
+
+Sitemap: https://ride-now-vehicle-booking-site.vercel.app/sitemap.xml
