@@ -293,37 +293,62 @@ export default function BookPage() {
     }, 200);
   };
 
+  const handleGeolocationSuccess = async (coords: GeolocationCoordinates) => {
+    const lat = coords.latitude;
+    const lng = coords.longitude;
+
+    // Immediately set coordinates so map centers and nearby drivers load
+    setPickupLat(lat);
+    setPickupLng(lng);
+    setPickupResults([]);
+
+    try {
+      const res = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lng}`);
+      const data = await res.json();
+      if (data?.results?.length) {
+        const first = data.results[0];
+        const addr = first.formatted_address || `Current Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+        let countryCode = "in";
+        if (first.address_components) {
+          const countryComp = first.address_components.find((c: any) => c.types.includes("country"));
+          if (countryComp) {
+            countryCode = String(countryComp.short_name || "in").toLowerCase();
+          }
+        }
+        setPickup(addr);
+        setPickupCountry(countryCode);
+      } else {
+        setPickup(`Current Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+        setPickupCountry("in");
+      }
+    } catch (err) {
+      console.error("Failed to reverse geocode current location:", err);
+      setPickup(`Current Location (${lat.toFixed(4)}, ${lng.toFixed(4)})`);
+    } finally {
+      setLocating(false);
+    }
+  };
+
   const useCurrentLocation = () => {
     if (!navigator.geolocation) return;
     setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        try {
-          const res  = await fetch(`/api/places?action=geocode&lat=${coords.latitude}&lng=${coords.longitude}`);
-          const data = await res.json();
-          if (data?.results?.length) {
-            const first = data.results[0];
-            const addr = first.formatted_address;
-            let countryCode = "in";
-            if (first.address_components) {
-              const countryComp = first.address_components.find((c: any) => c.types.includes("country"));
-              if (countryComp) {
-                countryCode = String(countryComp.short_name || "in").toLowerCase();
-              }
-            }
 
-            setPickup(addr);
-            setPickupCountry(countryCode);
-            setPickupLat(coords.latitude);
-            setPickupLng(coords.longitude);
-            setPickupResults([]);
-          }
-        } catch (err) {
-          console.error("Failed to reverse geocode current location:", err);
-        } finally { setLocating(false); }
+    // Tier 1: High accuracy with 5s timeout
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => handleGeolocationSuccess(coords),
+      (err) => {
+        console.warn("High accuracy geolocation failed, attempting standard accuracy:", err);
+        // Tier 2: Low accuracy fallback
+        navigator.geolocation.getCurrentPosition(
+          ({ coords }) => handleGeolocationSuccess(coords),
+          (err2) => {
+            console.error("Standard geolocation failed:", err2);
+            setLocating(false);
+          },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 }
+        );
       },
-      () => setLocating(false),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 5000, maximumAge: 10000 }
     );
   };
 

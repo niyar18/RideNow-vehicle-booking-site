@@ -96,12 +96,13 @@ const carMarkerIcon = new L.DivIcon({
 });
 
 /* ─── FIT BOUNDS ──────────────────────────────────────────────────── */
-function FitBounds({ p1, p2 }: { p1: [number, number]; p2: [number, number] }) {
+function FitBounds({ p1, p2, route }: { p1: [number, number]; p2: [number, number]; route?: [number, number][] }) {
   const map = useMap();
   useEffect(() => {
     map.invalidateSize();
-    map.fitBounds([p1, p2], { padding: [72, 72], maxZoom: 15, animate: true, duration: 1 });
-  }, [p1, p2, map]);
+    const allPoints = (route && route.length > 0) ? route : [p1, p2];
+    map.fitBounds(allPoints as L.LatLngBoundsExpression, { padding: [60, 60], maxZoom: 15, animate: true, duration: 0.8 });
+  }, [p1, p2, route, map]);
   return null;
 }
 
@@ -113,6 +114,34 @@ function CenterMap({ center }: { center: [number, number] | null }) {
     }
   }, [center, map]);
   return null;
+}
+
+function getHaversineDistance(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // Earth radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
+function generateInterpolatedRoute(a: [number, number], b: [number, number], segments = 10): [number, number][] {
+  const points: [number, number][] = [];
+  const midLat = (a[0] + b[0]) / 2;
+  const midLng = (a[1] + b[1]) / 2;
+  const offsetLat = (b[1] - a[1]) * 0.08;
+  const offsetLng = (a[0] - b[0]) * 0.08;
+
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    const lat = (1 - t) * (1 - t) * a[0] + 2 * (1 - t) * t * (midLat + offsetLat) + t * t * b[0];
+    const lng = (1 - t) * (1 - t) * a[1] + 2 * (1 - t) * t * (midLng + offsetLng) + t * t * b[1];
+    points.push([lat, lng]);
+  }
+  return points;
 }
 
 /* ─── ZOOM CONTROLS (inside MapContainer) ────────────────────────── */
@@ -204,26 +233,40 @@ export default function RouteMap({
   };
 
   const loadRoute = async (a: [number, number], b: [number, number]) => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
     try {
       const r = await fetch(
-        `https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`
+        `https://router.project-osrm.org/route/v1/driving/${a[1]},${a[0]};${b[1]},${b[0]}?overview=full&geometries=geojson`,
+        { signal: controller.signal }
       );
+      clearTimeout(timeoutId);
+
+      if (!r.ok) throw new Error(`OSRM HTTP status ${r.status}`);
+
       const d = await r.json();
-      if (!d?.routes?.length) {
-        setRoute([]);
-        setKm(null);
-        onDistance?.(-1);
-        return;
+      if (!d?.routes?.length || !d.routes[0]?.geometry?.coordinates) {
+        throw new Error("No routes returned by OSRM");
       }
-      setRoute(d.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon]));
+
+      const coords: [number, number][] = d.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon]);
       const distKm = +((d.routes[0].distance / 1000).toFixed(2));
+
+      setRoute(coords);
       setKm(distKm);
       onDistance?.(distKm);
     } catch (err) {
-      console.error("Failed to load route in RouteMap:", err);
-      setRoute([]);
-      setKm(null);
-      onDistance?.(-1);
+      clearTimeout(timeoutId);
+      console.warn("OSRM routing unavailable or timed out, using fallback routing:", err);
+
+      const directDist = getHaversineDistance(a[0], a[1], b[0], b[1]);
+      const estimatedRoadKm = +((directDist * 1.25).toFixed(2));
+      const fallbackPoints = generateInterpolatedRoute(a, b);
+
+      setRoute(fallbackPoints);
+      setKm(estimatedRoadKm);
+      onDistance?.(estimatedRoadKm);
     }
   };
 
@@ -323,7 +366,7 @@ export default function RouteMap({
           url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
         />
 
-        {p1 && p2 && <FitBounds p1={p1} p2={p2} />}
+        {p1 && p2 && <FitBounds p1={p1} p2={p2} route={route} />}
 
         {p1 && (
           <Marker

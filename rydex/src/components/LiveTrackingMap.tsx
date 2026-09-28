@@ -128,6 +128,18 @@ export default function LiveRideMap({
     if (el) el.style.transform = `rotate(${angle}deg)`;
   };
 
+function calcDistance(a: [number, number], b: [number, number]) {
+  const R = 6371;
+  const dLat = (b[0] - a[0]) * Math.PI / 180;
+  const dLon = (b[1] - a[1]) * Math.PI / 180;
+  const val =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(a[0] * Math.PI / 180) * Math.cos(b[0] * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(val), Math.sqrt(1 - val));
+  return R * c;
+}
+
   useEffect(() => {
     if (!driverLocation) return;
 
@@ -143,42 +155,73 @@ export default function LiveRideMap({
     if (status === "arriving") {
       // Fetch route to pickup AND route to drop (for ETA display)
       Promise.all([
-        fetch(`${base}${dlng},${dlat};${plng},${plat}${qs}`).then(r => r.json()),
-        fetch(`${base}${dlng},${dlat};${drlng},${drlat}${qs}`).then(r => r.json()),
+        fetch(`${base}${dlng},${dlat};${plng},${plat}${qs}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`${base}${dlng},${dlat};${drlng},${drlat}${qs}`).then(r => r.ok ? r.json() : null).catch(() => null),
       ]).then(([pData, dData]) => {
-        if (pData.routes?.length)
+        let pDist = 0;
+        let pDur = 0;
+        let dDist = 0;
+        let dDur = 0;
+
+        if (pData?.routes?.length) {
           setRouteToPickup(
             pData.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon])
           );
-        if (dData.routes?.length)
+          pDist = (pData.routes[0].distance ?? 0) / 1000;
+          pDur  = (pData.routes[0].duration ?? 0) / 60;
+        } else {
+          setRouteToPickup([driverLocation, pickupLocation]);
+          pDist = calcDistance(driverLocation, pickupLocation) * 1.25;
+          pDur  = (pDist / 25) * 60;
+        }
+
+        if (dData?.routes?.length) {
           setRouteToDrop(
             dData.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon])
           );
+          dDist = (dData.routes[0].distance ?? 0) / 1000;
+          dDur  = (dData.routes[0].duration ?? 0) / 60;
+        } else {
+          setRouteToDrop([driverLocation, dropLocation]);
+          dDist = calcDistance(driverLocation, dropLocation) * 1.25;
+          dDur  = (dDist / 25) * 60;
+        }
+
         onStats?.({
-          distanceToPickup: (pData.routes?.[0]?.distance ?? 0) / 1000,
-          durationToPickup: (pData.routes?.[0]?.duration ?? 0) / 60,
-          distanceToDrop:   (dData.routes?.[0]?.distance ?? 0) / 1000,
-          durationToDrop:   (dData.routes?.[0]?.duration ?? 0) / 60,
+          distanceToPickup: pDist,
+          durationToPickup: pDur,
+          distanceToDrop: dDist,
+          durationToDrop: dDur,
         });
       });
 
     } else {
       // ongoing / completed — only need driver→drop
-      // Clear pickup route immediately when status changes away from arriving
       if (statusChanged) setRouteToPickup([]);
 
       fetch(`${base}${dlng},${dlat};${drlng},${drlat}${qs}`)
-        .then(r => r.json())
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null)
         .then(dData => {
-          if (dData.routes?.length)
+          let dDist = 0;
+          let dDur = 0;
+          if (dData?.routes?.length) {
             setRouteToDrop(
               dData.routes[0].geometry.coordinates.map(([lon, lat]: number[]) => [lat, lon])
             );
+            dDist = (dData.routes[0].distance ?? 0) / 1000;
+            dDur  = (dData.routes[0].duration ?? 0) / 60;
+          } else {
+            setRouteToDrop([driverLocation, dropLocation]);
+            dDist = calcDistance(driverLocation, dropLocation) * 1.25;
+            dDur  = (dDist / 25) * 60;
+          }
+
           onStats?.({
             distanceToPickup: 0,
             durationToPickup: 0,
-            distanceToDrop:   (dData.routes?.[0]?.distance ?? 0) / 1000,
-            durationToDrop:   (dData.routes?.[0]?.duration ?? 0) / 60,
+            distanceToDrop: dDist,
+            durationToDrop: dDur,
           });
         });
     }
