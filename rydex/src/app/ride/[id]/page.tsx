@@ -6,7 +6,7 @@ import {
   Star, MessageCircle, Clock, Zap,
   IndianRupee, XCircle, AlertCircle, AlertTriangle,
   CheckCircle2, Mic, MicOff, Volume2, PhoneOff,
-  ShieldAlert, Siren, PhoneCall
+  ShieldAlert, Siren, PhoneCall, Share2
 } from "lucide-react";
 import { getSocket } from "@/lib/socket";
 import { useParams, useRouter } from "next/navigation";
@@ -41,6 +41,7 @@ interface BookingDetails {
   dropOtp?: string;
   isPanicActive?: boolean;
   panicActivatedAt?: string;
+  shareToken?: string;
 }
 
 /* ─── STATUS CONFIG ──────────────────────────────────────────────────── */
@@ -954,13 +955,13 @@ function PanelContent({
             </div>
           </div>
 
-          {/* Call always when active; Message only when canChat */}
+          {/* Call, Message & Share Trip */}
           {isActive && (
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-2 mt-2 flex-wrap">
               {booking.driverMobileNumber && (
                 <button
                   onClick={onCallClick}
-                  className={`flex items-center justify-center gap-2 bg-zinc-100 hover:bg-zinc-200 active:scale-[0.97] transition-all text-zinc-900 py-3 rounded-xl text-sm font-semibold ${canChat ? "flex-1" : "w-full"}`}
+                  className="flex-1 flex items-center justify-center gap-2 bg-zinc-100 hover:bg-zinc-200 active:scale-[0.97] transition-all text-zinc-900 py-3 rounded-xl text-sm font-semibold"
                 >
                   <Phone size={15} /> Call
                 </button>
@@ -973,6 +974,23 @@ function PanelContent({
                   {chatOpen ? "Close Chat" : "Message"}
                 </button>
               )}
+              <button
+                onClick={() => {
+                  if (typeof window === "undefined") return;
+                  const tokenStr = booking?.shareToken || booking?._id;
+                  const shareUrl = `${window.location.origin}/track/${tokenStr}`;
+                  const shareText = `Track my RideNow trip live: ${shareUrl}`;
+                  if (navigator.share) {
+                    navigator.share({ title: "Live Trip Tracking", text: shareText, url: shareUrl }).catch(() => {});
+                  } else {
+                    navigator.clipboard.writeText(shareUrl);
+                    alert("Live tracking link copied to clipboard!");
+                  }
+                }}
+                className="flex-1 flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 active:scale-[0.97] transition-all py-3 rounded-xl text-sm font-semibold"
+              >
+                <Share2 size={15} /> Share Trip
+              </button>
             </div>
           )}
         </motion.div>

@@ -55,6 +55,7 @@ partnerAmount: number
   currentDriverIndex: number;
   isPanicActive?: boolean;
   panicActivatedAt?: Date;
+  shareToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -156,6 +157,12 @@ dropOtpExpires: {
     },
     panicActivatedAt: {
       type: Date,
+    },
+    shareToken: {
+      type: String,
+      unique: true,
+      sparse: true,
+      index: true,
     },
   },
   { timestamps: true }

@@ -200,6 +200,7 @@ export async function POST(req: Request) {
     driverMobileNumber: nearestVendor.mobileNumber || "",
     candidateDrivers: sortedCandidates.map(c => c._id),
     currentDriverIndex: 0,
+    shareToken: `rt_${Math.random().toString(36).substring(2, 10)}${Date.now().toString(36)}`,
     status: "requested",
   });
 
