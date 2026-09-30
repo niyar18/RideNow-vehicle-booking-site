@@ -16,6 +16,14 @@ export type PaymentStatus =
   | "cash"
   | "failed";
 
+export interface IGroupMember {
+  user?: Types.ObjectId;
+  name: string;
+  email: string;
+  status: "creator" | "accepted" | "pending" | "declined";
+  shareAmount: number;
+}
+
 export interface IBooking extends Document {
   user: Types.ObjectId;
   driver: Types.ObjectId;
@@ -56,6 +64,17 @@ partnerAmount: number
   isPanicActive?: boolean;
   panicActivatedAt?: Date;
   shareToken?: string;
+  isGroupRide?: boolean;
+  groupInviteCode?: string;
+  groupMembers?: IGroupMember[];
+  splitFarePerPerson?: number;
+  isSmartPickup?: boolean;
+  smartPickupDetails?: {
+    venueName: string;
+    spotName: string;
+    instructions: string;
+    walkingTimeText: string;
+  };
   createdAt: Date;
   updatedAt: Date;
 }
@@ -163,6 +182,36 @@ dropOtpExpires: {
       unique: true,
       sparse: true,
       index: true,
+    },
+    isGroupRide: {
+      type: Boolean,
+      default: false,
+    },
+    groupInviteCode: {
+      type: String,
+      index: true,
+    },
+    groupMembers: [
+      {
+        user: { type: Schema.Types.ObjectId, ref: "User" },
+        name: { type: String, required: true },
+        email: { type: String, required: true },
+        status: { type: String, enum: ["creator", "accepted", "pending", "declined"], default: "pending" },
+        shareAmount: { type: Number, default: 0 },
+      },
+    ],
+    splitFarePerPerson: {
+      type: Number,
+    },
+    isSmartPickup: {
+      type: Boolean,
+      default: false,
+    },
+    smartPickupDetails: {
+      venueName: { type: String },
+      spotName: { type: String },
+      instructions: { type: String },
+      walkingTimeText: { type: String },
     },
   },
   { timestamps: true }

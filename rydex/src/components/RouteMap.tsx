@@ -23,6 +23,8 @@ type Props = {
   onCoordinatesChange?: (p1: [number, number] | null, p2: [number, number] | null) => void;
   vehicles?: any[];
   disableFallbackGeocode?: boolean;
+  smartPickups?: any[];
+  onSelectSmartPickup?: (spot: any) => void;
 };
 
 /* ─── ICONS ── black/white theme ─────────────────────────────────── */
@@ -93,6 +95,29 @@ const carMarkerIcon = new L.DivIcon({
   className: "",
   iconSize: [34, 34],
   iconAnchor: [17, 17],
+});
+
+const smartPickupIcon = new L.DivIcon({
+  html: `
+    <div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 4px 14px rgba(22,163,74,0.45));">
+      <div style="
+        background:#16a34a;color:#fff;
+        padding:4px 10px;border-radius:100px;
+        font-size:9px;font-weight:800;letter-spacing:0.06em;
+        text-transform:uppercase;white-space:nowrap;
+        font-family:-apple-system,system-ui,sans-serif;
+        box-shadow:0 2px 8px rgba(0,0,0,0.2);
+      ">SMART PICKUP</div>
+      <div style="width:2px;height:7px;background:#16a34a;"></div>
+      <div style="
+        width:14px;height:14px;background:#16a34a;border-radius:50%;
+        border:2.5px solid #fff;
+        box-shadow:0 0 0 3px rgba(22,163,74,0.3);
+      "></div>
+    </div>`,
+  className: "",
+  iconSize: [110, 55],
+  iconAnchor: [55, 55],
 });
 
 /* ─── FIT BOUNDS ──────────────────────────────────────────────────── */
@@ -189,6 +214,8 @@ export default function RouteMap({
   onCoordinatesChange,
   vehicles,
   disableFallbackGeocode,
+  smartPickups,
+  onSelectSmartPickup,
 }: Props) {
   const [p1,    setP1]    = useState<[number, number] | null>(null);
   const [p2,    setP2]    = useState<[number, number] | null>(null);
@@ -403,6 +430,26 @@ export default function RouteMap({
             </Marker>
           );
         })}
+
+        {/* Smart Pickups Hotspot Pins */}
+        {smartPickups && smartPickups.map((spot) => (
+          <Marker
+            key={spot.id}
+            position={[spot.lat, spot.lng]}
+            icon={smartPickupIcon}
+            eventHandlers={{
+              click: () => onSelectSmartPickup?.(spot),
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -15]} permanent={false}>
+              <div className="p-1 font-sans">
+                <p className="font-bold text-xs text-emerald-700">{spot.venueName}</p>
+                <p className="text-[11px] text-zinc-700 font-medium">{spot.spotName}</p>
+                <p className="text-[10px] text-zinc-500 mt-0.5 font-bold">🚶 {spot.walkingTimeText}</p>
+              </div>
+            </Tooltip>
+          </Marker>
+        ))}
 
         {/* Route — black triple layer on white map */}
         {route.length > 0 && (

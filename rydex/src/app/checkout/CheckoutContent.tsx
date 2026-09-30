@@ -6,6 +6,7 @@ import {
   Bike, Car, Truck, Loader2, CheckCircle2,
   XCircle, Clock, CreditCard, Banknote,
   ArrowRight, RotateCcw, AlertCircle, Wallet,
+  Users, UserPlus, Share2, IndianRupee
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -34,6 +35,9 @@ export default function CheckoutContent() {
   const pickupLng = Number(params.get("pickupLng"));
   const dropLat   = Number(params.get("dropLat"));
   const dropLng   = Number(params.get("dropLng"));
+  const isSmartPickupParam = params.get("isSmartPickup") === "true";
+  const smartPickupDetailsParam = params.get("smartPickupDetails");
+  const smartPickupDetails = smartPickupDetailsParam ? (() => { try { return JSON.parse(smartPickupDetailsParam); } catch { return null; } })() : null;
 
   const [pickup,   setPickup]   = useState(pickupParam);
   const [drop,     setDrop]     = useState(dropParam);
@@ -48,6 +52,62 @@ export default function CheckoutContent() {
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | null>(null);
   const [countdown,     setCountdown]     = useState(20);
 
+  /* Group Ride & Split Fare State */
+  const [isGroupRide, setIsGroupRide] = useState(false);
+  const [groupInviteCode, setGroupInviteCode] = useState<string | null>(null);
+  const [groupMembers, setGroupMembers] = useState<any[]>([]);
+  const [splitFarePerPerson, setSplitFarePerPerson] = useState<number | null>(null);
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteName, setInviteName] = useState("");
+  const [inviting, setInviting] = useState(false);
+
+  const handleToggleGroupRide = async (activeBookingId?: string) => {
+    const targetId = activeBookingId || bookingId;
+    const nextVal = !isGroupRide;
+    setIsGroupRide(nextVal);
+    if (nextVal && targetId) {
+      try {
+        const res = await fetch(`/api/booking/${targetId}/group/invite`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        });
+        const data = await res.json();
+        if (data.success) {
+          setGroupInviteCode(data.groupInviteCode);
+          setGroupMembers(data.booking.groupMembers || []);
+          setSplitFarePerPerson(data.splitFarePerPerson);
+        }
+      } catch (err) {
+        console.error("Group toggle error:", err);
+      }
+    }
+  };
+
+  const handleSendInvite = async () => {
+    if (!bookingId || !inviteEmail || !inviteName) return;
+    try {
+      setInviting(true);
+      const res = await fetch(`/api/booking/${bookingId}/group/invite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inviteeEmail: inviteEmail, inviteeName: inviteName }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setGroupInviteCode(data.groupInviteCode);
+        setGroupMembers(data.booking.groupMembers || []);
+        setSplitFarePerPerson(data.splitFarePerPerson);
+        setInviteEmail("");
+        setInviteName("");
+      }
+    } catch (err) {
+      console.error("Invite send error:", err);
+    } finally {
+      setInviting(false);
+    }
+  };
+
   /* ── CREATE BOOKING ── */
   const handleCreateBooking = async () => {
     try {
@@ -57,7 +117,9 @@ export default function CheckoutContent() {
         headers:{ "Content-Type":"application/json" },
         body:JSON.stringify({
           pickup, drop, vehicle, vehicleId, fare, mobileNumber, driverId,
-          pickupLat, pickupLng, dropLat, dropLng
+          pickupLat, pickupLng, dropLat, dropLng,
+          isSmartPickup: isSmartPickupParam,
+          smartPickupDetails,
         })
       });
 
@@ -344,6 +406,36 @@ export default function CheckoutContent() {
                 </div>
               </div>
 
+              {/* 📍 SMART PICKUP ZONE BADGE & DETAILS */}
+              {isSmartPickupParam && smartPickupDetails && (
+                <div className="mt-4 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 font-bold text-sm shadow-sm mt-0.5">
+                    📍
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <span className="text-[9px] font-black uppercase bg-emerald-700 text-white px-2 py-0.5 rounded-full tracking-wider">
+                        Designated Smart Pickup
+                      </span>
+                      <span className="text-[10px] text-emerald-800 font-bold">
+                        🚶 {smartPickupDetails.walkingTimeText || "Short Walk"}
+                      </span>
+                    </div>
+                    <p className="text-sm font-extrabold text-zinc-900 leading-snug">
+                      {smartPickupDetails.spotName}
+                    </p>
+                    <p className="text-xs font-semibold text-emerald-800">
+                      {smartPickupDetails.venueName}
+                    </p>
+                    {smartPickupDetails.instructions && (
+                      <p className="text-[11px] text-zinc-600 mt-1 font-medium italic bg-white/70 p-2 rounded-lg border border-emerald-100">
+                        "{smartPickupDetails.instructions}"
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* Fare */}
               <div className="flex items-end justify-between pt-6 border-t border-zinc-100">
                 <div>
@@ -359,6 +451,117 @@ export default function CheckoutContent() {
                   <span className="text-zinc-400 text-lg font-black">₹</span>
                   <span className="text-zinc-900 text-5xl font-black tracking-tight leading-none">{fare}</span>
                 </motion.div>
+              </div>
+
+              {/* 🧑🤝🧑 GROUP RIDE & SPLIT FARE CARD */}
+              <div className="mt-6 border-t border-zinc-100 pt-6">
+                <div className="flex items-center justify-between bg-zinc-50 border border-zinc-200/80 rounded-2xl p-4 mb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-zinc-900 text-white flex items-center justify-center">
+                      <Users size={18} />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-zinc-900">Group Ride & Split Fare</h4>
+                      <p className="text-xs text-zinc-400 font-medium">Split ₹{fare} with friends</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleToggleGroupRide()}
+                    className={`w-12 h-7 rounded-full transition-colors flex items-center p-1 ${isGroupRide ? "bg-emerald-500 justify-end" : "bg-zinc-300 justify-start"}`}
+                  >
+                    <div className="w-5 h-5 rounded-full bg-white shadow-md" />
+                  </button>
+                </div>
+
+                {isGroupRide && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="bg-zinc-900 rounded-2xl p-5 text-white space-y-4"
+                  >
+                    {/* Invite Code Header */}
+                    <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                      <div>
+                        <p className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider">Invite Code</p>
+                        <p className="text-lg font-black text-emerald-400 font-mono tracking-widest">{groupInviteCode || "GEN123"}</p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (typeof window === "undefined") return;
+                          const codeStr = groupInviteCode || "GEN123";
+                          const joinUrl = `${window.location.origin}/group/join?code=${codeStr}`;
+                          navigator.clipboard.writeText(joinUrl);
+                          alert(`Group invite link copied!\n${joinUrl}`);
+                        }}
+                        className="flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold px-3 py-2 rounded-xl border border-zinc-700 transition"
+                      >
+                        <Share2 size={13} /> Copy Link
+                      </button>
+                    </div>
+
+                    {/* Dynamic Per-Person Split Banner */}
+                    <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 text-center">
+                      <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Split Fare Per Person</p>
+                      <p className="text-2xl font-black text-emerald-400 flex items-center justify-center gap-0.5 mt-0.5">
+                        <IndianRupee size={18} /> {splitFarePerPerson || fare}
+                      </p>
+                      <p className="text-[10px] text-zinc-500 mt-1">
+                        Total ₹{fare} ÷ {Math.max(1, groupMembers.filter((m: any) => m.status !== "declined").length)} members
+                      </p>
+                    </div>
+
+                    {/* Member List */}
+                    {groupMembers.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Group Members</p>
+                        <div className="space-y-1.5 max-h-36 overflow-y-auto">
+                          {groupMembers.map((m: any, idx: number) => (
+                            <div key={idx} className="flex items-center justify-between bg-zinc-800/80 px-3 py-2 rounded-xl text-xs">
+                              <div>
+                                <p className="font-bold text-white truncate max-w-[160px]">{m.name}</p>
+                                <p className="text-[10px] text-zinc-400">{m.email}</p>
+                              </div>
+                              <div className="text-right">
+                                <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${m.status === "creator" ? "bg-emerald-500/20 text-emerald-300" : m.status === "accepted" ? "bg-blue-500/20 text-blue-300" : "bg-amber-500/20 text-amber-300"}`}>
+                                  {m.status}
+                                </span>
+                                <p className="text-xs font-bold text-white mt-0.5">₹{m.shareAmount}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Invite Friend Input */}
+                    <div className="pt-2 border-t border-zinc-800 space-y-2">
+                      <p className="text-[10px] text-zinc-400 uppercase font-bold tracking-wider">Invite a Friend</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <input
+                          type="text"
+                          placeholder="Friend Name"
+                          value={inviteName}
+                          onChange={(e) => setInviteName(e.target.value)}
+                          className="bg-zinc-950 border border-zinc-800 text-xs px-3 py-2 rounded-xl text-white outline-none"
+                        />
+                        <input
+                          type="email"
+                          placeholder="Friend Email"
+                          value={inviteEmail}
+                          onChange={(e) => setInviteEmail(e.target.value)}
+                          className="bg-zinc-950 border border-zinc-800 text-xs px-3 py-2 rounded-xl text-white outline-none"
+                        />
+                      </div>
+                      <button
+                        onClick={handleSendInvite}
+                        disabled={inviting || !inviteEmail || !inviteName}
+                        className="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"
+                      >
+                        {inviting ? <Loader2 size={13} className="animate-spin" /> : <><UserPlus size={14} /> Send Invite</>}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </div>
           </motion.div>

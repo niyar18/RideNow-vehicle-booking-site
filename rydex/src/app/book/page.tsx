@@ -163,6 +163,38 @@ export default function BookPage() {
   const [locating,  setLocating]  = useState(false);
   const [vehicles,  setVehicles]  = useState<any[]>([]);
 
+  /* ── SMART PICKUP STATE ── */
+  const [smartPickups, setSmartPickups] = useState<any[]>([]);
+  const [selectedSmartPickup, setSelectedSmartPickup] = useState<any | null>(null);
+
+  useEffect(() => {
+    if (!pickupLat || !pickupLng) {
+      setSmartPickups([]);
+      setSelectedSmartPickup(null);
+      return;
+    }
+    const fetchSmartPickups = async () => {
+      try {
+        const res = await fetch(`/api/places/smart-pickups?lat=${pickupLat}&lng=${pickupLng}`);
+        const data = await res.json();
+        if (data.success && data.spots) {
+          setSmartPickups(data.spots);
+        }
+      } catch (err) {
+        console.error("Smart pickups fetch error:", err);
+      }
+    };
+    fetchSmartPickups();
+  }, [pickupLat, pickupLng]);
+
+  const handleSelectSmartPickup = (spot: any) => {
+    setPickupLat(spot.lat);
+    setPickupLng(spot.lng);
+    setPickup(`${spot.venueName} - ${spot.spotName}`);
+    setSelectedSmartPickup(spot);
+    setPickupResults([]);
+  };
+
   const distanceValidity = getDistanceValidity();
   const canContinue = !!(pickup && drop && vehicle && mobile.length === 10 && pickupLat && pickupLng && dropLat && dropLng && distanceValidity.valid && routeDistance !== -1);
 
@@ -677,6 +709,53 @@ export default function BookPage() {
               </div>
 
             </div>
+
+            {/* Smart Pickup Selector UI */}
+            {smartPickups.length > 0 && (
+              <div className="mt-3 p-3 bg-emerald-50/90 border border-emerald-200/90 rounded-2xl shadow-sm">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <p className="text-[11px] font-black uppercase text-emerald-800 tracking-wider">
+                      📍 Smart Pickup Zones
+                    </p>
+                  </div>
+                  <span className="text-[10px] text-emerald-700 font-bold">Recommended Spots</span>
+                </div>
+                <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                  {smartPickups.map((spot) => {
+                    const isSelected = selectedSmartPickup?.id === spot.id;
+                    return (
+                      <button
+                        key={spot.id}
+                        type="button"
+                        onClick={() => handleSelectSmartPickup(spot)}
+                        className={`flex-shrink-0 text-left p-2.5 rounded-xl border transition-all max-w-[220px] ${
+                          isSelected
+                            ? "bg-emerald-600 text-white border-emerald-600 shadow-md scale-[1.02]"
+                            : "bg-white text-zinc-800 border-emerald-200 hover:border-emerald-400 shadow-sm"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-1 mb-1">
+                          <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider ${
+                            isSelected ? "bg-emerald-700 text-white" : "bg-emerald-100 text-emerald-800"
+                          }`}>
+                            {spot.badgeText || "Recommended"}
+                          </span>
+                          <span className={`text-[9px] font-bold ${isSelected ? "text-emerald-100" : "text-zinc-500"}`}>
+                            🚶 {spot.walkingTimeText}
+                          </span>
+                        </div>
+                        <p className="font-extrabold text-[11px] leading-tight truncate">{spot.spotName}</p>
+                        <p className={`text-[9px] mt-0.5 truncate ${isSelected ? "text-emerald-100" : "text-zinc-500"}`}>
+                          {spot.venueName}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </motion.div>
 
           {/* ══ CONTINUE CTA ══ */}
@@ -691,9 +770,14 @@ export default function BookPage() {
                   ? routeDistance
                   : getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng);
                 const estFare = estimateFare(vehicle, distanceKm);
-                router.push(
-                  `/checkout?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobileNumber=${encodeURIComponent(mobile)}&pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropLat=${dropLat}&dropLng=${dropLng}&fare=${estFare}`
-                );
+                
+                let checkoutUrl = `/checkout?pickup=${encodeURIComponent(pickup)}&drop=${encodeURIComponent(drop)}&vehicle=${vehicle}&mobileNumber=${encodeURIComponent(mobile)}&pickupLat=${pickupLat}&pickupLng=${pickupLng}&dropLat=${dropLat}&dropLng=${dropLng}&fare=${estFare}`;
+                
+                if (selectedSmartPickup) {
+                  checkoutUrl += `&isSmartPickup=true&smartPickupDetails=${encodeURIComponent(JSON.stringify(selectedSmartPickup))}`;
+                }
+
+                router.push(checkoutUrl);
               }}
               className="w-full h-14 rounded-2xl bg-zinc-900 hover:bg-black disabled:opacity-35 text-white font-black text-sm tracking-wide flex items-center justify-center gap-2.5 transition-colors shadow-lg disabled:shadow-none"
             >
@@ -739,6 +823,8 @@ export default function BookPage() {
           onDistance={setRouteDistance}
           vehicles={vehicles}
           disableFallbackGeocode={true}
+          smartPickups={smartPickups}
+          onSelectSmartPickup={handleSelectSmartPickup}
         />
       </div>
 

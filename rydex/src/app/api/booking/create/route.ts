@@ -40,6 +40,8 @@ export async function POST(req: Request) {
     pickupLng,
     dropLat,
     dropLng,
+    isSmartPickup,
+    smartPickupDetails,
   } = body;
 
   if (
@@ -201,6 +203,13 @@ export async function POST(req: Request) {
     candidateDrivers: sortedCandidates.map(c => c._id),
     currentDriverIndex: 0,
     shareToken: `rt_${Math.random().toString(36).substring(2, 10)}${Date.now().toString(36)}`,
+    isSmartPickup: Boolean(isSmartPickup),
+    smartPickupDetails: isSmartPickup && smartPickupDetails ? {
+      venueName: smartPickupDetails.venueName,
+      spotName: smartPickupDetails.spotName,
+      instructions: smartPickupDetails.instructions,
+      walkingTimeText: smartPickupDetails.walkingTimeText,
+    } : undefined,
     status: "requested",
   });
 
