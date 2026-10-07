@@ -37,11 +37,11 @@ export async function settleCompletedRidePayment(bookingId: string | Types.Objec
     const fare = Math.round(Number(booking.fare)) || 0;
     if (fare <= 0) return;
 
-    // Platform commission is 15% standard (or booking.adminCommission if set)
+    // Platform commission is 10% standard (or booking.adminCommission if set)
     const adminCommission =
       typeof booking.adminCommission === "number" && booking.adminCommission > 0
         ? Math.round(booking.adminCommission)
-        : Math.round(fare * 0.15);
+        : Math.round(fare * 0.10);
 
     const driverEarning =
       typeof booking.partnerAmount === "number" && booking.partnerAmount > 0
@@ -51,7 +51,7 @@ export async function settleCompletedRidePayment(bookingId: string | Types.Objec
     if (booking.paymentStatus === "cash") {
       // 💵 CASH RIDE:
       // Passenger handed 100% fare in cash to driver.
-      // Debit platform commission (15%) from Driver's Wallet via authoritative ledger service.
+      // Debit platform commission (10%) from Driver's Wallet via authoritative ledger service.
       await debitDriverCashCommission({
         bookingId: booking._id,
         driverId: booking.driver,
