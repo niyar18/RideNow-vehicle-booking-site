@@ -55,6 +55,44 @@ export async function GET(req: NextRequest) {
       pendingEarnings += estEarning;
     }
 
+    // Calculate Today's Earnings and This Week's Earnings
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - 7);
+    startOfWeek.setHours(0, 0, 0, 0);
+
+    const [todayEarningsResult, weekEarningsResult] = await Promise.all([
+      WalletTransaction.aggregate([
+        {
+          $match: {
+            userId: driver._id,
+            transactionType: "EARNING",
+            status: "success",
+            createdAt: { $gte: startOfToday },
+          },
+        },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]),
+      WalletTransaction.aggregate([
+        {
+          $match: {
+            userId: driver._id,
+            transactionType: "EARNING",
+            status: "success",
+            createdAt: { $gte: startOfWeek },
+          },
+        },
+        { $group: { _id: null, total: { $sum: "$amount" } } },
+      ]),
+    ]);
+
+    const todayEarnings = todayEarningsResult[0]?.total || 0;
+    const weekEarnings = weekEarningsResult[0]?.total || 0;
+    const platformDues = wallet.platformDues || 0;
+    const withdrawableBalance = Math.max(0, (wallet.balance || 0) - platformDues);
+
     // Fetch driver transactions
     const transactions = await WalletTransaction.find({ userId: driver._id })
       .sort({ createdAt: -1 })
@@ -80,15 +118,24 @@ export async function GET(req: NextRequest) {
         id: wallet._id.toString(),
         userId: driver._id.toString(),
         balance: wallet.balance,
+        availableEarnings: wallet.balance,
+        withdrawableBalance,
         pendingEarnings,
+        platformDues,
         currency: wallet.currency || "INR",
         totalEarnings: wallet.totalEarnings || 0,
         totalCommission: wallet.totalCommission || 0,
         totalWithdrawn: wallet.totalWithdrawn || 0,
+        todayEarnings,
+        weekEarnings,
         updatedAt: wallet.updatedAt,
       },
       availableEarnings: wallet.balance,
+      withdrawableBalance,
       pendingEarnings,
+      platformDues,
+      todayEarnings,
+      weekEarnings,
       metrics: {
         totalEarnings: wallet.totalEarnings || 0,
         totalCommission: wallet.totalCommission || 0,

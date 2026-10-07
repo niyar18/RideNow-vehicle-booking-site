@@ -9,7 +9,12 @@ export type CleanWalletType =
   | "REFUND"
   | "WITHDRAWAL"
   | "ADJUSTMENT"
-  | "TOPUP";
+  | "TOPUP"
+  | "CASH_COLLECTION"
+  | "INCENTIVE"
+  | "TIP"
+  | "PENALTY"
+  | "SETTLE_DUES";
 
 export type TransactionCategory =
   | "topup"
@@ -17,6 +22,11 @@ export type TransactionCategory =
   | "ride_refund"
   | "partner_earning"
   | "commission_deduct"
+  | "cash_collection"
+  | "incentive"
+  | "tip"
+  | "penalty"
+  | "settle_dues"
   | "withdrawal"
   | "withdrawal_refund"
   | "promo_bonus"
@@ -38,6 +48,8 @@ export interface IWalletTransaction extends Document {
   amount: number;
   balanceBefore: number;
   balanceAfter: number;
+  platformDuesBefore?: number;
+  platformDuesAfter?: number;
   razorpayPaymentId?: string;
   razorpayOrderId?: string;
   description: string;
@@ -107,6 +119,11 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
         "WITHDRAWAL",
         "ADJUSTMENT",
         "TOPUP",
+        "CASH_COLLECTION",
+        "INCENTIVE",
+        "TIP",
+        "PENALTY",
+        "SETTLE_DUES",
       ],
       default: "EARNING",
       index: true,
@@ -119,6 +136,11 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
         "ride_refund",
         "partner_earning",
         "commission_deduct",
+        "cash_collection",
+        "incentive",
+        "tip",
+        "penalty",
+        "settle_dues",
         "withdrawal",
         "withdrawal_refund",
         "promo_bonus",
@@ -140,6 +162,14 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
     balanceAfter: {
       type: Number,
       required: true,
+      default: 0,
+    },
+    platformDuesBefore: {
+      type: Number,
+      default: 0,
+    },
+    platformDuesAfter: {
+      type: Number,
       default: 0,
     },
     razorpayPaymentId: {

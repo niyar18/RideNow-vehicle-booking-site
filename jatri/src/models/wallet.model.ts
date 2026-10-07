@@ -2,12 +2,14 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IWallet extends Document {
   userId: Types.ObjectId;
-  balance: number;          // Available earnings
+  balance: number;          // Available withdrawable earnings for driver / payment balance for user
   pendingEarnings: number;  // In-flight / pending earnings
+  platformDues: number;     // Commission / adjustments owed to RideNow (e.g. from cash rides)
   currency: string;         // Currency code e.g. "INR"
   totalEarnings: number;    // Lifetime driver earnings
   totalCommission: number;  // Lifetime platform commission
   totalWithdrawn: number;   // Total payout withdrawn to bank/UPI
+  status: "active" | "frozen";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +28,11 @@ const WalletSchema = new Schema<IWallet>(
       default: 0,
     },
     pendingEarnings: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    platformDues: {
       type: Number,
       default: 0,
       min: 0,
@@ -50,6 +57,11 @@ const WalletSchema = new Schema<IWallet>(
       type: Number,
       default: 0,
       min: 0,
+    },
+    status: {
+      type: String,
+      enum: ["active", "frozen"],
+      default: "active",
     },
   },
   { timestamps: true }

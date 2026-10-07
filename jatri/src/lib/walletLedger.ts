@@ -100,13 +100,27 @@ export async function creditDriverRideEarnings(params: {
       : Math.max(0, fare - commission);
 
   const wallet = await getOrCreateWallet(driverId);
+  const currentDues = wallet.platformDues || 0;
   const balanceBefore = wallet.balance || 0;
-  const balanceAfter = balanceBefore + netEarnings;
 
-  // Atomic wallet update
+  let duesSettled = 0;
+  let remainingDues = currentDues;
+  let netWithdrawableCredit = netEarnings;
+
+  // Auto-settle outstanding platform dues from new online ride net earnings
+  if (currentDues > 0) {
+    duesSettled = Math.min(currentDues, netEarnings);
+    remainingDues = currentDues - duesSettled;
+    netWithdrawableCredit = netEarnings - duesSettled;
+  }
+
+  const balanceAfter = balanceBefore + netWithdrawableCredit;
+
+  // Atomic wallet update: credit withdrawable earnings, deduct settled dues, update lifetime counters
   await Wallet.findByIdAndUpdate(wallet._id, {
+    balance: balanceAfter,
+    platformDues: remainingDues,
     $inc: {
-      balance: netEarnings,
       totalEarnings: netEarnings,
       totalCommission: commission,
     },
@@ -114,14 +128,14 @@ export async function creditDriverRideEarnings(params: {
 
   // Sync user legacy balance
   await User.findByIdAndUpdate(driverId, {
-    $inc: { walletBalance: netEarnings },
+    walletBalance: balanceAfter,
   });
 
   const earningTxnId = generateTransactionId("TXN_EARN");
   const commissionTxnId = generateTransactionId("TXN_COM");
 
   // Record EARNING transaction
-  const earningTxn = await WalletTransaction.create({
+  await WalletTransaction.create({
     transactionId: earningTxnId,
     walletId: wallet._id,
     userId: driverId,
@@ -132,15 +146,44 @@ export async function creditDriverRideEarnings(params: {
     category: "partner_earning",
     amount: netEarnings,
     balanceBefore,
-    balanceAfter,
+    balanceAfter: balanceBefore + netEarnings,
+    platformDuesBefore: currentDues,
+    platformDuesAfter: remainingDues,
     description: `Driver earnings (${Math.round((netEarnings / fare) * 100)}%) for ride #${bookingId.toString().slice(-6)}`,
     status: "success",
     metadata: {
       grossFare: fare,
       commission,
       netEarnings,
+      duesSettled,
     },
   });
+
+  // If dues were auto-settled from earnings, log audit transaction
+  if (duesSettled > 0) {
+    const settleTxnId = generateTransactionId("TXN_DUES");
+    await WalletTransaction.create({
+      transactionId: settleTxnId,
+      walletId: wallet._id,
+      userId: driverId,
+      rideId: bookingId,
+      bookingId,
+      type: "debit",
+      transactionType: "SETTLE_DUES",
+      category: "settle_dues",
+      amount: duesSettled,
+      balanceBefore: balanceBefore + netEarnings,
+      balanceAfter,
+      platformDuesBefore: currentDues,
+      platformDuesAfter: remainingDues,
+      description: `Auto-settled ₹${duesSettled} platform dues from online ride #${bookingId.toString().slice(-6)}`,
+      status: "success",
+      metadata: {
+        settledAmount: duesSettled,
+        remainingDues,
+      },
+    });
+  }
 
   // Record platform COMMISSION audit transaction
   await WalletTransaction.create({
@@ -154,7 +197,9 @@ export async function creditDriverRideEarnings(params: {
     category: "commission_deduct",
     amount: commission,
     balanceBefore: balanceAfter,
-    balanceAfter: balanceAfter,
+    balanceAfter,
+    platformDuesBefore: remainingDues,
+    platformDuesAfter: remainingDues,
     description: `Platform commission (15%) recorded for ride #${bookingId.toString().slice(-6)}`,
     status: "success",
     metadata: {
@@ -168,14 +213,18 @@ export async function creditDriverRideEarnings(params: {
     success: true,
     earningTxnId,
     driverEarnings: netEarnings,
+    duesSettled,
+    remainingDues,
     commission,
     newBalance: balanceAfter,
   };
 }
 
 /**
- * Debits platform commission from driver's wallet for CASH rides
- * (since driver receives 100% cash from rider).
+ * Debits platform commission for CASH rides:
+ * 1. Records CASH_COLLECTION transaction (+100% fare received by driver in hand).
+ * 2. If available balance can cover commission, deducts from balance.
+ * 3. Any uncovered commission amount is accrued to platformDues.
  */
 export async function debitDriverCashCommission(params: {
   bookingId: string | Types.ObjectId;
@@ -197,7 +246,7 @@ export async function debitDriverCashCommission(params: {
     return {
       alreadyProcessed: true,
       transactionId: existingDeduct.transactionId,
-      message: "Commission already deducted for this cash ride",
+      message: "Commission already recorded for this cash ride",
     };
   }
 
@@ -208,21 +257,62 @@ export async function debitDriverCashCommission(params: {
 
   const wallet = await getOrCreateWallet(driverId);
   const balanceBefore = wallet.balance || 0;
-  const balanceAfter = balanceBefore - commission;
+  const duesBefore = wallet.platformDues || 0;
 
-  await Wallet.findByIdAndUpdate(wallet._id, {
-    $inc: {
-      balance: -commission,
-      totalCommission: commission,
+  // Log physical CASH_COLLECTION in driver's hand
+  const cashTxnId = generateTransactionId("TXN_CASH");
+  await WalletTransaction.create({
+    transactionId: cashTxnId,
+    walletId: wallet._id,
+    userId: driverId,
+    rideId: bookingId,
+    bookingId,
+    type: "credit",
+    transactionType: "CASH_COLLECTION",
+    category: "cash_collection",
+    amount: fare,
+    balanceBefore,
+    balanceAfter: balanceBefore,
+    platformDuesBefore: duesBefore,
+    platformDuesAfter: duesBefore,
+    description: `Cash collected by driver (₹${fare}) for ride #${bookingId.toString().slice(-6)}`,
+    status: "success",
+    metadata: {
+      grossFare: fare,
+      cashReceived: true,
     },
   });
 
+  let balanceAfter = balanceBefore;
+  let duesAfter = duesBefore;
+
+  if (balanceBefore >= commission) {
+    // Available balance fully covers platform commission
+    balanceAfter = balanceBefore - commission;
+    await Wallet.findByIdAndUpdate(wallet._id, {
+      balance: balanceAfter,
+      $inc: { totalCommission: commission },
+    });
+  } else {
+    // Available balance partially or non-existent: deduct what's available and add remainder to platformDues
+    const covered = Math.max(0, balanceBefore);
+    const uncoveredDues = commission - covered;
+    balanceAfter = 0;
+    duesAfter = duesBefore + uncoveredDues;
+
+    await Wallet.findByIdAndUpdate(wallet._id, {
+      balance: 0,
+      platformDues: duesAfter,
+      $inc: { totalCommission: commission },
+    });
+  }
+
+  // Sync user legacy balance
   await User.findByIdAndUpdate(driverId, {
-    $inc: { walletBalance: -commission },
+    walletBalance: balanceAfter,
   });
 
   const txnId = generateTransactionId("TXN_COM");
-
   await WalletTransaction.create({
     transactionId: txnId,
     walletId: wallet._id,
@@ -235,12 +325,17 @@ export async function debitDriverCashCommission(params: {
     amount: commission,
     balanceBefore,
     balanceAfter,
-    description: `Platform commission for Cash ride #${bookingId.toString().slice(-6)}`,
+    platformDuesBefore: duesBefore,
+    platformDuesAfter: duesAfter,
+    description: `Platform commission for Cash ride #${bookingId.toString().slice(-6)}${
+      duesAfter > duesBefore ? ` (₹${duesAfter - duesBefore} added to platform dues)` : ""
+    }`,
     status: "success",
     metadata: {
       grossFare: fare,
       commission,
       cashRide: true,
+      platformDuesAccrued: duesAfter - duesBefore,
     },
   });
 
@@ -249,6 +344,60 @@ export async function debitDriverCashCommission(params: {
     success: true,
     commission,
     newBalance: balanceAfter,
+    newPlatformDues: duesAfter,
+    transactionId: txnId,
+  };
+}
+
+/**
+ * Settles outstanding platform dues when a driver pays RideNow directly via Razorpay/UPI.
+ */
+export async function settleDriverPlatformDues(params: {
+  driverId: string | Types.ObjectId;
+  amount: number;
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
+}) {
+  await connectDb();
+  const { driverId, amount, razorpayPaymentId, razorpayOrderId } = params;
+  const payAmount = Math.round(Number(amount));
+
+  if (!payAmount || isNaN(payAmount) || payAmount <= 0) {
+    throw new Error("Invalid settlement amount");
+  }
+
+  const wallet = await getOrCreateWallet(driverId);
+  const duesBefore = wallet.platformDues || 0;
+  const duesAfter = Math.max(0, duesBefore - payAmount);
+
+  await Wallet.findByIdAndUpdate(wallet._id, {
+    platformDues: duesAfter,
+  });
+
+  const txnId = generateTransactionId("TXN_SETTLE");
+  await WalletTransaction.create({
+    transactionId: txnId,
+    walletId: wallet._id,
+    userId: driverId,
+    type: "credit",
+    transactionType: "SETTLE_DUES",
+    category: "settle_dues",
+    amount: payAmount,
+    balanceBefore: wallet.balance,
+    balanceAfter: wallet.balance,
+    platformDuesBefore: duesBefore,
+    platformDuesAfter: duesAfter,
+    razorpayPaymentId,
+    razorpayOrderId,
+    description: `Platform dues cleared (₹${payAmount}) by driver via online settlement`,
+    status: "success",
+  });
+
+  return {
+    success: true,
+    paidAmount: payAmount,
+    duesBefore,
+    duesAfter,
     transactionId: txnId,
   };
 }
@@ -299,6 +448,17 @@ export async function requestDriverWithdrawal(params: {
   }
 
   const wallet = await getOrCreateWallet(driverId);
+  const dues = wallet.platformDues || 0;
+  const maxWithdrawable = Math.max(0, (wallet.balance || 0) - dues);
+
+  if (withdrawAmount > maxWithdrawable) {
+    if (dues > 0) {
+      throw new Error(
+        `Cannot withdraw ₹${withdrawAmount}. You have ₹${dues} in unpaid platform dues. Max withdrawable amount is ₹${maxWithdrawable.toLocaleString("en-IN")}.`
+      );
+    }
+    throw new Error(`Insufficient balance. Available earnings: ₹${(wallet.balance || 0).toLocaleString("en-IN")}`);
+  }
 
   // Atomic deduction: ensure driver has sufficient available earnings
   const updatedWallet = await Wallet.findOneAndUpdate(

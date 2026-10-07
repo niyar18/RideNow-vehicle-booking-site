@@ -25,7 +25,11 @@ import Footer from "@/shared/components/Footer";
 export default function PartnerWalletPage() {
   const [loading, setLoading] = useState(true);
   const [availableEarnings, setAvailableEarnings] = useState(0);
+  const [withdrawableBalance, setWithdrawableBalance] = useState(0);
   const [pendingEarnings, setPendingEarnings] = useState(0);
+  const [platformDues, setPlatformDues] = useState(0);
+  const [todayEarnings, setTodayEarnings] = useState(0);
+  const [weekEarnings, setWeekEarnings] = useState(0);
   const [metrics, setMetrics] = useState({
     totalEarnings: 0,
     totalCommission: 0,
@@ -35,7 +39,7 @@ export default function PartnerWalletPage() {
   const [bankDetails, setBankDetails] = useState<any>(null);
   const [transactions, setTransactions] = useState<any[]>([]);
   const [activeFilter, setActiveFilter] = useState<
-    "all" | "earning" | "commission" | "withdrawal"
+    "all" | "earning" | "commission" | "dues" | "withdrawal"
   >("all");
 
   /* Withdrawal Modal State */
@@ -55,7 +59,11 @@ export default function PartnerWalletPage() {
       const data = await res.json();
       if (data.success) {
         setAvailableEarnings(data.availableEarnings || 0);
+        setWithdrawableBalance(data.withdrawableBalance ?? data.availableEarnings ?? 0);
         setPendingEarnings(data.pendingEarnings || 0);
+        setPlatformDues(data.platformDues || data.wallet?.platformDues || 0);
+        setTodayEarnings(data.todayEarnings || data.wallet?.todayEarnings || 0);
+        setWeekEarnings(data.weekEarnings || data.wallet?.weekEarnings || 0);
         setMetrics(
           data.metrics || {
             totalEarnings: 0,
@@ -87,11 +95,12 @@ export default function PartnerWalletPage() {
       return;
     }
 
-    if (amountNum > availableEarnings) {
+    const maxWithdrawable = withdrawableBalance > 0 ? withdrawableBalance : availableEarnings;
+    if (amountNum > maxWithdrawable) {
       setWithdrawError(
-        `Requested amount exceeds available balance (₹${availableEarnings.toLocaleString(
-          "en-IN"
-        )})`
+        platformDues > 0
+          ? `Requested amount exceeds withdrawable balance. You have ₹${platformDues} in platform dues. Max withdrawable: ₹${maxWithdrawable.toLocaleString("en-IN")}`
+          : `Requested amount exceeds available balance (₹${availableEarnings.toLocaleString("en-IN")})`
       );
       return;
     }
@@ -128,11 +137,14 @@ export default function PartnerWalletPage() {
       t.transactionType === "EARNING" || t.category === "partner_earning";
     const isCommission =
       t.transactionType === "COMMISSION" || t.category === "commission_deduct";
+    const isDues =
+      t.transactionType === "SETTLE_DUES" || t.category === "settle_dues";
     const isWithdrawal =
       t.transactionType === "WITHDRAWAL" || t.category === "withdrawal";
 
     if (activeFilter === "earning") return isEarning;
     if (activeFilter === "commission") return isCommission;
+    if (activeFilter === "dues") return isDues;
     if (activeFilter === "withdrawal") return isWithdrawal;
     return true;
   });
@@ -255,42 +267,95 @@ export default function PartnerWalletPage() {
               </div>
             </div>
 
-            {/* 3. PLATFORM COMMISSION & WITHDRAWALS */}
-            <div className="rounded-2xl bg-white border border-zinc-200 p-6 shadow-xs flex flex-col justify-between">
+            {/* 3. PLATFORM DUES */}
+            <div
+              className={`rounded-2xl bg-white border p-6 shadow-xs flex flex-col justify-between ${
+                platformDues > 0
+                  ? "border-amber-300 bg-amber-50/20"
+                  : "border-zinc-200"
+              }`}
+            >
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
-                    Settlement Metrics
+                    Platform Dues
                   </span>
-                  <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
-                    <Percent size={16} />
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold ${
+                      platformDues > 0
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-zinc-100 text-zinc-600"
+                    }`}
+                  >
+                    <AlertCircle size={16} />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-zinc-500">Lifetime Earnings:</span>
-                    <span className="font-bold text-zinc-900">
-                      ₹{metrics.totalEarnings.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-zinc-500">Platform Commission (15%):</span>
-                    <span className="font-bold text-zinc-900">
-                      ₹{metrics.totalCommission.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="text-zinc-500">Total Withdrawn:</span>
-                    <span className="font-bold text-emerald-700">
-                      ₹{metrics.totalWithdrawn.toLocaleString("en-IN")}
-                    </span>
-                  </div>
+                <div
+                  className={`text-3xl font-black tracking-tight ${
+                    platformDues > 0 ? "text-amber-800" : "text-zinc-900"
+                  }`}
+                >
+                  ₹{platformDues.toLocaleString("en-IN")}
                 </div>
+                <p className="text-xs text-zinc-500 mt-1">
+                  {platformDues > 0
+                    ? "Commission owed from cash rides. Auto-settled from future online rides."
+                    : "No outstanding platform commission dues."}
+                </p>
               </div>
 
               <div className="pt-5 mt-5 border-t border-zinc-100 flex items-center justify-between">
-                <span className="text-xs text-zinc-500">Commission rate</span>
-                <span className="text-xs font-bold text-zinc-900">15% flat</span>
+                <span className="text-xs text-zinc-500">
+                  {platformDues > 0 ? "Auto-settling" : "Status"}
+                </span>
+                <span
+                  className={`text-xs font-bold px-2 py-0.5 rounded-md ${
+                    platformDues > 0
+                      ? "text-amber-700 bg-amber-100"
+                      : "text-emerald-700 bg-emerald-50"
+                  }`}
+                >
+                  {platformDues > 0 ? "Outstanding" : "All cleared"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* DRIVER EARNINGS SUMMARY STRIP (TODAY & THIS WEEK) */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div className="rounded-xl bg-white border border-zinc-200 p-4 shadow-xs">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                Today&apos;s Earnings
+              </span>
+              <div className="text-xl font-black text-zinc-900 mt-0.5">
+                ₹{todayEarnings.toLocaleString("en-IN")}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-white border border-zinc-200 p-4 shadow-xs">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                This Week
+              </span>
+              <div className="text-xl font-black text-zinc-900 mt-0.5">
+                ₹{weekEarnings.toLocaleString("en-IN")}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-white border border-zinc-200 p-4 shadow-xs">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                Total Withdrawn
+              </span>
+              <div className="text-xl font-black text-emerald-700 mt-0.5">
+                ₹{metrics.totalWithdrawn.toLocaleString("en-IN")}
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-white border border-zinc-200 p-4 shadow-xs">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                Lifetime Earnings
+              </span>
+              <div className="text-xl font-black text-zinc-900 mt-0.5">
+                ₹{metrics.totalEarnings.toLocaleString("en-IN")}
               </div>
             </div>
           </div>
@@ -374,6 +439,7 @@ export default function PartnerWalletPage() {
                     { id: "all", label: "All" },
                     { id: "earning", label: "Earnings (85%)" },
                     { id: "commission", label: "Commission (15%)" },
+                    { id: "dues", label: "Dues Settled" },
                     { id: "withdrawal", label: "Withdrawals" },
                   ] as const
                 ).map((tab) => (
@@ -418,6 +484,12 @@ export default function PartnerWalletPage() {
                   const isCommission =
                     tx.transactionType === "COMMISSION" ||
                     tx.category === "commission_deduct";
+                  const isDues =
+                    tx.transactionType === "SETTLE_DUES" ||
+                    tx.category === "settle_dues";
+                  const isCash =
+                    tx.transactionType === "CASH_COLLECTION" ||
+                    tx.category === "cash_collection";
 
                   return (
                     <div
@@ -431,10 +503,14 @@ export default function PartnerWalletPage() {
                               ? "bg-emerald-50 text-emerald-700"
                               : isWithdrawal
                               ? "bg-blue-50 text-blue-700"
+                              : isDues
+                              ? "bg-purple-50 text-purple-700"
+                              : isCash
+                              ? "bg-teal-50 text-teal-700"
                               : "bg-amber-50 text-amber-700"
                           }`}
                         >
-                          {isEarning ? (
+                          {isEarning || isCash ? (
                             <ArrowDownLeft size={16} />
                           ) : (
                             <ArrowUpRight size={16} />
@@ -448,6 +524,10 @@ export default function PartnerWalletPage() {
                                 ? "Ride Earning"
                                 : isWithdrawal
                                 ? "Bank Payout"
+                                : isDues
+                                ? "Platform Dues Settled"
+                                : isCash
+                                ? "Cash Ride Collected"
                                 : "Platform Commission"}
                             </span>
                             <span
@@ -456,6 +536,10 @@ export default function PartnerWalletPage() {
                                   ? "bg-emerald-100 text-emerald-800"
                                   : isWithdrawal
                                   ? "bg-blue-100 text-blue-800"
+                                  : isDues
+                                  ? "bg-purple-100 text-purple-800"
+                                  : isCash
+                                  ? "bg-teal-100 text-teal-800"
                                   : "bg-amber-100 text-amber-800"
                               }`}
                             >
@@ -477,10 +561,10 @@ export default function PartnerWalletPage() {
                       <div className="text-right flex-shrink-0">
                         <div
                           className={`text-sm sm:text-base font-black ${
-                            isEarning ? "text-emerald-700" : "text-zinc-900"
+                            isEarning || isCash ? "text-emerald-700" : "text-zinc-900"
                           }`}
                         >
-                          {isEarning ? "+" : "-"}₹{tx.amount.toLocaleString("en-IN")}
+                          {isEarning || isCash ? "+" : "-"}₹{tx.amount.toLocaleString("en-IN")}
                         </div>
                         <span className="text-[10px] font-semibold text-zinc-400 capitalize">
                           {tx.status}

@@ -23,6 +23,7 @@ import Link from "next/link";
 export default function DriverWalletCard() {
   const [loading, setLoading] = useState(true);
   const [availableEarnings, setAvailableEarnings] = useState(0);
+  const [platformDues, setPlatformDues] = useState(0);
   const [metrics, setMetrics] = useState({
     totalEarnings: 0,
     totalCommission: 0,
@@ -50,6 +51,7 @@ export default function DriverWalletCard() {
       const data = await res.json();
       if (data.success) {
         setAvailableEarnings(data.availableEarnings || 0);
+        setPlatformDues(data.platformDues || data.wallet?.platformDues || 0);
         setMetrics(data.metrics || {
           totalEarnings: 0,
           totalCommission: 0,
@@ -210,6 +212,27 @@ export default function DriverWalletCard() {
 
         {/* Breakdown Metrics */}
         <div className="flex flex-col gap-3.5">
+          {platformDues > 0 && (
+            <div className="bg-amber-50 rounded-2xl p-4.5 border border-amber-300 shadow-xs flex items-center justify-between gap-3.5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center flex-shrink-0">
+                  <AlertCircle size={18} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
+                    Platform Dues (Cash Rides)
+                  </p>
+                  <p className="text-lg font-black text-amber-900 mt-0.5">
+                    ₹{platformDues.toLocaleString("en-IN")}
+                  </p>
+                </div>
+              </div>
+              <span className="text-[10px] font-bold text-amber-800 bg-amber-200/60 px-2 py-0.5 rounded-md">
+                Auto-settling
+              </span>
+            </div>
+          )}
+
           <div className="bg-white rounded-2xl p-4.5 border border-zinc-200 shadow-xs flex items-center gap-3.5">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0">
               <TrendingUp size={18} />
