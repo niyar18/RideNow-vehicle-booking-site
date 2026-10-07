@@ -17,6 +17,23 @@ export type VehicleType =
   | "loading"
   | "truck";
 
+export type VerificationItemStatus =
+  | "not_submitted"
+  | "pending"
+  | "verified"
+  | "rejected"
+  | "expired";
+
+export interface IDriverVerificationStatus {
+  identity: VerificationItemStatus;
+  drivingLicense: VerificationItemStatus;
+  face: VerificationItemStatus;
+  background: VerificationItemStatus;
+  address: VerificationItemStatus;
+  bank: VerificationItemStatus;
+  vehicle: VerificationItemStatus;
+}
+
 export interface IUser extends Document {
   name: string;
   email: string;
@@ -35,6 +52,9 @@ export interface IUser extends Document {
   videoKycStatus: VideoKycStatus;
   videoKycRoomId?: string;
   videoKycRejectionReason?: string;
+
+  /* ===== DRIVER MULTI-FACTOR VERIFICATION ENGINE ===== */
+  driverVerificationStatus?: IDriverVerificationStatus;
 
   /* ===== DRIVER REALTIME FIELDS ===== */
 socketId:string | null
@@ -164,6 +184,45 @@ const UserSchema = new Schema<IUser>(
 
     videoKycRoomId: String,
     videoKycRejectionReason: String,
+
+    /* ===== DRIVER MULTI-FACTOR VERIFICATION ENGINE ===== */
+    driverVerificationStatus: {
+      identity: {
+        type: String,
+        enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
+        default: "not_submitted",
+      },
+      drivingLicense: {
+        type: String,
+        enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
+        default: "not_submitted",
+      },
+      face: {
+        type: String,
+        enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
+        default: "not_submitted",
+      },
+      background: {
+        type: String,
+        enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
+        default: "not_submitted",
+      },
+      address: {
+        type: String,
+        enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
+        default: "not_submitted",
+      },
+      bank: {
+        type: String,
+        enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
+        default: "not_submitted",
+      },
+      vehicle: {
+        type: String,
+        enum: ["not_submitted", "pending", "verified", "rejected", "expired"],
+        default: "not_submitted",
+      },
+    },
 
     /* ===== DRIVER REALTIME DATA ===== */
 
