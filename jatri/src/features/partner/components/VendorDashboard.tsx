@@ -1152,9 +1152,13 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           });
         }
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      alert("Failed to update status. Please try again.");
+      const errorMsg =
+        err?.response?.data?.error ||
+        err?.response?.data?.message ||
+        "Failed to update status. Please ensure your driver and vehicle documents are verified.";
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }

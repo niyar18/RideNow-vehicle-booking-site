@@ -79,6 +79,28 @@ export default function AdminVendorReviewPage() {
     }
   };
 
+  const updatePillarStatus = async (pillar: string, status: string) => {
+    try {
+      setActionLoading(true);
+      const res = await axios.post(`/api/admin/vendors/${id}/verify-pillar`, {
+        pillar,
+        status,
+      });
+      if (res.data.success) {
+        setData((prev: any) => ({
+          ...prev,
+          driverVerificationStatus: res.data.driverVerificationStatus,
+          vendorStatus: res.data.vendorStatus,
+        }));
+      }
+    } catch (err: any) {
+      console.error(err);
+      alert(err.response?.data?.message || "Failed to update pillar status");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   if (loading)
     return (
       <div className="min-h-screen grid place-items-center text-gray-500">
@@ -117,17 +139,78 @@ export default function AdminVendorReviewPage() {
         {/* LEFT SIDE */}
         <div className="lg:col-span-2 space-y-5 sm:space-y-8">
 
-          <AnimatedCard title="Vehicle Details" icon={<Car size={18} />}>
-            <InfoRow label="Vehicle Type" value={data.vehicle?.type} />
-            <InfoRow label="Registration Number" value={data.vehicle?.number} />
-            <InfoRow label="Model" value={data.vehicle?.model} />
+          {/* 7-PILLAR VERIFICATION STATUS ENGINE */}
+          <AnimatedCard title="Driver Verification Status Engine (7 Pillars)" icon={<ShieldCheck size={18} className="text-orange-600" />}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { key: "identity", label: "1. Digital Identity (Aadhaar/PAN)" },
+                { key: "drivingLicense", label: "2. Driving Licence (DL Class)" },
+                { key: "face", label: "3. Face Match & Video KYC" },
+                { key: "background", label: "4. Criminal & Police Clearance" },
+                { key: "address", label: "5. Address & Domicile" },
+                { key: "bank", label: "6. Bank Account & UPI Binding" },
+                { key: "vehicle", label: "7. Vehicle Compliance (RC/Ins/PUC)" },
+              ].map((p) => {
+                const currentStatus = data.driverVerificationStatus?.[p.key] || "pending";
+                return (
+                  <div key={p.key} className="p-3 bg-gray-50 rounded-xl border border-gray-200/80 flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-800">{p.label}</p>
+                      <span className={`inline-block text-[10px] uppercase font-bold px-2 py-0.5 rounded-full mt-1 ${
+                        currentStatus === "verified"
+                          ? "bg-green-100 text-green-700"
+                          : currentStatus === "rejected"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-amber-100 text-amber-700"
+                      }`}>
+                        {currentStatus}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => updatePillarStatus(p.key, "verified")}
+                        disabled={actionLoading || currentStatus === "verified"}
+                        className="px-2 py-1 text-[11px] font-semibold bg-green-600 hover:bg-green-700 text-white rounded-lg transition disabled:opacity-40"
+                      >
+                        Verify
+                      </button>
+                      <button
+                        onClick={() => updatePillarStatus(p.key, "rejected")}
+                        disabled={actionLoading || currentStatus === "rejected"}
+                        className="px-2 py-1 text-[11px] font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition disabled:opacity-40"
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </AnimatedCard>
 
-          <AnimatedCard title="Documents" icon={<FileText size={18} />}>
+          <AnimatedCard title="Vehicle & Statutory Compliance Details" icon={<Car size={18} />}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <InfoRow label="Vehicle Type" value={data.vehicle?.type} />
+              <InfoRow label="Model" value={data.vehicle?.model} />
+              <InfoRow label="Registration Plate" value={data.vehicle?.number || data.documents?.rcNumber} />
+              <InfoRow label="Driving Licence No." value={data.documents?.licenseNumber || "—"} />
+              <InfoRow label="Insurance Policy No." value={data.documents?.insurancePolicyNumber || "—"} />
+              <InfoRow
+                label="Insurance Expiry"
+                value={data.documents?.insuranceExpiry ? new Date(data.documents.insuranceExpiry).toLocaleDateString() : "—"}
+              />
+            </div>
+          </AnimatedCard>
+
+          <AnimatedCard title="Compliance Documents" icon={<FileText size={18} />}>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-6">
-              <DocPreview label="Aadhaar" url={data.documents?.aadhaarUrl} />
-              <DocPreview label="License" url={data.documents?.licenseUrl} />
-              <DocPreview label="RC" url={data.documents?.rcUrl} />
+              <DocPreview label="Aadhaar / Identity Proof" url={data.documents?.aadhaarUrl} />
+              <DocPreview label="Driving License" url={data.documents?.licenseUrl} />
+              <DocPreview label="Vehicle RC" url={data.documents?.rcUrl} />
+              <DocPreview label="Commercial Insurance" url={data.documents?.insuranceUrl} />
+              <DocPreview label="PUC Certificate" url={data.documents?.pucUrl} />
+              <DocPreview label="Fitness / Commercial Permit" url={data.documents?.fitnessUrl || data.documents?.permitUrl} />
             </div>
           </AnimatedCard>
 

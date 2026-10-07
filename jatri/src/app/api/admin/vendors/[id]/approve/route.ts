@@ -54,10 +54,35 @@ export async function POST(
     /* ---------- APPROVE ---------- */
     user.vendorStatus = "approved";
     user.isVendorBlocked = false;
-    user.vendorOnboardingStep=4
-    user.videoKycStatus = "pending";
-    user.vendorApprovedAt = new Date(); // optional field
+    user.vendorOnboardingStep = 4;
+    user.vendorApprovedAt = new Date();
+
+    user.driverVerificationStatus = {
+      identity: "verified",
+      drivingLicense: "verified",
+      face: user.videoKycStatus === "approved" ? "verified" : "pending",
+      background: "verified",
+      address: "verified",
+      bank: "verified",
+      vehicle: "verified",
+    };
+
+    user.markModified("driverVerificationStatus");
     await user.save();
+
+    if (docs) {
+      docs.status = "approved";
+      docs.licenseStatus = "verified";
+      docs.rcStatus = "verified";
+      docs.insuranceStatus = "verified";
+      docs.rejectionReason = undefined;
+      await docs.save();
+    }
+
+    if (bank) {
+      bank.status = "verified";
+      await bank.save();
+    }
 
     return NextResponse.json({
       success: true,

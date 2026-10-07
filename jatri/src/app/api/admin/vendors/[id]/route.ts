@@ -36,7 +36,7 @@ export async function GET(
     /* ---------- USER ---------- */
     const user = await User.findById(vendorId)
       .select(
-        "name email role vendorStatus vendorOnboardingStep videoKycStatus videoKycRoomId videoKycRejectionReason vendorRejectionReason"
+        "name email mobileNumber role vendorStatus vendorOnboardingStep videoKycStatus videoKycRoomId videoKycRejectionReason vendorRejectionReason driverVerificationStatus"
       )
       .lean();
 
@@ -59,7 +59,7 @@ export async function GET(
       owner: vendorId,
     })
       .select(
-        "aadhaarUrl licenseUrl rcUrl status rejectionReason"
+        "aadhaarUrl aadhaarMaskedNumber licenseUrl licenseNumber licenseExpiry licenseClass rcUrl rcNumber rcExpiry insuranceUrl insurancePolicyNumber insuranceExpiry insuranceType pucUrl pucExpiry fitnessUrl fitnessExpiry permitUrl permitNumber permitExpiry panUrl panNumber policeVerificationUrl status rejectionReason vehiclePhotos"
       )
       .lean();
 
@@ -79,12 +79,14 @@ export async function GET(
         _id: user._id,
         name: user.name,
         email: user.email,
+        mobileNumber: user.mobileNumber || null,
         vendorStatus: user.vendorStatus,
         vendorOnboardingStep: user.vendorOnboardingStep,
         videoKycStatus: user.videoKycStatus || "pending",
         videoKycRoomId: user.videoKycRoomId || null,
         videoKycRejectionReason: user.videoKycRejectionReason || null,
         vendorRejectionReason: user.vendorRejectionReason || null,
+        driverVerificationStatus: user.driverVerificationStatus || null,
 
         vehicle: vehicle
           ? {

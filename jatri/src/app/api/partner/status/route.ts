@@ -15,7 +15,7 @@ export async function GET() {
     }
 
     const user = await User.findById(session.user.id).select(
-      "isOnline location vendorStatus isVendorBlocked lastLocationUpdate"
+      "isOnline location vendorStatus isVendorBlocked lastLocationUpdate driverVerificationStatus"
     );
     if (!user) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
@@ -28,6 +28,7 @@ export async function GET() {
       vendorStatus: user.vendorStatus,
       isVendorBlocked: user.isVendorBlocked,
       lastLocationUpdate: user.lastLocationUpdate,
+      driverVerificationStatus: user.driverVerificationStatus || null,
     });
   } catch (error) {
     console.error("Partner status GET error:", error);
@@ -66,6 +67,39 @@ export async function PATCH(req: Request) {
         return NextResponse.json(
           {
             error: "Your partner account is temporarily restricted. Please contact driver support.",
+          },
+          { status: 403 }
+        );
+      }
+
+      // Vehicle & Document Compliance Check
+      const VehicleDocument = (await import("@/models/vehicleDocument.model")).default;
+      const doc = await VehicleDocument.findOne({ owner: driver._id });
+      if (!doc) {
+        return NextResponse.json(
+          {
+            error: "Vehicle documents not found. Please complete document verification before going online.",
+          },
+          { status: 403 }
+        );
+      }
+
+      const now = new Date();
+      if (doc.insuranceExpiry && new Date(doc.insuranceExpiry) < now) {
+        return NextResponse.json(
+          {
+            error: "Your vehicle commercial insurance has expired. Active insurance is required by law to accept rides.",
+            expiredField: "insurance",
+          },
+          { status: 403 }
+        );
+      }
+
+      if (doc.licenseExpiry && new Date(doc.licenseExpiry) < now) {
+        return NextResponse.json(
+          {
+            error: "Your driving licence has expired. Please upload a renewed licence.",
+            expiredField: "license",
           },
           { status: 403 }
         );
