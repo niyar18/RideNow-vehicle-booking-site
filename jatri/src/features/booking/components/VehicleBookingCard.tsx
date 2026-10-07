@@ -6,6 +6,7 @@ import {
   IndianRupee, Clock, Gauge,
   ArrowRight, Star
 } from "lucide-react";
+import { useTranslation } from "@/context/LanguageContext";
 
 interface VehicleProps {
   vehicle: {
@@ -24,22 +25,25 @@ interface VehicleProps {
 }
 
 const TYPE_CONFIG = {
-  bike:    { label: "Bike",    Icon: Bike  },
-  auto:    { label: "Auto",    Icon: Car   },
-  car:     { label: "Car",     Icon: Car   },
-  loading: { label: "Loading", Icon: Truck },
-  truck:   { label: "Truck",   Icon: Truck },
+  bike:    { key: "bikes", label: "Bike",    Icon: Bike  },
+  auto:    { key: "cars", label: "Auto",    Icon: Car   },
+  car:     { key: "cars", label: "Car",     Icon: Car   },
+  loading: { key: "trucks", label: "Loading", Icon: Truck },
+  truck:   { key: "trucks", label: "Truck",   Icon: Truck },
 };
 
 export default function VehicleBookingCard({
   vehicle, distanceKm = 0, isRecommended, onBook,
 }: VehicleProps) {
+  const { t } = useTranslation();
   const {
     type, vehicleModel, number,
     imageUrl, baseFare = 0, pricePerKm = 0, waitingCharge = 0,
   } = vehicle;
 
-  const { label, Icon } = TYPE_CONFIG[type] ?? TYPE_CONFIG.car;
+  const conf = TYPE_CONFIG[type] ?? TYPE_CONFIG.car;
+  const label = t(`fleet.${conf.key}`, conf.label);
+  const Icon = conf.Icon;
   const estimated = Math.round(baseFare + distanceKm * pricePerKm);
 
   return (
@@ -64,7 +68,7 @@ export default function VehicleBookingCard({
           className="absolute top-4 left-4 z-20 flex items-center gap-1.5 bg-zinc-900 text-white text-[10px] font-black tracking-widest uppercase px-3 py-1.5 rounded-full shadow-lg"
         >
           <Zap size={9} className="fill-white" />
-          Best Pick
+          {t("fleet.bestPick", "Best Pick")}
         </motion.div>
       )}
 
@@ -131,14 +135,14 @@ export default function VehicleBookingCard({
           <div className="bg-zinc-50 border border-zinc-100 rounded-2xl px-3.5 py-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Gauge size={11} className="text-zinc-400" />
-              <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold">Per km</p>
+              <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold">{t("fleet.perKm", "Per km")}</p>
             </div>
             <p className="text-zinc-900 text-sm font-black">₹{pricePerKm}</p>
           </div>
           <div className="bg-zinc-50 border border-zinc-100 rounded-2xl px-3.5 py-3">
             <div className="flex items-center gap-1.5 mb-1">
               <Clock size={11} className="text-zinc-400" />
-              <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold">Waiting</p>
+              <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold">{t("booking.waiting", "Waiting")}</p>
             </div>
             <p className="text-zinc-900 text-sm font-black">
               ₹{waitingCharge}
@@ -151,7 +155,7 @@ export default function VehicleBookingCard({
         <div className="flex items-end justify-between pt-3 border-t border-zinc-100">
           <div>
             <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold mb-0.5">
-              Est. Fare
+              {t("booking.estFare", "Est. Fare")}
             </p>
             <motion.div
               key={estimated}
@@ -173,7 +177,7 @@ export default function VehicleBookingCard({
             onClick={onBook}
             className="group/btn flex items-center gap-2 bg-zinc-900 hover:bg-black text-white text-sm font-black px-6 py-3.5 rounded-2xl transition-colors shadow-md"
           >
-            Book
+            {t("fleet.bookNow", "Book")}
             <motion.div
               initial={{ x: 0 }}
               whileHover={{ x: 3 }}

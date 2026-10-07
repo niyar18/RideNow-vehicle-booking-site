@@ -6,23 +6,32 @@ import {
   ChevronLeft, ChevronRight, ArrowRight, Sparkles,
 } from "lucide-react";
 import { useRef, useState } from "react";
+import { useTranslation } from "@/context/LanguageContext";
 
-const VEHICLE_CATEGORIES = [
-  { title: "All Vehicles",  desc: "Browse the full fleet",        Icon: CarTaxiFront, tag: "Popular"  },
-  { title: "Bikes",         desc: "Fast & affordable rides",      Icon: Bike,         tag: "Quick"    },
-  { title: "Cars",          desc: "Comfortable city travel",      Icon: Car,          tag: "Comfort"  },
-  { title: "SUVs",          desc: "Premium & spacious",           Icon: Car,          tag: "Premium"  },
-  { title: "Vans",          desc: "Family & group transport",     Icon: Bus,          tag: "Family"   },
-  { title: "Trucks",        desc: "Heavy & commercial transport", Icon: Truck,        tag: "Cargo"    },
+const VEHICLE_CATEGORIES_RAW = [
+  { key: "allVehicles", title: "All Vehicles",  desc: "Browse the full fleet",        Icon: CarTaxiFront, tagKey: "popular", tag: "Popular"  },
+  { key: "bikes",       title: "Bikes",         desc: "Fast & affordable rides",      Icon: Bike,         tagKey: "quick",   tag: "Quick"    },
+  { key: "cars",        title: "Cars",          desc: "Comfortable city travel",      Icon: Car,          tagKey: "comfort", tag: "Comfort"  },
+  { key: "suvs",        title: "SUVs",          desc: "Premium & spacious",           Icon: Car,          tagKey: "premium", tag: "Premium"  },
+  { key: "vans",        title: "Vans",          desc: "Family & group transport",     Icon: Bus,          tagKey: "family",  tag: "Family"   },
+  { key: "trucks",      title: "Trucks",        desc: "Heavy & commercial transport", Icon: Truck,        tagKey: "cargo",   tag: "Cargo"    },
 ];
 
 export default function VehicleCategoriesSlider() {
+  const { t } = useTranslation();
   const sliderRef  = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const inView     = useInView(sectionRef, { once: true, margin: "-80px" });
   const [hovered, setHovered] = useState<number | null>(null);
   const [canLeft,  setCanLeft]  = useState(false);
   const [canRight, setCanRight] = useState(true);
+
+  const vehicleCategories = VEHICLE_CATEGORIES_RAW.map(c => ({
+    ...c,
+    title: t(`fleet.${c.key}`, c.title),
+    desc: t(`fleet.${c.key}Desc`, c.desc),
+    tag: t(`fleet.${c.tagKey}`, c.tag)
+  }));
 
   const scroll = (dir: "left" | "right") => {
     if (!sliderRef.current) return;
@@ -51,22 +60,12 @@ export default function VehicleCategoriesSlider() {
             {/* Eyebrow */}
             <div className="flex items-center gap-2 mb-2 sm:mb-3">
               <div className="h-px w-8 bg-zinc-900" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">Fleet</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400">{t("fleet.eyebrow", "Fleet")}</span>
             </div>
             <h2 className="text-2xl sm:text-4xl font-black tracking-tight text-zinc-900 leading-none">
-              Vehicle<br />
-              <span className="relative inline-block">
-                Categories
-                {/* underline squiggle */}
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={inView ? { scaleX: 1 } : {}}
-                  transition={{ duration: 0.6, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="absolute -bottom-1 left-0 right-0 h-0.5 bg-zinc-900 origin-left"
-                />
-              </span>
+              {t("fleet.title", "Vehicle Categories")}
             </h2>
-            <p className="text-zinc-400 text-xs sm:text-sm mt-2 sm:mt-3 font-medium">Choose the ride that fits your journey</p>
+            <p className="text-zinc-400 text-xs sm:text-sm mt-2 sm:mt-3 font-medium">{t("fleet.subtitle", "Choose the ride that fits your journey")}</p>
           </div>
 
           {/* Nav buttons */}
@@ -119,7 +118,7 @@ export default function VehicleCategoriesSlider() {
             className="flex gap-3.5 sm:gap-5 pt-2 sm:pt-4 overflow-x-auto scroll-smooth pb-4 px-1"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            {VEHICLE_CATEGORIES.map((item, i) => {
+            {vehicleCategories.map((item, i) => {
               const isHovered = hovered === i;
 
               return (

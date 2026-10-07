@@ -19,8 +19,10 @@ import {
   Car,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslation } from "@/context/LanguageContext";
 
 export default function DriverWalletCard() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [availableEarnings, setAvailableEarnings] = useState(0);
   const [platformDues, setPlatformDues] = useState(0);
@@ -154,7 +156,7 @@ export default function DriverWalletCard() {
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-400" />
                 <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                  Driver Wallet · Available Earnings
+                  {t("wallet.driverTitle", "Driver Earnings & Settlement")}
                 </p>
               </div>
               <div className="flex items-baseline gap-1 mt-1">
@@ -164,7 +166,7 @@ export default function DriverWalletCard() {
                 <span className="text-xs font-bold text-zinc-400">INR</span>
               </div>
               <p className="text-xs text-zinc-400 mt-2 font-medium">
-                Earnings ready for instant bank withdrawal or commission clearing.
+                {t("wallet.driverEarningsDesc", "Earnings ready for instant bank withdrawal or commission clearing.")}
               </p>
             </div>
 
@@ -177,7 +179,7 @@ export default function DriverWalletCard() {
                 disabled={availableEarnings < 100}
                 className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 text-white text-xs sm:text-sm font-bold transition shadow-sm active:scale-98"
               >
-                <Building2 size={15} /> Withdraw to Bank
+                <Building2 size={15} /> {t("wallet.withdraw", "Withdraw to Bank")}
               </button>
               {availableEarnings < 100 && (
                 <span className="text-[10px] text-zinc-500 font-medium">Min payout: ₹100</span>
@@ -220,7 +222,7 @@ export default function DriverWalletCard() {
                 </div>
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-wider text-amber-800">
-                    Platform Dues (Cash Rides)
+                    {t("wallet.platformDues", "Platform Dues")}
                   </p>
                   <p className="text-lg font-black text-amber-900 mt-0.5">
                     ₹{platformDues.toLocaleString("en-IN")}
@@ -239,7 +241,7 @@ export default function DriverWalletCard() {
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                Lifetime Earnings (85%)
+                {t("wallet.lifetimeEarnings", "Lifetime Earnings")}
               </p>
               <p className="text-lg font-black text-zinc-900 mt-0.5">
                 ₹{metrics.totalEarnings.toLocaleString("en-IN")}
@@ -253,7 +255,7 @@ export default function DriverWalletCard() {
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                Platform Commission (15%)
+                {t("wallet.platformCommission", "Platform Commission")}
               </p>
               <p className="text-lg font-black text-zinc-900 mt-0.5">
                 ₹{metrics.totalCommission.toLocaleString("en-IN")}

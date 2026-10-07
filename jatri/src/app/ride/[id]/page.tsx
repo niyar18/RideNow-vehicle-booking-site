@@ -153,6 +153,8 @@ export default function RidePage() {
   const [selectedReason, setSelectedReason] = useState<string>("");
   const [customReasonNote, setCustomReasonNote] = useState<string>("");
   const [cancellingRide, setCancellingRide] = useState<boolean>(false);
+  const [cancellationQuote, setCancellationQuote] = useState<any | null>(null);
+  const [fetchingQuote, setFetchingQuote] = useState<boolean>(false);
   const [showPanicConfirm, setShowPanicConfirm] = useState(false);
   const [panicLoading, setPanicLoading] = useState(false);
 
@@ -501,10 +503,32 @@ export default function RidePage() {
     return Math.max(0, Math.floor((Date.now() - acceptedMs) / 1000));
   };
 
+  const fetchCancellationQuote = async (reasonStr?: string) => {
+    if (!id) return;
+    try {
+      setFetchingQuote(true);
+      const query = new URLSearchParams({
+        cancelledBy: "user",
+        reason: reasonStr || "Cancelled by passenger",
+      });
+      const res = await fetch(`/api/booking/${id}/cancel?${query.toString()}`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setCancellationQuote(data);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch dynamic cancellation quote:", err);
+    } finally {
+      setFetchingQuote(false);
+    }
+  };
+
   const handleCancel = () => {
     setSelectedReason("");
     setCustomReasonNote("");
+    setCancellationQuote(null);
     setShowCancelConfirm(true);
+    fetchCancellationQuote();
   };
 
   const confirmCancelRide = async () => {
@@ -812,46 +836,64 @@ export default function RidePage() {
                         </div>
                       )}
 
-                      {/* Policy Evaluation Banner */}
-                      {hasDriverAccepted ? (
-                        hasDriverArrived ? (
-                          <div className="bg-red-50 border border-red-200 rounded-2xl p-3.5 text-left">
-                            <div className="flex items-center gap-1.5 text-red-950 text-xs font-black mb-1">
-                              <AlertTriangle size={15} className="text-red-600 flex-shrink-0" />
-                              <span>₹50 Cancellation Fee Applies (Driver Arrived)</span>
+                      {/* Authoritative Dynamic Policy Evaluation Banner */}
+                      {fetchingQuote ? (
+                        <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-4 flex items-center justify-center gap-2.5 text-zinc-500 text-xs">
+                          <span className="w-4 h-4 rounded-full border-2 border-zinc-400 border-t-zinc-900 animate-spin" />
+                          <span>{t("cancellation.evaluatingFee", "Evaluating cancellation fee with pricing engine...")}</span>
+                        </div>
+                      ) : cancellationQuote ? (
+                        cancellationQuote.feeApplied && cancellationQuote.fee > 0 ? (
+                          <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 text-left space-y-2.5 shadow-sm">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5 text-amber-950 text-xs font-black">
+                                <AlertTriangle size={16} className="text-amber-600 flex-shrink-0" />
+                                <span>{t("cancellation.feeLabel", "Cancellation Fee:")} ₹{cancellationQuote.fee}</span>
+                              </div>
+                              <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
+                                {t("cancellation.feeActive", "Fee Applicable")}
+                              </span>
                             </div>
-                            <p className="text-[11px] text-red-900 leading-relaxed">
-                              The driver has already reached your pickup location. Under our driver protection policy, a <strong>₹50 penalty</strong> is charged to compensate the driver for fuel and travel time.
+
+                            <p className="text-xs font-semibold text-amber-900">
+                              <span className="font-bold text-amber-950">{t("cancellation.reasonLabel", "Reason:")}</span> {cancellationQuote.reason}
                             </p>
-                          </div>
-                        ) : elapsedSec <= 180 ? (
-                          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-left">
-                            <div className="flex items-center gap-1.5 text-emerald-900 text-xs font-black mb-1">
-                              <CheckCircle2 size={15} className="text-emerald-600 flex-shrink-0" />
-                              <span>{t("cancellation.graceActive", "Free Cancellation Window Active")}</span>
+
+                            {/* Transparent Financial Settlement Breakdown */}
+                            <div className="bg-white/90 rounded-xl p-3 border border-amber-200 space-y-1.5 text-xs">
+                              {cancellationQuote.isPrepaid ? (
+                                <div className="flex justify-between text-zinc-700">
+                                  <span>{t("cancellation.prepaidRefund", "Refund to Source:")}</span>
+                                  <span className="font-bold text-emerald-700">₹{Math.max(0, (booking.fare || 0) - cancellationQuote.fee)}</span>
+                                </div>
+                              ) : (
+                                <>
+                                  <div className="flex justify-between text-zinc-700">
+                                    <span>{t("cancellation.walletDeduction", "Deducted from Wallet:")}</span>
+                                    <span className="font-bold text-zinc-900">₹{cancellationQuote.willDeductFromWallet}</span>
+                                  </div>
+                                  {cancellationQuote.willAddToOutstanding > 0 && (
+                                    <div className="flex justify-between text-red-700 font-bold">
+                                      <span>{t("cancellation.outstandingAccrued", "Added to Outstanding Dues:")}</span>
+                                      <span>₹{cancellationQuote.willAddToOutstanding}</span>
+                                    </div>
+                                  )}
+                                </>
+                              )}
+                              <div className="flex justify-between text-zinc-600 pt-1 border-t border-amber-100 text-[11px]">
+                                <span>{t("cancellation.driverComp", "Driver Transit Compensation:")}</span>
+                                <span className="font-bold text-zinc-900">₹{cancellationQuote.driverCompensation}</span>
+                              </div>
                             </div>
-                            <p className="text-[11px] text-emerald-800 leading-relaxed">
-                              You have <strong>{Math.max(0, 180 - elapsedSec)}s remaining</strong> in your 3-minute grace period — <strong>₹0 penalty fee</strong> will be charged and you will receive a full refund.
-                            </p>
-                          </div>
-                        ) : distanceToPickup > 3.0 ? (
-                          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-3.5 text-left">
-                            <div className="flex items-center gap-1.5 text-blue-950 text-xs font-black mb-1">
-                              <CheckCircle2 size={15} className="text-blue-600 flex-shrink-0" />
-                              <span>Zero Penalty Eligible (Driver Delayed)</span>
-                            </div>
-                            <p className="text-[11px] text-blue-900 leading-relaxed">
-                              Driver is still {distanceToPickup.toFixed(1)} km away after {Math.floor(elapsedSec / 60)} minutes. Selecting <em>"Driver is taking too long to arrive"</em> will waive the cancellation penalty.
-                            </p>
                           </div>
                         ) : (
-                          <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3.5 text-left">
-                            <div className="flex items-center gap-1.5 text-amber-950 text-xs font-black mb-1">
-                              <AlertTriangle size={15} className="text-amber-600 flex-shrink-0" />
-                              <span>{t("cancellation.feeActive", "₹50 Cancellation Fee Applies")}</span>
+                          <div className="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 text-left shadow-sm">
+                            <div className="flex items-center gap-1.5 text-emerald-950 text-xs font-black mb-1">
+                              <CheckCircle2 size={16} className="text-emerald-600 flex-shrink-0" />
+                              <span>{t("cancellation.zeroFee", "Zero Cancellation Fee (₹0)")}</span>
                             </div>
-                            <p className="text-[11px] text-amber-900 leading-relaxed">
-                              The driver accepted {Math.floor(elapsedSec / 60)}m {elapsedSec % 60}s ago (&gt; 3 mins) and is actively en route ({distanceToPickup > 0 ? `${distanceToPickup.toFixed(1)} km away` : "approaching"}). A <strong>₹50 penalty fee</strong> applies.
+                            <p className="text-xs text-emerald-800 font-medium leading-relaxed">
+                              {cancellationQuote.reason || t("cancellation.zeroFeeDesc", "Free cancellation is currently available. You will receive a 100% full refund.")}
                             </p>
                           </div>
                         )
@@ -862,7 +904,7 @@ export default function RidePage() {
                             <span>{t("cancellation.zeroFee", "Zero Cancellation Fee")}</span>
                           </div>
                           <p className="text-[11px] text-zinc-600 leading-relaxed">
-                            {t("cancellation.zeroFeeDesc", "No driver has accepted this ride yet. You can cancel now with no penalty.")}
+                            {t("cancellation.zeroFeeDesc", "No penalty applies. You can cancel now with full peace of mind.")}
                           </p>
                         </div>
                       )}
@@ -880,7 +922,10 @@ export default function RidePage() {
                         <button
                           key={r}
                           type="button"
-                          onClick={() => setSelectedReason(r)}
+                          onClick={() => {
+                            setSelectedReason(r);
+                            fetchCancellationQuote(r);
+                          }}
                           className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs transition-all flex items-center justify-between border ${
                             isSelected
                               ? "bg-zinc-950 text-white border-zinc-950 font-bold shadow-sm"

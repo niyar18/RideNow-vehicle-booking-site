@@ -32,6 +32,7 @@ import { setUserData } from "@/redux/userSlice";
 import PartnerEarningsChart from "./PartnerEarningsChart";
 import DriverWalletCard from "./DriverWalletCard";
 import dynamic from "next/dynamic";
+import { useTranslation } from "@/context/LanguageContext";
 
 const DriverLocationMap = dynamic(() => import("@/features/maps/components/DriverLocationMap"), { ssr: false });
 
@@ -859,6 +860,7 @@ function PriceInput({ label, value, onChange }: any) {
 
 function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }: any) {
   const router = useRouter();
+  const { t } = useTranslation();
   const [isOnline, setIsOnline] = useState(false);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [loading, setLoading] = useState(false);
@@ -1204,7 +1206,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
           <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider">Today's Earnings</span>
+              <span className="text-[10px] font-black uppercase tracking-wider">{t("driver.todayEarnings", "Today's Earnings")}</span>
               <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
                 <IndianRupee size={13} />
               </div>
@@ -1219,7 +1221,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
           <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider">Trips Completed</span>
+              <span className="text-[10px] font-black uppercase tracking-wider">{t("driver.tripsCompleted", "Trips Completed")}</span>
               <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
                 <CheckCircle2 size={13} className="sm:w-[15px] sm:h-[15px]" />
               </div>
@@ -1236,7 +1238,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
           <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider">Online Shift</span>
+              <span className="text-[10px] font-black uppercase tracking-wider">{t("driver.onlineShift", "Online Shift")}</span>
               <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
                 <Clock size={13} className="sm:w-[15px] sm:h-[15px]" />
               </div>
@@ -1251,7 +1253,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
           <div className="bg-white rounded-xl sm:rounded-2xl p-3.5 sm:p-5 border border-zinc-200/80 shadow-sm flex flex-col justify-between">
             <div className="flex items-center justify-between text-zinc-400 mb-2">
-              <span className="text-[10px] font-black uppercase tracking-wider">Driver Rating</span>
+              <span className="text-[10px] font-black uppercase tracking-wider">{t("driver.rating", "Driver Rating")}</span>
               <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
                 <Shield size={13} className="sm:w-[15px] sm:h-[15px]" />
               </div>
@@ -1277,7 +1279,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           <div className="bg-white rounded-3xl border border-zinc-200 p-6 md:p-8 shadow-sm flex flex-col justify-between min-h-[280px]">
             <div>
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">Service Status</p>
-              <h2 className="text-2xl font-black text-zinc-900 tracking-tight">Status Command</h2>
+              <h2 className="text-2xl font-black text-zinc-900 tracking-tight">{t("driver.statusCommand", "Status Command")}</h2>
               <p className="text-zinc-400 text-xs font-semibold mt-1">Toggle your availability to start receiving passenger requests</p>
             </div>
 
@@ -1290,9 +1292,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <span className={`relative inline-flex rounded-full h-3.5 w-3.5 ${isOnline ? "bg-emerald-500" : "bg-zinc-300"}`}></span>
                 </span>
                 <div>
-                  <p className="text-sm font-bold text-zinc-900">{isOnline ? "Online" : "Offline"}</p>
+                  <p className="text-sm font-bold text-zinc-900">{isOnline ? t("driver.online", "Online") : t("driver.offline", "Offline")}</p>
                   <p className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">
-                    {isOnline ? "Receiving Bookings" : "Inactive"}
+                    {isOnline ? t("driver.receivingBookings", "Receiving Bookings") : t("driver.inactive", "Inactive")}
                   </p>
                 </div>
               </div>
@@ -1543,7 +1545,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 <div className="bg-zinc-950 px-6 py-5 flex items-center justify-between text-white">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-                    <h3 className="font-black text-sm uppercase tracking-widest text-zinc-300">Incoming Request</h3>
+                    <h3 className="font-black text-sm uppercase tracking-widest text-zinc-300">{t("driver.incomingRequest", "Incoming Request")}</h3>
                   </div>
                   <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full text-xs font-semibold">
                     <Clock size={12} className="text-amber-400" />
@@ -1562,7 +1564,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                         <div className="w-px bg-zinc-200 mt-1 h-8" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Pickup Location</p>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">{t("booking.pickup", "Pickup Location")}</p>
                         <p className="text-xs text-zinc-800 font-bold leading-snug truncate">{pendingRequest.pickupAddress}</p>
                       </div>
                     </div>
@@ -1571,7 +1573,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                         <div className="w-2.5 h-2.5 rounded-sm bg-zinc-900 border-2 border-white shadow-sm" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">Drop Location</p>
+                        <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mb-0.5">{t("booking.drop", "Drop Location")}</p>
                         <p className="text-xs text-zinc-800 font-bold leading-snug truncate">{pendingRequest.dropAddress}</p>
                       </div>
                     </div>
@@ -1581,12 +1583,12 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <div className="bg-zinc-50 border border-zinc-200/80 rounded-2xl p-3.5 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 text-zinc-600">
                       <Clock size={13} className="text-zinc-500" />
-                      <span className="font-medium">Est. Duration:</span>
+                      <span className="font-medium">{t("driver.estDuration", "Est. Duration")}:</span>
                       <span className="font-bold text-zinc-900">~{pendingRequest.tripDurationMinutes || 15} mins</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-zinc-600">
                       <Navigation size={13} className="text-emerald-600" />
-                      <span className="font-medium">Drop-off:</span>
+                      <span className="font-medium">{t("driver.estDropoff", "Drop-off:")}</span>
                       <span className="font-bold text-zinc-900">
                         {pendingRequest.estimatedDropoffTime
                           ? new Date(pendingRequest.estimatedDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })
@@ -1597,7 +1599,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
                   {/* Earnings Display */}
                   <div className="bg-zinc-950 rounded-2xl p-5 text-center border border-zinc-800 flex flex-col items-center justify-center">
-                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1">Your Net Fare</p>
+                    <p className="text-zinc-500 text-[10px] uppercase tracking-widest font-black mb-1">{t("driver.netFare", "Your Net Fare")}</p>
                     <div className="flex items-center gap-1.5 text-white text-4xl font-black tracking-tight leading-none">
                       <IndianRupee size={24} className="text-amber-400" />
                       <span>{pendingRequest.fare}</span>
@@ -1617,7 +1619,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     {processingAction === "reject" ? (
                       <Loader2 className="animate-spin w-4 h-4 mx-auto text-zinc-500" />
                     ) : (
-                      "Reject"
+                      t("driver.reject", "Reject")
                     )}
                   </button>
                   <button
@@ -1628,7 +1630,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     {processingAction === "accept" ? (
                       <Loader2 className="animate-spin w-4 h-4 mx-auto text-white" />
                     ) : (
-                      "Accept Ride"
+                      t("driver.acceptRide", "Accept Ride")
                     )}
                   </button>
                 </div>

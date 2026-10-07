@@ -12,6 +12,7 @@ import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
 import { loadRazorpayScript } from "@/lib/loadRazorpay";
+import { useTranslation } from "@/context/LanguageContext";
 import {
   Wallet,
   ArrowUpRight,
@@ -35,6 +36,7 @@ import {
 const PRESET_AMOUNTS = [100, 250, 500, 1000, 2000];
 
 export default function WalletPage() {
+  const { t } = useTranslation();
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const { userData } = useSelector((state: RootState) => state.user);
@@ -205,17 +207,17 @@ export default function WalletPage() {
             <div className="flex items-center gap-2 mb-1 sm:mb-1.5">
               <div className="h-px w-6 bg-zinc-900" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
-                Payment & Credits
+                {t("wallet.paymentAndCredits", "Payment & Credits")}
               </span>
             </div>
             <h1 className="text-2xl sm:text-4xl font-black text-zinc-900 tracking-tight flex items-center gap-2 sm:gap-3 flex-wrap">
-              RideNow Cash
+              {t("wallet.rideNowCash", "RideNow Cash")}
               <span className="inline-flex items-center gap-1 text-[10px] sm:text-[11px] font-bold px-2 sm:px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
-                <Sparkles size={11} /> 1-Tap Checkout
+                <Sparkles size={11} /> {t("wallet.oneTapCheckout", "1-Tap Checkout")}
               </span>
             </h1>
             <p className="text-zinc-500 text-xs sm:text-sm mt-1 font-medium">
-              Zero payment failure, instant ride dispatch, and immediate refunds.
+              {t("wallet.zeroPaymentFailure", "Zero payment failure, instant ride dispatch, and immediate refunds.")}
             </p>
           </div>
 
@@ -223,7 +225,7 @@ export default function WalletPage() {
             onClick={() => setShowTopupModal(true)}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl bg-zinc-900 hover:bg-black text-white text-xs sm:text-sm font-black transition-all shadow-md active:scale-95"
           >
-            <Plus size={16} /> Add Money
+            <Plus size={16} /> {t("wallet.addMoney", "Add Money")}
           </button>
         </div>
 
@@ -258,10 +260,10 @@ export default function WalletPage() {
               </div>
               <div>
                 <p className="text-xs sm:text-sm font-black">
-                  Unpaid Cancellation Dues: ₹{outstandingAmount}
+                  {t("wallet.unpaidDues", "Unpaid Cancellation Dues")}: ₹{outstandingAmount}
                 </p>
                 <p className="text-[11px] text-rose-700 font-medium">
-                  This outstanding balance will be automatically recovered on your next ride payment or wallet top-up.
+                  {t("wallet.unpaidDuesDesc", "This outstanding balance will be automatically recovered on your next ride payment or wallet top-up.")}
                 </p>
               </div>
             </div>
@@ -269,7 +271,7 @@ export default function WalletPage() {
               onClick={() => setShowTopupModal(true)}
               className="shrink-0 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black px-4 py-2 rounded-xl shadow-xs transition"
             >
-              Clear Dues
+              {t("wallet.clearDues", "Clear Dues")}
             </button>
           </div>
         )}
@@ -285,7 +287,7 @@ export default function WalletPage() {
             <div className="relative z-10 flex items-start justify-between">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 mb-1">
-                  Available Balance
+                  {t("wallet.balance", "Available Balance")}
                 </p>
                 <div className="flex items-baseline gap-1 mt-1">
                   <span className="text-3xl sm:text-5xl font-black text-white tracking-tight">
@@ -302,13 +304,13 @@ export default function WalletPage() {
             <div className="relative z-10 pt-4 sm:pt-6 border-t border-zinc-800/80 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-zinc-400">
               <div className="flex items-center gap-1.5 font-medium">
                 <ShieldCheck size={14} className="text-emerald-400 shrink-0" />
-                <span>Protected by RBI compliant 256-bit encryption</span>
+                <span>{t("wallet.protectedEncryption", "Protected by RBI compliant 256-bit encryption")}</span>
               </div>
               <button
                 onClick={() => setShowTopupModal(true)}
                 className="text-white hover:text-amber-300 font-bold flex items-center gap-1 transition"
               >
-                Quick Recharge <ChevronRight size={14} />
+                {t("wallet.quickRecharge", "Quick Recharge")} <ChevronRight size={14} />
               </button>
             </div>
           </div>
@@ -320,7 +322,7 @@ export default function WalletPage() {
                 <ArrowDownLeft size={22} />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Total Added</p>
+                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">{t("wallet.totalAdded", "Total Added")}</p>
                 <p className="text-xl font-black text-zinc-900 mt-0.5">
                   ₹{summary.totalAdded.toLocaleString("en-IN")}
                 </p>
@@ -332,7 +334,7 @@ export default function WalletPage() {
                 <ArrowUpRight size={22} />
               </div>
               <div>
-                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">Total Spent</p>
+                <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400">{t("wallet.totalSpent", "Total Spent")}</p>
                 <p className="text-xl font-black text-zinc-900 mt-0.5">
                   ₹{summary.totalSpent.toLocaleString("en-IN")}
                 </p>
@@ -341,7 +343,7 @@ export default function WalletPage() {
 
             <div className="bg-white rounded-3xl p-4 border border-zinc-200 shadow-sm flex items-center justify-between text-xs font-bold text-zinc-600">
               <span className="flex items-center gap-1.5 text-zinc-500 font-medium">
-                <Clock size={14} /> Total Transactions
+                <Clock size={14} /> {t("wallet.totalTransactions", "Total Transactions")}
               </span>
               <span className="font-mono text-zinc-900 bg-zinc-100 px-2.5 py-1 rounded-xl">
                 {summary.transactionCount}
@@ -355,18 +357,18 @@ export default function WalletPage() {
           {/* Header & Filter Tabs */}
           <div className="p-6 border-b border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-black text-zinc-900">Passbook & History</h2>
+              <h2 className="text-lg font-black text-zinc-900">{t("wallet.transactions", "Passbook & History")}</h2>
               <p className="text-xs text-zinc-400 mt-0.5 font-medium">
-                Every transaction is encrypted and ledger verified.
+                {t("wallet.ledgerEncrypted", "Every transaction is encrypted and ledger verified.")}
               </p>
             </div>
 
             <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-2xl self-start sm:self-auto">
               {[
-                { id: "all", label: "All" },
-                { id: "credit", label: "Added" },
-                { id: "debit", label: "Spent" },
-                { id: "refund", label: "Refunds" },
+                { id: "all", label: t("common.all", "All") },
+                { id: "credit", label: t("wallet.added", "Added") },
+                { id: "debit", label: t("wallet.spent", "Spent") },
+                { id: "refund", label: t("wallet.refund", "Refunds") },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -388,22 +390,22 @@ export default function WalletPage() {
             {loading ? (
               <div className="py-16 text-center">
                 <Loader2 size={24} className="animate-spin text-zinc-400 mx-auto mb-2" />
-                <p className="text-xs text-zinc-400 font-medium">Loading ledger records…</p>
+                <p className="text-xs text-zinc-400 font-medium">{t("common.loading", "Loading ledger records…")}</p>
               </div>
             ) : filteredTransactions.length === 0 ? (
               <div className="py-16 text-center px-4">
                 <div className="w-12 h-12 rounded-2xl bg-zinc-100 text-zinc-400 flex items-center justify-center mx-auto mb-3">
                   <Wallet size={20} />
                 </div>
-                <p className="text-sm font-bold text-zinc-700">No transactions recorded</p>
+                <p className="text-sm font-bold text-zinc-700">{t("wallet.noTransactions", "No transactions recorded")}</p>
                 <p className="text-xs text-zinc-400 mt-0.5 max-w-xs mx-auto">
-                  Add funds to enjoy 1-tap booking or pay with cash on your next ride.
+                  {t("wallet.addFundsPrompt", "Add funds to enjoy 1-tap booking or pay with cash on your next ride.")}
                 </p>
                 <button
                   onClick={() => setShowTopupModal(true)}
                   className="mt-4 px-4 py-2 bg-zinc-900 text-white rounded-xl text-xs font-bold hover:bg-black transition"
                 >
-                  Top Up ₹500
+                  {t("wallet.topup", "Top Up")} ₹500
                 </button>
               </div>
             ) : (
@@ -499,7 +501,7 @@ export default function WalletPage() {
                       <Wallet size={16} />
                     </div>
                     <div>
-                      <h3 className="text-base font-black text-zinc-900">Add Money to Wallet</h3>
+                      <h3 className="text-base font-black text-zinc-900">{t("wallet.topupModalTitle", "Add Money to Wallet")}</h3>
                       <p className="text-[11px] text-zinc-400 font-medium">UPI · Card · Netbanking</p>
                     </div>
                   </div>
@@ -524,7 +526,7 @@ export default function WalletPage() {
                 {/* Amount Input */}
                 <div className="mb-4">
                   <label className="text-[10px] font-black uppercase tracking-wider text-zinc-500 mb-1.5 block">
-                    Enter Amount
+                    {t("wallet.selectAmount", "Enter Amount")}
                   </label>
                   <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border-2 border-zinc-200 focus-within:border-zinc-900 transition">
                     <span className="text-lg font-black text-zinc-400">₹</span>
@@ -543,7 +545,7 @@ export default function WalletPage() {
                 {/* Preset Chips */}
                 <div className="mb-6">
                   <p className="text-[10px] font-black uppercase tracking-wider text-zinc-400 mb-2">
-                    Quick Amounts
+                    {t("wallet.quickAmounts", "Quick Amounts")}
                   </p>
                   <div className="grid grid-cols-3 gap-2">
                     {PRESET_AMOUNTS.map((amt) => (
@@ -566,7 +568,7 @@ export default function WalletPage() {
                 {/* Security Note */}
                 <div className="p-3 bg-zinc-50 rounded-2xl border border-zinc-100 mb-4 text-[11px] text-zinc-500 flex items-center gap-2">
                   <Zap size={14} className="text-amber-500 flex-shrink-0" />
-                  <span>Money added is immediately available for 1-tap bookings & refunds.</span>
+                  <span>{t("wallet.topupSecurityNote", "Money added is immediately available for 1-tap bookings & refunds.")}</span>
                 </div>
 
                 {/* Action Buttons */}
@@ -576,7 +578,7 @@ export default function WalletPage() {
                     onClick={() => setShowTopupModal(false)}
                     className="flex-1 py-3 rounded-2xl border border-zinc-200 text-xs font-bold text-zinc-700 hover:bg-zinc-50 transition"
                   >
-                    Cancel
+                    {t("common.cancel", "Cancel")}
                   </button>
                   <button
                     type="button"
@@ -586,11 +588,11 @@ export default function WalletPage() {
                   >
                     {processingTopup ? (
                       <>
-                        <Loader2 size={14} className="animate-spin" /> Processing…
+                        <Loader2 size={14} className="animate-spin" /> {t("checkout.processing", "Processing…")}
                       </>
                     ) : (
                       <>
-                        <span>Proceed to Pay</span>
+                        <span>{t("wallet.rechargeNow", "Proceed to Pay")}</span>
                         <ArrowUpRight size={14} />
                       </>
                     )}

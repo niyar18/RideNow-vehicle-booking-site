@@ -20,6 +20,7 @@ import useGetMe from "@/shared/hooks/useGetMe";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
 import { haversineKm as getHaversineDistance } from "@/lib/routeUtils";
 import { validateServiceArea, getRecentDestinations, saveRecentDestination, RecentLocation } from "@/lib/serviceArea";
+import { useTranslation } from "@/context/LanguageContext";
 import FamilyRiderSelector from "@/features/booking/components/FamilyRiderSelector";
 import StudentPassModal from "@/features/booking/components/StudentPassModal";
 import ScheduleRidePicker from "@/features/booking/components/ScheduleRidePicker";
@@ -64,6 +65,7 @@ const getCategoryIcon = (category?: string, name?: string) => {
 
 export default function BookPage() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const { userData } = useSelector((state: RootState) => state.user);
   useGetMe(true);
@@ -861,7 +863,7 @@ export default function BookPage() {
               setPickupLng(null);
               debouncedSearchAddress("pickup", e.target.value, setPickupResults, pickupCountry || "in", false);
             }}
-            placeholder="Pickup location"
+            placeholder={t("booking.pickup", "Pickup location")}
             className="flex-1 bg-transparent text-xs font-bold text-zinc-900 placeholder:text-zinc-400 outline-none truncate"
           />
           {pickup && (
@@ -952,7 +954,7 @@ export default function BookPage() {
               setDropLng(null);
               debouncedSearchAddress("drop", e.target.value, setDropResults, pickupCountry || "in", true);
             }}
-            placeholder="Where to?"
+            placeholder={t("booking.whereTo", "Where to?")}
             className="flex-1 bg-transparent text-xs font-black text-zinc-900 placeholder:text-zinc-500 outline-none truncate"
           />
           {drop && (
@@ -1176,41 +1178,43 @@ export default function BookPage() {
             <p className="text-zinc-500 text-[10px] mt-1 font-bold">No road connection found between these points.</p>
           </div>
         ) : (
-          VEHICLES.map((v) => {
-            const isSelected = vehicle === v.id;
-            const isLimitOk = checkLimit(v.id, effectiveDistance);
-            const fare = estimateFare(v.id, effectiveDistance);
+              VEHICLES.map((v) => {
+                const isSelected = vehicle === v.id;
+                const isLimitOk = checkLimit(v.id, effectiveDistance);
+                const fare = estimateFare(v.id, effectiveDistance);
+                const vehicleLabel = t(`fleet.${v.id}.title`, v.label);
+                const vehicleDesc = t(`fleet.${v.id}.desc`, v.desc);
 
-            return (
-              <div
-                key={v.id}
-                onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
-                className={`flex items-center justify-between p-3 rounded-xl border transition-colors cursor-pointer ${
-                  isSelected
-                    ? "bg-zinc-950 text-white border-zinc-950"
-                    : "bg-zinc-50/80 hover:bg-zinc-100 text-zinc-900 border-zinc-200"
-                } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                    isSelected ? "bg-zinc-800 text-white" : "bg-white text-zinc-900 shadow-xs border border-zinc-200"
-                  }`}>
-                    <v.Icon size={20} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-1.5">
-                      <p className="font-extrabold text-sm leading-tight truncate">{v.label}</p>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
-                        isSelected ? "bg-zinc-800 text-zinc-300" : "bg-zinc-200 text-zinc-600"
+                return (
+                  <div
+                    key={v.id}
+                    onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
+                    className={`flex items-center justify-between p-3 rounded-xl border transition-colors cursor-pointer ${
+                      isSelected
+                        ? "bg-zinc-950 text-white border-zinc-950"
+                        : "bg-zinc-50/80 hover:bg-zinc-100 text-zinc-900 border-zinc-200"
+                    } ${!isLimitOk ? "opacity-40 cursor-not-allowed" : ""}`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        isSelected ? "bg-zinc-800 text-white" : "bg-white text-zinc-900 shadow-xs border border-zinc-200"
                       }`}>
-                        {v.etaText}
-                      </span>
+                        <v.Icon size={20} />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-extrabold text-sm leading-tight truncate">{vehicleLabel}</p>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded-md ${
+                            isSelected ? "bg-zinc-800 text-zinc-300" : "bg-zinc-200 text-zinc-600"
+                          }`}>
+                            {v.etaText}
+                          </span>
+                        </div>
+                        <p className={`text-[11px] truncate mt-0.5 ${isSelected ? "text-zinc-400" : "text-zinc-500"}`}>
+                          {vehicleDesc}
+                        </p>
+                      </div>
                     </div>
-                    <p className={`text-[11px] truncate mt-0.5 ${isSelected ? "text-zinc-400" : "text-zinc-500"}`}>
-                      {v.desc}
-                    </p>
-                  </div>
-                </div>
 
                 <div className="text-right flex-shrink-0 pl-2">
                   <p className={`font-black text-base leading-tight ${isSelected ? "text-emerald-400" : "text-zinc-900"}`}>
@@ -1418,7 +1422,11 @@ export default function BookPage() {
             className="w-full py-3.5 rounded-xl bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 transition active:scale-98"
           >
             <span>
-              {!hasRoute ? "Choose Destination" : bookingMode === "schedule" ? "Schedule Ride" : `Confirm ${VEHICLES.find(v => v.id === vehicle)?.label || "Ride"}`}
+              {!hasRoute
+                ? t("booking.chooseVehicle", "Choose Destination")
+                : bookingMode === "schedule"
+                ? t("booking.scheduleRide", "Schedule Ride")
+                : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLES.find(v => v.id === vehicle)?.label || "Ride")}`}
             </span>
             <ArrowRight size={16} />
           </motion.button>
@@ -1581,7 +1589,9 @@ export default function BookPage() {
                   className="w-full py-3.5 rounded-xl bg-zinc-950 hover:bg-black disabled:opacity-35 text-white font-bold text-sm tracking-wide flex items-center justify-center gap-2 transition active:scale-98 shadow-md"
                 >
                   <span>
-                    {bookingMode === "schedule" ? "Schedule Ride" : `Confirm ${VEHICLES.find(v => v.id === vehicle)?.label || "Ride"} • ₹${currentBreakdown.totalFare}`}
+                    {bookingMode === "schedule"
+                      ? t("booking.scheduleRide", "Schedule Ride")
+                      : `${t("booking.confirmRide", "Confirm Ride")} • ${t(`fleet.${vehicle}.title`, VEHICLES.find(v => v.id === vehicle)?.label || "Ride")} • ₹${currentBreakdown.totalFare}`}
                   </span>
                   <ArrowRight size={16} />
                 </motion.button>

@@ -23,6 +23,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/redux/store";
 import { setUserData } from "@/redux/userSlice";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/context/LanguageContext";
 
 type Props = {
   open: boolean;
@@ -45,6 +46,7 @@ function WhatsAppIcon({ className = "w-5 h-5" }: { className?: string }) {
 }
 
 export default function AuthModal({ open, onClose }: Props) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<AuthStep>("phone");
 
   // Phone auth state
@@ -343,7 +345,7 @@ export default function AuthModal({ open, onClose }: Props) {
               <div className="mb-6 text-center">
                 <h1 className="text-2xl font-black tracking-tight text-zinc-900">RideNow</h1>
                 <p className="text-xs text-zinc-500 font-medium mt-1">
-                  Enter your mobile number to get started
+                  {t("auth.signInSubtitle", "Enter your mobile number to get started")}
                 </p>
               </div>
 
@@ -366,9 +368,9 @@ export default function AuthModal({ open, onClose }: Props) {
                     className="space-y-4"
                   >
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900">Enter your Mobile Number</h2>
+                      <h2 className="text-lg font-black text-zinc-900">{t("auth.orPhone", "Enter your Mobile Number")}</h2>
                       <p className="text-xs text-zinc-400 font-medium mt-0.5">
-                        We will send a 6-digit verification code to your WhatsApp.
+                        {t("auth.sendOtpDesc", "We will send a 6-digit verification code to your WhatsApp.")}
                       </p>
                     </div>
 
@@ -384,7 +386,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           required
                           autoFocus
                           maxLength={10}
-                          placeholder="10-digit mobile number"
+                          placeholder={t("auth.phonePlaceholder", "10-digit mobile number")}
                           value={mobileNumber}
                           onChange={(e) =>
                             setMobileNumber(e.target.value.replace(/\D/g, "").slice(0, 10))
@@ -450,7 +452,7 @@ export default function AuthModal({ open, onClose }: Props) {
                       className="w-full h-11 rounded-xl border border-zinc-300 hover:border-zinc-900 flex items-center justify-center gap-2.5 text-sm font-semibold text-zinc-800 transition active:scale-98"
                     >
                       <Image src="/google.png" alt="Google" width={18} height={18} />
-                      <span>Continue with Google</span>
+                      <span>{t("auth.continueWithGoogle", "Continue with Google")}</span>
                     </button>
 
                     {/* SWITCH TO EMAIL */}
@@ -495,7 +497,7 @@ export default function AuthModal({ open, onClose }: Props) {
                     </div>
 
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900">Verify your Number</h2>
+                      <h2 className="text-lg font-black text-zinc-900">{t("auth.enterOtp", "Verify your Number")}</h2>
                       <p className="text-xs text-zinc-500 font-medium mt-0.5">
                         Enter the 6-digit code sent via {selectedChannel === "whatsapp" ? "WhatsApp" : "SMS"} to{" "}
                         <strong className="text-zinc-900">+91 {mobileNumber}</strong>
@@ -551,7 +553,7 @@ export default function AuthModal({ open, onClose }: Props) {
                       ) : (
                         <>
                           <CheckCircle2 size={16} />
-                          <span>Verify & Log In</span>
+                          <span>{t("auth.verifyAndLogin", "Verify & Log In")}</span>
                         </>
                       )}
                     </button>

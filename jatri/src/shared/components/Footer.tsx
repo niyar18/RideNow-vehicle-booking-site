@@ -10,8 +10,10 @@ import {
   Mail,
 } from "lucide-react";
 import LanguageSelector from "./LanguageSelector";
+import { useTranslation } from "@/context/LanguageContext";
 
 export default function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="w-full bg-black text-white">
       {/* TOP SECTION */}
@@ -28,8 +30,7 @@ export default function Footer() {
           <div>
             <h2 className="text-2xl font-bold tracking-wide">RideNow</h2>
             <p className="mt-4 text-gray-400 text-sm leading-relaxed">
-              Book any vehicle — from bikes to trucks.  
-              Trusted owners. Transparent pricing.
+              {t("footer.aboutText", "Book any vehicle — from bikes to trucks. Trusted owners. Transparent pricing.")}
             </p>
 
             {/* SOCIAL */}

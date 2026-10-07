@@ -6,12 +6,14 @@ import { Bike, Car, Bus, Truck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import Image from "next/image";
+import { useTranslation } from "@/context/LanguageContext";
 
 export default function HeroSection({
   onAuthRequired,
 }: {
   onAuthRequired: () => void;
 }) {
+  const { t } = useTranslation();
   const router = useRouter();
   const { userData } = useSelector(
     (state: RootState) => state.user
@@ -48,7 +50,7 @@ export default function HeroSection({
           transition={{ duration: 0.6 }}
           className="text-white font-extrabold text-4xl sm:text-5xl md:text-7xl"
         >
-          Book Any Vehicle
+          {t("hero.bookAnyVehicle", "Book Any Vehicle")}
         </motion.h1>
 
         <motion.p
@@ -57,7 +59,7 @@ export default function HeroSection({
           transition={{ delay: 0.2 }}
           className="mt-4 max-w-xl text-gray-300"
         >
-          From daily rides to heavy transport — all in one platform.
+          {t("hero.subtitleFull", "From daily rides to heavy transport — all in one platform.")}
         </motion.p>
 
         <motion.div
@@ -76,7 +78,7 @@ export default function HeroSection({
           onClick={handleBookNow}
           className="mt-10 px-8 py-3.5 bg-white hover:bg-zinc-100 text-zinc-950 rounded-xl font-bold text-base transition active:scale-98"
         >
-          Book a Ride
+          {t("hero.bookARide", "Book a Ride")}
         </button>
       </div>
     </section>

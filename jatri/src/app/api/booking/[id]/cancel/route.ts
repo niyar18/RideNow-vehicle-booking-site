@@ -3,12 +3,89 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
+import Wallet from "@/models/wallet.model";
 import {
   calculateDynamicCancellationFee,
   processRideCancellationSettlement,
 } from "@/lib/cancellationEngine";
 import { sendPushToUser } from "@/lib/webPush";
 import { haversineDistance } from "@/lib/routeUtils";
+
+export async function GET(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  await connectDb();
+  const id = (await context.params).id;
+
+  const session = await auth();
+  const sessionUser = session?.user?.email
+    ? await User.findOne({ email: session.user.email }).select("_id role").lean()
+    : null;
+
+  if (!sessionUser) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  const booking = await Booking.findById(id);
+  if (!booking) {
+    return NextResponse.json({ message: "Ride booking not found" }, { status: 404 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const reason = searchParams.get("reason") || "Cancelled by passenger";
+  const cancelledBy = (searchParams.get("cancelledBy") as "user" | "driver" | "admin" | "system") || "user";
+
+  let driverLocation: [number, number] | undefined = undefined;
+  if (booking.driver) {
+    const driverDoc = await User.findById(booking.driver).select("location").lean();
+    if (driverDoc?.location?.coordinates && driverDoc.location.coordinates.length >= 2) {
+      driverLocation = [driverDoc.location.coordinates[0], driverDoc.location.coordinates[1]];
+    }
+  }
+
+  const feeAssessment = calculateDynamicCancellationFee({
+    booking,
+    cancelledBy,
+    reason,
+    driverLocation,
+  });
+
+  const walletDoc = await Wallet.findOne({ user: booking.user }).lean();
+  const currentWalletBalance = walletDoc?.balance || 0;
+  const currentOutstanding = walletDoc?.outstandingAmount || 0;
+
+  let willDeductFromWallet = 0;
+  let willAddToOutstanding = 0;
+
+  if (feeAssessment.feeApplied && feeAssessment.fee > 0) {
+    if (booking.paymentStatus === "paid") {
+      willDeductFromWallet = 0;
+      willAddToOutstanding = 0;
+    } else {
+      if (currentWalletBalance >= feeAssessment.fee) {
+        willDeductFromWallet = feeAssessment.fee;
+      } else {
+        willDeductFromWallet = currentWalletBalance;
+        willAddToOutstanding = feeAssessment.fee - currentWalletBalance;
+      }
+    }
+  }
+
+  return NextResponse.json({
+    success: true,
+    fee: feeAssessment.fee,
+    feeApplied: feeAssessment.feeApplied,
+    reason: feeAssessment.reason,
+    driverCompensation: feeAssessment.driverCompensation,
+    elapsedSeconds: feeAssessment.elapsedSeconds,
+    currentWalletBalance,
+    currentOutstanding,
+    willDeductFromWallet,
+    willAddToOutstanding,
+    isPrepaid: booking.paymentStatus === "paid",
+  });
+}
 
 export async function POST(
   req: NextRequest,
@@ -188,7 +265,7 @@ export async function POST(
       await sendPushToUser(booking.driver.toString(), {
         title: "Ride Cancelled by Rider ❌",
         body: cancellationFeeApplied
-          ? `Ride #${booking._id.toString().slice(-6)} was cancelled. ₹40 cancellation compensation credited to your wallet.`
+          ? `Ride #${booking._id.toString().slice(-6)} was cancelled. ₹${driverCompCredited || driverCompensation} cancellation compensation credited to your earnings.`
           : `Ride #${booking._id.toString().slice(-6)} was cancelled by the passenger.`,
         url: "/partner",
         tag: `booking-cancelled-${booking._id.toString()}`,
