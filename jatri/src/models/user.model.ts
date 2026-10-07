@@ -55,16 +55,32 @@ socketId:string | null
   otp?: string;
   otpExpiresAt?: Date;
 
-  /* ===== STUDENT MODE ===== */
+  /* ===== STUDENT PROGRAM (ANNUAL 12-MONTH VERIFIED BENEFIT) ===== */
   isStudent?: boolean;
+  studentVerification?: {
+    status: "not_verified" | "pending" | "verified" | "expired" | "rejected";
+    institutionName?: string;
+    verificationMethod?: "institutional_email" | "student_id" | "enrollment_document";
+    studentName?: string;
+    studentIdNumber?: string;
+    eduEmail?: string;
+    documentType?: string;
+    academicYear?: string;
+    verifiedAt?: Date;
+    expiresAt?: Date;
+    verificationReference?: string;
+    rejectionReason?: string;
+  };
   studentDetails?: {
     eduEmail?: string;
     institution?: string;
     verifiedAt?: Date;
+    expiresAt?: Date;
   };
 
-  /* ===== WALLET ===== */
+  /* ===== WALLET & OUTSTANDING DUES ===== */
   walletBalance: number;
+  outstandingAmount?: number; // Unpaid cancellation charges recovered on next ride
 
   createdAt: Date;
   updatedAt: Date;
@@ -191,21 +207,51 @@ const UserSchema = new Schema<IUser>(
     otp: String,
     otpExpiresAt: Date,
 
-    /* ===== STUDENT MODE ===== */
+    /* ===== STUDENT PROGRAM (ANNUAL 12-MONTH BENEFIT) ===== */
     isStudent: {
-      type: Boolean,
-      default: false,
+       type: Boolean,
+       default: false,
+       index: true,
+    },
+    studentVerification: {
+      status: {
+        type: String,
+        enum: ["not_verified", "pending", "verified", "expired", "rejected"],
+        default: "not_verified",
+        index: true,
+      },
+      institutionName: { type: String, trim: true },
+      verificationMethod: {
+        type: String,
+        enum: ["institutional_email", "student_id", "enrollment_document"],
+      },
+      studentName: { type: String, trim: true },
+      studentIdNumber: { type: String, trim: true },
+      eduEmail: { type: String, trim: true, lowercase: true },
+      documentType: { type: String, trim: true },
+      academicYear: { type: String, trim: true },
+      verifiedAt: { type: Date },
+      expiresAt: { type: Date, index: true },
+      verificationReference: { type: String, trim: true },
+      rejectionReason: { type: String, trim: true },
     },
     studentDetails: {
       eduEmail: String,
       institution: String,
       verifiedAt: Date,
+      expiresAt: Date,
     },
 
-    /* ===== WALLET ===== */
+    /* ===== WALLET & OUTSTANDING DUES ===== */
     walletBalance: {
       type: Number,
       default: 0,
+      index: true,
+    },
+    outstandingAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
       index: true,
     },
   },

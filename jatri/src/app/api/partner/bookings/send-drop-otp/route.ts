@@ -23,13 +23,25 @@ export async function POST(req: Request) {
       );
     }
 
-    /* Generate or reuse valid OTP */
-    const otp =
+    if (booking.status !== "started") {
+      return NextResponse.json(
+        { message: "Drop-off OTP can only be generated after the ride has started." },
+        { status: 400 }
+      );
+    }
+
+    /* Generate or reuse valid OTP - Guarantee it is distinct from pickup OTP */
+    let otp =
       booking.dropOtp &&
       booking.dropOtpExpires &&
       new Date(booking.dropOtpExpires) > new Date()
         ? booking.dropOtp
         : Math.floor(1000 + Math.random() * 9000).toString();
+
+    // Ensure Drop OTP is never identical to Pickup OTP
+    if (booking.pickupOtp && otp === booking.pickupOtp) {
+      otp = Math.floor(1000 + Math.random() * 9000).toString();
+    }
 
     booking.dropOtp = otp;
     booking.dropOtpExpires = new Date(Date.now() + 60 * 60 * 1000); // 60 minutes

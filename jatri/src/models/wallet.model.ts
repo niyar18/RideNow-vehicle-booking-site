@@ -5,6 +5,7 @@ export interface IWallet extends Document {
   balance: number;          // Available withdrawable earnings for driver / payment balance for user
   pendingEarnings: number;  // In-flight / pending earnings
   platformDues: number;     // Commission / adjustments owed to RideNow (e.g. from cash rides)
+  outstandingAmount: number;// Unpaid cancellation charges owed by customer
   currency: string;         // Currency code e.g. "INR"
   totalEarnings: number;    // Lifetime driver earnings
   totalCommission: number;  // Lifetime platform commission
@@ -33,6 +34,11 @@ const WalletSchema = new Schema<IWallet>(
       min: 0,
     },
     platformDues: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    outstandingAmount: {
       type: Number,
       default: 0,
       min: 0,

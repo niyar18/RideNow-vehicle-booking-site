@@ -21,9 +21,16 @@ export async function POST(req: Request) {
       );
     }
 
+    if (booking.status !== "started") {
+      return NextResponse.json(
+        { message: "Cannot verify drop-off OTP: Ride must be in 'started' status to complete." },
+        { status: 400 }
+      );
+    }
+
     if (!booking.dropOtp) {
       return NextResponse.json(
-        { message: "Drop OTP not generated yet. Please tap 'Mark as Dropped'." },
+        { message: "Drop OTP not generated yet. Please ask passenger to refresh screen." },
         { status: 400 }
       );
     }

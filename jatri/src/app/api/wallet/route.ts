@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const user = await User.findOne({ email: session.user.email }).select("_id name email walletBalance role");
+    const user = await User.findOne({ email: session.user.email }).select("_id name email walletBalance outstandingAmount role");
 
     if (!user) {
       return NextResponse.json(
@@ -31,6 +31,7 @@ export async function GET(req: NextRequest) {
 
     const wallet = await getOrCreateWallet(user._id);
     const currentBalance = wallet.balance ?? user.walletBalance ?? 0;
+    const outstandingAmount = wallet.outstandingAmount ?? (user as any).outstandingAmount ?? 0;
 
     // Fetch last 50 transactions
     const transactions = await WalletTransaction.find({ userId: user._id })
@@ -59,6 +60,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       success: true,
       balance: currentBalance,
+      outstandingAmount,
       summary: {
         totalAdded,
         totalSpent,

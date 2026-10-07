@@ -3,7 +3,10 @@ import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
-import { processRideCancellationRefund } from "@/lib/walletLedger";
+import {
+  calculateDynamicCancellationFee,
+  processRideCancellationSettlement,
+} from "@/lib/cancellationEngine";
 import { sendPushToUser } from "@/lib/webPush";
 import { haversineDistance } from "@/lib/routeUtils";
 
@@ -72,80 +75,60 @@ export async function POST(
     ? new Date(booking.updatedAt).getTime()
     : null;
 
-  // Location computation: check driver distance to pickup
-  let distanceToPickupKm: number | null = typeof body.distanceToPickupKm === "number" ? body.distanceToPickupKm : null;
-  if (distanceToPickupKm === null && booking.pickupLocation?.coordinates && booking.driver) {
+  // 1️⃣ Dynamic Cancellation Assessment via authoritative cancellationEngine
+  let driverLocation: [number, number] | undefined = undefined;
+  if (booking.driver) {
     const driverDoc = await User.findById(booking.driver).select("location").lean();
     if (driverDoc?.location?.coordinates && driverDoc.location.coordinates.length >= 2) {
-      distanceToPickupKm = Number(
-        haversineDistance(
-          driverDoc.location.coordinates as [number, number],
-          booking.pickupLocation.coordinates as [number, number]
-        ).toFixed(2)
-      );
+      driverLocation = [driverDoc.location.coordinates[0], driverDoc.location.coordinates[1]];
     }
   }
 
-  let cancellationFee = 0;
-  let cancellationFeeApplied = false;
-  let elapsedSeconds = 0;
-  let penaltyReason = "";
+  const {
+    fee: cancellationFee,
+    feeApplied: cancellationFeeApplied,
+    reason: penaltyReason,
+    elapsedSeconds,
+    driverCompensation,
+  } = calculateDynamicCancellationFee({
+    booking,
+    cancelledBy,
+    reason,
+    driverLocation,
+  });
 
-  if (isDriverAssigned && acceptedTime && cancelledBy === "user") {
-    elapsedSeconds = Math.max(0, Math.floor((Date.now() - acceptedTime) / 1000));
+  // 2️⃣ Full Financial Ledger Settlement: Customer Wallet / Outstanding balance & Driver compensation
+  const isPrepaid = booking.paymentStatus === "paid";
+  const paidAmount = isPrepaid ? booking.fare || 0 : 0;
 
-    const isDriverArrived = Boolean(booking.pickupOtp) || (distanceToPickupKm !== null && distanceToPickupKm <= 0.2);
-    const isDriverDelayedOrOffTrack =
-      reason.toLowerCase().includes("taking too long") ||
-      reason.toLowerCase().includes("wrong direction");
-
-    // Condition A: Driver has arrived at pickup location (<= 200m or pickup OTP generated)
-    if (isDriverArrived) {
-      cancellationFee = Math.min(50, booking.fare);
-      cancellationFeeApplied = true;
-      penaltyReason = "Driver already arrived at pickup location";
-    }
-    // Condition B: Elapsed time > 180 seconds (3 minutes) from driver acceptance
-    else if (elapsedSeconds > 180) {
-      // If driver is far away (> 3 km) or delayed, and rider cited delay or wrong direction, waive the penalty!
-      if (isDriverDelayedOrOffTrack && distanceToPickupKm !== null && distanceToPickupKm > 3.0) {
-        cancellationFee = 0;
-        cancellationFeeApplied = false;
-        penaltyReason = "Penalty waived: Driver delayed (>3 km away)";
-      } else {
-        cancellationFee = Math.min(50, booking.fare);
-        cancellationFeeApplied = true;
-        penaltyReason = "Cancelled after 3-minute grace period with driver en route";
-      }
-    }
-    // Condition C: Within 3 minutes -> Free cancellation grace window
-    else {
-      cancellationFee = 0;
-      cancellationFeeApplied = false;
-      penaltyReason = "Within 3-minute free cancellation grace period";
-    }
-  }
-
-  // 2️⃣ Handle Refund & Driver Compensation if ride was paid online
   let refundAmount = 0;
-  if (booking.paymentStatus === "paid" && booking.fare > 0) {
-    refundAmount = Math.max(0, booking.fare - cancellationFee);
+  let walletDeducted = 0;
+  let outstandingAccrued = 0;
+  let driverCompCredited = 0;
 
-    try {
-      await processRideCancellationRefund({
-        bookingId: booking._id,
-        riderId: booking.user,
-        driverId: booking.driver,
-        refundAmount,
-        cancellationFee,
-        cancellationFeeApplied,
-        reason,
-      });
+  try {
+    const settlement = await processRideCancellationSettlement({
+      bookingId: booking._id,
+      riderId: booking.user,
+      driverId: booking.driver,
+      cancellationFee,
+      cancellationFeeApplied,
+      reason,
+      isPrepaid,
+      paidAmount,
+      driverCompensation,
+    });
 
+    refundAmount = settlement.refundAmount;
+    walletDeducted = settlement.walletDeducted;
+    outstandingAccrued = settlement.outstandingAccrued;
+    driverCompCredited = settlement.driverCompCredited;
+
+    if (isPrepaid) {
       booking.paymentStatus = "refunded";
-    } catch (refundErr) {
-      console.error("Wallet refund error on ride cancel:", refundErr);
     }
+  } catch (settleErr) {
+    console.error("Cancellation ledger settlement error:", settleErr);
   }
 
   // 3️⃣ Update booking status & cancellation metadata
@@ -228,8 +211,10 @@ export async function POST(
     cancellationFee,
     cancellationFeeApplied,
     refundAmount,
+    walletDeducted,
+    outstandingAccrued,
+    driverCompCredited,
     elapsedSeconds,
-    distanceToPickupKm,
     penaltyReason,
     reason,
   });

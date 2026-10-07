@@ -14,7 +14,10 @@ export type CleanWalletType =
   | "INCENTIVE"
   | "TIP"
   | "PENALTY"
-  | "SETTLE_DUES";
+  | "SETTLE_DUES"
+  | "CANCELLATION_CHARGE"
+  | "OUTSTANDING_RECOVERY"
+  | "CANCELLATION_COMPENSATION";
 
 export type TransactionCategory =
   | "topup"
@@ -30,7 +33,10 @@ export type TransactionCategory =
   | "withdrawal"
   | "withdrawal_refund"
   | "promo_bonus"
-  | "admin_adjustment";
+  | "admin_adjustment"
+  | "cancellation_charge"
+  | "outstanding_recovery"
+  | "cancellation_compensation";
 
 export type TransactionStatus = "pending" | "success" | "failed" | "reversed";
 
@@ -124,6 +130,9 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
         "TIP",
         "PENALTY",
         "SETTLE_DUES",
+        "CANCELLATION_CHARGE",
+        "OUTSTANDING_RECOVERY",
+        "CANCELLATION_COMPENSATION",
       ],
       default: "EARNING",
       index: true,
@@ -145,6 +154,9 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
         "withdrawal_refund",
         "promo_bonus",
         "admin_adjustment",
+        "cancellation_charge",
+        "outstanding_recovery",
+        "cancellation_compensation",
       ],
       required: true,
       index: true,

@@ -21,6 +21,7 @@ export interface IFareBreakdown {
   taxes: number;
   taxRate: number;
   discount: number;
+  promoDiscount?: number;
   isStudentDiscountApplied?: boolean;
   studentDiscount?: number;
   totalFare: number;
@@ -140,6 +141,22 @@ export function calculateWaitingFee(
   };
 }
 
+export interface StudentProgramEconomics {
+  discountPercentage?: number;
+  maxDiscountCap?: number;
+  minFare?: number;
+  eligibleVehicleTypes?: string[];
+  allowStackingWithPromo?: boolean;
+}
+
+export const DEFAULT_STUDENT_CONFIG: Required<StudentProgramEconomics> = {
+  discountPercentage: 10,
+  maxDiscountCap: 50,
+  minFare: 100,
+  eligibleVehicleTypes: ["bike", "auto", "car"],
+  allowStackingWithPromo: false,
+};
+
 /**
  * Calculates authoritative upfront or final fare breakdown.
  */
@@ -150,7 +167,8 @@ export function calculateFareBreakdown(
   overrideSurge?: number,
   discountAmount: number = 0,
   isStudent: boolean = false,
-  waitingDetails?: { arrivedAt?: Date | string | null; startedAt?: Date | string | null }
+  waitingDetails?: { arrivedAt?: Date | string | null; startedAt?: Date | string | null },
+  studentSettings?: StudentProgramEconomics
 ): IFareBreakdown {
   const vType = (vehicleType || "car").toLowerCase();
   const source = customRates || DEFAULT_VEHICLE_RATES;
@@ -191,9 +209,42 @@ export function calculateFareBreakdown(
   const subtotalWithSurge = rawSubtotal + surgeAmount + waitingCharge;
   const taxes = Math.round((subtotalWithSurge + platformFee) * taxRate); // 5% GST
 
-  // Student Pass: 10% discount on raw subtotal + surge
-  const studentDiscount = isStudent ? Math.round(subtotalWithSurge * 0.1) : 0;
-  const effectiveDiscount = discountAmount + studentDiscount;
+  // Student Program Economics (10% capped at ₹50, min fare ₹100, regular rides only)
+  const stuCfg = { ...DEFAULT_STUDENT_CONFIG, ...studentSettings };
+  const isVehicleEligible = stuCfg.eligibleVehicleTypes.map((t) => t.toLowerCase()).includes(vType);
+
+  let calculatedStudentDiscount = 0;
+  if (isStudent && isVehicleEligible && subtotalWithSurge >= stuCfg.minFare) {
+    const rawDiscount = Math.round(subtotalWithSurge * (stuCfg.discountPercentage / 100));
+    calculatedStudentDiscount = Math.min(rawDiscount, stuCfg.maxDiscountCap);
+  }
+
+  // Anti-Stacking Architecture: Student discount OR Promo discount (never stacked additively)
+  let effectiveDiscount = 0;
+  let promoDiscountApplied = 0;
+  let studentDiscountApplied = 0;
+
+  if (stuCfg.allowStackingWithPromo) {
+    effectiveDiscount = discountAmount + calculatedStudentDiscount;
+    promoDiscountApplied = discountAmount;
+    studentDiscountApplied = calculatedStudentDiscount;
+  } else {
+    if (discountAmount > 0) {
+      if (discountAmount >= calculatedStudentDiscount) {
+        effectiveDiscount = discountAmount;
+        promoDiscountApplied = discountAmount;
+        studentDiscountApplied = 0;
+      } else {
+        effectiveDiscount = calculatedStudentDiscount;
+        promoDiscountApplied = 0;
+        studentDiscountApplied = calculatedStudentDiscount;
+      }
+    } else {
+      effectiveDiscount = calculatedStudentDiscount;
+      studentDiscountApplied = calculatedStudentDiscount;
+      promoDiscountApplied = 0;
+    }
+  }
 
   const totalBeforeDiscount = subtotalWithSurge + platformFee + taxes;
   const totalFare = Math.max(0, Math.round(totalBeforeDiscount - effectiveDiscount));
@@ -215,8 +266,9 @@ export function calculateFareBreakdown(
     taxes,
     taxRate,
     discount: effectiveDiscount,
-    isStudentDiscountApplied: isStudent && studentDiscount > 0,
-    studentDiscount,
+    promoDiscount: promoDiscountApplied,
+    isStudentDiscountApplied: studentDiscountApplied > 0,
+    studentDiscount: studentDiscountApplied,
     totalFare,
     cancellationFee,
   };
@@ -235,7 +287,7 @@ export function recalculateTripFare(
     actualDistanceKm,
     undefined,
     initialBreakdown.surgeMultiplier,
-    initialBreakdown.discount,
+    initialBreakdown.promoDiscount || 0,
     Boolean(initialBreakdown.isStudentDiscountApplied),
     waitingDetails
   );

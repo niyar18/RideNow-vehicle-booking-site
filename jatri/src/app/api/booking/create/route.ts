@@ -102,7 +102,7 @@ export async function POST(req: Request) {
 
     // Resolve user mobile number & ensure WhatsApp phone verification
     const currentUser = await User.findById(session.user.id)
-      .select("mobileNumber isMobileVerified isStudent")
+      .select("mobileNumber isMobileVerified isStudent studentVerification outstandingAmount")
       .lean();
 
     if (!currentUser?.mobileNumber || !(currentUser as any)?.isMobileVerified) {
@@ -117,8 +117,28 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check outstanding cancellation balance (Anti-abuse threshold)
+    const userOutstanding = Number((currentUser as any)?.outstandingAmount || 0);
+    const MAX_OUTSTANDING_THRESHOLD = 150;
+    if (userOutstanding >= MAX_OUTSTANDING_THRESHOLD) {
+      return NextResponse.json(
+        {
+          success: false,
+          requiresOutstandingSettlement: true,
+          outstandingAmount: userOutstanding,
+          message: `You have ₹${userOutstanding} in unpaid cancellation dues. Please settle your outstanding balance before requesting a new ride.`,
+        },
+        { status: 403 }
+      );
+    }
+
     const effectiveUserMobile = (currentUser as any)?.mobileNumber;
-    const isStudent = Boolean((currentUser as any)?.isStudent);
+    const studentVer = (currentUser as any)?.studentVerification;
+    const isStudent =
+      Boolean((currentUser as any)?.isStudent) &&
+      studentVer?.status === "verified" &&
+      studentVer?.expiresAt &&
+      new Date(studentVer.expiresAt).getTime() > Date.now();
 
     // Prevent duplicate active booking for instant rides
     if (!isScheduled) {

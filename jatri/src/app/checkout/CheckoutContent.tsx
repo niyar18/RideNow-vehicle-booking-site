@@ -872,8 +872,14 @@ export default function CheckoutContent() {
                           </div>
                           {breakdown.isStudentDiscountApplied && (
                             <div className="flex justify-between text-[11px] text-emerald-600 font-extrabold pt-1 border-t border-emerald-100">
-                              <span>🎓 Student Pass Discount (-10%)</span>
+                              <span>🎓 Student Pass Discount (10% capped at ₹50)</span>
                               <span>-₹{breakdown.studentDiscount}</span>
+                            </div>
+                          )}
+                          {Number((userData as any)?.outstandingAmount || 0) > 0 && (
+                            <div className="flex justify-between text-[11px] text-rose-600 font-bold pt-1 border-t border-rose-100">
+                              <span>Previous Outstanding Dues (Recovered)</span>
+                              <span>+₹{Number((userData as any)?.outstandingAmount)}</span>
                             </div>
                           )}
                         </div>

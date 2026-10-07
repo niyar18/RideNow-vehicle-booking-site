@@ -42,6 +42,7 @@ export default function WalletPage() {
 
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState<number>(0);
+  const [outstandingAmount, setOutstandingAmount] = useState<number>(0);
   const [summary, setSummary] = useState({ totalAdded: 0, totalSpent: 0, transactionCount: 0 });
   const [transactions, setTransactions] = useState<any[]>([]);
   const [activeFilter, setActiveFilter] = useState<"all" | "credit" | "debit" | "refund">("all");
@@ -68,11 +69,12 @@ export default function WalletPage() {
       const data = await res.json();
       if (data.success) {
         setBalance(data.balance || 0);
+        setOutstandingAmount(data.outstandingAmount || 0);
         setSummary(data.summary || { totalAdded: 0, totalSpent: 0, transactionCount: 0 });
         setTransactions(data.transactions || []);
 
         if (userData) {
-          dispatch(setUserData({ ...userData, walletBalance: data.balance || 0 }));
+          dispatch(setUserData({ ...userData, walletBalance: data.balance || 0, outstandingAmount: data.outstandingAmount || 0 }));
         }
       }
     } catch (err) {
@@ -247,6 +249,30 @@ export default function WalletPage() {
             </motion.div>
           )}
         </AnimatePresence>
+        {/* Outstanding Dues Banner */}
+        {outstandingAmount > 0 && (
+          <div className="mb-5 sm:mb-6 p-4 rounded-xl sm:rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 font-bold">
+                <AlertCircle size={20} />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm font-black">
+                  Unpaid Cancellation Dues: ₹{outstandingAmount}
+                </p>
+                <p className="text-[11px] text-rose-700 font-medium">
+                  This outstanding balance will be automatically recovered on your next ride payment or wallet top-up.
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowTopupModal(true)}
+              className="shrink-0 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black px-4 py-2 rounded-xl shadow-xs transition"
+            >
+              Clear Dues
+            </button>
+          </div>
+        )}
 
         {/* HERO WALLET CARD & QUICK STATS */}
         <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">

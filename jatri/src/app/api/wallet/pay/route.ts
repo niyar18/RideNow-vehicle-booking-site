@@ -47,14 +47,19 @@ export async function POST(req: NextRequest) {
 
     const riderWallet = await getOrCreateWallet(user._id);
 
-    // Atomic deduction: ensure rider's wallet balance >= fare
+    const userDoc = await User.findById(user._id).select("outstandingAmount walletBalance").lean();
+    const outstandingDues = Math.max(0, Number((userDoc as any)?.outstandingAmount || 0));
+    const totalRequired = fare + outstandingDues;
+
+    // Atomic deduction: ensure rider's wallet balance >= totalRequired (fare + outstanding dues)
     const updatedWallet = await Wallet.findOneAndUpdate(
       {
         _id: riderWallet._id,
-        balance: { $gte: fare },
+        balance: { $gte: totalRequired },
       },
       {
-        $inc: { balance: -fare },
+        $inc: { balance: -totalRequired },
+        outstandingAmount: 0,
       },
       { new: true }
     );
@@ -66,23 +71,27 @@ export async function POST(req: NextRequest) {
           error: "Insufficient wallet balance",
           insufficientBalance: true,
           balance: currentBalance,
-          required: fare,
-          shortfall: fare - currentBalance,
+          required: totalRequired,
+          shortfall: totalRequired - currentBalance,
+          rideFare: fare,
+          outstandingDues,
         },
         { status: 400 }
       );
     }
 
-    // Sync User balance
+    // Sync User balance & clear outstanding amount
     await User.findByIdAndUpdate(user._id, {
-      $inc: { walletBalance: -fare },
+      $inc: { walletBalance: -totalRequired },
+      outstandingAmount: 0,
     });
 
     const balanceBefore = riderWallet.balance || 0;
-    const balanceAfter = updatedWallet.balance || 0;
+    const balanceAfterRide = balanceBefore - fare;
+    const finalBalanceAfter = updatedWallet.balance || 0;
     const txnId = generateTransactionId("TXN_PAY");
 
-    // Record rider debit transaction
+    // Record rider debit transaction for ride fare
     await WalletTransaction.create({
       transactionId: txnId,
       walletId: updatedWallet._id,
@@ -92,11 +101,33 @@ export async function POST(req: NextRequest) {
       category: "ride_payment",
       amount: fare,
       balanceBefore,
-      balanceAfter,
+      balanceAfter: balanceAfterRide,
       bookingId: booking._id,
       description: `Ride fare for ${booking.vehicle?.toUpperCase() || "Ride"} to ${booking.drop?.slice(0, 25) || "destination"}`,
       status: "success",
     });
+
+    // Record outstanding recovery transaction if dues were recovered
+    if (outstandingDues > 0) {
+      await WalletTransaction.create({
+        transactionId: generateTransactionId("TXN_REC"),
+        walletId: updatedWallet._id,
+        userId: user._id,
+        type: "debit",
+        transactionType: "OUTSTANDING_RECOVERY",
+        category: "outstanding_recovery",
+        amount: outstandingDues,
+        balanceBefore: balanceAfterRide,
+        balanceAfter: finalBalanceAfter,
+        bookingId: booking._id,
+        description: `Auto-recovered previous outstanding cancellation dues (₹${outstandingDues})`,
+        status: "success",
+        metadata: {
+          recoveredAmount: outstandingDues,
+          rideId: booking._id,
+        },
+      });
+    }
 
     // Commission split: Standard 15% platform commission
     const adminCommission = Math.round(fare * 0.15);
@@ -154,7 +185,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Payment successful via RideNow Wallet",
-      newBalance: balanceAfter,
+      newBalance: finalBalanceAfter,
       booking,
     });
   } catch (error: any) {

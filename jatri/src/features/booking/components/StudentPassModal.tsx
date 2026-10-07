@@ -86,13 +86,25 @@ export default function StudentPassModal({
           {isStudent ? (
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-2">
               <CheckCircle2 size={32} className="text-emerald-600 mx-auto" />
-              <p className="text-xs font-black text-emerald-900">Student Pass Active!</p>
+              <p className="text-xs font-black text-emerald-900">Student Pass Active ✓</p>
               <p className="text-[11px] text-emerald-700 leading-snug">
-                10% discount is automatically deducted on every ride subtotal.
+                10% discount (up to ₹50 per ride) is automatically applied on eligible rides.
               </p>
               {studentDetails?.institution && (
-                <p className="text-[10px] text-emerald-800 font-bold">{studentDetails.institution}</p>
+                <p className="text-[10px] text-emerald-800 font-bold">🏛️ {studentDetails.institution}</p>
               )}
+              {studentDetails?.expiresAt && (
+                <p className="text-[10px] text-emerald-600 font-medium">
+                  Valid until: {new Date(studentDetails.expiresAt).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
+              <div className="pt-1 text-[9px] text-emerald-600 border-t border-emerald-100">
+                Minimum fare ₹100 • Cannot combine with promo codes
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-3">

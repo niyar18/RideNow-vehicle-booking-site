@@ -47,6 +47,12 @@ export async function POST(req: Request) {
     const duration = booking.tripDurationMinutes || (booking.fareBreakdown?.timeMinutes ? Math.round(booking.fareBreakdown.timeMinutes) : 15);
     const estimatedDropoffTime = new Date(now.getTime() + duration * 60 * 1000);
 
+    // Generate fresh, distinct Drop-off OTP for destination completion
+    let newDropOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    while (newDropOtp === String(otp).trim()) {
+      newDropOtp = Math.floor(1000 + Math.random() * 9000).toString();
+    }
+
     const transitionRes = await transitionBookingState({
       bookingId: booking._id,
       targetStatus: "started",
@@ -57,6 +63,8 @@ export async function POST(req: Request) {
         tripDurationMinutes: duration,
         pickupOtp: "",
         pickupOtpExpires: null,
+        dropOtp: newDropOtp,
+        dropOtpExpires: new Date(Date.now() + 60 * 60 * 1000),
       },
     });
 
@@ -78,10 +86,11 @@ export async function POST(req: Request) {
           data: {
             bookingId: booking._id.toString(),
             status: "started",
-            startedAt: booking.startedAt,
-            estimatedDropoffTime: booking.estimatedDropoffTime,
+            startedAt: now,
+            estimatedDropoffTime,
             tripDurationMinutes: duration,
             pickupOtp: "",
+            dropOtp: newDropOtp,
           },
         }),
       });
