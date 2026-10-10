@@ -10,7 +10,7 @@ export async function POST(req: Request) {
 
   try {
 
-    const { bookingId, otp } = await req.json();
+    const { bookingId, otp, emergencyFallback, bypassReason } = await req.json();
 
     const booking = await Booking.findById(bookingId);
 
@@ -28,28 +28,82 @@ export async function POST(req: Request) {
       );
     }
 
-    if (!booking.dropOtp) {
-      return NextResponse.json(
-        { message: "Drop OTP not generated yet. Please ask passenger to refresh screen." },
-        { status: 400 }
-      );
-    }
+    // Emergency Deadlock Fallback: Passenger phone dead / unreachable at destination
+    let isBypassed = false;
+    if (emergencyFallback === true) {
+      if (!bypassReason || String(bypassReason).trim().length < 5) {
+        return NextResponse.json(
+          { message: "Please provide a valid reason for emergency completion (e.g., passenger phone dead at destination)." },
+          { status: 400 }
+        );
+      }
+      isBypassed = true;
+      booking.dropOtpBypassed = true;
+      booking.dropOtpBypassReason = String(bypassReason).trim();
+    } else {
+      // Standard Drop OTP Verification
+      if (!booking.dropOtp) {
+        return NextResponse.json(
+          { message: "Drop OTP not generated yet. Please ask passenger to refresh screen." },
+          { status: 400 }
+        );
+      }
 
-    if (String(booking.dropOtp).trim() !== String(otp).trim()) {
-      return NextResponse.json(
-        { message: "Invalid Drop OTP. Please check the 4-digit code on the customer's screen." },
-        { status: 400 }
-      );
-    }
+      // Lockout check
+      if (booking.dropOtpLockedUntil && new Date(booking.dropOtpLockedUntil) > new Date()) {
+        const waitSeconds = Math.ceil(
+          (new Date(booking.dropOtpLockedUntil).getTime() - Date.now()) / 1000
+        );
+        return NextResponse.json(
+          {
+            message: `Too many failed attempts. Verification is locked. Please try again in ${waitSeconds} seconds or use Emergency Fallback.`,
+            isLocked: true,
+            lockedSeconds: waitSeconds,
+          },
+          { status: 429 }
+        );
+      }
 
-    if (
-      (booking.dropOtpExpires || (booking as any).dropExpires) &&
-      new Date(booking.dropOtpExpires || (booking as any).dropExpires) < new Date()
-    ) {
-      return NextResponse.json(
-        { message: "Drop OTP expired. Please request a new code." },
-        { status: 400 }
-      );
+      if (String(booking.dropOtp).trim() !== String(otp).trim()) {
+        const failed = (booking.dropOtpFailedAttempts || 0) + 1;
+        if (failed >= 5) {
+          booking.dropOtpLockedUntil = new Date(Date.now() + 5 * 60 * 1000);
+          booking.dropOtpFailedAttempts = 0;
+          await booking.save();
+          return NextResponse.json(
+            {
+              message: "Too many failed attempts. Drop OTP verification locked for 5 minutes.",
+              isLocked: true,
+              lockedSeconds: 300,
+            },
+            { status: 429 }
+          );
+        } else {
+          booking.dropOtpFailedAttempts = failed;
+          await booking.save();
+          const remaining = 5 - failed;
+          return NextResponse.json(
+            {
+              message: `Invalid Drop OTP. ${remaining} attempt${remaining > 1 ? "s" : ""} remaining before 5-minute lockout.`,
+              remainingAttempts: remaining,
+            },
+            { status: 400 }
+          );
+        }
+      }
+
+      if (
+        (booking.dropOtpExpires || (booking as any).dropExpires) &&
+        new Date(booking.dropOtpExpires || (booking as any).dropExpires) < new Date()
+      ) {
+        return NextResponse.json(
+          { message: "Drop OTP expired. Please request a new code or use Emergency Fallback." },
+          { status: 400 }
+        );
+      }
+
+      booking.dropOtpFailedAttempts = 0;
+      booking.dropOtpLockedUntil = null;
     }
 
     /* update status */

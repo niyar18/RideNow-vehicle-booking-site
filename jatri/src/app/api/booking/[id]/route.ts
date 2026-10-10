@@ -60,7 +60,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json(booking);
+    // Security Hardening: Never leak secret OTPs to the driver
+    const sanitizedBooking = booking.toObject ? booking.toObject() : { ...booking };
+    if (!isRider && !isAdmin) {
+      delete sanitizedBooking.pickupOtp;
+      delete sanitizedBooking.dropOtp;
+    }
+
+    return NextResponse.json(sanitizedBooking);
   } catch (err: any) {
     console.error("GET /api/booking/[id] error:", err);
     return NextResponse.json(

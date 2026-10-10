@@ -27,11 +27,47 @@ export async function POST(req: Request) {
       );
     }
 
-    if (String(booking.pickupOtp).trim() !== String(otp).trim()) {
-      return NextResponse.json(
-        { message: "Invalid OTP. Please check the 4-digit code on the customer's screen." },
-        { status: 400 }
+    // Rate Limiting: Lockout check
+    if (booking.pickupOtpLockedUntil && new Date(booking.pickupOtpLockedUntil) > new Date()) {
+      const waitSeconds = Math.ceil(
+        (new Date(booking.pickupOtpLockedUntil).getTime() - Date.now()) / 1000
       );
+      return NextResponse.json(
+        {
+          message: `Too many failed attempts. Verification is locked. Please try again in ${waitSeconds} seconds.`,
+          isLocked: true,
+          lockedSeconds: waitSeconds,
+        },
+        { status: 429 }
+      );
+    }
+
+    if (String(booking.pickupOtp).trim() !== String(otp).trim()) {
+      const failed = (booking.pickupOtpFailedAttempts || 0) + 1;
+      if (failed >= 5) {
+        booking.pickupOtpLockedUntil = new Date(Date.now() + 5 * 60 * 1000);
+        booking.pickupOtpFailedAttempts = 0;
+        await booking.save();
+        return NextResponse.json(
+          {
+            message: "Too many failed attempts. OTP verification is locked for 5 minutes for safety.",
+            isLocked: true,
+            lockedSeconds: 300,
+          },
+          { status: 429 }
+        );
+      } else {
+        booking.pickupOtpFailedAttempts = failed;
+        await booking.save();
+        const remaining = 5 - failed;
+        return NextResponse.json(
+          {
+            message: `Invalid OTP. ${remaining} attempt${remaining > 1 ? "s" : ""} remaining before 5-minute lockout.`,
+            remainingAttempts: remaining,
+          },
+          { status: 400 }
+        );
+      }
     }
 
     if (booking.pickupOtpExpires && new Date(booking.pickupOtpExpires) < new Date()) {
@@ -40,6 +76,10 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    // Reset failed attempts on success
+    booking.pickupOtpFailedAttempts = 0;
+    booking.pickupOtpLockedUntil = null;
 
     /* update status via canonical State Machine */
 

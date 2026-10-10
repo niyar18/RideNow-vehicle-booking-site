@@ -75,14 +75,20 @@ export interface IBooking extends Document {
 
   userMobileNumber: string;
   driverMobileNumber: string;
-  adminCommission: number
-partnerAmount: number
-    pickupOtp: string
+  adminCommission: number;
+  partnerAmount: number;
+  pickupOtp: string;
+  pickupOtpExpires: Date;
+  pickupOtpFailedAttempts?: number;
+  pickupOtpLockedUntil?: Date | null;
 
-  pickupOtpExpires: Date
-  dropOtp: string
+  dropOtp: string;
+  dropOtpExpires: Date;
+  dropOtpFailedAttempts?: number;
+  dropOtpLockedUntil?: Date | null;
+  dropOtpBypassed?: boolean;
+  dropOtpBypassReason?: string;
 
-  dropOtpExpires: Date
   candidateDrivers: Types.ObjectId[];
   currentDriverIndex: number;
   isPanicActive?: boolean;
@@ -206,19 +212,41 @@ partnerAmount: {
     paymentDeadline: Date,
 
     pickupOtp: {
-  type: String,
-},
+      type: String,
+    },
+    pickupOtpExpires: {
+      type: Date,
+    },
+    pickupOtpFailedAttempts: {
+      type: Number,
+      default: 0,
+    },
+    pickupOtpLockedUntil: {
+      type: Date,
+      default: null,
+    },
 
-pickupOtpExpires: {
-  type: Date,
-},
-   dropOtp: {
-  type: String,
-},
-
-dropOtpExpires: {
-  type: Date,
-},
+    dropOtp: {
+      type: String,
+    },
+    dropOtpExpires: {
+      type: Date,
+    },
+    dropOtpFailedAttempts: {
+      type: Number,
+      default: 0,
+    },
+    dropOtpLockedUntil: {
+      type: Date,
+      default: null,
+    },
+    dropOtpBypassed: {
+      type: Boolean,
+      default: false,
+    },
+    dropOtpBypassReason: {
+      type: String,
+    },
 
     userMobileNumber: { 
       type: String, 
