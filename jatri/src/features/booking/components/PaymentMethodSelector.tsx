@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Wallet, Banknote, CreditCard, CheckCircle2, Sparkles } from "lucide-react";
+import { Wallet, Banknote, CreditCard, CheckCircle2 } from "lucide-react";
 
 export type PaymentMethodType = "cash" | "wallet" | "online" | "razorpay";
 
