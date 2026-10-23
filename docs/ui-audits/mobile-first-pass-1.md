@@ -169,3 +169,5 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Current audit decision:** no broad palette or typography changes were made without rendered visual evidence. Color consistency, contrast, and 200% zoom remain browser/device validation tasks rather than assumptions based on class names.
 
 - **Intermediate-stop implementation completed:** `WaypointsManager.tsx` now uses a horizontal reorder group with 44×44px controls, a 44×44px remove action, a labelled address input, 44px autocomplete options, and theme-aware surfaces/text. Browser width validation is still pending.
+
+- **Floating ride banner overlap:** adjusted the mobile banner bottom offset to sit above the fixed bottom navigation plus safe-area inset; desktop returns to the existing 20px bottom offset. Confirm at a real device size with the dock visible.
