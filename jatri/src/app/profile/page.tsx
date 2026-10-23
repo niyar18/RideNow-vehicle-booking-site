@@ -399,7 +399,7 @@ export default function ProfilePage() {
           <button
             type="button"
             onClick={() => router.push("/settings")}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-[8px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] transition shadow-xs cursor-pointer shrink-0"
+            className="min-h-[44px] flex items-center gap-1.5 px-3 py-2 rounded-[8px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] hover:bg-[#FAF7F0] dark:hover:bg-[#202B24] transition shadow-xs cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             title="App Settings"
           >
             <SettingsIcon size={15} className="text-[#046A38] dark:text-[#058A48]" />
@@ -866,7 +866,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setShowAddMember(!showAddMember)}
-                className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] px-4 py-2.5 rounded-[8px] shadow-xs transition w-full sm:w-auto cursor-pointer"
+                className="min-h-[44px] inline-flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] px-4 py-2.5 rounded-[8px] shadow-xs transition w-full sm:w-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
               >
                 <UserPlus size={14} /> {showAddMember ? "Cancel" : "Add Member"}
               </button>
@@ -942,14 +942,14 @@ export default function ProfilePage() {
                     <button
                       type="button"
                       onClick={() => setShowAddMember(false)}
-                      className="text-xs font-bold text-[#696B64] dark:text-[#B8C2B8] hover:text-[#10251C] dark:hover:text-[#F3F1E8] px-4 py-2 rounded-[8px] transition cursor-pointer"
+                      className="min-h-[44px] text-xs font-bold text-[#696B64] dark:text-[#B8C2B8] hover:text-[#10251C] dark:hover:text-[#F3F1E8] px-4 py-2 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={addingMember || !memberName.trim()}
-                      className="bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-50 text-white font-bold text-xs px-5 py-2 rounded-[8px] transition shadow-xs cursor-pointer"
+                      className="min-h-[44px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-50 text-white font-bold text-xs px-5 py-2 rounded-[8px] transition shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
                     >
                       {addingMember ? "Adding..." : "Add to Family"}
                     </button>
@@ -985,8 +985,9 @@ export default function ProfilePage() {
                       </div>
                       <button
                         type="button"
+                        aria-label={`Remove ${m.name || "family member"}`}
                         onClick={() => handleRemoveMember(m._id)}
-                        className="w-8 h-8 rounded-[6px] hover:bg-[#faebe8] dark:hover:bg-[#341814] text-[#696B64] dark:text-[#B8C2B8] hover:text-[#E34222] dark:hover:text-[#E06A50] flex items-center justify-center transition cursor-pointer"
+                        className="min-w-[44px] min-h-[44px] rounded-[6px] hover:bg-[#faebe8] dark:hover:bg-[#341814] text-[#696B64] dark:text-[#B8C2B8] hover:text-[#E34222] dark:hover:text-[#E06A50] flex items-center justify-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E34222]"
                       >
                         <Trash2 size={15} />
                       </button>
@@ -1117,8 +1118,9 @@ export default function ProfilePage() {
                   </div>
                   <button
                     type="button"
+                    aria-label="Close delete account dialog"
                     onClick={() => setShowDeleteModal(false)}
-                    className="w-8 h-8 rounded-[6px] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] flex items-center justify-center transition cursor-pointer"
+                    className="min-w-[44px] min-h-[44px] rounded-[6px] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] flex items-center justify-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                   >
                     <X size={16} />
                   </button>
@@ -1222,8 +1224,9 @@ export default function ProfilePage() {
                   </div>
                   <button
                     type="button"
+                    aria-label="Close student verification dialog"
                     onClick={() => setShowStudentModal(false)}
-                    className="w-8 h-8 rounded-[6px] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] flex items-center justify-center transition cursor-pointer"
+                    className="min-w-[44px] min-h-[44px] rounded-[6px] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] hover:bg-[#F7F1E5] dark:hover:bg-[#202B24] flex items-center justify-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                   >
                     <X size={16} />
                   </button>
