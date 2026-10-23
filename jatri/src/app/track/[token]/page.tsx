@@ -51,13 +51,13 @@ export default function PublicTrackPage() {
       if (data.success && data.booking) {
         const b = data.booking;
         setBooking(b);
-        if (b.pickupLocation?.coordinates) {
+        if (b.pickupLocation?.coordinates?.length >= 2) {
           setPickupPos([b.pickupLocation.coordinates[1], b.pickupLocation.coordinates[0]]);
         }
-        if (b.dropLocation?.coordinates) {
+        if (b.dropLocation?.coordinates?.length >= 2) {
           setDropPos([b.dropLocation.coordinates[1], b.dropLocation.coordinates[0]]);
         }
-        if (b.driver?.location?.coordinates) {
+        if (b.driver?.location?.coordinates?.length >= 2) {
           setDriverPos([b.driver.location.coordinates[1], b.driver.location.coordinates[0]]);
         }
       } else {
@@ -77,14 +77,14 @@ export default function PublicTrackPage() {
   }, [token]);
 
   useEffect(() => {
-    if (!booking?._id) return;
-    const bookingIdStr = String(booking._id);
+    if (!booking?.bookingId) return;
+    const bookingIdStr = String(booking.bookingId);
     const tokenStr = typeof token === "string" ? token : Array.isArray(token) ? token[0] : "";
     const socket = getSocket();
     joinBookingRoom(bookingIdStr, tokenStr);
 
     const handleDriverLocation = (data: any) => {
-      if (data?.latitude && data?.longitude) {
+      if (typeof data?.latitude === "number" && typeof data?.longitude === "number") {
         setDriverPos([data.latitude, data.longitude]);
       }
     };
@@ -101,7 +101,7 @@ export default function PublicTrackPage() {
       socket.off("driver-location", handleDriverLocation);
       socket.off("booking-updated", handleBookingUpdated);
     };
-  }, [booking?._id, token]);
+  }, [booking?.bookingId, token]);
 
   if (loading) {
     return (
