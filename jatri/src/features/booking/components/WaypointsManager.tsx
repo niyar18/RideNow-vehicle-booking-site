@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, X, MapPin, ChevronUp, ChevronDown, GripVertical } from "lucide-react";
+import { Plus, X, MapPin, ChevronUp, ChevronDown } from "lucide-react";
 
 export type StopItem = {
   id: string;
