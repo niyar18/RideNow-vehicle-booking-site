@@ -124,3 +124,11 @@ The booking screen is the next highest-priority mobile surface. These are source
 - No palette replacement or arbitrary restyling.
 - No wholesale redesign of the existing UI.
 - No claim that build or device testing passed; those checks have not run in this review environment.
+
+
+## Follow-up pass — booking route controls
+
+- **Pickup/destination clear buttons:** increased to 40×40px minimum, added explicit accessible names, and added keyboard focus rings. A 40px target is a compromise in these dense rows to preserve useful input width; revisit if the row can be redesigned without compressing address entry.
+- **Add stop / swap route:** raised to a 44px minimum height, increased label size slightly, and added visible keyboard focus styling.
+- **Intermediate stops remain a separate follow-up:** `WaypointsManager.tsx` currently has compact reorder/remove controls and mostly hard-coded light-mode styling. Avoid expanding its stacked reorder controls blindly; redesign/test that row as a distinct responsive component so the address field remains usable at 320–360px.
+- **Responsive validation status:** source-level review only. The preview URL could not be rendered by the available browser inspection, and no GitHub Actions workflow run was available for the current commit. No claim is made that the page has been visually validated or that typecheck/tests/build pass.
