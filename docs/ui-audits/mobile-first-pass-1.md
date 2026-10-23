@@ -136,7 +136,7 @@ The booking screen is the next highest-priority mobile surface. These are source
 
 ## Follow-up pass — vehicle selection and fare summary
 
-- **Vehicle list semantics:** added a labelled radio group for the selectable vehicle rows, announced selection and route availability, visible keyboard focus, Enter/Space activation, and arrow-key navigation among available options. The nested “Use Intercity” action remains separately keyboard-operable.
+- **Vehicle list semantics:** added a labelled vehicle-choice group, button semantics and announced pressed/route-availability state for selectable rows, visible keyboard focus, Enter/Space activation, and arrow-key navigation among available options. Unavailable rows are exposed as groups so their nested “Use Intercity” button is not incorrectly nested inside an ARIA radio/button control.
 - **Fare summary disclosure:** added `aria-expanded`, a 44px minimum header target, and a visible focus ring to the Fare Breakdown accordion.
 - **Narrow fare summary:** payment-method details now stack on narrow layouts and return to a horizontal row at the small-screen breakpoint, reducing the chance of crowding/overflow.
 - **Still required:** verify screen-reader announcements, arrow-key selection, nested Intercity action, selected/disabled visual states, and fare text at 320px/360px. These changes have not yet been typechecked or run in a browser.
