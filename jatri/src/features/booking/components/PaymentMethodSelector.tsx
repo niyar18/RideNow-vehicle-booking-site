@@ -82,7 +82,6 @@ export default function PaymentMethodSelector({
         {/* Wallet (Full Payment) */}
         <button
           type="button"
-          type="button"
           aria-pressed={selectedMethod === "wallet" || (useWallet && remainingFare === 0)}
           onClick={() => {
             if (isWalletSufficient) {
@@ -139,7 +138,7 @@ export default function PaymentMethodSelector({
           type="button"
           aria-pressed={selectedMethod === "cash"}
           onClick={() => onSelect("cash")}
-          className={`p-4 rounded-[10px] border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
+          className={`p-4 rounded-[10px] border text-left transition-all relative flex flex-col justify-between cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
             selectedMethod === "cash"
               ? "border-[#123D32] dark:border-[#28664D] bg-[#123D32] dark:bg-[#28664D] text-white shadow-md"
               : "border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] bg-white dark:bg-[#1E2B23] text-[#10251C] dark:text-[#F3F1E8]"
