@@ -268,15 +268,11 @@ export default function MobileHome({
         {/* BOTTOM: Destination search bar & shortcuts positioned lower down so road & vehicle remain clear */}
         <div className="relative z-10 max-w-md mx-auto w-full mt-auto pt-8">
           {/* SECTION 3C: DESTINATION SEARCH BAR */}
-          <div
-            role="button"
-            tabIndex={0}
+          <button
+            type="button"
             onClick={handleSearchClick}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") handleSearchClick();
-            }}
             aria-label="Search destination for booking a ride"
-            className="w-full bg-white dark:bg-[#FAF7F0] rounded-full shadow-[0_8px_25px_rgba(18,61,50,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.65)] border border-[#DED7CA]/90 dark:border-white/30 p-1.5 pl-4 sm:pl-5 flex items-center justify-between cursor-pointer transition-all duration-200 active:scale-[0.98] select-none"
+            className="w-full min-h-[52px] text-left bg-white dark:bg-[#FAF7F0] rounded-full shadow-[0_8px_25px_rgba(18,61,50,0.12)] dark:shadow-[0_8px_30px_rgba(0,0,0,0.65)] border border-[#DED7CA]/90 dark:border-white/30 p-1.5 pl-4 sm:pl-5 flex items-center justify-between cursor-pointer transition-all duration-200 active:scale-[0.98] select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#061A16]"
           >
             <div className="flex items-center gap-3 min-w-0 flex-1">
               <MapPin
@@ -296,7 +292,7 @@ export default function MobileHome({
             >
               <ArrowRight size={18} strokeWidth={2.5} />
             </div>
-          </div>
+          </button>
 
           {/* SECTION 3D: SAVED-LOCATION SHORTCUTS */}
           <div className="mt-3.5 flex items-center justify-between gap-1.5 sm:gap-2">
@@ -304,7 +300,7 @@ export default function MobileHome({
             <button
               type="button"
               onClick={() => handleShortcutClick("home")}
-              className="flex-1 min-w-0 bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer"
+              className="flex-1 min-w-0 min-h-[44px] bg-white/90 dark:bg-[#0B2822]/85 backdrop-blur-md rounded-full py-2 px-2.5 sm:px-3 border border-[#DED7CA]/70 dark:border-[#24483D] shadow-2xs flex items-center justify-center gap-1.5 transition-all duration-150 active:scale-95 hover:bg-white dark:hover:bg-[#10352C] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <HomeIcon size={16} className="text-[#046A38] dark:text-[#34D399] shrink-0" />
               <span className="text-[12px] font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
@@ -359,15 +355,11 @@ export default function MobileHome({
       <section className="max-w-md mx-auto px-4 sm:px-6 pt-2 pb-5">
         <div className="grid grid-cols-2 gap-3">
           {SERVICES.map((service) => (
-            <div
+            <button
               key={service.id}
-              role="button"
-              tabIndex={0}
+              type="button"
               onClick={() => router.push(service.route)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") router.push(service.route);
-              }}
-              className="bg-white dark:bg-[#0B2822] rounded-[14px] p-3 sm:p-3.5 border border-[#DED7CA]/85 dark:border-[#24483D] shadow-[0_2px_8px_rgba(18,61,50,0.04)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.4)] flex items-center justify-between gap-2.5 cursor-pointer transition-all duration-150 active:scale-[0.97] hover:border-[#046A38]/40 dark:hover:border-[#34D399]/40 group select-none"
+              className="w-full min-h-[76px] text-left bg-white dark:bg-[#0B2822] rounded-[14px] p-3 sm:p-3.5 border border-[#DED7CA]/85 dark:border-[#24483D] shadow-[0_2px_8px_rgba(18,61,50,0.04)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.4)] flex items-center justify-between gap-2.5 cursor-pointer transition-all duration-150 active:scale-[0.97] hover:border-[#046A38]/40 dark:hover:border-[#34D399]/40 group select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 {/* Service Thumbnail */}
@@ -398,7 +390,7 @@ export default function MobileHome({
                 size={16}
                 className="text-[#696B64]/70 dark:text-[#B9C8BF]/70 group-hover:text-[#046A38] dark:group-hover:text-[#34D399] group-hover:translate-x-0.5 transition-all shrink-0"
               />
-            </div>
+            </button>
           ))}
         </div>
       </section>
@@ -415,7 +407,7 @@ export default function MobileHome({
           <button
             type="button"
             onClick={() => router.push("/explore")}
-            className="text-[12.5px] font-bold text-[#046A38] dark:text-[#34D399] hover:underline flex items-center gap-0.5 active:scale-95 transition cursor-pointer"
+            className="min-h-[44px] min-w-[44px] text-[12.5px] font-bold text-[#046A38] dark:text-[#34D399] hover:underline flex items-center justify-center gap-0.5 active:scale-95 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px]"
           >
             <span>See all</span>
             <ChevronRight size={14} />
@@ -425,15 +417,12 @@ export default function MobileHome({
         {/* Horizontal Scroll Track */}
         <div className="flex gap-3 overflow-x-auto scrollbar-none snap-x snap-mandatory px-4 sm:px-6 py-1">
           {DESTINATIONS.map((dest) => (
-            <div
+            <button
               key={dest.name}
-              role="button"
-              tabIndex={0}
+              type="button"
               onClick={() => handleDestinationClick(dest)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") handleDestinationClick(dest);
-              }}
-              className="relative w-[130px] sm:w-[145px] h-[175px] sm:h-[195px] rounded-[14px] overflow-hidden shrink-0 snap-start border border-[#DED7CA]/80 dark:border-[#24483D] shadow-[0_4px_12px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.5)] cursor-pointer group active:scale-[0.96] transition-transform select-none"
+              aria-label={`Book a ride to ${dest.name}, ${dest.tagline}`}
+              className="relative w-[130px] sm:w-[145px] h-[175px] sm:h-[195px] text-left rounded-[14px] overflow-hidden shrink-0 snap-start border border-[#DED7CA]/80 dark:border-[#24483D] shadow-[0_4px_12px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.5)] cursor-pointer group active:scale-[0.96] transition-transform select-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#061A16]"
             >
               {/* Destination Image */}
               <Image
@@ -459,7 +448,7 @@ export default function MobileHome({
                   {dest.tagline}
                 </p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </section>
