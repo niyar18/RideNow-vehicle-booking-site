@@ -122,6 +122,7 @@ export interface IBooking extends Document {
   isPanicActive?: boolean;
   panicActivatedAt?: Date;
   shareToken?: string;
+  shareTokenExpiresAt?: Date;
   isGroupRide?: boolean;
   groupInviteCode?: string;
   groupMembers?: IGroupMember[];
@@ -380,6 +381,10 @@ partnerAmount: {
       type: String,
       unique: true,
       sparse: true,
+      index: true,
+    },
+    shareTokenExpiresAt: {
+      type: Date,
       index: true,
     },
     isGroupRide: {
