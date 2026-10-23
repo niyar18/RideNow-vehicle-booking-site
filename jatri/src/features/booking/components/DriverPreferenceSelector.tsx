@@ -31,8 +31,9 @@ export default function DriverPreferenceSelector({
         {/* Option 1: Any available driver */}
         <button
           type="button"
+          aria-pressed={value === "any"}
           onClick={() => onChange("any")}
-          className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer ${
+          className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
             value === "any"
               ? "border-[#046A38] bg-[#F7F1E5]/70 dark:bg-[#123D32]/30 ring-1 ring-[#046A38]"
               : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#17211B] hover:border-zinc-300 dark:hover:border-zinc-700"
@@ -55,8 +56,9 @@ export default function DriverPreferenceSelector({
         {/* Option 2: Woman driver */}
         <button
           type="button"
+          aria-pressed={value === "woman"}
           onClick={() => onChange("woman")}
-          className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer ${
+          className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
             value === "woman"
               ? "border-[#046A38] bg-[#F7F1E5]/70 dark:bg-[#123D32]/30 ring-1 ring-[#046A38]"
               : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#17211B] hover:border-zinc-300 dark:hover:border-zinc-700"
