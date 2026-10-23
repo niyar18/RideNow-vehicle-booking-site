@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "nodemon index.js",
     "start": "node index.js",
-    "test": "node -c index.js"
+    "test": "node --check index.js && node --test test/trackingSecurity.test.mjs",
+    "test:integration": "node test/socketIntegration.test.mjs"
   },
   "dependencies": {
     "axios": "^1.13.5",
