@@ -58,7 +58,7 @@ export default function MobileBottomNav() {
             {/* 1. Dashboard */}
             <Link
               href="/partners/dashboard"
-              className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] ${
+              className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
                 pathname === "/partners/dashboard" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
             >
@@ -69,7 +69,7 @@ export default function MobileBottomNav() {
             {/* 2. Requests */}
             <Link
               href="/partner/pending-requests"
-              className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] ${
+              className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
                 pathname === "/partner/pending-requests" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
             >
@@ -82,7 +82,7 @@ export default function MobileBottomNav() {
               <Link
                 href="/partner/active-ride"
                 aria-label="Partner Active Ride"
-                className="w-13.5 h-13.5 rounded-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#0B2822] text-white flex items-center justify-center -mt-6 border-[3.5px] border-[#FAF7F0] dark:border-[2px] dark:border-[#34D399]/70 shadow-[0_6px_20px_rgba(4,106,56,0.38)] dark:shadow-[0_0_24px_rgba(52,211,153,0.5)] active:scale-90 transition-transform"
+                className="w-13.5 h-13.5 rounded-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#0B2822] text-white flex items-center justify-center -mt-6 border-[3.5px] border-[#FAF7F0] dark:border-[2px] dark:border-[#34D399]/70 shadow-[0_6px_20px_rgba(4,106,56,0.38)] dark:shadow-[0_0_24px_rgba(52,211,153,0.5)] active:scale-90 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
               >
                 <Navigation size={24} className="fill-white" />
               </Link>
@@ -91,7 +91,7 @@ export default function MobileBottomNav() {
             {/* 4. Bookings */}
             <Link
               href="/partner/bookings"
-              className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] ${
+              className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
                 pathname === "/partner/bookings" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
             >
@@ -102,7 +102,7 @@ export default function MobileBottomNav() {
             {/* 5. Wallet */}
             <Link
               href="/partner/wallet"
-              className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] ${
+              className={`flex flex-col items-center justify-center flex-1 min-h-[48px] py-1 transition-all select-none active:scale-[0.93] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px] ${
                 pathname === "/partner/wallet" ? "text-[#046A38] dark:text-[#34D399]" : "text-[#696B64] dark:text-[#B9C8BF]"
               }`}
             >
