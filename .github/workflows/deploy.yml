@@ -3,6 +3,8 @@ name: RideNow CI & Auto-Deployment
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -49,8 +51,8 @@ jobs:
       - name: Verify Realtime Socket Service
         run: |
           cd socketServer
-          npm install --package-lock-only
-          node -c index.js
+          npm ci
+          npm test
 
       - name: Trigger Vercel Deploy Hook (Optional)
         if: env.VERCEL_DEPLOY_HOOK != ''
