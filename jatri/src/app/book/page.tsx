@@ -2274,7 +2274,7 @@ export default function BookPage() {
             <p className="text-zinc-500 dark:text-[#929D93] text-[10px] mt-1 font-bold">No road connection found between these points.</p>
           </div>
         ) : (
-          <div className="bg-transparent divide-y divide-zinc-100 dark:divide-[#34443A]/40">
+          <div role="radiogroup" aria-label={serviceMode === "passenger" ? "Choose a ride vehicle" : "Choose a goods transport vehicle"} className="bg-transparent divide-y divide-zinc-100 dark:divide-[#34443A]/40">
             {(serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v) => {
               const isSelected = vehicle === v.id;
               const isLimitOk = checkLimit(v.id, effectiveDistance);
@@ -2288,8 +2288,19 @@ export default function BookPage() {
               return (
                 <div
                   key={v.id}
+                  role="radio"
+                  aria-checked={isSelected}
+                  aria-disabled={!isLimitOk}
+                  aria-label={`${v.label}, ₹${fare}${isLimitOk ? "" : ", unavailable for this route"}`}
+                  tabIndex={isLimitOk ? 0 : -1}
                   onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
-                  className={`relative flex items-center justify-between px-3.5 py-3.5 transition-colors cursor-pointer select-none rounded-[10px] my-1 ${
+                  onKeyDown={(event) => {
+                    if (isLimitOk && (event.key === "Enter" || event.key === " ")) {
+                      event.preventDefault();
+                      setVehicle(v.id as VehicleType);
+                    }
+                  }}
+                  className={`relative flex items-center justify-between px-3.5 py-3.5 transition-colors cursor-pointer select-none rounded-[10px] my-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
                     isSelected
                       ? "bg-[#1E6048] text-[#F7F1E5] shadow-xs"
                       : isSmartPick
@@ -2385,8 +2396,9 @@ export default function BookPage() {
       <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[10px] p-3.5 space-y-2 shadow-xs">
         <button
           type="button"
+          aria-expanded={showFareReceipt}
           onClick={() => setShowFareReceipt(!showFareReceipt)}
-          className="w-full flex items-center justify-between text-left cursor-pointer"
+          className="w-full min-h-[44px] py-1 flex items-center justify-between gap-3 text-left cursor-pointer rounded-[8px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
         >
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-[8px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] flex items-center justify-center text-[#123D32] dark:text-[#347858] flex-shrink-0">
@@ -2441,7 +2453,7 @@ export default function BookPage() {
                   <span>-₹{currentBreakdown.studentDiscount}</span>
                 </div>
               )}
-              <div className="pt-2 border-t border-dashed border-[#DED7CA] dark:border-[#34443A] flex items-center justify-between text-[10px] text-[#696B64] dark:text-[#929D93]">
+              <div className="pt-2 border-t border-dashed border-[#DED7CA] dark:border-[#34443A] flex flex-col gap-1 text-[10px] text-[#696B64] dark:text-[#929D93] sm:flex-row sm:items-center sm:justify-between">
                 <span>Payment Accepted:</span>
                 <span className="font-bold text-[#10251C] dark:text-[#F3F1E8]">⚡ UPI (GPay/PhonePe) • Cash • Card</span>
               </div>
