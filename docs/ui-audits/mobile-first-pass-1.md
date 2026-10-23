@@ -75,6 +75,36 @@ These are hypotheses, not confirmed visual defects, because this pass did not re
 7. **Global text selection:** `globals.css` disables text selection for `html, body`. Check whether this unnecessarily prevents users from selecting addresses, fare amounts, or other useful text outside form fields.
 8. **Touch target audit beyond homepage:** Review icon-only controls, map zoom/location controls, modals, and the bottom navigation across booking, ride tracking, checkout, profile, and partner flows.
 
+## Booking screen — preliminary source-level review
+
+The booking screen is the next highest-priority mobile surface. These are source-level observations only; the page has not been rendered or tested at phone sizes.
+
+### UI-BOOK-01 — Core pickup field and booking CTA have reasonable minimum heights
+- **Location:** `jatri/src/app/book/page.tsx`, pickup row and pinned card footer.
+- **Observation:** Pickup row is defined with `min-h-[46px]`; the primary confirm action uses `min-h-[48px]`.
+- **Assessment:** Keep these dimensions for now. They are a reasonable baseline and should not be enlarged blindly without checking the map/form balance on small screens.
+- **Priority:** Positive finding / preserve unless device testing shows a problem.
+
+### UI-BOOK-02 — Waypoint reorder controls are very small
+- **Location:** `book/page.tsx`, pickup row reorder control.
+- **Observation:** The icon button uses `w-4 h-5` (16×20px) for its visual box, substantially smaller than the nearby 46px input row.
+- **Impact:** It may be difficult to tap accurately on a phone; the control also needs a descriptive accessible name beyond its tooltip.
+- **Recommendation:** Redesign the reorder affordance to provide a larger touch area without compressing the pickup input. Verify the same control for destination and intermediate waypoints before applying a consistent change.
+- **Priority:** Medium; requires layout testing before implementation.
+
+### UI-BOOK-03 — Location-error dismiss control has a small touch target
+- **Location:** `book/page.tsx`, dismiss button in the location-permission guidance panel.
+- **Observation:** The button uses `p-1` around a 14px icon, resulting in a small target.
+- **Recommendation:** Give the icon button a larger minimum touch area and visible focus style; check it doesn't overlap nearby actions at 320–360px widths.
+- **Priority:** Medium; implement alongside the location panel's responsive review.
+
+### Booking screen design decisions to validate
+1. Verify the pinned confirm footer remains visible above mobile browser safe areas and does not cover the last scrollable form option.
+2. Test the keyboard-open state while editing pickup/drop locations; ensure suggestions and the confirm footer do not compete for the same viewport space.
+3. Check vehicle choices, gender/driver preference, student discount, schedule booking, and payment options at 360px width and 200% text zoom.
+4. Ensure map controls remain reachable and do not overlap form sheets or the primary CTA.
+5. Confirm the selected vehicle, fare estimate, and final action remain understandable without relying on color alone.
+
 ## Next review passes
 
 1. Capture browser screenshots at 360×800, 390×844, 430×932, and a desktop viewport; test light and dark modes.
