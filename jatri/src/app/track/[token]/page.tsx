@@ -20,6 +20,10 @@ type BookingStatus =
   | "started"   | "completed"        | "cancelled"
   | "rejected"  | "expired";
 
+const TERMINAL_TRACKING_STATUSES = new Set([
+  "completed", "cancelled", "rejected", "expired", "payment_failed", "no_drivers_available", "disputed",
+]);
+
 const STATUS_CONFIG: Record<BookingStatus, { label: string; sublabel: string; dot: string }> = {
   requested:        { label: "Locating Driver", sublabel: "Ride request in progress",       dot: "bg-amber-400" },
   awaiting_payment: { label: "Payment Pending", sublabel: "Awaiting customer payment",      dot: "bg-purple-400" },
@@ -45,8 +49,18 @@ export default function PublicTrackPage() {
   const fetchPublicTrip = async (silent = false) => {
     try {
       if (!silent) setLoading(true);
-      const res = await fetch(`/api/track/${token}`);
-      if (!res.ok) throw new Error("Trip not found or invalid link");
+      const res = await fetch(`/api/track/${token}`, { cache: "no-store" });
+      if (!res.ok) {
+        const message = res.status === 410
+          ? "This tracking link has expired."
+          : "Trip not found or invalid link";
+        setError(message);
+        setBooking(null);
+        setDriverPos(null);
+        setPickupPos(null);
+        setDropPos(null);
+        throw new Error(message);
+      }
       const data = await res.json();
       if (data.success && data.booking) {
         const b = data.booking;
@@ -57,8 +71,12 @@ export default function PublicTrackPage() {
         if (b.dropLocation?.coordinates?.length >= 2) {
           setDropPos([b.dropLocation.coordinates[1], b.dropLocation.coordinates[0]]);
         }
-        if (b.driver?.location?.coordinates?.length >= 2) {
+        if (TERMINAL_TRACKING_STATUSES.has(String(b.status || "").toLowerCase())) {
+          setDriverPos(null);
+        } else if (b.driver?.location?.coordinates?.length >= 2) {
           setDriverPos([b.driver.location.coordinates[1], b.driver.location.coordinates[0]]);
+        } else {
+          setDriverPos(null);
         }
       } else {
         throw new Error("Invalid tracking payload");
@@ -71,13 +89,14 @@ export default function PublicTrackPage() {
   };
 
   useEffect(() => {
+    if (error) return;
     fetchPublicTrip();
     const interval = setInterval(() => fetchPublicTrip(true), 5000);
     return () => clearInterval(interval);
-  }, [token]);
+  }, [token, error]);
 
   useEffect(() => {
-    if (!booking?.bookingId) return;
+    if (!booking?.bookingId || TERMINAL_TRACKING_STATUSES.has(String(booking.status || "").toLowerCase())) return;
     const bookingIdStr = String(booking.bookingId);
     const tokenStr = typeof token === "string" ? token : Array.isArray(token) ? token[0] : "";
     const socket = getSocket();
@@ -90,6 +109,9 @@ export default function PublicTrackPage() {
     };
 
     const handleBookingUpdated = (data: any) => {
+      if (TERMINAL_TRACKING_STATUSES.has(String(data?.status || "").toLowerCase())) {
+        setDriverPos(null);
+      }
       setBooking((prev: any) => (prev ? { ...prev, ...data } : null));
     };
 
@@ -101,7 +123,7 @@ export default function PublicTrackPage() {
       socket.off("driver-location", handleDriverLocation);
       socket.off("booking-updated", handleBookingUpdated);
     };
-  }, [booking?.bookingId, token]);
+  }, [booking?.bookingId, booking?.status, token]);
 
   if (loading) {
     return (
