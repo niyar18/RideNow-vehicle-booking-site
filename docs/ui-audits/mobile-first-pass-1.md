@@ -86,17 +86,18 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Priority:** Positive finding / preserve unless device testing shows a problem.
 
 ### UI-BOOK-02 — Waypoint reorder controls are very small
-- **Location:** `book/page.tsx`, pickup row reorder control.
-- **Observation:** The icon button uses `w-4 h-5` (16×20px) for its visual box, substantially smaller than the nearby 46px input row.
-- **Impact:** It may be difficult to tap accurately on a phone; the control also needs a descriptive accessible name beyond its tooltip.
-- **Recommendation:** Redesign the reorder affordance to provide a larger touch area without compressing the pickup input. Verify the same control for destination and intermediate waypoints before applying a consistent change.
-- **Priority:** Medium; requires layout testing before implementation.
+- **Location:** `book/page.tsx`, pickup and destination row reorder controls.
+- **Observation:** Both icon buttons previously used `w-4 h-5` (16×20px), substantially smaller than the nearby 46px input row.
+- **Change in this branch:** Expanded the pickup and destination reorder controls to 44×44px minimum targets, added explicit accessible names, and added visible keyboard focus rings. The existing reorder handlers and visual icons are unchanged.
+- **Risk to verify:** The wider controls consume additional horizontal space in the route rows; test at 320px and 360px to ensure pickup/drop text inputs remain usable and no horizontal overflow is introduced.
+- **Priority:** Medium.
 
-### UI-BOOK-03 — Location-error dismiss control has a small touch target
-- **Location:** `book/page.tsx`, dismiss button in the location-permission guidance panel.
-- **Observation:** The button uses `p-1` around a 14px icon, resulting in a small target.
-- **Recommendation:** Give the icon button a larger minimum touch area and visible focus style; check it doesn't overlap nearby actions at 320–360px widths.
-- **Priority:** Medium; implement alongside the location panel's responsive review.
+### UI-BOOK-03 — Location-error actions have small touch targets and tiny labels
+- **Location:** `book/page.tsx`, location-permission guidance panel.
+- **Observation:** The dismiss icon used `p-1` around a 14px icon; the permission retry, settings guide, and map-selection actions used compact vertical padding and 10px labels.
+- **Change in this branch:** The dismiss action now has a 44×44px minimum target, an accessible name, and a visible focus ring. The three panel actions now have 44px minimum heights, slightly larger labels, and keyboard focus styling.
+- **Risk to verify:** The larger actions may wrap onto more lines on narrow phones; check 320px and 360px widths, including when the permission message is long.
+- **Priority:** Medium.
 
 ### Booking screen design decisions to validate
 1. Verify the pinned confirm footer remains visible above mobile browser safe areas and does not cover the last scrollable form option.
