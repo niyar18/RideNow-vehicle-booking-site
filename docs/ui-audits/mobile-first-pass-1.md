@@ -179,3 +179,12 @@ The booking screen is the next highest-priority mobile surface. These are source
 
 - **Payment selector JSX correction:** final source inspection found a duplicated `type="button"` attribute on the full-wallet payment option, which would fail JSX/TypeScript compilation. Removed the duplicate and added visible keyboard focus styles to Cash and Online payment options; removed an unused icon import from the same component.
 - **Validation boundary:** this is a source-level correction only. The current Vercel deployment status is still pending and no GitHub Actions workflow run is available for the branch head. Typecheck, tests, build, and responsive browser validation remain outstanding; keep PR #11 in draft until those pass.
+
+
+## Follow-up pass — public live-tracking contract
+
+- **Blocking integration mismatch found:** the public tracking API returned a minimized DTO with `bookingId`, masked contact numbers, and a flattened driver location, while the tracking page expected `booking._id`, pickup/drop coordinate arrays, a populated vehicle object, and a GeoJSON driver location. As a result, the map could remain in its loading/empty state and the public observer could fail to join the socket room.
+- **API/page contract aligned:** the API now returns pickup/drop coordinates needed for the map, a minimal populated vehicle projection (`vehicleModel`, `number`, `type`), driver location in the expected GeoJSON coordinate format, and the SOS-active boolean used by the UI. It continues to omit OTPs, fare/payment details, and unmasked phone numbers.
+- **Socket observer:** the public tracking page now uses the DTO's `bookingId` when joining/leaving the tracking room and accepts zero-valued latitude/longitude coordinates correctly.
+- **Group ride link:** removed the fallback that built a public tracking URL from the booking database ID. If a secure share token is missing, the UI now disables tracking instead of exposing an ID as a token.
+- **Still required:** run typecheck/tests/build, test a real token end-to-end, verify that socket authorization only allows read-only observer access with the correct token, and confirm completed/cancelled trip location visibility and token lifecycle policy. These changes have not been executed in a running app.
