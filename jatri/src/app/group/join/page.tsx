@@ -142,10 +142,17 @@ function GroupJoinContent() {
             </div>
 
             <button
-              onClick={() => router.push(`/track/${joinResult.booking.shareToken || joinResult.booking._id}`)}
-              className="w-full bg-[#123D32] hover:bg-[#0D3027] text-white font-bold py-3.5 rounded-[8px] text-sm transition flex items-center justify-center gap-2 shadow-xs"
+              type="button"
+              disabled={!joinResult.booking.shareToken}
+              onClick={() => {
+                const token = joinResult.booking.shareToken;
+                if (typeof token === "string" && token.trim()) {
+                  router.push(`/track/${token}`);
+                }
+              }}
+              className="w-full bg-[#123D32] hover:bg-[#0D3027] disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-[8px] text-sm transition flex items-center justify-center gap-2 shadow-xs"
             >
-              <span>Track Group Ride Live</span>
+              <span>{joinResult.booking.shareToken ? "Track Group Ride Live" : "Live tracking unavailable"}</span>
               <Share2 size={15} />
             </button>
           </motion.div>
