@@ -304,6 +304,22 @@ async function verifyBookingAccess(bookingId, userId, userRole, trackingToken) {
 
     if (!booking) return { allowed: false };
 
+    // Authenticated booking participants retain participant access independent of
+    // a share-link expiry. Do not mark them as public observers or schedule revocation.
+    if (userId) {
+      const uidStr = userId.toString();
+      const isRider = booking.user && booking.user.toString() === uidStr;
+      const isDriver = booking.driver && booking.driver.toString() === uidStr;
+      const isCandidate =
+        Array.isArray(booking.candidateDrivers) &&
+        booking.candidateDrivers.some((c) => c && c.toString() === uidStr);
+      const isAdmin = userRole === "admin";
+
+      if (isRider || isDriver || isCandidate || isAdmin) {
+        return { allowed: true, isRider, isDriver, isCandidate, isAdmin };
+      }
+    }
+
     // Public observer access requires the secret share token and an active trip.
     // The link can still show static status via the HTTP endpoint after termination,
     // but it cannot join the live room or receive any further GPS updates.
@@ -312,20 +328,6 @@ async function verifyBookingAccess(bookingId, userId, userRole, trackingToken) {
         return { allowed: false, reason: "tracking-expired-or-ended" };
       }
       return { allowed: true, isObserver: true, expiresAt: getTrackingExpiry(booking) };
-    }
-
-    if (!userId) return { allowed: false };
-
-    const uidStr = userId.toString();
-    const isRider = booking.user && booking.user.toString() === uidStr;
-    const isDriver = booking.driver && booking.driver.toString() === uidStr;
-    const isCandidate =
-      Array.isArray(booking.candidateDrivers) &&
-      booking.candidateDrivers.some((c) => c && c.toString() === uidStr);
-    const isAdmin = userRole === "admin";
-
-    if (isRider || isDriver || isCandidate || isAdmin) {
-      return { allowed: true, isRider, isDriver, isCandidate, isAdmin };
     }
 
     return { allowed: false };
