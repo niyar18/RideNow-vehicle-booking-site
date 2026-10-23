@@ -140,3 +140,13 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Fare summary disclosure:** added `aria-expanded`, a 44px minimum header target, and a visible focus ring to the Fare Breakdown accordion.
 - **Narrow fare summary:** payment-method details now stack on narrow layouts and return to a horizontal row at the small-screen breakpoint, reducing the chance of crowding/overflow.
 - **Still required:** verify screen-reader announcements, arrow-key selection, nested Intercity action, selected/disabled visual states, and fare text at 320px/360px. These changes have not yet been typechecked or run in a browser.
+
+
+## Follow-up pass — in-ride safety and tracking
+
+- **Share Trip action:** added an explicit accessible name, native button type, a 44px minimum height, and visible keyboard focus.
+- **Emergency phone actions:** raised the in-ride `Call 112` and secondary emergency call targets to at least 44px and added focus styles.
+- **Route-deviation alert:** stacks its copy and action buttons on narrow screens; “I am Safe” and SOS actions now have 44px minimum heights, larger labels, accessible names, and focus indicators.
+- **Active-ride banner:** the floating banner now accounts for the device bottom safe area, and its primary resume/track action has a 44px minimum target and focus styling.
+- **Security review note:** the share handler falls back from `booking.shareToken` to `booking._id`. Do not treat this as a safe public-token design without verifying the `/api/track/[token]` authorization/unguessability contract; this is a separate security review item, not changed in this visual pass.
+- **Still required:** verify actual small-screen alert stacking, bottom navigation overlap, Share API and clipboard fallback, and real emergency flows. No safety flow has been triggered or tested by these source edits.
