@@ -108,19 +108,29 @@ function schedulePublicTrackingExpiry(socket, bookingId, expiresAt) {
   const existing = publicTrackingExpiryTimers.get(key);
   if (existing) clearTimeout(existing);
 
-  const timer = setTimeout(() => {
-    const liveSocket = io.sockets.sockets.get(socket.id);
-    if (liveSocket) {
-      liveSocket.leave(`booking-${bookingId}`);
-      if (Array.isArray(liveSocket.data.publicTrackingBookingIds)) {
-        liveSocket.data.publicTrackingBookingIds =
-          liveSocket.data.publicTrackingBookingIds.filter((id) => id !== bookingId);
+  // Node clamps very long setTimeout delays. Re-schedule long-lived links in
+  // bounded chunks so far-future scheduled rides do not expire prematurely.
+  const scheduleNextCheck = () => {
+    const remaining = expiresAt - Date.now();
+    if (remaining <= 0) {
+      const liveSocket = io.sockets.sockets.get(socket.id);
+      if (liveSocket) {
+        liveSocket.leave(`booking-${bookingId}`);
+        if (Array.isArray(liveSocket.data.publicTrackingBookingIds)) {
+          liveSocket.data.publicTrackingBookingIds =
+            liveSocket.data.publicTrackingBookingIds.filter((id) => id !== bookingId);
+        }
       }
+      publicTrackingExpiryTimers.delete(key);
+      return;
     }
-    publicTrackingExpiryTimers.delete(key);
-  }, Math.max(0, expiresAt - Date.now()));
-  timer.unref?.();
-  publicTrackingExpiryTimers.set(key, timer);
+
+    const timer = setTimeout(scheduleNextCheck, Math.min(remaining, 2_147_000_000));
+    timer.unref?.();
+    publicTrackingExpiryTimers.set(key, timer);
+  };
+
+  scheduleNextCheck();
 }
 
 function clearPublicTrackingExpiry(socketId, bookingId) {
