@@ -61,11 +61,11 @@ export default function WaypointsManager({
                   >
                     <ChevronDown size={11} />
                   </button>
-                </div>
               </div>
             )}
             <input
               type="text"
+              aria-label={`Intermediate stop ${idx + 1} address`}
               placeholder={`Stop ${idx + 1} address...`}
               value={stop.address}
               onChange={(e) => onStopChange(stop.id, e.target.value)}
@@ -94,9 +94,9 @@ export default function WaypointsManager({
                 >
                   <MapPin size={14} className="text-zinc-400 flex-shrink-0" />
                   <div className="truncate">
-                    <p className="text-xs font-bold text-zinc-800 truncate">{p.title || p.name}</p>
+                    <p className="text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] truncate">{p.title || p.name}</p>
                     {p.subtitle && (
-                      <p className="text-[10px] text-zinc-400 truncate">{p.subtitle}</p>
+                      <p className="text-[10px] text-[#696B64] dark:text-[#929D93] truncate">{p.subtitle}</p>
                     )}
                   </div>
                 </button>
@@ -110,7 +110,7 @@ export default function WaypointsManager({
         <button
           type="button"
           onClick={onAddStop}
-          className="flex items-center gap-1.5 text-xs font-bold text-zinc-700 hover:text-zinc-950 px-3 py-1.5 rounded-none border border-dashed border-zinc-300 hover:border-zinc-400 hover:bg-zinc-50 transition cursor-pointer"
+          className="min-h-[44px] flex items-center gap-1.5 text-xs font-bold text-[#10251C] dark:text-[#F3F1E8] hover:text-[#046A38] px-3 py-2 rounded-[8px] border border-dashed border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] hover:bg-[#FAF7F0] dark:hover:bg-[#1E2B23] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
         >
           <Plus size={13} />
           <span>Add Stop (max {maxStops})</span>
