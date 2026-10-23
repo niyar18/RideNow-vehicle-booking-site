@@ -1503,7 +1503,8 @@ export default function BookPage() {
                 setPickupLng(null);
                 setPickupResults([]);
               }}
-              className="p-1 text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+              aria-label="Clear pickup location"
+              className="min-w-[40px] min-h-[40px] rounded-[8px] inline-flex items-center justify-center text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <X size={14} />
             </button>
@@ -1676,7 +1677,7 @@ export default function BookPage() {
           <button
             type="button"
             onClick={handleAddStop}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] border border-dashed border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-bold tracking-tight transition cursor-pointer"
+            className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[6px] border border-dashed border-[#DED7CA] dark:border-[#34443A] hover:border-[#123D32] dark:hover:border-[#90C8A8] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-[11px] font-bold tracking-tight transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
           >
             <Plus size={12} className="text-[#10251C] dark:text-[#F3F1E8]" />
             <span>Add stop (max 2)</span>
@@ -1691,7 +1692,8 @@ export default function BookPage() {
           type="button"
           onClick={handleSwapLocations}
           title="Swap pickup and destination"
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-[10px] font-bold uppercase tracking-wider shadow-2xs transition active:scale-95 cursor-pointer"
+          aria-label="Swap pickup and destination"
+          className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[6px] border border-[#DED7CA] dark:border-[#34443A] bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#17211B] text-[#10251C] dark:text-[#F3F1E8] text-[11px] font-bold uppercase tracking-wider shadow-2xs transition active:scale-95 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
         >
           <ArrowDownUp size={11} className="text-[#10251C] dark:text-[#F3F1E8]" />
           <span>Swap</span>
@@ -1747,7 +1749,8 @@ export default function BookPage() {
                 setDropLng(null);
                 setDropResults([]);
               }}
-              className="p-1 text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+              aria-label="Clear destination location"
+              className="min-w-[40px] min-h-[40px] rounded-[8px] inline-flex items-center justify-center text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E34222]"
             >
               <X size={14} />
             </button>
