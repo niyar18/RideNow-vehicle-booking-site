@@ -57,18 +57,38 @@ export function sanitizePublicTrackingEvent(event, data, bookingId) {
 
   if (event === "booking-updated") {
     const safe = { bookingId: String(bookingId) };
-    for (const key of [
-      "status",
-      "startedAt",
-      "estimatedDropoffTime",
-      "tripDurationMinutes",
-      "completedAt",
-      "actualDropoffTime",
-      "isPanicActive",
-      "safetyStatus",
-    ]) {
-      if (Object.prototype.hasOwnProperty.call(data, key)) safe[key] = data[key];
+
+    // Field allowlists must also validate value types. Otherwise an unexpected
+    // object could smuggle unrelated properties through a supposedly safe DTO.
+    if (typeof data.status === "string" && data.status.length <= 64) {
+      safe.status = data.status;
     }
+
+    for (const key of ["startedAt", "estimatedDropoffTime", "completedAt", "actualDropoffTime"]) {
+      const value = data[key];
+      if (
+        value === null ||
+        (typeof value === "string" && value.length <= 64) ||
+        (typeof value === "number" && Number.isFinite(value))
+      ) {
+        if (Object.prototype.hasOwnProperty.call(data, key)) safe[key] = value;
+      }
+    }
+
+    if (
+      typeof data.tripDurationMinutes === "number" &&
+      Number.isFinite(data.tripDurationMinutes) &&
+      data.tripDurationMinutes >= 0
+    ) {
+      safe.tripDurationMinutes = data.tripDurationMinutes;
+    }
+    if (typeof data.isPanicActive === "boolean") {
+      safe.isPanicActive = data.isPanicActive;
+    }
+    if (typeof data.safetyStatus === "string" && data.safetyStatus.length <= 64) {
+      safe.safetyStatus = data.safetyStatus;
+    }
+
     return safe;
   }
 
