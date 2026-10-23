@@ -106,3 +106,20 @@ test("public tracking never receives participant-only room events", () => {
   }
 });
 
+test("public booking updates reject nested or invalid field values", () => {
+  const payload = sanitizePublicTrackingEvent("booking-updated", {
+    status: { value: "started", pickupOtp: "1234" },
+    startedAt: { secret: "private" },
+    estimatedDropoffTime: "2026-10-23T20:00:00.000Z",
+    tripDurationMinutes: Number.POSITIVE_INFINITY,
+    isPanicActive: "true",
+    safetyStatus: { phone: "9999999999" },
+    fare: 850,
+  }, "507f1f77bcf86cd799439011");
+
+  assert.deepEqual(payload, {
+    bookingId: "507f1f77bcf86cd799439011",
+    estimatedDropoffTime: "2026-10-23T20:00:00.000Z",
+  });
+});
+
