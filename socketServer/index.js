@@ -105,17 +105,50 @@ const TERMINAL_BOOKING_STATUSES = new Set([
 const isTerminalBookingStatus = (status) =>
   TERMINAL_BOOKING_STATUSES.has(String(status || "").toLowerCase());
 
-function isTrackingTokenExpired(booking) {
+function getTrackingExpiry(booking) {
   const explicitExpiry = booking?.shareTokenExpiresAt ? new Date(booking.shareTokenExpiresAt).getTime() : NaN;
-  if (Number.isFinite(explicitExpiry)) return explicitExpiry <= Date.now();
+  if (Number.isFinite(explicitExpiry)) return explicitExpiry;
 
   // Backward-compatible expiry for records created before shareTokenExpiresAt existed.
   const scheduled = Boolean(booking?.isScheduled && booking?.scheduledPickupTime);
   const referenceTime = scheduled
     ? new Date(booking.scheduledPickupTime).getTime()
     : new Date(booking?.createdAt).getTime();
-  if (!Number.isFinite(referenceTime)) return true;
-  return referenceTime + (scheduled ? 12 : 24) * 60 * 60 * 1000 <= Date.now();
+  if (!Number.isFinite(referenceTime)) return 0;
+  return referenceTime + (scheduled ? 12 : 24) * 60 * 60 * 1000;
+}
+
+function isTrackingTokenExpired(booking) {
+  return getTrackingExpiry(booking) <= Date.now();
+}
+
+const publicTrackingExpiryTimers = new Map();
+
+function schedulePublicTrackingExpiry(socket, bookingId, expiresAt) {
+  const key = `${socket.id}:${bookingId}`;
+  const existing = publicTrackingExpiryTimers.get(key);
+  if (existing) clearTimeout(existing);
+
+  const timer = setTimeout(() => {
+    const liveSocket = io.sockets.sockets.get(socket.id);
+    if (liveSocket) {
+      liveSocket.leave(`booking-${bookingId}`);
+      if (Array.isArray(liveSocket.data.publicTrackingBookingIds)) {
+        liveSocket.data.publicTrackingBookingIds =
+          liveSocket.data.publicTrackingBookingIds.filter((id) => id !== bookingId);
+      }
+    }
+    publicTrackingExpiryTimers.delete(key);
+  }, Math.max(0, expiresAt - Date.now()));
+  timer.unref?.();
+  publicTrackingExpiryTimers.set(key, timer);
+}
+
+function clearPublicTrackingExpiry(socketId, bookingId) {
+  const key = `${socketId}:${bookingId}`;
+  const timer = publicTrackingExpiryTimers.get(key);
+  if (timer) clearTimeout(timer);
+  publicTrackingExpiryTimers.delete(key);
 }
 
 async function revokePublicTrackingObservers(bookingId) {
@@ -127,6 +160,7 @@ async function revokePublicTrackingObservers(bookingId) {
       const publicBookings = observer.data?.publicTrackingBookingIds;
       if (Array.isArray(publicBookings) && publicBookings.includes(String(bookingId))) {
         await observer.leave(room);
+        clearPublicTrackingExpiry(observer.id, String(bookingId));
         observer.data.publicTrackingBookingIds = publicBookings.filter((id) => id !== String(bookingId));
       }
     }));
@@ -298,7 +332,7 @@ async function verifyBookingAccess(bookingId, userId, userRole, trackingToken) {
       if (isTrackingTokenExpired(booking) || isTerminalBookingStatus(booking.status)) {
         return { allowed: false, reason: "tracking-expired-or-ended" };
       }
-      return { allowed: true, isObserver: true };
+      return { allowed: true, isObserver: true, expiresAt: getTrackingExpiry(booking) };
     }
 
     if (!userId) return { allowed: false };
@@ -433,6 +467,7 @@ io.on("connection", (socket) => {
         : [];
       if (!observed.includes(bookingId)) observed.push(bookingId);
       socket.data.publicTrackingBookingIds = observed;
+      if (auth.expiresAt) schedulePublicTrackingExpiry(socket, bookingId, auth.expiresAt);
     }
   });
 
@@ -440,6 +475,7 @@ io.on("connection", (socket) => {
   socket.on("leave-booking", (bookingId) => {
     if (bookingId && typeof bookingId === "string") {
       socket.leave(`booking-${bookingId}`);
+      clearPublicTrackingExpiry(socket.id, bookingId);
       if (Array.isArray(socket.data.publicTrackingBookingIds)) {
         socket.data.publicTrackingBookingIds = socket.data.publicTrackingBookingIds.filter((id) => id !== bookingId);
       }
@@ -553,6 +589,13 @@ io.on("connection", (socket) => {
     if (auth.allowed && (auth.isRider || auth.isDriver)) {
       socket.to(`booking-${data.bookingId}`).emit("call-ended", data);
     }
+  });
+
+  socket.on("disconnect", () => {
+    for (const bookingId of socket.data.publicTrackingBookingIds || []) {
+      clearPublicTrackingExpiry(socket.id, bookingId);
+    }
+    socketMessageCounts.delete(socket.id);
   });
 
   // Driver Idle Location Updates (Geospatial Point for Matching)
