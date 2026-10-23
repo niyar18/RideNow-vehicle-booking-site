@@ -48,6 +48,20 @@
 - **Priority:** High.
 - **Verification:** Confirm carousel horizontal scrolling still works, cards route to the correct vehicle selection, focus indicators are visible, and the button does not introduce default browser styling.
 
+### UI-MOB-07 — Driver-partner heading forced onto one line on phones
+- **Location:** `jatri/src/shared/components/DriveWithJaatri.tsx`, driver-partner CTA heading.
+- **Observation:** The heading applied `whitespace-nowrap` below the small-screen breakpoint, which can force long localized or brand text beyond a narrow viewport.
+- **Change in this branch:** Allowed natural wrapping while preserving the existing typography and larger-screen styling.
+- **Priority:** High for narrow screens.
+- **Verification:** Check 320px, 360px, 390px, and 430px viewports and longer translations; confirm no horizontal overflow or awkward word collisions.
+
+### UI-MOB-08 — Secondary driver-partner CTA has a small touch area
+- **Location:** `DriveWithJaatri.tsx`, “Learn more” link.
+- **Observation:** The link's inline text was the main clickable area and had no explicit minimum height.
+- **Change in this branch:** Added a 44px minimum height, horizontal padding, and visible keyboard focus styling.
+- **Priority:** Medium.
+- **Verification:** Confirm it aligns with the primary CTA and doesn't create unwanted wrapping at narrow widths.
+
 ## Design observations to validate in a real browser
 
 These are hypotheses, not confirmed visual defects, because this pass did not render the site at device sizes.
