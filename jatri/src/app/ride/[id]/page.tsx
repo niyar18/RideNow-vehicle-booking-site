@@ -2010,14 +2010,21 @@ function PanelContent({
                 aria-label="Share live trip tracking link"
                 onClick={() => {
                   if (typeof window === "undefined") return;
-                  const tokenStr = booking?.shareToken || booking?._id;
+                  const tokenStr = booking?.shareToken;
+                  if (typeof tokenStr !== "string" || !tokenStr.trim()) {
+                    alert("A secure live-tracking link is unavailable for this ride. Please refresh the ride page or contact support.");
+                    return;
+                  }
                   const shareUrl = `${window.location.origin}/track/${tokenStr}`;
                   const shareText = `Track my RideNow trip live: ${shareUrl}`;
                   if (navigator.share) {
                     navigator.share({ title: "Live Trip Tracking", text: shareText, url: shareUrl }).catch(() => {});
+                  } else if (navigator.clipboard?.writeText) {
+                    navigator.clipboard.writeText(shareUrl)
+                      .then(() => alert("Live tracking link copied to clipboard!"))
+                      .catch(() => window.prompt("Copy your live tracking link", shareUrl));
                   } else {
-                    navigator.clipboard.writeText(shareUrl);
-                    alert("Live tracking link copied to clipboard!");
+                    window.prompt("Copy your live tracking link", shareUrl);
                   }
                 }}
                 className="min-h-[44px] flex items-center justify-center gap-1.5 bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
