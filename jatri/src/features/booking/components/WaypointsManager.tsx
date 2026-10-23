@@ -37,31 +37,31 @@ export default function WaypointsManager({
     <div className="space-y-2">
       {stops.map((stop, idx) => (
         <div key={stop.id} className="relative">
-          <div className="flex items-center gap-2.5 bg-zinc-50 border border-zinc-300 rounded-none px-3.5 py-2 min-h-[46px] focus-within:border-zinc-950 focus-within:bg-white transition-all shadow-none">
-            <div className="w-5 h-5 rounded-none bg-zinc-900 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">
+          <div className="flex items-center gap-2 bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] px-2.5 sm:px-3.5 py-2 min-h-[60px] focus-within:border-[#123D32] dark:focus-within:border-[#90C8A8] transition-all shadow-xs">
+            <div className="w-5 h-5 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0">
               {idx + 1}
             </div>
             {(onMoveStopUp || onMoveStopDown) && (
-              <div className="flex items-center gap-0.5 flex-shrink-0">
-                <div className="flex flex-col gap-0.5">
+              <div className="flex items-center gap-1 flex-shrink-0">
                   <button
                     type="button"
                     onClick={() => onMoveStopUp?.(idx)}
+                    aria-label={idx === 0 ? "Move stop up to pickup" : `Move stop ${idx + 1} up`}
                     title={idx === 0 ? "Move up (promote to pickup)" : "Move stop up"}
-                    className="w-4 h-3 flex items-center justify-center text-zinc-600 hover:text-black transition cursor-pointer"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-[8px] text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                   >
                     <ChevronUp size={11} />
                   </button>
                   <button
                     type="button"
                     onClick={() => onMoveStopDown?.(idx)}
+                    aria-label={idx === stops.length - 1 ? "Move stop down to destination" : `Move stop ${idx + 1} down`}
                     title={idx === stops.length - 1 ? "Move down (demote to drop)" : "Move stop down"}
-                    className="w-4 h-3 flex items-center justify-center text-zinc-600 hover:text-black transition cursor-pointer"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-[8px] text-[#696B64] dark:text-[#929D93] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                   >
                     <ChevronDown size={11} />
                   </button>
                 </div>
-                <GripVertical size={12} className="text-zinc-400 select-none flex-shrink-0" />
               </div>
             )}
             <input
@@ -69,12 +69,13 @@ export default function WaypointsManager({
               placeholder={`Stop ${idx + 1} address...`}
               value={stop.address}
               onChange={(e) => onStopChange(stop.id, e.target.value)}
-              className="flex-1 min-w-0 text-sm font-semibold bg-transparent outline-none text-zinc-900 placeholder-zinc-400 tracking-tight"
+              className="flex-1 min-w-0 text-sm font-semibold bg-transparent outline-none text-[#10251C] dark:text-[#F3F1E8] placeholder:text-[#696B64]/60 dark:placeholder:text-[#929D93]/60 tracking-tight"
             />
             <button
               type="button"
               onClick={() => onRemoveStop(stop.id)}
-              className="w-6 h-6 rounded-none hover:bg-zinc-200/60 text-zinc-600 hover:text-black flex items-center justify-center flex-shrink-0 transition cursor-pointer"
+              aria-label={`Remove stop ${idx + 1}`}
+              className="min-w-[44px] min-h-[44px] rounded-[8px] hover:bg-[#faebe8] dark:hover:bg-[#341814] text-[#696B64] dark:text-[#B8C2B8] hover:text-[#E34222] dark:hover:text-[#E06A50] flex items-center justify-center flex-shrink-0 transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E34222]"
               title="Remove stop"
             >
               <X size={14} />
@@ -83,13 +84,13 @@ export default function WaypointsManager({
 
           {/* Autocomplete dropdown for this stop */}
           {stop.results && stop.results.length > 0 && (
-            <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-zinc-200 rounded-none shadow-xl overflow-hidden z-30 max-h-48 overflow-y-auto">
+            <div className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#34443A] rounded-[8px] shadow-xl overflow-hidden z-30 max-h-48 overflow-y-auto">
               {stop.results.map((p: any) => (
                 <button
                   key={p.id}
                   type="button"
                   onClick={() => onSelectStopPlace(stop.id, p)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 hover:bg-zinc-50 text-left border-b border-zinc-100 last:border-none"
+                  className="w-full min-h-[44px] flex items-center gap-2.5 px-3 py-2.5 hover:bg-[#FAF7F0] dark:hover:bg-[#1E2B23] text-left border-b border-[#DED7CA] dark:border-[#34443A] last:border-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#046A38]"
                 >
                   <MapPin size={14} className="text-zinc-400 flex-shrink-0" />
                   <div className="truncate">
