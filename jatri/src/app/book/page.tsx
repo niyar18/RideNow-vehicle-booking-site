@@ -2274,7 +2274,7 @@ export default function BookPage() {
             <p className="text-zinc-500 dark:text-[#929D93] text-[10px] mt-1 font-bold">No road connection found between these points.</p>
           </div>
         ) : (
-          <div role="radiogroup" aria-label={serviceMode === "passenger" ? "Choose a ride vehicle" : "Choose a goods transport vehicle"} className="bg-transparent divide-y divide-zinc-100 dark:divide-[#34443A]/40">
+          <div role="group" aria-label={serviceMode === "passenger" ? "Choose a ride vehicle" : "Choose a goods transport vehicle"} className="bg-transparent divide-y divide-zinc-100 dark:divide-[#34443A]/40">
             {(serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v, _index, availableVehicles) => {
               const isSelected = vehicle === v.id;
               const isLimitOk = checkLimit(v.id, effectiveDistance);
@@ -2291,8 +2291,8 @@ export default function BookPage() {
               return (
                 <div
                   key={v.id}
-                  role="radio"
-                  aria-checked={isSelected}
+                  role={isLimitOk ? "button" : "group"}
+                  aria-pressed={isLimitOk ? isSelected : undefined}
                   aria-disabled={!isLimitOk}
                   aria-label={`${v.label}, ₹${fare}${isLimitOk ? "" : ", unavailable for this route"}`}
                   tabIndex={isTabStop ? 0 : -1}
@@ -2307,7 +2307,7 @@ export default function BookPage() {
                     if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(event.key)) {
                       event.preventDefault();
                       const options = Array.from(
-                        event.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="radio"][aria-disabled="false"]') ?? []
+                        event.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="button"][aria-disabled="false"]') ?? []
                       );
                       const currentIndex = options.indexOf(event.currentTarget);
                       const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
