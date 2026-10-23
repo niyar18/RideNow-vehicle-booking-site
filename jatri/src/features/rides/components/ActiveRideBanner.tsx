@@ -130,7 +130,7 @@ export default function ActiveRideBanner({
           </div>
           <Link
             href={targetUrl}
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold transition shadow-xs"
+            className="min-h-[44px] flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold transition shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
           >
             <span>Resume Ride</span>
             <ArrowRight size={13} />
@@ -147,7 +147,7 @@ export default function ActiveRideBanner({
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 30 }}
-        className="fixed bottom-5 right-5 left-5 sm:left-auto sm:w-96 z-50"
+        className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-3 left-3 sm:right-5 sm:left-auto sm:w-96 z-50"
       >
         <div className="bg-[#FAF7F0]/95 dark:bg-[#17211B]/95 text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[16px] p-4 shadow-2xl backdrop-blur-md">
           <div className="flex items-center justify-between mb-2">
@@ -179,7 +179,7 @@ export default function ActiveRideBanner({
 
           <Link
             href={targetUrl}
-            className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white rounded-[8px] font-bold text-xs transition shadow-sm"
+            className="w-full min-h-[44px] flex items-center justify-center gap-2 py-2.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white rounded-[8px] font-bold text-xs transition shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
           >
             <span>Track Live Ride</span>
             <ArrowRight size={14} />
