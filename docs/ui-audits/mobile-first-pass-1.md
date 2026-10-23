@@ -130,7 +130,7 @@ The booking screen is the next highest-priority mobile surface. These are source
 
 - **Pickup/destination clear buttons:** increased to 40×40px minimum, added explicit accessible names, and added keyboard focus rings. A 40px target is a compromise in these dense rows to preserve useful input width; revisit if the row can be redesigned without compressing address entry.
 - **Add stop / swap route:** raised to a 44px minimum height, increased label size slightly, and added visible keyboard focus styling.
-- **Intermediate stops remain a separate follow-up:** `WaypointsManager.tsx` currently has compact reorder/remove controls and mostly hard-coded light-mode styling. Avoid expanding its stacked reorder controls blindly; redesign/test that row as a distinct responsive component so the address field remains usable at 320–360px.
+- **Intermediate stops:** redesigned the reorder controls as horizontal 44×44px buttons, enlarged the remove action, added accessible labels and keyboard focus, and aligned the row/autocomplete colors with the Jaatri light/dark theme. This is more accessible but takes horizontal space; specifically test the stop address field at 320px and 360px.
 - **Responsive validation status:** source-level review only. The preview URL could not be rendered by the available browser inspection, and no GitHub Actions workflow run was available for the current commit. No claim is made that the page has been visually validated or that typecheck/tests/build pass.
 
 
@@ -167,3 +167,5 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Text selection:** removed the global `user-select: none` rule from `html, body`. Users should be able to select/copy trip addresses, fare details, and other page text; components that truly need non-selection can continue to use a local `select-none` utility.
 - **Driver bottom navigation:** added visible keyboard focus rings to partner navigation links and the central active-ride action. Existing safe-area padding and spacer were already present and have been preserved.
 - **Current audit decision:** no broad palette or typography changes were made without rendered visual evidence. Color consistency, contrast, and 200% zoom remain browser/device validation tasks rather than assumptions based on class names.
+
+- **Intermediate-stop implementation completed:** `WaypointsManager.tsx` now uses a horizontal reorder group with 44×44px controls, a 44×44px remove action, a labelled address input, 44px autocomplete options, and theme-aware surfaces/text. Browser width validation is still pending.
