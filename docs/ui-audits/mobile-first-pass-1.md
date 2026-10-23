@@ -40,6 +40,14 @@
 - **Priority:** Medium.
 - **Verification:** Test horizontal scrolling and snapping on mobile; ensure focus outlines are not clipped and each destination routes correctly.
 
+### UI-MOB-06 — Vehicle-category cards use custom keyboard interaction
+- **Location:** `jatri/src/features/booking/components/VehicleCategoriesSlider.tsx`, each vehicle card in the horizontal fleet carousel.
+- **Observation:** Cards were focusable `motion.div` elements with `role="button"` and hand-written Enter/Space handling.
+- **Impact:** Native button behavior is more predictable for keyboard and assistive-technology users; it also reduces custom interaction code.
+- **Change in this branch:** Converted each card to `motion.button`, retained the existing card design and click route, updated the accessible label, and strengthened the focus ring.
+- **Priority:** High.
+- **Verification:** Confirm carousel horizontal scrolling still works, cards route to the correct vehicle selection, focus indicators are visible, and the button does not introduce default browser styling.
+
 ## Design observations to validate in a real browser
 
 These are hypotheses, not confirmed visual defects, because this pass did not render the site at device sizes.
