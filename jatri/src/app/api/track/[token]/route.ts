@@ -68,7 +68,7 @@ export async function GET(
       })
       .select(
         // Explicitly whitelist — never include phone numbers, OTPs, fare, payment, or user PII.
-        "status pickupAddress dropAddress pickupLocation dropLocation vehicle driver shareToken shareTokenExpiresAt createdAt isScheduled scheduledPickupTime isPanicActive"
+        "status pickupAddress dropAddress pickupLocation dropLocation vehicle driver shareTokenExpiresAt createdAt isScheduled scheduledPickupTime isPanicActive"
       )
       .lean();
 
