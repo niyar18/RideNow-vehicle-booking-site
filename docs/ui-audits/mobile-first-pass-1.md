@@ -150,3 +150,13 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Active-ride banner:** the floating banner now accounts for the device bottom safe area, and its primary resume/track action has a 44px minimum target and focus styling.
 - **Security review note:** the share handler falls back from `booking.shareToken` to `booking._id`. Do not treat this as a safe public-token design without verifying the `/api/track/[token]` authorization/unguessability contract; this is a separate security review item, not changed in this visual pass.
 - **Still required:** verify actual small-screen alert stacking, bottom navigation overlap, Share API and clipboard fallback, and real emergency flows. No safety flow has been triggered or tested by these source edits.
+
+
+## Follow-up pass — checkout, payment, driver preference, and profile
+
+- **Checkout header:** stacks vertically below the small-screen breakpoint so “Review & Confirm Ride” and the Home/Edit Route actions have room to wrap rather than compete on one line.
+- **Checkout actions:** the back-to-map control, Home/Edit Route links, Choose on Map, cancellation, and retry actions now have larger minimum target sizes and visible focus styles.
+- **Payment method cards:** exposed selected state with `aria-pressed`, added keyboard focus indicators, and improved the wallet toggle's touch area and accessible name.
+- **Driver preference:** Any available driver / Woman driver choices now expose selected state and visible keyboard focus; the existing availability behavior is unchanged.
+- **Profile/account controls:** improved touch targets and focus states for Settings, family-member management, modal close controls, and add/cancel actions; icon-only actions now have accessible labels.
+- **Still required:** review payment and profile flows with actual screen widths, verify focus order and wallet-toggle behavior, and run typecheck/tests/build. No payment or booking transaction was initiated during this review.
