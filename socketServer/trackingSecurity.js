@@ -30,3 +30,49 @@ export function getTrackingExpiry(booking) {
 export function isTrackingTokenExpired(booking, now = Date.now()) {
   return getTrackingExpiry(booking) <= now;
 }
+
+/**
+ * Public observers share a booking room with the rider and driver. Only these
+ * explicitly approved fields/events may cross that boundary.
+ */
+export function sanitizePublicTrackingEvent(event, data, bookingId) {
+  if (!data || typeof data !== "object") return null;
+
+  if (event === "driver-location") {
+    const latitude = data.latitude;
+    const longitude = data.longitude;
+    if (typeof latitude !== "number" || typeof longitude !== "number") return null;
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
+    if (latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) return null;
+    return {
+      bookingId: String(bookingId),
+      latitude,
+      longitude,
+      ...(typeof data.status === "string" ? { status: data.status } : {}),
+      ...(typeof data.timestamp === "string" || typeof data.timestamp === "number"
+        ? { timestamp: data.timestamp }
+        : {}),
+    };
+  }
+
+  if (event === "booking-updated") {
+    const safe = { bookingId: String(bookingId) };
+    for (const key of [
+      "status",
+      "startedAt",
+      "estimatedDropoffTime",
+      "tripDurationMinutes",
+      "completedAt",
+      "actualDropoffTime",
+      "isPanicActive",
+      "safetyStatus",
+    ]) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) safe[key] = data[key];
+    }
+    return safe;
+  }
+
+  // Public tracking links are read-only and must not receive chat, call,
+  // OTP, payment, or other participant-only room events.
+  return null;
+}
