@@ -103,12 +103,13 @@ const io = new Server(server, {
 
 const publicTrackingExpiryTimers = new Map();
 
-async function emitToBookingRoom(bookingId, event, data) {
+async function emitToBookingRoom(bookingId, event, data, excludeSocketId = null) {
   const normalizedBookingId = String(bookingId);
   const room = `booking-${normalizedBookingId}`;
   const roomSockets = await io.in(room).fetchSockets();
 
   for (const roomSocket of roomSockets) {
+    if (excludeSocketId && roomSocket.id === excludeSocketId) continue;
     const observedBookings = roomSocket.data?.publicTrackingBookingIds;
     const isPublicObserver = Array.isArray(observedBookings) &&
       observedBookings.includes(normalizedBookingId);
@@ -559,7 +560,7 @@ io.on("connection", (socket) => {
       return;
     }
 
-    await emitToBookingRoom(bookingId, "chat-message", msg);
+    await emitToBookingRoom(bookingId, "chat-message", msg, socket.id);
   });
 
   // Call Signaling Authorization: Verified booking participants only
@@ -569,7 +570,7 @@ io.on("connection", (socket) => {
 
     const auth = await verifyBookingAccess(data.bookingId, socket.userId, socket.userRole);
     if (auth.allowed && (auth.isRider || auth.isDriver)) {
-      await emitToBookingRoom(data.bookingId, "incoming-call", data);
+      await emitToBookingRoom(data.bookingId, "incoming-call", data, socket.id);
     }
   });
 
@@ -579,7 +580,7 @@ io.on("connection", (socket) => {
 
     const auth = await verifyBookingAccess(data.bookingId, socket.userId, socket.userRole);
     if (auth.allowed && (auth.isRider || auth.isDriver)) {
-      await emitToBookingRoom(data.bookingId, "call-accepted", data);
+      await emitToBookingRoom(data.bookingId, "call-accepted", data, socket.id);
     }
   });
 
@@ -589,7 +590,7 @@ io.on("connection", (socket) => {
 
     const auth = await verifyBookingAccess(data.bookingId, socket.userId, socket.userRole);
     if (auth.allowed && (auth.isRider || auth.isDriver)) {
-      await emitToBookingRoom(data.bookingId, "call-rejected", data);
+      await emitToBookingRoom(data.bookingId, "call-rejected", data, socket.id);
     }
   });
 
@@ -599,7 +600,7 @@ io.on("connection", (socket) => {
 
     const auth = await verifyBookingAccess(data.bookingId, socket.userId, socket.userRole);
     if (auth.allowed && (auth.isRider || auth.isDriver)) {
-      await emitToBookingRoom(data.bookingId, "call-ended", data);
+      await emitToBookingRoom(data.bookingId, "call-ended", data, socket.id);
     }
   });
 
