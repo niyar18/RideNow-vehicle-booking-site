@@ -132,3 +132,11 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Add stop / swap route:** raised to a 44px minimum height, increased label size slightly, and added visible keyboard focus styling.
 - **Intermediate stops remain a separate follow-up:** `WaypointsManager.tsx` currently has compact reorder/remove controls and mostly hard-coded light-mode styling. Avoid expanding its stacked reorder controls blindly; redesign/test that row as a distinct responsive component so the address field remains usable at 320–360px.
 - **Responsive validation status:** source-level review only. The preview URL could not be rendered by the available browser inspection, and no GitHub Actions workflow run was available for the current commit. No claim is made that the page has been visually validated or that typecheck/tests/build pass.
+
+
+## Follow-up pass — vehicle selection and fare summary
+
+- **Vehicle list semantics:** added a labelled radio group for the selectable vehicle rows, announced selection and route availability, visible keyboard focus, Enter/Space activation, and arrow-key navigation among available options. The nested “Use Intercity” action remains separately keyboard-operable.
+- **Fare summary disclosure:** added `aria-expanded`, a 44px minimum header target, and a visible focus ring to the Fare Breakdown accordion.
+- **Narrow fare summary:** payment-method details now stack on narrow layouts and return to a horizontal row at the small-screen breakpoint, reducing the chance of crowding/overflow.
+- **Still required:** verify screen-reader announcements, arrow-key selection, nested Intercity action, selected/disabled visual states, and fare text at 320px/360px. These changes have not yet been typechecked or run in a browser.
