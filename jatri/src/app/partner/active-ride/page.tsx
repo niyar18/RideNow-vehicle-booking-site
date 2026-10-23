@@ -479,15 +479,8 @@ export default function DriverRidePage() {
       setChatOpen(false);
       setBooking(prev => prev ? { ...prev, status: "started" } : prev);
 
-      // Instant direct socket relay to booking room
-      if (booking?._id) {
-        const socket = getSocket();
-        socket.emit("booking-status-update", {
-          bookingId: booking._id,
-          status: "started",
-          dropOtp: data.dropOtp || (data.booking && data.booking.dropOtp),
-        });
-      }
+      // The verified API emits the authoritative booking update. Do not
+      // broadcast OTPs or client-supplied status through the shared socket room.
     } catch { setOtpError("Verification failed"); }
     finally   { setLoadingOtp(false); }
   };
@@ -515,14 +508,7 @@ export default function DriverRidePage() {
       setDropOtpMode(false);
       setBooking(prev => prev ? { ...prev, status: "completed" } : prev);
 
-      // Instant direct socket relay to booking room
-      if (booking?._id) {
-        const socket = getSocket();
-        socket.emit("booking-status-update", {
-          bookingId: booking._id,
-          status: "completed",
-        });
-      }
+      // The verified API emits the authoritative completion update.
     } catch { setDropOtpError("Verification failed"); }
     finally   { setLoadingDropOtp(false); }
   };
