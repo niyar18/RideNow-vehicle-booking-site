@@ -97,6 +97,31 @@ const io = new Server(server, {
   },
 });
 
+// A share link may show trip status after the ride, but it must never expose
+// live driver location or retain a public socket subscription after termination.
+const TERMINAL_BOOKING_STATUSES = new Set([
+  "completed", "cancelled", "rejected", "expired", "payment_failed", "no_drivers_available",
+]);
+const isTerminalBookingStatus = (status) =>
+  TERMINAL_BOOKING_STATUSES.has(String(status || "").toLowerCase());
+
+async function revokePublicTrackingObservers(bookingId) {
+  if (!bookingId) return;
+  const room = `booking-${bookingId}`;
+  try {
+    const roomSockets = await io.in(room).fetchSockets();
+    await Promise.all(roomSockets.map(async (observer) => {
+      const publicBookings = observer.data?.publicTrackingBookingIds;
+      if (Array.isArray(publicBookings) && publicBookings.includes(String(bookingId))) {
+        await observer.leave(room);
+        observer.data.publicTrackingBookingIds = publicBookings.filter((id) => id !== String(bookingId));
+      }
+    }));
+  } catch (error) {
+    console.error(`[SocketSecurity] Failed to revoke public tracking observers for booking ${bookingId}:`, error);
+  }
+}
+
 // ── Authoritative Internal Event Emission Endpoint ───────────────────────────
 app.post("/emit", async (req, res) => {
   const secret = req.headers["x-socket-secret"] || req.headers["x-internal-secret"];
@@ -134,6 +159,12 @@ app.post("/emit", async (req, res) => {
     // 3. Broadcast to custom room if requested
     if (room) {
       io.to(room).emit(event, data);
+    }
+
+    // Deliver the terminal status once, then revoke public live-tracking subscriptions.
+    const emittedBookingId = directBookingId || data?.bookingId || data?._id;
+    if (emittedBookingId && isTerminalBookingStatus(data?.status)) {
+      await revokePublicTrackingObservers(String(emittedBookingId));
     }
 
     res.json({ success: true });
@@ -242,13 +273,16 @@ async function verifyBookingAccess(bookingId, userId, userRole, trackingToken) {
   try {
     const booking = await mongoose.connection.collection("bookings").findOne(
       { _id: new mongoose.Types.ObjectId(bookingId) },
-      { projection: { user: 1, driver: 1, candidateDrivers: 1, shareToken: 1 } }
+      { projection: { user: 1, driver: 1, candidateDrivers: 1, shareToken: 1, status: 1 } }
     );
 
     if (!booking) return { allowed: false };
 
-    // Public observer access via verified trip share token
+    // Public observer access requires the secret share token and an active trip.
+    // The link can still show static status via the HTTP endpoint after termination,
+    // but it cannot join the live room or receive any further GPS updates.
     if (trackingToken && booking.shareToken && String(trackingToken) === String(booking.shareToken)) {
+      if (isTerminalBookingStatus(booking.status)) return { allowed: false, reason: "tracking-ended" };
       return { allowed: true, isObserver: true };
     }
 
@@ -378,12 +412,22 @@ io.on("connection", (socket) => {
     }
 
     socket.join(`booking-${bookingId}`);
+    if (auth.isObserver) {
+      const observed = Array.isArray(socket.data.publicTrackingBookingIds)
+        ? socket.data.publicTrackingBookingIds
+        : [];
+      if (!observed.includes(bookingId)) observed.push(bookingId);
+      socket.data.publicTrackingBookingIds = observed;
+    }
   });
 
   // Leave Booking Room
   socket.on("leave-booking", (bookingId) => {
     if (bookingId && typeof bookingId === "string") {
       socket.leave(`booking-${bookingId}`);
+      if (Array.isArray(socket.data.publicTrackingBookingIds)) {
+        socket.data.publicTrackingBookingIds = socket.data.publicTrackingBookingIds.filter((id) => id !== bookingId);
+      }
     }
   });
 
@@ -395,6 +439,9 @@ io.on("connection", (socket) => {
     const auth = await verifyBookingAccess(data.bookingId, socket.userId, socket.userRole);
     if (auth.allowed && (auth.isRider || auth.isDriver || auth.isAdmin || socket.isInternalAdmin)) {
       io.to(`booking-${data.bookingId}`).emit("booking-updated", data);
+      if (isTerminalBookingStatus(data.status)) {
+        await revokePublicTrackingObservers(String(data.bookingId));
+      }
     }
   });
 
@@ -417,6 +464,10 @@ io.on("connection", (socket) => {
 
       if (!booking || booking.driver?.toString() !== socket.userId.toString()) {
         console.warn(`[SocketSecurity] Unauthorized location update for booking ${data.bookingId} by user ${socket.userId}`);
+        return;
+      }
+      if (isTerminalBookingStatus(booking.status)) {
+        await revokePublicTrackingObservers(String(data.bookingId));
         return;
       }
 
