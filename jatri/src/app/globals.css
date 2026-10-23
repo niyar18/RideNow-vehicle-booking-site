@@ -228,16 +228,14 @@ body {
   }
 }
 
-/* ===== DISABLE SELECTION & CUSTOMIZE CURSORS ===== */
+/* ===== GLOBAL CURSOR DEFAULTS ===== */
+/* Keep normal page text selectable so users can copy addresses, fares, and trip details.
+   Apply select-none only to specific controls where selection interferes with interaction. */
 html, body {
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
   cursor: default;
 }
 
-/* Allow text inputs, textareas, and editable fields to remain selectable with I-beam cursor */
+/* Keep form fields selectable with the expected I-beam cursor */
 input, textarea, [contenteditable="true"], input::placeholder, textarea::placeholder {
   user-select: text !important;
   -webkit-user-select: text !important;
