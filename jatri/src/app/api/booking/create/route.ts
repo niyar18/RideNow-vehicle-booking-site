@@ -478,6 +478,10 @@ export async function POST(req: Request) {
       candidateDrivers: sortedCandidates.map((c) => c._id),
       currentDriverIndex: 0,
       shareToken: `rt_${crypto.randomBytes(16).toString("hex")}`,
+      // Public live-tracking links expire 24h after instant requests or 12h after scheduled pickup.
+      shareTokenExpiresAt: isScheduled && parsedScheduledTime
+        ? new Date(parsedScheduledTime.getTime() + 12 * 60 * 60 * 1000)
+        : new Date(Date.now() + 24 * 60 * 60 * 1000),
       isSmartPickup: Boolean(isSmartPickup),
       smartPickupDetails:
         isSmartPickup && smartPickupDetails
