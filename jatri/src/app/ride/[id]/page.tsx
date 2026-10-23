@@ -1670,13 +1670,13 @@ function PanelContent({
             <div className="grid grid-cols-2 gap-2">
               <a
                 href="tel:112"
-                className="flex items-center justify-center gap-1.5 bg-[#E34222] hover:bg-[#a0321e] text-white font-bold uppercase tracking-wider py-2.5 rounded-[8px] text-xs transition cursor-pointer"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 bg-[#E34222] hover:bg-[#a0321e] text-white font-bold uppercase tracking-wider px-3 py-2.5 rounded-[8px] text-xs transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E34222] focus-visible:ring-offset-2"
               >
                 <PhoneCall size={13} /> Call 112
               </a>
               <a
                 href="tel:18001234567"
-                className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] font-bold uppercase tracking-wider py-2.5 rounded-[8px] text-xs border border-[#DED7CA] dark:border-[#34443A] transition cursor-pointer"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] font-bold uppercase tracking-wider px-3 py-2.5 rounded-[8px] text-xs border border-[#DED7CA] dark:border-[#34443A] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
               >
                 <ShieldAlert size={13} className="text-[#123D32] dark:text-[#D7AC62]" /> Security Desk
               </a>
@@ -2006,6 +2006,8 @@ function PanelContent({
                 </button>
               )}
               <button
+                type="button"
+                aria-label="Share live trip tracking link"
                 onClick={() => {
                   if (typeof window === "undefined") return;
                   const tokenStr = booking?.shareToken || booking?._id;
@@ -2018,7 +2020,7 @@ function PanelContent({
                     alert("Live tracking link copied to clipboard!");
                   }
                 }}
-                className="flex items-center justify-center gap-1.5 bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider cursor-pointer"
+                className="min-h-[44px] flex items-center justify-center gap-1.5 bg-white dark:bg-[#1E2B23] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] active:scale-[0.98] transition-all py-2.5 sm:py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
               >
                 <Share2 size={13} className="text-[#123D32] dark:text-[#D7AC62]" /> <span>Share Trip</span>
               </button>
