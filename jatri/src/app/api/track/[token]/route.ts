@@ -7,9 +7,8 @@ import Booking from "@/models/booking.model";
 
 /**
  * Public ride-tracking endpoint.
- * Intentional data-minimisation: only the fields required to show a map pin
- * and basic trip status are returned. OTPs, user PII, and financial data are
- * never serialised.
+ * Return only data required to identify the trip and render its map.
+ * Do not expose contact details, OTPs, user PII, or financial data.
  */
 interface PublicTrackingDTO {
   bookingId: string;
@@ -21,18 +20,10 @@ interface PublicTrackingDTO {
   vehicle: { vehicleModel: string; number: string; type?: string } | null;
   driver: {
     name: string;
-    /** Masked: "+91 ••••• ••XXX" */
-    mobileNumber: string;
     location?: { coordinates: [number, number] };
     avatar?: string;
   } | null;
-  /** Masked: "+91 ••••• ••XXX" */
-  passengerMobile: string;
   isPanicActive: boolean;
-}
-
-function maskPhone(raw: string): string {
-  return `+91 ••••• ••${raw.slice(-3)}`;
 }
 
 const TERMINAL_BOOKING_STATUSES = new Set([
@@ -69,15 +60,15 @@ export async function GET(
     const booking = await Booking.findOne({ shareToken: token })
       .populate({
         path: "driver",
-        select: "name mobileNumber location avatar",
+        select: "name location avatar",
       })
       .populate({
         path: "vehicle",
         select: "vehicleModel number type",
       })
       .select(
-        // Explicitly whitelist — never include pickupOtp, dropOtp, fare, paymentStatus, or user PII.
-        "status pickupAddress dropAddress pickupLocation dropLocation vehicle driver shareToken shareTokenExpiresAt createdAt isScheduled scheduledPickupTime userMobileNumber isPanicActive"
+        // Explicitly whitelist — never include phone numbers, OTPs, fare, payment, or user PII.
+        "status pickupAddress dropAddress pickupLocation dropLocation vehicle driver shareToken shareTokenExpiresAt createdAt isScheduled scheduledPickupTime isPanicActive"
       )
       .lean();
 
@@ -121,18 +112,12 @@ export async function GET(
       driver: driverDoc
         ? {
             name: driverDoc.name || "Driver",
-            mobileNumber: driverDoc.mobileNumber
-              ? maskPhone(driverDoc.mobileNumber)
-              : "",
             location: isLiveTrackingActive && driverDoc.location?.coordinates?.length >= 2
               ? { coordinates: driverDoc.location.coordinates as [number, number] }
               : undefined,
             avatar: driverDoc.avatar,
           }
         : null,
-      passengerMobile: (booking as any).userMobileNumber
-        ? maskPhone((booking as any).userMobileNumber)
-        : "",
       isPanicActive: Boolean((booking as any).isPanicActive),
     };
 
