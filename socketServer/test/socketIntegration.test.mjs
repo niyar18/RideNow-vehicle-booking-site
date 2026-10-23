@@ -131,22 +131,40 @@ async function runTests() {
     });
   });
 
-  // 5. Room join & unauthorized booking rejection
-  await new Promise((resolve) => {
-    // Attempt to join non-existent or unauthorized booking
-    socketClient.emit("join-booking", "non-existent-booking-id");
-    socketClient.on("error-response", (err) => {
-      if (err?.error?.includes("Booking not found") || err?.error?.includes("Unauthorized")) {
-        assert(true, "Unauthorized room join properly returns error-response");
-        resolve();
-      }
-    });
+  // 5. A booking ID alone must not grant a guest access to the booking room.
+  try {
+    const probeBookingId = crypto.randomBytes(12).toString("hex"); // Valid ObjectId shape, no fixture required
+    let receivedPrivateEvent = false;
+    const probeId = crypto.randomBytes(8).toString("hex");
+    const onProbeEvent = (data) => {
+      if (data?.probeId === probeId) receivedPrivateEvent = true;
+    };
+    socketClient.on("driver-location", onProbeEvent);
 
-    // Fallback timer in case server silently ignores
-    setTimeout(() => {
-      resolve();
-    }, 1500);
-  });
+    socketClient.emit("join-booking", probeBookingId);
+    // Allow the asynchronous authorization/database check to finish before probing the room.
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    const emitProbe = await fetch(`${SERVER_URL}/emit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-socket-secret": SECRET,
+      },
+      body: JSON.stringify({
+        event: "driver-location",
+        bookingId: probeBookingId,
+        data: { probeId, latitude: 26.2, longitude: 91.7 },
+      }),
+    });
+    assert(emitProbe.status === 200, "Authorized internal test event can be emitted to the probe room");
+
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    assert(!receivedPrivateEvent, "Guest cannot subscribe to a booking room using only its booking ID");
+    socketClient.off("driver-location", onProbeEvent);
+  } catch (err) {
+    assert(false, `Unauthorized booking-room subscription test failed: ${err.message}`);
+  }
 
   // 6. Rate Limiting verification
   await new Promise((resolve) => {
