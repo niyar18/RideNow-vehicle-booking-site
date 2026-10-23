@@ -2275,9 +2275,12 @@ export default function BookPage() {
           </div>
         ) : (
           <div role="radiogroup" aria-label={serviceMode === "passenger" ? "Choose a ride vehicle" : "Choose a goods transport vehicle"} className="bg-transparent divide-y divide-zinc-100 dark:divide-[#34443A]/40">
-            {(serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v) => {
+            {(serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v, _index, availableVehicles) => {
               const isSelected = vehicle === v.id;
               const isLimitOk = checkLimit(v.id, effectiveDistance);
+              const selectedVehicleIsAvailable = availableVehicles.some((option) => option.id === vehicle && checkLimit(option.id, effectiveDistance));
+              const firstAvailableVehicleId = availableVehicles.find((option) => checkLimit(option.id, effectiveDistance))?.id;
+              const isTabStop = isLimitOk && (isSelected || (!selectedVehicleIsAvailable && v.id === firstAvailableVehicleId));
               const fare = estimateFare(v.id, effectiveDistance);
               const isSmartPick = smartMatchResult?.vehicleId === v.id;
               const Icon = VEHICLE_ICONS[v.id] || Car;
@@ -2292,12 +2295,25 @@ export default function BookPage() {
                   aria-checked={isSelected}
                   aria-disabled={!isLimitOk}
                   aria-label={`${v.label}, ₹${fare}${isLimitOk ? "" : ", unavailable for this route"}`}
-                  tabIndex={isLimitOk ? 0 : -1}
+                  tabIndex={isTabStop ? 0 : -1}
                   onClick={() => isLimitOk && setVehicle(v.id as VehicleType)}
                   onKeyDown={(event) => {
-                    if (isLimitOk && (event.key === "Enter" || event.key === " ")) {
+                    if (!isLimitOk) return;
+                    if (event.key === "Enter" || event.key === " ") {
                       event.preventDefault();
                       setVehicle(v.id as VehicleType);
+                      return;
+                    }
+                    if (["ArrowRight", "ArrowDown", "ArrowLeft", "ArrowUp"].includes(event.key)) {
+                      event.preventDefault();
+                      const options = Array.from(
+                        event.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role="radio"][aria-disabled="false"]') ?? []
+                      );
+                      const currentIndex = options.indexOf(event.currentTarget);
+                      const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+                      const next = options[(currentIndex + step + options.length) % options.length];
+                      next?.focus();
+                      next?.click();
                     }
                   }}
                   className={`relative flex items-center justify-between px-3.5 py-3.5 transition-colors cursor-pointer select-none rounded-[10px] my-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
