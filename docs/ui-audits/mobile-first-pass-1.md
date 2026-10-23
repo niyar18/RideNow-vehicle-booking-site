@@ -188,3 +188,11 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Socket observer:** the public tracking page now uses the DTO's `bookingId` when joining/leaving the tracking room and accepts zero-valued latitude/longitude coordinates correctly.
 - **Group ride link:** removed the fallback that built a public tracking URL from the booking database ID. If a secure share token is missing, the UI now disables tracking instead of exposing an ID as a token.
 - **Still required:** run typecheck/tests/build, test a real token end-to-end, verify that socket authorization only allows read-only observer access with the correct token, and confirm completed/cancelled trip location visibility and token lifecycle policy. These changes have not been executed in a running app.
+
+
+## Follow-up pass — public tracking token lifecycle and terminal-state privacy
+
+- **Token lifetime:** new share tokens expire 24 hours after instant booking creation, or 12 hours after scheduled pickup. Legacy records without the expiry field use the same bounded fallback from `createdAt` or `scheduledPickupTime`. Expired links return HTTP 410 and are not cacheable.
+- **Terminal-state privacy:** completed, cancelled, rejected, expired, payment-failed, no-driver, and disputed rides no longer expose the driver's live coordinates through the public tracking API. The tracking page clears any previously held driver position and stops polling/socket subscription when the link expires or the ride reaches a terminal state.
+- **Socket authorization:** public observers must present the exact booking share token, and the token must be unexpired and the ride non-terminal. Terminal status emission revokes public observer room membership; driver GPS updates for terminal rides are ignored. Booking-ID-only room joins remain denied to guests.
+- **Validation still outstanding:** run `npm --prefix jatri run typecheck`, `npm --prefix jatri run test`, `npm --prefix jatri run build`, and `npm --prefix socketServer test`; exercise active, expired, completed, and cancelled links against a test database and the deployed socket gateway. This commit is source-reviewed only; no end-to-end runtime result is claimed.
