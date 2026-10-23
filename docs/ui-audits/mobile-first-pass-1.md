@@ -173,3 +173,9 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Floating ride banner overlap:** adjusted the mobile banner bottom offset to sit above the fixed bottom navigation plus safe-area inset; desktop returns to the existing 20px bottom offset. Confirm at a real device size with the dock visible.
 
 - **Share-link contract checked:** booking creation generates a dedicated random `shareToken`, and the public tracking endpoint queries that field. The UI now refuses to fabricate a tracking URL from the booking ID when the token is absent; verify legacy bookings and link expiry in integration tests.
+
+
+## Final static review follow-up
+
+- **Payment selector JSX correction:** final source inspection found a duplicated `type="button"` attribute on the full-wallet payment option, which would fail JSX/TypeScript compilation. Removed the duplicate and added visible keyboard focus styles to Cash and Online payment options; removed an unused icon import from the same component.
+- **Validation boundary:** this is a source-level correction only. The current Vercel deployment status is still pending and no GitHub Actions workflow run is available for the branch head. Typecheck, tests, build, and responsive browser validation remain outstanding; keep PR #11 in draft until those pass.
