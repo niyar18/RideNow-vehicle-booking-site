@@ -147,7 +147,7 @@ export default function ActiveRideBanner({
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 30 }}
-        className="fixed bottom-[max(1.25rem,env(safe-area-inset-bottom))] right-3 left-3 sm:right-5 sm:left-auto sm:w-96 z-50"
+        className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:bottom-5 right-3 left-3 sm:right-5 sm:left-auto sm:w-96 z-50"
       >
         <div className="bg-[#FAF7F0]/95 dark:bg-[#17211B]/95 text-[#10251C] dark:text-[#F3F1E8] border border-[#DED7CA] dark:border-[#34443A] rounded-[16px] p-4 shadow-2xl backdrop-blur-md">
           <div className="flex items-center justify-between mb-2">
