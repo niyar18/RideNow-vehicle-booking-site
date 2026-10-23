@@ -67,16 +67,6 @@ export async function GET(
     }
 
     const driverDoc = booking.driver as any;
-    let driverLocation: { lat: number; lng: number } | undefined;
-    if (
-      driverDoc?.location?.coordinates &&
-      driverDoc.location.coordinates.length >= 2
-    ) {
-      driverLocation = {
-        lng: driverDoc.location.coordinates[0],
-        lat: driverDoc.location.coordinates[1],
-      };
-    }
 
     const dto: PublicTrackingDTO = {
       bookingId: (booking as any)._id.toString(),
