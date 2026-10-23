@@ -100,10 +100,23 @@ const io = new Server(server, {
 // A share link may show trip status after the ride, but it must never expose
 // live driver location or retain a public socket subscription after termination.
 const TERMINAL_BOOKING_STATUSES = new Set([
-  "completed", "cancelled", "rejected", "expired", "payment_failed", "no_drivers_available",
+  "completed", "cancelled", "rejected", "expired", "payment_failed", "no_drivers_available", "disputed",
 ]);
 const isTerminalBookingStatus = (status) =>
   TERMINAL_BOOKING_STATUSES.has(String(status || "").toLowerCase());
+
+function isTrackingTokenExpired(booking) {
+  const explicitExpiry = booking?.shareTokenExpiresAt ? new Date(booking.shareTokenExpiresAt).getTime() : NaN;
+  if (Number.isFinite(explicitExpiry)) return explicitExpiry <= Date.now();
+
+  // Backward-compatible expiry for records created before shareTokenExpiresAt existed.
+  const scheduled = Boolean(booking?.isScheduled && booking?.scheduledPickupTime);
+  const referenceTime = scheduled
+    ? new Date(booking.scheduledPickupTime).getTime()
+    : new Date(booking?.createdAt).getTime();
+  if (!Number.isFinite(referenceTime)) return true;
+  return referenceTime + (scheduled ? 12 : 24) * 60 * 60 * 1000 <= Date.now();
+}
 
 async function revokePublicTrackingObservers(bookingId) {
   if (!bookingId) return;
@@ -273,7 +286,7 @@ async function verifyBookingAccess(bookingId, userId, userRole, trackingToken) {
   try {
     const booking = await mongoose.connection.collection("bookings").findOne(
       { _id: new mongoose.Types.ObjectId(bookingId) },
-      { projection: { user: 1, driver: 1, candidateDrivers: 1, shareToken: 1, status: 1 } }
+      { projection: { user: 1, driver: 1, candidateDrivers: 1, shareToken: 1, status: 1, shareTokenExpiresAt: 1, createdAt: 1, isScheduled: 1, scheduledPickupTime: 1 } }
     );
 
     if (!booking) return { allowed: false };
@@ -282,7 +295,9 @@ async function verifyBookingAccess(bookingId, userId, userRole, trackingToken) {
     // The link can still show static status via the HTTP endpoint after termination,
     // but it cannot join the live room or receive any further GPS updates.
     if (trackingToken && booking.shareToken && String(trackingToken) === String(booking.shareToken)) {
-      if (isTerminalBookingStatus(booking.status)) return { allowed: false, reason: "tracking-ended" };
+      if (isTrackingTokenExpired(booking) || isTerminalBookingStatus(booking.status)) {
+        return { allowed: false, reason: "tracking-expired-or-ended" };
+      }
       return { allowed: true, isObserver: true };
     }
 
