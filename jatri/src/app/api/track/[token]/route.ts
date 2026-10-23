@@ -16,16 +16,19 @@ interface PublicTrackingDTO {
   status: string;
   pickupAddress: string;
   dropAddress: string;
-  vehicle: string;
+  pickupLocation?: { coordinates: [number, number] };
+  dropLocation?: { coordinates: [number, number] };
+  vehicle: { vehicleModel: string; number: string; type?: string } | null;
   driver: {
     name: string;
     /** Masked: "+91 ••••• ••XXX" */
     mobileNumber: string;
-    location?: { lat: number; lng: number };
+    location?: { coordinates: [number, number] };
     avatar?: string;
   } | null;
   /** Masked: "+91 ••••• ••XXX" */
   passengerMobile: string;
+  isPanicActive: boolean;
 }
 
 function maskPhone(raw: string): string {
@@ -49,9 +52,13 @@ export async function GET(
         path: "driver",
         select: "name mobileNumber location avatar",
       })
+      .populate({
+        path: "vehicle",
+        select: "vehicleModel number type",
+      })
       .select(
-        // Explicitly whitelist — never include pickupOtp, dropOtp, fare, paymentStatus, user PII
-        "status pickupAddress dropAddress vehicle driver shareToken userMobileNumber"
+        // Explicitly whitelist — never include pickupOtp, dropOtp, fare, paymentStatus, or user PII.
+        "status pickupAddress dropAddress pickupLocation dropLocation vehicle driver shareToken userMobileNumber isPanicActive"
       )
       .lean();
 
@@ -76,20 +83,35 @@ export async function GET(
       status: (booking as any).status,
       pickupAddress: (booking as any).pickupAddress || "",
       dropAddress: (booking as any).dropAddress || "",
-      vehicle: (booking as any).vehicle || "",
+      pickupLocation: (booking as any).pickupLocation?.coordinates
+        ? { coordinates: (booking as any).pickupLocation.coordinates as [number, number] }
+        : undefined,
+      dropLocation: (booking as any).dropLocation?.coordinates
+        ? { coordinates: (booking as any).dropLocation.coordinates as [number, number] }
+        : undefined,
+      vehicle: (booking as any).vehicle
+        ? {
+            vehicleModel: (booking as any).vehicle.vehicleModel || "",
+            number: (booking as any).vehicle.number || "",
+            type: (booking as any).vehicle.type || undefined,
+          }
+        : null,
       driver: driverDoc
         ? {
             name: driverDoc.name || "Driver",
             mobileNumber: driverDoc.mobileNumber
               ? maskPhone(driverDoc.mobileNumber)
               : "",
-            location: driverLocation,
+            location: driverDoc.location?.coordinates?.length >= 2
+              ? { coordinates: driverDoc.location.coordinates as [number, number] }
+              : undefined,
             avatar: driverDoc.avatar,
           }
         : null,
       passengerMobile: (booking as any).userMobileNumber
         ? maskPhone((booking as any).userMobileNumber)
         : "",
+      isPanicActive: Boolean((booking as any).isPanicActive),
     };
 
     return NextResponse.json({ success: true, booking: dto });
