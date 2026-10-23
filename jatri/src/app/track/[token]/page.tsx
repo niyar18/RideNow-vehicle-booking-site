@@ -73,6 +73,7 @@ export default function PublicTrackPage() {
         }
         if (TERMINAL_TRACKING_STATUSES.has(String(b.status || "").toLowerCase())) {
           setDriverPos(null);
+          setEta(0);
         } else if (b.driver?.location?.coordinates?.length >= 2) {
           setDriverPos([b.driver.location.coordinates[1], b.driver.location.coordinates[0]]);
         } else {
@@ -111,6 +112,7 @@ export default function PublicTrackPage() {
     const handleBookingUpdated = (data: any) => {
       if (TERMINAL_TRACKING_STATUSES.has(String(data?.status || "").toLowerCase())) {
         setDriverPos(null);
+        setEta(0);
       }
       setBooking((prev: any) => (prev ? { ...prev, ...data } : null));
     };
@@ -157,7 +159,7 @@ export default function PublicTrackPage() {
       
       {/* MAP */}
       <div className="relative flex-1 h-full z-0">
-        {pickupPos && dropPos ? (
+        {pickupPos && dropPos && !TERMINAL_TRACKING_STATUSES.has(String(booking.status || "").toLowerCase()) ? (
           <LiveRideMap
             driverLocation={driverPos}
             pickupLocation={pickupPos}
@@ -171,7 +173,9 @@ export default function PublicTrackPage() {
           />
         ) : (
           <div className="w-full h-full bg-[#FAF7F0] flex items-center justify-center text-[#696B64] text-sm">
-            Map coordinates loading…
+            {TERMINAL_TRACKING_STATUSES.has(String(booking.status || "").toLowerCase())
+              ? "Live tracking has ended for this trip."
+              : "Map coordinates loading…"}
           </div>
         )}
 
