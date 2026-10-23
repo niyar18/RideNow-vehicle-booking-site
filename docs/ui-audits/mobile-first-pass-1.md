@@ -148,7 +148,7 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Emergency phone actions:** raised the in-ride `Call 112` and secondary emergency call targets to at least 44px and added focus styles.
 - **Route-deviation alert:** stacks its copy and action buttons on narrow screens; “I am Safe” and SOS actions now have 44px minimum heights, larger labels, accessible names, and focus indicators.
 - **Active-ride banner:** the floating banner now accounts for the device bottom safe area, and its primary resume/track action has a 44px minimum target and focus styling.
-- **Security review note:** the share handler falls back from `booking.shareToken` to `booking._id`. Do not treat this as a safe public-token design without verifying the `/api/track/[token]` authorization/unguessability contract; this is a separate security review item, not changed in this visual pass.
+- **Tracking-link fallback fix:** removed the client fallback from `booking.shareToken` to `booking._id`, because the public tracking API looks up the dedicated `shareToken` field. If the token is missing, the UI now explains that a secure link is unavailable instead of generating a broken ID-based URL. Clipboard failure falls back to a manual copy prompt. The token authorization/lifecycle contract still needs a separate security review.
 - **Still required:** verify actual small-screen alert stacking, bottom navigation overlap, Share API and clipboard fallback, and real emergency flows. No safety flow has been triggered or tested by these source edits.
 
 
@@ -171,3 +171,5 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Intermediate-stop implementation completed:** `WaypointsManager.tsx` now uses a horizontal reorder group with 44×44px controls, a 44×44px remove action, a labelled address input, 44px autocomplete options, and theme-aware surfaces/text. Browser width validation is still pending.
 
 - **Floating ride banner overlap:** adjusted the mobile banner bottom offset to sit above the fixed bottom navigation plus safe-area inset; desktop returns to the existing 20px bottom offset. Confirm at a real device size with the dock visible.
+
+- **Share-link contract checked:** booking creation generates a dedicated random `shareToken`, and the public tracking endpoint queries that field. The UI now refuses to fabricate a tracking URL from the booking ID when the token is absent; verify legacy bookings and link expiry in integration tests.
