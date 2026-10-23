@@ -265,24 +265,17 @@ export default function VehicleCategoriesSlider() {
             className="flex gap-3 sm:gap-4 overflow-x-auto scroll-smooth pb-4 pt-1 px-1 snap-x snap-mandatory scrollbar-hide"
           >
             {vehicleCategories.map((item, i) => (
-              <motion.div
+              <motion.button
                 key={item.id}
+                type="button"
                 initial={{ opacity: 0, y: 16 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: 0.04 + i * 0.04, duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
                 whileHover={{ y: -3 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={() => handleSelectVehicle(item.id)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    handleSelectVehicle(item.id);
-                  }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-label={`${item.title}: ${item.desc}. Starting from ₹${item.rate}. Click to book.`}
-                className="group relative w-[75vw] sm:w-[260px] min-w-[210px] sm:min-w-[250px] max-w-[280px] flex-shrink-0 cursor-pointer select-none snap-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[14px]"
+                aria-label={`${item.title}: ${item.desc}. Starting from ₹${item.rate}. Book this vehicle.`}
+                className="group relative w-[75vw] sm:w-[260px] min-w-[210px] sm:min-w-[250px] max-w-[280px] flex-shrink-0 cursor-pointer select-none snap-start text-left font-[inherit] border-0 bg-transparent p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#061A16] rounded-[14px]"
               >
                 {/* Card Container: Refined surface matching mobile theme tokens (#0B2822 in dark) */}
                 <div className="relative rounded-[14px] border border-[#DED7CA]/85 dark:border-[#24483D] bg-white dark:bg-[#0B2822] p-3.5 sm:p-4 overflow-hidden h-full flex flex-col justify-between shadow-[0_2px_8px_rgba(18,61,50,0.04)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.4)] group-hover:shadow-[0_8px_20px_rgba(18,61,50,0.08)] dark:group-hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] group-hover:border-[#046A38]/50 dark:group-hover:border-[#34D399]/50 transition-all duration-200">
@@ -338,7 +331,7 @@ export default function VehicleCategoriesSlider() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </motion.button>
             ))}
           </div>
         </div>
