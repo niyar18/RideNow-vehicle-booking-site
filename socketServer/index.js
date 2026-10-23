@@ -215,7 +215,7 @@ app.post("/emit", async (req, res) => {
 
     // 3. Custom booking rooms also use the observer-safe broadcaster.
     if (room) {
-      const roomMatch = /^booking-([a-f\\d]{24})$/i.exec(String(room));
+      const roomMatch = /^booking-([a-f\d]{24})$/i.exec(String(room));
       if (roomMatch) {
         await emitToBookingRoom(roomMatch[1], event, data);
       } else {
