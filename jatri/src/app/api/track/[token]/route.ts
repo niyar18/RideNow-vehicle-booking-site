@@ -35,6 +35,25 @@ function maskPhone(raw: string): string {
   return `+91 ••••• ••${raw.slice(-3)}`;
 }
 
+const TERMINAL_BOOKING_STATUSES = new Set([
+  "completed", "cancelled", "rejected", "expired", "payment_failed", "no_drivers_available", "disputed",
+]);
+
+function getTrackingExpiry(booking: any): number {
+  const explicitExpiry = booking.shareTokenExpiresAt
+    ? new Date(booking.shareTokenExpiresAt).getTime()
+    : NaN;
+  if (Number.isFinite(explicitExpiry)) return explicitExpiry;
+
+  // Legacy records predate shareTokenExpiresAt; apply the same bounded lifetime.
+  const scheduled = Boolean(booking.isScheduled && booking.scheduledPickupTime);
+  const referenceTime = scheduled
+    ? new Date(booking.scheduledPickupTime).getTime()
+    : new Date(booking.createdAt).getTime();
+  if (!Number.isFinite(referenceTime)) return 0;
+  return referenceTime + (scheduled ? 12 : 24) * 60 * 60 * 1000;
+}
+
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ token: string }> }
@@ -58,14 +77,27 @@ export async function GET(
       })
       .select(
         // Explicitly whitelist — never include pickupOtp, dropOtp, fare, paymentStatus, or user PII.
-        "status pickupAddress dropAddress pickupLocation dropLocation vehicle driver shareToken userMobileNumber isPanicActive"
+        "status pickupAddress dropAddress pickupLocation dropLocation vehicle driver shareToken shareTokenExpiresAt createdAt isScheduled scheduledPickupTime userMobileNumber isPanicActive"
       )
       .lean();
 
     if (!booking) {
-      return NextResponse.json({ message: "Trip not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, message: "Trip not found" },
+        { status: 404, headers: { "Cache-Control": "no-store, private" } }
+      );
     }
 
+    if (getTrackingExpiry(booking) <= Date.now()) {
+      return NextResponse.json(
+        { success: false, message: "This tracking link has expired." },
+        { status: 410, headers: { "Cache-Control": "no-store, private" } }
+      );
+    }
+
+    const isLiveTrackingActive = !TERMINAL_BOOKING_STATUSES.has(
+      String((booking as any).status || "").toLowerCase()
+    );
     const driverDoc = booking.driver as any;
 
     const dto: PublicTrackingDTO = {
@@ -92,7 +124,7 @@ export async function GET(
             mobileNumber: driverDoc.mobileNumber
               ? maskPhone(driverDoc.mobileNumber)
               : "",
-            location: driverDoc.location?.coordinates?.length >= 2
+            location: isLiveTrackingActive && driverDoc.location?.coordinates?.length >= 2
               ? { coordinates: driverDoc.location.coordinates as [number, number] }
               : undefined,
             avatar: driverDoc.avatar,
@@ -104,7 +136,10 @@ export async function GET(
       isPanicActive: Boolean((booking as any).isPanicActive),
     };
 
-    return NextResponse.json({ success: true, booking: dto });
+    return NextResponse.json(
+      { success: true, booking: dto },
+      { headers: { "Cache-Control": "no-store, private" } }
+    );
   } catch (err) {
     console.error("Public track API error:", err);
     return NextResponse.json({ message: "Internal Server Error" }, { status: 500 });
