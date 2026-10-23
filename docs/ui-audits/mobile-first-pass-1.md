@@ -160,3 +160,10 @@ The booking screen is the next highest-priority mobile surface. These are source
 - **Driver preference:** Any available driver / Woman driver choices now expose selected state and visible keyboard focus; the existing availability behavior is unchanged.
 - **Profile/account controls:** improved touch targets and focus states for Settings, family-member management, modal close controls, and add/cancel actions; icon-only actions now have accessible labels.
 - **Still required:** review payment and profile flows with actual screen widths, verify focus order and wallet-toggle behavior, and run typecheck/tests/build. No payment or booking transaction was initiated during this review.
+
+
+## Follow-up pass — global text selection and mobile navigation
+
+- **Text selection:** removed the global `user-select: none` rule from `html, body`. Users should be able to select/copy trip addresses, fare details, and other page text; components that truly need non-selection can continue to use a local `select-none` utility.
+- **Driver bottom navigation:** added visible keyboard focus rings to partner navigation links and the central active-ride action. Existing safe-area padding and spacer were already present and have been preserved.
+- **Current audit decision:** no broad palette or typography changes were made without rendered visual evidence. Color consistency, contrast, and 200% zoom remain browser/device validation tasks rather than assumptions based on class names.
