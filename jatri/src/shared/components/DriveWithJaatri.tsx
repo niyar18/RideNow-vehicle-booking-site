@@ -70,7 +70,7 @@ export default function DriveWithJaatri() {
             style={{
               fontFamily: "var(--font-serif), 'DM Serif Display', Georgia, serif",
             }}
-            className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-[1.08] whitespace-nowrap sm:whitespace-normal"
+            className="text-3xl sm:text-4xl lg:text-[42px] font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-[1.08] whitespace-normal"
           >
             {t("partnerSection.titlePrefix", "Drive with")}{" "}
             <span className="relative inline-block">
@@ -180,7 +180,7 @@ export default function DriveWithJaatri() {
             {/* Secondary CTA */}
             <Link
               href="/partner-terms"
-              className="inline-flex items-center text-sm sm:text-base font-semibold text-[#123D32] dark:text-[#388463] hover:text-[#0D3027] dark:hover:text-emerald-400 underline underline-offset-4 decoration-[#123D32]/40 dark:decoration-[#388463]/40 hover:decoration-[#123D32] transition duration-150 cursor-pointer"
+              className="inline-flex min-h-[44px] items-center px-1 text-sm sm:text-base font-semibold text-[#123D32] dark:text-[#388463] hover:text-[#0D3027] dark:hover:text-emerald-400 underline underline-offset-4 decoration-[#123D32]/40 dark:decoration-[#388463]/40 hover:decoration-[#123D32] transition duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] rounded-[8px]"
             >
               {t("partnerSection.ctaSecondary", "Learn more")}
             </Link>
