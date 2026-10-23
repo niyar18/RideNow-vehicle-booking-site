@@ -64,14 +64,15 @@ export default function PaymentMethodSelector({
             </div>
           </div>
 
-          <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-2">
+          <label className="relative inline-flex min-w-[44px] min-h-[44px] items-center justify-center cursor-pointer shrink-0 ml-2 rounded-[8px]">
             <input
               type="checkbox"
+              aria-label="Use Jaatri Wallet Balance"
               checked={useWallet}
               onChange={(e) => onToggleWallet(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-10 h-5 bg-stone-300 peer-focus:outline-none rounded-full peer dark:bg-stone-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-stone-600 peer-checked:bg-[#046A38]"></div>
+            <div className="w-10 h-5 bg-stone-300 rounded-full peer dark:bg-stone-700 peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-[#046A38] peer-focus-visible:ring-offset-2 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-stone-600 peer-checked:bg-[#046A38]"></div>
           </label>
         </div>
       )}
@@ -81,6 +82,8 @@ export default function PaymentMethodSelector({
         {/* Wallet (Full Payment) */}
         <button
           type="button"
+          type="button"
+          aria-pressed={selectedMethod === "wallet" || (useWallet && remainingFare === 0)}
           onClick={() => {
             if (isWalletSufficient) {
               if (onToggleWallet) onToggleWallet(true);
@@ -88,7 +91,7 @@ export default function PaymentMethodSelector({
             }
           }}
           disabled={!isWalletSufficient}
-          className={`p-4 rounded-[10px] border text-left transition-all relative flex flex-col justify-between ${
+          className={`p-4 rounded-[10px] border text-left transition-all relative flex flex-col justify-between focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#17211B] ${
             isWalletSufficient ? "cursor-pointer" : "cursor-not-allowed opacity-60"
           } ${
             selectedMethod === "wallet" || (useWallet && remainingFare === 0)
@@ -134,6 +137,7 @@ export default function PaymentMethodSelector({
         {/* Cash */}
         <button
           type="button"
+          aria-pressed={selectedMethod === "cash"}
           onClick={() => onSelect("cash")}
           className={`p-4 rounded-[10px] border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
             selectedMethod === "cash"
@@ -174,6 +178,7 @@ export default function PaymentMethodSelector({
         {/* Online / Razorpay */}
         <button
           type="button"
+          aria-pressed={isOnlineActive}
           onClick={() => onSelect("online")}
           className={`p-4 rounded-[10px] border text-left transition-all relative flex flex-col justify-between cursor-pointer ${
             isOnlineActive
