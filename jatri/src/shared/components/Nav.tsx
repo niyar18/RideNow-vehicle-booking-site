@@ -395,45 +395,41 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             </div>
 
             {/* MOBILE HEADER RIGHT CONTROLS */}
-            {isHome && !isVendorRoute ? (
-              <div className="md:hidden flex items-center gap-2">
-                <NotificationToggle variant="circular" />
-              </div>
-            ) : (
-              <>
-                {/* MOBILE QUICK SIGN IN / PROFILE BUTTON */}
-                <div className="md:hidden flex items-center gap-1.5">
-                  {currentUser ? (
-                    <button
-                      onClick={() => setProfileOpen(true)}
-                      className="w-9 h-9 rounded-full bg-[#123D32] dark:bg-[#28664D] text-white font-black flex items-center justify-center text-xs shadow-sm active:scale-95 transition hover:bg-[#0D3027] dark:hover:bg-[#347858]"
-                      aria-label="Open Profile Details"
-                    >
-                      {currentUser.name?.charAt(0).toUpperCase() || "P"}
-                    </button>
-                  ) : status === "loading" || isVendorRoute ? (
-                    <div className="w-9 h-9 rounded-[8px] bg-stone-200 dark:bg-[#10352C] animate-pulse border border-stone-300 dark:border-[#24483D]" />
-                  ) : (
-                    <button
-                      onClick={() => setAuthOpen(true)}
-                      className="px-3.5 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white"
-                    >
-                      {t("nav.signIn", "Sign In")}
-                    </button>
-                  )}
-                </div>
+            <div className="md:hidden flex items-center gap-1.5">
+              <NotificationToggle variant="circular" />
 
-                {/* MOBILE HAMBURGER BUTTON */}
+              {/* MOBILE QUICK SIGN IN / PROFILE BUTTON */}
+              {currentUser ? (
+                <button
+                  onClick={() => setProfileOpen(true)}
+                  className="w-9 h-9 rounded-full bg-[#123D32] dark:bg-[#28664D] text-white font-black flex items-center justify-center text-xs shadow-sm active:scale-95 transition hover:bg-[#0D3027] dark:hover:bg-[#347858]"
+                  aria-label="Open Profile Details"
+                >
+                  {currentUser.name?.charAt(0).toUpperCase() || "P"}
+                </button>
+              ) : status === "loading" || isVendorRoute ? (
+                <div className="w-9 h-9 rounded-[8px] bg-stone-200 dark:bg-[#10352C] animate-pulse border border-stone-300 dark:border-[#24483D]" />
+              ) : (
+                <button
+                  onClick={() => setAuthOpen(true)}
+                  className="px-3.5 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white"
+                >
+                  {t("nav.signIn", "Sign In")}
+                </button>
+              )}
+
+              {/* MOBILE HAMBURGER BUTTON */}
+              {!isHome && (
                 <button
                   type="button"
                   onClick={() => setMenuOpen((p) => !p)}
-                  className="md:hidden p-2 rounded-[8px] active:scale-90 transition cursor-pointer text-[#10251C] dark:text-[#F7F5ED] hover:bg-black/5 dark:hover:bg-white/5"
+                  className="p-1.5 rounded-[8px] active:scale-90 transition cursor-pointer text-[#10251C] dark:text-[#F7F5ED] hover:bg-black/5 dark:hover:bg-white/5"
                   aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
                 >
                   {menuOpen ? <X size={22} /> : <Menu size={22} />}
                 </button>
-              </>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </header>

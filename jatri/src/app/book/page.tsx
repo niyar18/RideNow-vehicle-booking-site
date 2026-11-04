@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 
 
@@ -1478,7 +1478,7 @@ export default function BookPage() {
                 setActiveSearchField(null);
                 setMapSelectionMode("pickup");
               }}
-              className="min-h-[44px] px-3 py-2 rounded-[8px] bg-transparent hover:bg-zinc-800 text-zinc-300 border border-zinc-700 text-[11px] font-black uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#90C8A8] focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-900"
+              className="min-h-[44px] px-3 py-2 rounded-[8px] bg-transparent hover:bg-[#E5EBDD] dark:hover:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] border border-[#123D32] dark:border-[#28664D] text-[11px] font-bold uppercase tracking-wider transition flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
             >
               <MapPin size={11} />
               <span>Set on Map</span>
@@ -2365,16 +2365,6 @@ export default function BookPage() {
           </div>
         )}
       </div>
-
-      {/* ── DRIVER SAFETY PREFERENCE (FOR PASSENGER RIDES) ── */}
-      {serviceMode === "passenger" && (
-        <div className="bg-[#FAF7F0] dark:bg-[#17211B] border border-[#DED7CA] dark:border-[#29372E] rounded-[10px] p-3.5 shadow-xs">
-          <DriverPreferenceSelector
-            value={driverPreference}
-            onChange={setDriverPreference}
-          />
-        </div>
-      )}
 
       {/* Itemized Fare Receipt Accordion */}
       <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[10px] p-3.5 space-y-2 shadow-xs">

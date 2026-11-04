@@ -101,7 +101,7 @@ export default function ReferralShareCard() {
   const handleWhatsAppShare = () => {
     if (!data) return;
     const text = encodeURIComponent(
-      `Hey! Use my RideNow invite code *${data.referralCode}* to get ₹${data.stats.refereeDiscount} off your first ride (min fare ₹${data.stats.minFareRequired}). Book toto, autos, bikes & cabs easily here: ${data.shareUrl}`
+      `Hey! Use my Jaatri invite code *${data.referralCode}* to get ₹${data.stats.refereeDiscount} off your first ride (min fare ₹${data.stats.minFareRequired}). Book toto, autos, bikes & cabs easily here: ${data.shareUrl}`
     );
     window.open(`https://wa.me/?text=${text}`, "_blank");
   };

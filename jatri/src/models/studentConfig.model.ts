@@ -2,8 +2,8 @@
 
 export interface IStudentConfig extends Document {
   discountPercentage: number;      // Default 10%
-  maxDiscountCap: number;          // Default â‚¹50
-  minFare: number;                 // Default â‚¹100
+  maxDiscountCap: number;          // Default ₹50
+  minFare: number;                 // Default ₹100
   validityMonths: number;          // Default 12 months
   monthlyDiscountCap: number;      // Default ₹200
   maxMonthlyRides: number;         // Default 10 rides

@@ -309,7 +309,7 @@ export default function SettingsPage() {
                 </div>
                 <div className="min-w-0">
                   <h2 className="text-base sm:text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
-                    {currentUser.name || "RideNow Member"}
+                    {currentUser.name || "Jaatri Member"}
                   </h2>
                   <p className="text-xs sm:text-[13px] text-[#696B64] dark:text-[#B9C8BF] truncate">
                     {(currentUser as any).mobileNumber

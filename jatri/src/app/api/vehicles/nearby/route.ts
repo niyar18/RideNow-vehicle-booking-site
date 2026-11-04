@@ -23,7 +23,7 @@ async function queryNearbyVehicles(
     return { vehicles: [], cached: false };
   }
 
-  // 1ï¸âƒ£ Find nearby vendors within strictly 10km limit
+  // 1. Find nearby vendors within strictly 10km limit
   let vendors: any[] = [];
   try {
     vendors = await User.find({
@@ -71,7 +71,7 @@ async function queryNearbyVehicles(
 
   const vendorMap = new Map(vendors.map((v) => [v._id.toString(), v.location]));
 
-  // 2ï¸âƒ£ Get vehicles of those vendors with privacy protection:
+  // 2. Get vehicles of those vendors with privacy protection:
   // Strip driver personal identifiers (owner ID, license plate) & fuzz coordinates (~50-80m)
   const vehicles = await Vehicle.find({
     owner: { $in: vendorIds },

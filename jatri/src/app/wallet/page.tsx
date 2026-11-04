@@ -142,7 +142,7 @@ export default function WalletPage() {
         key: orderData.keyId,
         amount: orderData.amount,
         currency: "INR",
-        name: "RideNow Cash",
+        name: "Jaatri Cash",
         description: `Top-up Wallet with ₹${amountNum}`,
         order_id: orderData.orderId,
         prefill: {
@@ -256,7 +256,7 @@ export default function WalletPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mb-5 sm:mb-6 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-emerald-500 text-white flex items-center justify-between shadow-lg"
+              className="mb-5 sm:mb-6 p-3.5 sm:p-4 rounded-[12px] bg-[#046A38] text-white flex items-center justify-between shadow-xs"
             >
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 size={18} />
@@ -264,7 +264,7 @@ export default function WalletPage() {
               </div>
               <button
                 onClick={() => setTopupSuccessMsg(null)}
-                className="text-xs font-semibold px-2 py-1 bg-white/20 rounded-lg hover:bg-white/30"
+                className="text-xs font-semibold px-2.5 py-1 bg-white/20 rounded-[6px] hover:bg-white/30 cursor-pointer"
               >
                 Dismiss
               </button>
@@ -273,23 +273,23 @@ export default function WalletPage() {
         </AnimatePresence>
         {/* Outstanding Dues Banner */}
         {outstandingAmount > 0 && (
-          <div className="mb-5 sm:mb-6 p-4 rounded-xl sm:rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/60 text-rose-900 dark:text-rose-200 flex items-center justify-between shadow-xs">
+          <div className="mb-5 sm:mb-6 p-4 rounded-[12px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-300 flex items-center justify-center shrink-0 font-bold">
+              <div className="w-10 h-10 rounded-[8px] bg-[#E34222]/15 dark:bg-[#E34222]/25 text-[#E34222] dark:text-[#E06A50] flex items-center justify-center shrink-0 font-bold">
                 <AlertCircle size={20} />
               </div>
               <div>
-                <p className="text-xs sm:text-sm font-black">
+                <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED]">
                   {t("wallet.unpaidDues", "Unpaid Cancellation Dues")}: ₹{outstandingAmount}
                 </p>
-                <p className="text-[11px] text-rose-700 dark:text-rose-300 font-medium">
+                <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium">
                   {t("wallet.unpaidDuesDesc", "This outstanding balance will be automatically recovered on your next ride payment or wallet top-up.")}
                 </p>
               </div>
             </div>
             <button
               onClick={() => setShowTopupModal(true)}
-              className="shrink-0 bg-rose-600 hover:bg-rose-700 text-white text-xs font-black px-4 py-2 rounded-xl shadow-xs transition cursor-pointer"
+              className="shrink-0 bg-[#E34222] hover:bg-[#c93517] text-white text-xs font-bold px-4 py-2 rounded-[8px] shadow-xs transition cursor-pointer"
             >
               {t("wallet.clearDues", "Clear Dues")}
             </button>

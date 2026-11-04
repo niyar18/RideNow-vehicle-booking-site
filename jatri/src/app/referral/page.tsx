@@ -39,13 +39,13 @@ function ReferralContent() {
         {/* Hero Section */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#046A38]/10 text-[#046A38] dark:text-[#52B788] text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" /> RideNow Rewards Club
+            <Sparkles className="w-3.5 h-3.5" /> Jaatri Rewards Club
           </div>
           <h1 className="text-2xl sm:text-4xl font-serif font-bold text-[#10251C] dark:text-[#F7F5ED]">
             Invite Friends &amp; Ride for Less
           </h1>
           <p className="text-sm sm:text-base text-[#5C6F64] dark:text-[#8FA89B] max-w-xl mx-auto">
-            Give your friends ₹30 off their first ride, and earn ₹50 in your RideNow wallet when they complete their first trip.
+            Give your friends ₹30 off their first ride, and earn ₹50 in your Jaatri wallet when they complete their first trip.
           </p>
         </div>
 

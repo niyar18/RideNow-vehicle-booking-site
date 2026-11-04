@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { memo } from "react";
 
@@ -112,13 +112,13 @@ function VehicleBookingCard({
           transition={{ duration: 0.35 }}
         />
 
-        {/* Type pill â€” bottom right */}
+        {/* Type pill — bottom right */}
         <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1.5 bg-[#123D32] text-[#F7F1E5] text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-[6px]">
           <Icon size={10} />
           {label}
         </div>
 
-        {/* Rating pill â€” bottom left */}
+        {/* Rating pill — bottom left */}
         <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] text-[#10251C] dark:text-[#F7F5ED] text-[10px] font-bold px-2 py-1 rounded-[6px] shadow-xs">
           <Star size={9} className="fill-amber-500 text-amber-500" />
           4.8
@@ -134,16 +134,16 @@ function VehicleBookingCard({
         {/* Title + plate row */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="text-zinc-900 text-base font-black tracking-tight leading-tight truncate">
+            <h3 className="text-[#10251C] dark:text-[#F7F5ED] text-base font-black tracking-tight leading-tight truncate">
               {vehicleModel}
             </h3>
             <div className="mt-1.5 flex items-center gap-2">
-              <div className="inline-flex items-center bg-zinc-100 px-2 py-0.5 rounded-md border border-zinc-200">
-                <span className="text-zinc-500 text-[11px] font-black tracking-[0.15em] font-mono uppercase">
+              <div className="inline-flex items-center bg-[#F7F1E5] dark:bg-[#10352C] px-2 py-0.5 rounded-md border border-[#DED7CA] dark:border-[#24483D]">
+                <span className="text-[#696B64] dark:text-[#B9C8BF] text-[11px] font-black tracking-[0.15em] font-mono uppercase">
                   {number}
                 </span>
               </div>
-              <div className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md text-[10px] font-bold">
+              <div className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-md text-[10px] font-bold border border-emerald-200 dark:border-emerald-800">
                 {opt.passengerCapacity ? (
                   <>
                     <Users size={10} />
@@ -164,42 +164,42 @@ function VehicleBookingCard({
               {distanceKm > 0 ? (
                 <span className="font-semibold">{arrivalInfo.displayLine}</span>
               ) : (
-                <span className="text-zinc-500 dark:text-zinc-400 italic text-[11px]">
+                <span className="text-[#696B64] dark:text-[#B9C8BF] italic text-[11px]">
                   {t("booking.selectDestForArrival", "Select destination for arrival time")}
                 </span>
               )}
             </div>
           </div>
-          <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-zinc-100 border border-zinc-200 flex items-center justify-center">
-            <Icon size={17} className="text-zinc-700" />
+          <div className="flex-shrink-0 w-10 h-10 rounded-[10px] bg-[#F7F1E5] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center">
+            <Icon size={17} className="text-[#123D32] dark:text-[#90C8A8]" />
           </div>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-zinc-50 border border-zinc-100 rounded-2xl px-3.5 py-3">
+          <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] px-3.5 py-3 shadow-2xs">
             <div className="flex items-center gap-1.5 mb-1">
-              <Gauge size={11} className="text-zinc-400" />
-              <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold">{t("fleet.perKm", "Per km")}</p>
+              <Gauge size={11} className="text-[#696B64] dark:text-[#B9C8BF]" />
+              <p className="text-[#696B64] dark:text-[#B9C8BF] text-[9px] uppercase tracking-widest font-bold">{t("fleet.perKm", "Per km")}</p>
             </div>
-            <p className="text-zinc-900 text-sm font-black">â‚¹{pricePerKm}</p>
+            <p className="text-[#10251C] dark:text-[#F7F5ED] text-sm font-black">₹{pricePerKm}</p>
           </div>
-          <div className="bg-zinc-50 border border-zinc-100 rounded-2xl px-3.5 py-3">
+          <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] px-3.5 py-3 shadow-2xs">
             <div className="flex items-center gap-1.5 mb-1">
-              <Clock size={11} className="text-zinc-400" />
-              <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold">{t("booking.waiting", "Waiting")}</p>
+              <Clock size={11} className="text-[#696B64] dark:text-[#B9C8BF]" />
+              <p className="text-[#696B64] dark:text-[#B9C8BF] text-[9px] uppercase tracking-widest font-bold">{t("booking.waiting", "Waiting")}</p>
             </div>
-            <p className="text-zinc-900 text-sm font-black">
-              â‚¹{waitingCharge}
-              <span className="text-zinc-400 text-[10px] font-normal">/min</span>
+            <p className="text-[#10251C] dark:text-[#F7F5ED] text-sm font-black">
+              ₹{waitingCharge}
+              <span className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] font-normal">/min</span>
             </p>
           </div>
         </div>
 
         {/* FARE + BOOK */}
-        <div className="flex items-end justify-between pt-3 border-t border-zinc-100">
+        <div className="flex items-end justify-between pt-3 border-t border-[#DED7CA] dark:border-[#24483D]">
           <div>
-            <p className="text-zinc-400 text-[9px] uppercase tracking-widest font-bold mb-0.5">
+            <p className="text-[#696B64] dark:text-[#B9C8BF] text-[9px] uppercase tracking-widest font-bold mb-0.5">
               {t("booking.estFare", "Est. Fare")}
             </p>
             <motion.div
@@ -209,8 +209,8 @@ function VehicleBookingCard({
               transition={{ duration: 0.25 }}
               className="flex items-baseline gap-0.5"
             >
-              <IndianRupee size={16} className="text-zinc-900 mb-0.5" strokeWidth={2.5} />
-              <span className="text-zinc-900 text-3xl font-black tracking-tight leading-none">
+              <IndianRupee size={16} className="text-[#10251C] dark:text-[#F7F5ED] mb-0.5" strokeWidth={2.5} />
+              <span className="text-[#10251C] dark:text-[#F7F5ED] text-3xl font-black tracking-tight leading-none font-mono">
                 {estimated}
               </span>
             </motion.div>

@@ -234,7 +234,11 @@ export default function FleetPage() {
                     {(category.promo || category.capacity?.toLowerCase().includes("kg")) && (
                       <div className="absolute top-2 left-2 right-2 flex items-center justify-between pointer-events-none">
                         {category.promo ? (
-                          <span className="text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider text-white bg-[#E34222]/90 backdrop-blur-xs px-2 py-0.5 rounded-full shadow-2xs truncate max-w-[65%]">
+                          <span className={`text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider text-white ${
+                            category.id === "e-rickshaw"
+                              ? "bg-[#046A38]/95"
+                              : "bg-[#E34222]/90"
+                          } backdrop-blur-xs px-2 py-0.5 rounded-full shadow-2xs truncate max-w-[65%]`}>
                             {category.promo}
                           </span>
                         ) : (

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Navigation, ClipboardList, Wallet } from "lucide-react";
+import { Navigation, ClipboardList, Wallet, Car } from "lucide-react";
 import {
   HomeIcon,
   CompassIcon,
@@ -199,14 +199,14 @@ export default function MobileBottomNav() {
             </span>
           </Link>
 
-          {/* Position 3: Central Circular Elevated Action Button with Emerald Glow & Audio Waveform */}
+          {/* Position 3: Central Circular Elevated Action Button with Emerald Glow & Ride Booking Action */}
           <div className="flex-1 flex justify-center items-center pointer-events-auto">
             <Link
               href="/book?fresh=true"
               aria-label="Book a Ride or Search Trips"
               className="w-13.5 h-13.5 rounded-full bg-[#046A38] hover:bg-[#03532C] dark:bg-[#0B2822] text-white flex items-center justify-center -mt-6 border-[3.5px] border-[#FAF7F0] dark:border-[2.5px] dark:border-[#34D399] shadow-[0_6px_20px_rgba(4,106,56,0.38)] dark:shadow-[0_0_24px_rgba(52,211,153,0.55)] active:scale-90 transition-all cursor-pointer group"
             >
-              <WaveformIcon size={28} className="text-white group-hover:scale-105 transition-transform" />
+              <Car size={26} className="text-white group-hover:scale-105 transition-transform" />
             </Link>
           </div>
 
