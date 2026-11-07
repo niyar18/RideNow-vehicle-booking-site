@@ -475,7 +475,7 @@ export async function handleRazorpayWebhook(
               const { sendPushToUser } = await import("@/lib/webPush");
               await sendPushToUser(booking.user.toString(), {
                 title: "Payment Confirmed! 🚗",
-                body: `Your ride is confirmed. Pickup OTP: ${booking.pickupOtp}`,
+                body: "Your ride is confirmed. Open Jaatri to track your driver in real-time.",
                 url: `/ride/${booking._id}`,
               });
             } catch (pushErr: any) {

@@ -2,23 +2,31 @@ import webpush from "web-push";
 import PushSubscription from "@/models/push-subscription.model";
 import connectDb from "./db";
 
-// Fallback VAPID keys if not specified in environment
+// Valid, mathematically paired VAPID keys (P-256 curve)
 // In production, these should be set in .env as NEXT_PUBLIC_VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY
 const DEFAULT_VAPID_PUBLIC =
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ||
-  "BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U";
+  "BHVOwkeKGyETrHB2VANtTJo-Aku04s5rXTIEqje74vC6Oq2oIcaznbmffvfS-Up6OXa-N0x3L9RX1SMOjN4JGww";
 
 const DEFAULT_VAPID_PRIVATE =
-  process.env.VAPID_PRIVATE_KEY || "UU2DehFsA0TqGq6Tz5pW7P0q_zK5S8XfU1Pj5vYj5R8";
+  process.env.VAPID_PRIVATE_KEY || "GGfIxmoONdINqQU0F9YrLgNU98oYXApcICNdiYX0_VI";
 
-const DEFAULT_SUBJECT = process.env.VAPID_SUBJECT || "mailto:support@ridenow.com";
+const DEFAULT_SUBJECT = process.env.VAPID_SUBJECT || "mailto:support@ridenow.in";
 
 let vapidConfigured = false;
 
 function ensureVapidConfig() {
   if (!vapidConfigured) {
     try {
-      webpush.setVapidDetails(DEFAULT_SUBJECT, DEFAULT_VAPID_PUBLIC, DEFAULT_VAPID_PRIVATE);
+      const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || DEFAULT_VAPID_PUBLIC;
+      const privateKey = process.env.VAPID_PRIVATE_KEY || DEFAULT_VAPID_PRIVATE;
+      const subject = process.env.VAPID_SUBJECT || DEFAULT_SUBJECT;
+
+      if (!process.env.VAPID_PRIVATE_KEY && process.env.NODE_ENV === "production") {
+        console.warn("[SECURITY NOTICE] VAPID_PRIVATE_KEY not set in production env. Using default key pair. Please configure VAPID_PRIVATE_KEY and NEXT_PUBLIC_VAPID_PUBLIC_KEY in your hosting dashboard.");
+      }
+
+      webpush.setVapidDetails(subject, publicKey, privateKey);
       vapidConfigured = true;
     } catch (err) {
       console.error("Failed to configure VAPID details for Web Push:", err);
@@ -27,7 +35,7 @@ function ensureVapidConfig() {
 }
 
 export function getVapidPublicKey() {
-  return DEFAULT_VAPID_PUBLIC;
+  return process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || DEFAULT_VAPID_PUBLIC;
 }
 
 export interface PushPayload {

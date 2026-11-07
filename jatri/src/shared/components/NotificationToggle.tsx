@@ -3,6 +3,8 @@
 import { Bell, BellOff, BellRing, Loader2 } from "lucide-react";
 import { usePushNotifications } from "@/shared/hooks/usePushNotifications";
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
 
 export default function NotificationToggle({
   variant = "button",
@@ -22,7 +24,17 @@ export default function NotificationToggle({
 
   if (!mounted || !isSupported) return null;
 
+  const { userData } = useSelector((state: RootState) => state.user);
+
   const handleClick = async () => {
+    // Require authentication before requesting push permission
+    if (!userData) {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("open-auth-modal"));
+      }
+      return;
+    }
+
     if (isSubscribed) {
       await unsubscribe();
     } else {

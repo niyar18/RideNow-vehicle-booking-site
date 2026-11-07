@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 
 function urlBase64ToUint8Array(base64String: string) {
@@ -26,21 +26,60 @@ export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Synchronize browser subscription with MongoDB backend
+  const syncSubscriptionStatus = useCallback(async () => {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+      return;
+    }
+
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const sub = await registration.pushManager.getSubscription();
+
+      if (!sub) {
+        setIsSubscribed(false);
+        return;
+      }
+
+      // Check with backend if this user owns this subscription
+      const res = await axios.get(`/api/notifications/status?endpoint=${encodeURIComponent(sub.endpoint)}`);
+
+      if (res.data.authenticated) {
+        if (res.data.isSubscribed) {
+          setIsSubscribed(true);
+        } else {
+          // Browser has subscription but backend doesn't have it for this user (e.g. after fresh login)
+          // Automatically sync it
+          try {
+            await axios.post("/api/notifications/subscribe", {
+              subscription: sub.toJSON(),
+            });
+            setIsSubscribed(true);
+          } catch {
+            setIsSubscribed(false);
+          }
+        }
+      } else {
+        // Not authenticated
+        setIsSubscribed(false);
+      }
+    } catch (err) {
+      console.warn("Failed to synchronize push subscription status:", err);
+    }
+  }, []);
+
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator && "PushManager" in window) {
-      // Check current registration and subscription
       navigator.serviceWorker
         .register("/sw.js")
-        .then((registration) => {
-          registration.pushManager.getSubscription().then((sub) => {
-            setIsSubscribed(Boolean(sub));
-          });
+        .then(() => {
+          syncSubscriptionStatus();
         })
         .catch((err) => {
           console.warn("ServiceWorker registration notice:", err);
         });
     }
-  }, []);
+  }, [syncSubscriptionStatus]);
 
   const subscribe = async () => {
     if (!isSupported) return false;
@@ -65,21 +104,44 @@ export function usePushNotifications() {
         throw new Error("Missing VAPID public key from server");
       }
 
-      // 2. Subscribe with pushManager
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(publicKey),
-      });
+      // 2. Check for existing subscription
+      let subscription = await registration.pushManager.getSubscription();
+
+      if (subscription) {
+        // Check if applicationServerKey matches target publicKey
+        try {
+          const subKey = subscription.options.applicationServerKey;
+          const targetKey = urlBase64ToUint8Array(publicKey);
+          if (subKey && new Uint8Array(subKey).toString() !== targetKey.toString()) {
+            await subscription.unsubscribe();
+            subscription = null;
+          }
+        } catch {
+          // Continue with existing if comparison fails
+        }
+      }
+
+      if (!subscription) {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(publicKey),
+        });
+      }
 
       // 3. Send subscription to server
-      await axios.post("/api/notifications/subscribe", {
+      const subRes = await axios.post("/api/notifications/subscribe", {
         subscription: subscription.toJSON(),
       });
 
-      setIsSubscribed(true);
+      if (subRes.data.success) {
+        setIsSubscribed(true);
+        setLoading(false);
+        return true;
+      }
+
       setLoading(false);
-      return true;
-    } catch (err) {
+      return false;
+    } catch (err: any) {
       console.error("Failed to subscribe to push notifications:", err);
       setLoading(false);
       return false;
@@ -117,5 +179,6 @@ export function usePushNotifications() {
     loading,
     subscribe,
     unsubscribe,
+    syncSubscriptionStatus,
   };
 }

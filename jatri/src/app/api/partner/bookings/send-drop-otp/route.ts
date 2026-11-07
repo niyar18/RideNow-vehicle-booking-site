@@ -127,7 +127,7 @@ export async function POST(req: Request) {
       const { sendPushToUser } = await import("@/lib/webPush");
       await sendPushToUser((booking.user as any)._id.toString(), {
         title: "Arrived at Destination 🏁",
-        body: `Share drop OTP ${otp} with your driver to end the trip.`,
+        body: "You have arrived at your destination. Open Jaatri to confirm and complete your ride.",
         url: `/ride/${booking._id}`,
       });
     } catch (pushErr) {

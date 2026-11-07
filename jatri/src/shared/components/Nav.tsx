@@ -55,13 +55,17 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
 
-  // Auto-open login modal if redirected back with OAuth error parameter
+  // Auto-open login modal if redirected back with OAuth error parameter or via custom event
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     if (params.get("error")) {
       setAuthOpen(true);
     }
+
+    const handleOpenAuth = () => setAuthOpen(true);
+    window.addEventListener("open-auth-modal", handleOpenAuth);
+    return () => window.removeEventListener("open-auth-modal", handleOpenAuth);
   }, []);
   const [profileOpen, setProfileOpen] = useState(false);
 
