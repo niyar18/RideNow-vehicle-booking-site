@@ -1589,7 +1589,7 @@ function ActionBar({
 
   if (status === "requested" || status === "scheduled") {
     return (
-      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822] p-3 sm:p-4">
+      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822] p-3 pb-[max(14px,env(safe-area-inset-bottom))] sm:p-4">
         <button
           type="button"
           onClick={onCancel}
@@ -1603,7 +1603,7 @@ function ActionBar({
 
   if (["confirmed", "started"].includes(status)) {
     return (
-      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822] p-3 sm:p-4 flex gap-2">
+      <div className="flex-shrink-0 border-t border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#0B2822] p-3 pb-[max(14px,env(safe-area-inset-bottom))] sm:p-4 flex gap-2">
         {!booking?.isPanicActive && (
           <button
             type="button"

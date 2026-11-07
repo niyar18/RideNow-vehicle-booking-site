@@ -1492,19 +1492,21 @@ export default function BookPage() {
         <div className="flex items-center gap-2.5 bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3.5 py-2 min-h-[46px] focus-within:border-[#123D32] dark:focus-within:border-[#90C8A8] focus-within:ring-2 focus-within:ring-[#123D32]/10 transition-all shadow-xs">
           <div className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#90C8A8] flex-shrink-0" />
           
-          {/* Reorder controls for Pickup */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => handleReorderWaypoint(0, 1)}
-              aria-label="Move pickup below the next stop"
-              title="Move pickup down"
-              className="min-w-[44px] min-h-[44px] -my-2 flex items-center justify-center rounded-[8px] text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
-            >
-              <ChevronDown size={12} />
-            </button>
-            <GripVertical size={12} className="text-[#696B64]/50 dark:text-[#B9C8BF]/50 select-none flex-shrink-0" />
-          </div>
+          {/* Reorder controls for Pickup (only when intermediate stops exist) */}
+          {stops.length > 0 && (
+            <div className="flex items-center gap-0.5 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => handleReorderWaypoint(0, 1)}
+                aria-label="Move pickup below the next stop"
+                title="Move pickup down"
+                className="w-7 h-7 flex items-center justify-center rounded-[6px] text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              >
+                <ChevronDown size={12} />
+              </button>
+              <GripVertical size={12} className="text-[#696B64]/50 dark:text-[#B9C8BF]/50 select-none flex-shrink-0" />
+            </div>
+          )}
 
           <input
             aria-label="Pickup location"
@@ -1738,19 +1740,21 @@ export default function BookPage() {
         <div className="flex items-center gap-2.5 bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3.5 py-2 min-h-[46px] focus-within:border-[#E34222] dark:focus-within:border-[#E06A50] focus-within:ring-2 focus-within:ring-[#E34222]/10 transition-all shadow-xs">
           <div className="w-2.5 h-2.5 rounded-full bg-[#E34222] dark:bg-[#E06A50] flex-shrink-0" />
 
-          {/* Reorder controls for Drop */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
-            <button
-              type="button"
-              onClick={() => handleReorderWaypoint(stops.length + 1, stops.length)}
-              aria-label="Move destination above the previous stop"
-              title="Move destination up"
-              className="min-w-[44px] min-h-[44px] -my-2 flex items-center justify-center rounded-[8px] text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
-            >
-              <ChevronUp size={12} />
-            </button>
-            <GripVertical size={12} className="text-[#696B64]/50 dark:text-[#B9C8BF]/50 select-none flex-shrink-0" />
-          </div>
+          {/* Reorder controls for Drop (only when intermediate stops exist) */}
+          {stops.length > 0 && (
+            <div className="flex items-center gap-0.5 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => handleReorderWaypoint(stops.length + 1, stops.length)}
+                aria-label="Move destination above the previous stop"
+                title="Move destination up"
+                className="w-7 h-7 flex items-center justify-center rounded-[6px] text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E34222]"
+              >
+                <ChevronUp size={12} />
+              </button>
+              <GripVertical size={12} className="text-[#696B64]/50 dark:text-[#B9C8BF]/50 select-none flex-shrink-0" />
+            </div>
+          )}
 
           <input
             aria-label="Drop location"
@@ -2172,6 +2176,15 @@ export default function BookPage() {
             onChange={setDriverPreference}
             womenDriversCount={womenDriversCount}
           />
+          {driverPreference === "woman" && womenDriversCount === 0 && (
+            <div className="mt-2.5 p-2.5 rounded-[8px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 text-xs text-[#E34222] dark:text-[#E06A50] flex items-start gap-2">
+              <AlertCircle size={14} className="shrink-0 mt-0.5" />
+              <div className="leading-snug">
+                <span className="font-bold">No verified women drivers online nearby right now.</span>{" "}
+                <span>You can still select this preference (our dispatch engine will search for 3 minutes before prompting), or choose &quot;Any driver&quot; for instant pickup.</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

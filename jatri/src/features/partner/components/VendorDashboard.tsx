@@ -937,6 +937,27 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
   const [isLocating, setIsLocating] = useState(false);
   const [lastSyncedTime, setLastSyncedTime] = useState<Date | null>(null);
   const [pendingRequest, setPendingRequest] = useState<any | null>(null);
+  const [requestCountdown, setRequestCountdown] = useState(30);
+
+  // Dynamic countdown timer for incoming ride requests
+  useEffect(() => {
+    if (!pendingRequest) {
+      setRequestCountdown(30);
+      return;
+    }
+    setRequestCountdown(30);
+    const interval = setInterval(() => {
+      setRequestCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          setPendingRequest(null);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [pendingRequest]);
   const [processingAction, setProcessingAction] = useState<string | null>(null);
   const [rates, setRates] = useState<any>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(userData?.profilePicture || null);
@@ -2092,8 +2113,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     <h3 className="font-bold text-xs uppercase tracking-widest text-[#FAF7F0]">{t("driver.incomingRequest", "Incoming Request")}</h3>
                   </div>
                   <div className="flex items-center gap-1.5 bg-white/10 dark:bg-black/30 px-3 py-1 rounded-[8px] text-xs font-semibold text-[#FAF7F0]">
-                    <Clock size={12} className="text-amber-400" />
-                    <span>20s left</span>
+                    <Clock size={12} className={requestCountdown <= 5 ? "text-[#E34222] animate-pulse" : "text-amber-400"} />
+                    <span className={requestCountdown <= 5 ? "text-[#E34222] font-black" : "text-[#FAF7F0]"}>{requestCountdown}s left</span>
                   </div>
                 </div>
 
@@ -2180,7 +2201,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <button
                     onClick={() => handleRequestAction(pendingRequest._id, "accept")}
                     disabled={processingAction !== null}
-                    className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] py-3 rounded-[8px] text-xs uppercase tracking-wider font-bold active:scale-[0.98] transition-all shadow-md disabled:opacity-40 cursor-pointer"
+                    className="flex-1 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-[#FAF7F0] min-h-[48px] py-3.5 rounded-[8px] text-xs sm:text-sm uppercase tracking-wider font-bold active:scale-[0.98] transition-all shadow-md disabled:opacity-40 cursor-pointer"
                   >
                     {processingAction === "accept" ? (
                       <Loader2 className="animate-spin w-4 h-4 mx-auto text-white" />
