@@ -54,6 +54,15 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
   const { t } = useTranslation();
   const [menuOpen, setMenuOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+
+  // Auto-open login modal if redirected back with OAuth error parameter
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error")) {
+      setAuthOpen(true);
+    }
+  }, []);
   const [profileOpen, setProfileOpen] = useState(false);
 
   const [pendingCount, setPendingCount] = useState(0);

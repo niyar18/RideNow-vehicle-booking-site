@@ -14,6 +14,7 @@ declare module "next-auth" {
     role: string;
     name: string;
     email: string;
+    image?: string;
   }
   interface Session {
     user: {
@@ -21,6 +22,7 @@ declare module "next-auth" {
       role: string;
       name: string;
       email: string;
+      image?: string;
     }
   }
   interface JWT {
@@ -28,6 +30,7 @@ declare module "next-auth" {
     role: string;
     name: string;
     email: string;
+    picture?: string;
     lastRoleCheck?: number;
   }
 }
@@ -187,12 +190,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           dbUser = await User.create({
             name: user.name || "User",
             email,
+            profilePicture: user.image || undefined,
             isEmailVerified: true,
             role: "user",
           });
-        } else if (!dbUser.isEmailVerified) {
-          dbUser.isEmailVerified = true;
-          await dbUser.save();
+        } else {
+          let hasUpdates = false;
+          if (!dbUser.isEmailVerified) {
+            dbUser.isEmailVerified = true;
+            hasUpdates = true;
+          }
+          if (!dbUser.profilePicture && user.image) {
+            dbUser.profilePicture = user.image;
+            hasUpdates = true;
+          }
+          if (hasUpdates) {
+            await dbUser.save();
+          }
         }
 
         user.id = dbUser._id.toString();
@@ -208,6 +222,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             token.name=user.name;
             token.email=user.email;
             token.role=user.role;
+            if (user.image) token.picture = user.image;
             token.lastRoleCheck = now;
             return token;
         }
@@ -257,10 +272,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
     session({session,token}) {
         if(session.user){
-            session.user.id=token.id as string,
-            session.user.name=token.name as string,
-            session.user.email=token.email as string
-             session.user.role=token.role as string
+            session.user.id=token.id as string;
+            session.user.name=token.name as string;
+            session.user.email=token.email as string;
+            session.user.role=token.role as string;
+            if (token.picture) session.user.image = token.picture as string;
         }
         return session
     },

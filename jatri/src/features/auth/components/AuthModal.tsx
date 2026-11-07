@@ -90,7 +90,7 @@ export default function AuthModal({ open, onClose }: Props) {
       if (authError === "OAuthSignin" || authError === "OAuthCallback" || authError === "OAuthCreateAccount") {
         setErrorMessage("Google sign-in was interrupted or not authorized. Please try again or use Phone/OTP.");
       } else if (authError === "Configuration") {
-        setErrorMessage("Authentication server configuration error. Please try Phone/OTP login.");
+        setErrorMessage("Google Sign-In is not configured yet (missing GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET). Please use Phone/OTP or add keys in .env.local.");
       } else if (authError === "AccessDenied") {
         setErrorMessage("Access was denied. Please select a valid Google account.");
       }
