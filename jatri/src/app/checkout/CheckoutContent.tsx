@@ -837,7 +837,7 @@ export default function CheckoutContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] px-3 sm:px-4 py-5 sm:py-10">
+    <div className="min-h-[100dvh] bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] px-3 sm:px-4 pt-5 pb-[max(28px,env(safe-area-inset-bottom))] sm:py-10">
 
       {/* subtle dot grid */}
       <div className="fixed inset-0 pointer-events-none opacity-60 dark:opacity-20"
