@@ -1046,7 +1046,7 @@ export default function ProfilePage() {
                   setDeleteSuccess(false);
                   setShowDeleteModal(true);
                 }}
-                className="inline-flex items-center justify-center gap-2 text-xs font-bold text-[#E34222] dark:text-[#E06A50] bg-[#faebe8] dark:bg-[#341814] hover:bg-[#faebe8]/80 dark:hover:bg-[#341814]/80 border border-[#E34222]/30 dark:border-[#E06A50]/40 px-4 py-2.5 rounded-[8px] transition w-full sm:w-auto cursor-pointer"
+                className="min-h-[44px] inline-flex items-center justify-center gap-2 text-xs font-bold text-[#E34222] dark:text-[#E06A50] bg-[#faebe8] dark:bg-[#341814] hover:bg-[#faebe8]/80 dark:hover:bg-[#341814]/80 border border-[#E34222]/30 dark:border-[#E06A50]/40 px-4 py-2.5 rounded-[8px] transition w-full sm:w-auto cursor-pointer"
               >
                 <Trash2 size={14} /> Request Account Deletion
               </button>

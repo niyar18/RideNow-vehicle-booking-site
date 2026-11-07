@@ -305,8 +305,8 @@ export default function MyBookingsPage() {
 
                             {/* DESTINATION */}
                             <div className="flex items-start gap-2.5 sm:gap-3">
-                              <div className="w-5 h-5 rounded-full bg-red-100 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span className="w-2 h-2 rounded-full bg-red-500" />
+                              <div className="w-5 h-5 rounded-full bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="w-2 h-2 rounded-full bg-[#E34222] dark:bg-[#E06A50]" />
                               </div>
                               <div className="min-w-0 flex-1">
                                 <span className="text-[10px] sm:text-xs font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider block">Destination</span>
@@ -352,10 +352,10 @@ export default function MyBookingsPage() {
                                     setSelectedBookingForInvoice(booking);
                                     setShowInvoiceModal(true);
                                   }}
-                                  className="flex items-center gap-1 text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] hover:text-[#123D32] dark:hover:text-[#347858] bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] px-2.5 sm:px-3 py-1.5 transition-colors border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] cursor-pointer"
+                                  className="min-h-[44px] flex items-center gap-1.5 text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] hover:text-[#123D32] dark:hover:text-[#347858] bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] px-3.5 py-2 transition-colors border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] cursor-pointer"
                                   title="Download Official GST Tax Invoice"
                                 >
-                                  <FileText size={13} />
+                                  <FileText size={14} />
                                   <span>Invoice</span>
                                 </button>
                               )}
@@ -369,10 +369,10 @@ export default function MyBookingsPage() {
                                     router.push(`/ride/${booking._id}`);
                                   }
                                 }}
-                                className="flex items-center gap-1 text-xs sm:text-sm font-bold text-white bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] px-3 sm:px-4 py-1.5 transition-colors cursor-pointer rounded-[8px] shadow-xs"
+                                className="min-h-[44px] flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] px-4 py-2 transition-colors cursor-pointer rounded-[8px] shadow-xs"
                               >
                                 <span>View Details</span>
-                                <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                <ChevronRight className="w-4 h-4" />
                               </button>
                             </div>
                           </div>

@@ -18,11 +18,13 @@ import { useSession } from "next-auth/react";
 // Routes where full-screen interaction, map manipulation, or pinned CTAs must NOT be obstructed
 const HIDDEN_PATTERNS = [
   /^\/book($|\?)/,           // Interactive map booking sheet & pinned confirm CTA
+  /^\/checkout($|\?)/,       // Focused checkout payment & confirmation interface
   /^\/ride\//,               // Live turn-by-turn passenger tracking & panic controls
   /^\/track\//,              // Public live tracking map view
   /^\/video-kyc\//,          // Full-screen camera & video KYC stream
   /^\/admin/,                // Admin management interface (has dedicated operational layout)
   /^\/partner\/active-ride/, // Driver operational turn-by-turn navigation
+  /^\/partner\/onboard/,     // Driver multi-step KYC documents onboarding
 ];
 
 export default function MobileBottomNav() {

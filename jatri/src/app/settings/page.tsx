@@ -513,7 +513,7 @@ export default function SettingsPage() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "spring", damping: 28, stiffness: 350 }}
-              className="w-full max-w-lg bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-t-[20px] sm:rounded-[16px] shadow-2xl p-5 sm:p-6 overflow-hidden max-h-[85vh] flex flex-col"
+              className="w-full max-w-lg bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-t-[20px] sm:rounded-[16px] shadow-2xl p-5 sm:p-6 pb-[max(20px,env(safe-area-inset-bottom))] overflow-hidden max-h-[85vh] flex flex-col"
             >
               {/* Modal Drag Bar for mobile */}
               <div className="w-12 h-1 bg-stone-300 dark:bg-zinc-700 rounded-full mx-auto mb-4 sm:hidden" />
