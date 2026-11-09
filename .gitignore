@@ -43,3 +43,6 @@ jatri/scripts/
 baileys_auth_info/
 **/baileys_auth_info/
 *.session.json
+
+# Documentation & External PDF Reviews
+*.pdf
