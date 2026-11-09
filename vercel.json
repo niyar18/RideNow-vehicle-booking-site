@@ -3,5 +3,11 @@
   "framework": "nextjs",
   "buildCommand": "cd jatri && npm run build",
   "installCommand": "cd jatri && npm install",
-  "outputDirectory": "jatri/.next"
+  "outputDirectory": "jatri/.next",
+  "crons": [
+    {
+      "path": "/api/cron/rides",
+      "schedule": "*/5 * * * *"
+    }
+  ]
 }
