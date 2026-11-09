@@ -12,10 +12,10 @@ self.addEventListener("push", (event) => {
   if (!event.data) return;
 
   let payload = {
-    title: "RideNow Notification",
+    title: "Jaatri Notification",
     body: "You have an update on your ride.",
     url: "/",
-    tag: "ridenow-notification",
+    tag: "jaatri-notification",
   };
 
   try {
@@ -26,9 +26,9 @@ self.addEventListener("push", (event) => {
 
   const options = {
     body: payload.body,
-    icon: payload.icon || "/logo.jpeg",
-    badge: payload.badge || "/logo.jpeg",
-    tag: payload.tag || "ridenow-ride-update",
+    icon: payload.icon || "/logojatri.png",
+    badge: payload.badge || "/logojatri.png",
+    tag: payload.tag || "jaatri-ride-update",
     renotify: true,
     data: {
       url: payload.url || "/",
@@ -42,7 +42,7 @@ self.addEventListener("push", (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(payload.title || "RideNow", options)
+    self.registration.showNotification(payload.title || "Jaatri (যাত্ৰী)", options)
   );
 });
 
@@ -53,23 +53,26 @@ self.addEventListener("notificationclick", (event) => {
     return;
   }
 
-  const targetUrl = (event.notification.data && event.notification.data.url) || "/";
+  const targetPath = (event.notification.data && event.notification.data.url) || "/";
+  const fullTargetUrl = new URL(targetPath, self.location.origin).href;
 
   event.waitUntil(
-    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
-      // If a tab is already open with the target URL or on the site, focus and navigate it
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // 1. If an exact tab matches the target URL, focus it
       for (const client of clientList) {
-        if ("focus" in client) {
-          if (client.url.includes(targetUrl) || targetUrl === "/") {
-            return client.focus();
-          }
-          client.navigate(targetUrl);
+        if ("focus" in client && client.url === fullTargetUrl) {
           return client.focus();
         }
       }
-      // Otherwise open a new window
-      if (clients.openWindow) {
-        return clients.openWindow(targetUrl);
+      // 2. If a tab is open on this origin, navigate it to target URL and focus
+      for (const client of clientList) {
+        if ("focus" in client && "navigate" in client && client.url.startsWith(self.location.origin)) {
+          return client.navigate(fullTargetUrl).then((focusedClient) => (focusedClient ? focusedClient.focus() : client.focus()));
+        }
+      }
+      // 3. Otherwise open a new window
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(fullTargetUrl);
       }
     })
   );
