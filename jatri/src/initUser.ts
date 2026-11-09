@@ -1,7 +1,7 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import useGetMe from './hooks/useGetMe'
+import useGetMe from '@/shared/hooks/useGetMe'
 import { useEffect } from 'react'
 import { getSocket, fetchSocketToken } from './lib/socket'
 

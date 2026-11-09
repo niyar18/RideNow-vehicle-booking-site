@@ -6,6 +6,12 @@ import {
   validateMobileNumber,
   sanitizeChatText,
   sanitizeFeedbackText,
+  validateCoordinates,
+  validatePhoneNumber,
+  validateEmail,
+  validateObjectId,
+  validateAmount,
+  sanitizeString,
 } from "@/lib/validation";
 
 describe("Input Validation and Sanitization Invariants", () => {
@@ -48,32 +54,33 @@ describe("Input Validation and Sanitization Invariants", () => {
   });
 
   describe("validateUpiId", () => {
-    it("accepts valid UPI VPA handles", () => {
+    it("accepts standard UPI virtual payment addresses", () => {
       expect(validateUpiId("driver@oksbi").isValid).toBe(true);
-      expect(validateUpiId("9876543210@paytm").isValid).toBe(true);
-      expect(validateUpiId("john.doe@icici").isValid).toBe(true);
-      expect(validateUpiId("").isValid).toBe(true); // Optional
+      expect(validateUpiId("partner.rides@paytm").isValid).toBe(true);
+      expect(validateUpiId("User-123@icici").isValid).toBe(true);
+      expect(validateUpiId("").isValid).toBe(true); // Optional field
     });
 
-    it("rejects malformed UPI handles", () => {
-      expect(validateUpiId("driver").isValid).toBe(false);
-      expect(validateUpiId("driver@").isValid).toBe(false);
-      expect(validateUpiId("@oksbi").isValid).toBe(false);
-      expect(validateUpiId("driver@oksbi@icici").isValid).toBe(false);
+    it("rejects malformed or invalid UPI VPAs", () => {
+      expect(validateUpiId("invalid_upi_without_handle").isValid).toBe(false);
+      expect(validateUpiId("@bank").isValid).toBe(false);
+      expect(validateUpiId("name@").isValid).toBe(false);
+      expect(validateUpiId("user@@hdfc").isValid).toBe(false);
     });
   });
 
   describe("validateMobileNumber", () => {
-    it("accepts valid 10-digit Indian mobile numbers", () => {
+    it("accepts valid Indian 10-digit mobile numbers with formatting", () => {
       expect(validateMobileNumber("9876543210").isValid).toBe(true);
-      expect(validateMobileNumber("6123456789").isValid).toBe(true);
-      expect(validateMobileNumber("+91 9876543210").normalized).toBe("9876543210");
+      expect(validateMobileNumber("+91 9876543210").isValid).toBe(true);
+      expect(validateMobileNumber("+91-8123456789").normalized).toBe("8123456789");
+      expect(validateMobileNumber("").isValid).toBe(true); // Optional in partial profiles
     });
 
-    it("rejects numbers not conforming to Indian telecom rules", () => {
-      expect(validateMobileNumber("1234567890").isValid).toBe(false); // Starts with 1
-      expect(validateMobileNumber("5234567890").isValid).toBe(false); // Starts with 5
-      expect(validateMobileNumber("987654321").isValid).toBe(false); // 9 digits
+    it("rejects numbers not starting with 6-9 or invalid lengths", () => {
+      expect(validateMobileNumber("5551234567").isValid).toBe(false);
+      expect(validateMobileNumber("12345").isValid).toBe(false);
+      expect(validateMobileNumber("abcdefghij").isValid).toBe(false);
     });
   });
 
@@ -104,6 +111,85 @@ describe("Input Validation and Sanitization Invariants", () => {
       const dirty = "<p>Great trip! <b>Safe driving</b></p>";
       expect(sanitizeFeedbackText(dirty)).toBe("Great trip! Safe driving");
       expect(sanitizeFeedbackText("x".repeat(600), 500).length).toBe(500);
+    });
+  });
+
+  describe("validateCoordinates", () => {
+    it("accepts valid latitude and longitude ranges", () => {
+      const res = validateCoordinates(26.1445, 91.7362); // Guwahati
+      expect(res.valid).toBe(true);
+      expect(res.value).toEqual([26.1445, 91.7362]);
+    });
+
+    it("rejects out-of-range coordinates", () => {
+      expect(validateCoordinates(95, 91).valid).toBe(false);
+      expect(validateCoordinates(-95, 91).valid).toBe(false);
+      expect(validateCoordinates(26, 190).valid).toBe(false);
+      expect(validateCoordinates("invalid", "coords").valid).toBe(false);
+    });
+  });
+
+  describe("validatePhoneNumber", () => {
+    it("accepts valid Indian phone numbers and strips formatting", () => {
+      const res = validatePhoneNumber("+91-9876543210");
+      expect(res.valid).toBe(true);
+      expect(res.value).toBe("9876543210");
+    });
+
+    it("rejects invalid numbers", () => {
+      expect(validatePhoneNumber("12345").valid).toBe(false);
+      expect(validatePhoneNumber("").valid).toBe(false);
+      expect(validatePhoneNumber(null).valid).toBe(false);
+    });
+  });
+
+  describe("validateEmail", () => {
+    it("validates RFC standard email addresses", () => {
+      const res = validateEmail("Passenger@example.com");
+      expect(res.valid).toBe(true);
+      expect(res.value).toBe("passenger@example.com");
+    });
+
+    it("rejects invalid emails", () => {
+      expect(validateEmail("not-an-email").valid).toBe(false);
+      expect(validateEmail("user@.com").valid).toBe(false);
+      expect(validateEmail("").valid).toBe(false);
+    });
+  });
+
+  describe("validateObjectId", () => {
+    it("accepts valid 24-character hexadecimal MongoDB ObjectIds", () => {
+      expect(validateObjectId("507f1f77bcf86cd799439011").valid).toBe(true);
+    });
+
+    it("rejects malformed ObjectIds", () => {
+      expect(validateObjectId("invalid-id").valid).toBe(false);
+      expect(validateObjectId("").valid).toBe(false);
+      expect(validateObjectId(12345).valid).toBe(false);
+    });
+  });
+
+  describe("validateAmount", () => {
+    it("validates amounts within minimum and maximum bounds", () => {
+      const res = validateAmount(150.75, 10, 1000);
+      expect(res.valid).toBe(true);
+      expect(res.value).toBe(150.75);
+    });
+
+    it("rejects amounts outside bounds or NaN", () => {
+      expect(validateAmount(5, 10, 1000).valid).toBe(false);
+      expect(validateAmount(1500, 10, 1000).valid).toBe(false);
+      expect(validateAmount("not-a-number").valid).toBe(false);
+    });
+  });
+
+  describe("sanitizeString", () => {
+    it("strips HTML angle brackets and control characters", () => {
+      const clean = sanitizeString("<script>alert(1)</script>Hello \x00World", 20);
+      expect(clean).toBe("scriptalert(1)/scrip");
+      expect(clean).not.toContain("<");
+      expect(clean).not.toContain(">");
+      expect(clean).not.toContain("\x00");
     });
   });
 });
