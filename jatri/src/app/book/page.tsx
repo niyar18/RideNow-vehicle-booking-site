@@ -107,7 +107,7 @@ const getCategoryBadgeStyle = (category?: string, name?: string) => {
   if (c.includes("mall") || c.includes("market") || c.includes("shop") || n.includes("mall")) return "bg-purple-50 text-purple-700 border-purple-200/80";
   if (c.includes("hotel") || n.includes("hotel")) return "bg-teal-50 text-teal-700 border-teal-200/80";
   if (c.includes("restaurant") || n.includes("restaurant")) return "bg-orange-50 text-orange-700 border-orange-200/80";
-  return "bg-zinc-100 text-zinc-700 border-zinc-200";
+  return "bg-[#FAF7F0] dark:bg-[#10352C] text-[#696B64] dark:text-[#B9C8BF] border-[#DED7CA] dark:border-[#24483D]";
 };
 
 /** Single source of truth for per-vehicle distance bounds (km). */
@@ -1573,7 +1573,7 @@ export default function BookPage() {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-[#0B2822] border border-zinc-200/90 dark:border-[#24483D] rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 divide-y divide-zinc-100 dark:divide-[#24483D]/50 ring-1 ring-black/5"
+              className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] shadow-2xl max-h-72 overflow-y-auto z-50 divide-y divide-[#DED7CA]/60 dark:divide-[#24483D]/50 ring-1 ring-black/5"
             >
               {/* Option to set location on interactive map */}
               <button
@@ -1605,21 +1605,21 @@ export default function BookPage() {
                   setActiveSearchField(null);
                   locateCurrentLocation();
                 }}
-                className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-[#10352C] transition"
+                className="flex items-center gap-3 w-full px-4 py-2.5 text-left hover:bg-[#FAF7F0] dark:hover:bg-[#10352C] transition"
               >
-                <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-[#10352C] text-zinc-800 dark:text-[#F7F5ED] flex items-center justify-center flex-shrink-0 border border-zinc-200 dark:border-[#24483D]">
+                <div className="w-8 h-8 rounded-full bg-[#FAF7F0] dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-center flex-shrink-0 border border-[#DED7CA] dark:border-[#24483D]">
                   <LocateFixed size={14} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-zinc-900 dark:text-[#F7F5ED] leading-none">Current Location (GPS)</p>
-                  <p className="text-[10px] text-zinc-500 dark:text-[#B9C8BF] font-medium mt-0.5">Use device geolocation</p>
+                  <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] leading-none">Current Location (GPS)</p>
+                  <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-medium mt-0.5">Use device geolocation</p>
                 </div>
               </button>
 
               {/* Live search loading feedback */}
               {isSearchingPickup && (
-                <div className="flex items-center gap-2.5 px-4 py-3 text-zinc-500 dark:text-[#B9C8BF]">
-                  <Loader2 size={14} className="animate-spin text-zinc-700 dark:text-[#B9C8BF] shrink-0" />
+                <div className="flex items-center gap-2.5 px-4 py-3 text-[#696B64] dark:text-[#B9C8BF]">
+                  <Loader2 size={14} className="animate-spin text-[#046A38] dark:text-[#34D399] shrink-0" />
                   <span className="text-xs font-semibold">Searching nearby places...</span>
                 </div>
               )}
@@ -1641,28 +1641,28 @@ export default function BookPage() {
                       e.preventDefault();
                       selectPlace(p, true);
                     }}
-                    className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-[#10352C] active:bg-zinc-100 dark:active:bg-[#143D32] transition rounded-xl cursor-pointer"
+                    className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-[#FAF7F0] dark:hover:bg-[#10352C] active:bg-[#F0ECE1] dark:active:bg-[#143D32] transition rounded-[10px] cursor-pointer"
                   >
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 border shadow-2xs transition-transform group-hover:scale-105 ${getCategoryBadgeStyle(p.category, p.title || p.name)}`}>
                       {getCategoryIcon(p.category, p.title || p.name)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-zinc-900 dark:text-[#F7F5ED] truncate group-hover:text-black dark:group-hover:text-white">
+                      <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] truncate group-hover:text-black dark:group-hover:text-white">
                         {p.title || p.name}
                       </p>
                       {p.subtitle && (
-                        <p className="text-[11px] text-zinc-500 dark:text-[#B9C8BF] font-medium truncate mt-0.5">
+                        <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium truncate mt-0.5">
                           {p.subtitle}
                         </p>
                       )}
                     </div>
 
                     {distToPoint !== null && (
-                      <span className="text-[10px] font-bold text-zinc-600 dark:text-[#B9C8BF] bg-zinc-100/90 dark:bg-[#10352C] border border-zinc-200/80 dark:border-[#24483D] px-2 py-0.5 rounded-full flex-shrink-0">
+                      <span className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] px-2 py-0.5 rounded-full flex-shrink-0">
                         {typeof distToPoint === "number" ? distToPoint.toFixed(1) : distToPoint} km
                       </span>
                     )}
-                    <ChevronRight size={13} className="text-zinc-300 dark:text-[#34443A] group-hover:text-zinc-500 dark:group-hover:text-[#929D93] transition-colors flex-shrink-0" />
+                    <ChevronRight size={13} className="text-[#696B64]/50 dark:text-[#34443A] group-hover:text-[#10251C] dark:group-hover:text-[#F7F5ED] transition-colors flex-shrink-0" />
                   </button>
                 );
               })}
@@ -1670,8 +1670,8 @@ export default function BookPage() {
               {/* No results fallback */}
               {!isSearchingPickup && pickup.trim().length >= 2 && pickupResults.length === 0 && (
                 <div className="px-4 py-4 text-center space-y-2">
-                  <p className="text-xs font-bold text-zinc-700 dark:text-[#B9C8BF]">No exact places found for &quot;{pickup}&quot;</p>
-                  <p className="text-[11px] text-zinc-400 dark:text-[#B9C8BF]">Can&apos;t find your place? Move the pin to pick on the interactive map.</p>
+                  <p className="text-xs font-bold text-[#696B64] dark:text-[#B9C8BF]">No exact places found for &quot;{pickup}&quot;</p>
+                  <p className="text-[11px] text-[#696B64]/80 dark:text-[#B9C8BF]">Can&apos;t find your place? Move the pin to pick on the interactive map.</p>
                   <button
                     type="button"
                     onMouseDown={(e) => {
@@ -1679,7 +1679,7 @@ export default function BookPage() {
                       setActiveSearchField(null);
                       setMapSelectionMode("pickup");
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 dark:bg-[#28664D] text-white text-xs font-bold shadow-xs hover:bg-black dark:hover:bg-[#347858] transition"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white text-xs font-bold shadow-xs transition"
                   >
                     <MapPin size={12} />
                     <span>Set pickup on map</span>
@@ -1812,7 +1812,7 @@ export default function BookPage() {
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-[#0B2822] border border-zinc-200/90 dark:border-[#24483D] rounded-2xl shadow-2xl max-h-72 overflow-y-auto z-50 divide-y divide-zinc-100 dark:divide-[#24483D]/50 ring-1 ring-black/5"
+              className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] shadow-2xl max-h-72 overflow-y-auto z-50 divide-y divide-[#DED7CA]/60 dark:divide-[#24483D]/50 ring-1 ring-black/5"
             >
               {/* Option to set location on interactive map */}
               <button
@@ -1838,8 +1838,8 @@ export default function BookPage() {
 
               {/* Live search loading feedback */}
               {isSearchingDrop && (
-                <div className="flex items-center gap-2.5 px-4 py-3 text-zinc-500 dark:text-[#B9C8BF]">
-                  <Loader2 size={14} className="animate-spin text-zinc-700 dark:text-[#B9C8BF] shrink-0" />
+                <div className="flex items-center gap-2.5 px-4 py-3 text-[#696B64] dark:text-[#B9C8BF]">
+                  <Loader2 size={14} className="animate-spin text-[#046A38] dark:text-[#34D399] shrink-0" />
                   <span className="text-xs font-semibold">Searching nearby places...</span>
                 </div>
               )}
@@ -1861,29 +1861,29 @@ export default function BookPage() {
                       e.preventDefault();
                       selectPlace(p, false);
                     }}
-                    className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-[#10352C] active:bg-zinc-100 dark:active:bg-[#143D32] transition rounded-xl cursor-pointer"
+                    className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-[#FAF7F0] dark:hover:bg-[#10352C] active:bg-[#F0ECE1] dark:active:bg-[#143D32] transition rounded-[10px] cursor-pointer"
                   >
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 border shadow-2xs transition-transform group-hover:scale-105 ${getCategoryBadgeStyle(p.category, p.title || p.name)}`}>
                       {getCategoryIcon(p.category, p.title || p.name)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold text-zinc-900 dark:text-[#F7F5ED] truncate group-hover:text-black dark:group-hover:text-white">
+                      <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] truncate group-hover:text-black dark:group-hover:text-white">
                         {p.title || p.name}
                       </p>
                       {p.subtitle && (
-                        <p className="text-[11px] text-zinc-500 dark:text-[#B9C8BF] font-medium truncate mt-0.5">
+                        <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium truncate mt-0.5">
                           {p.subtitle}
                         </p>
                       )}
                     </div>
 
                     {distToPoint !== null && (
-                      <span className="text-[10px] font-bold text-zinc-600 dark:text-[#B9C8BF] bg-zinc-100/90 dark:bg-[#10352C] border border-zinc-200/80 dark:border-[#24483D] px-2 py-0.5 rounded-full flex-shrink-0">
+                      <span className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] px-2 py-0.5 rounded-full flex-shrink-0">
                         {typeof distToPoint === "number" ? distToPoint.toFixed(1) : distToPoint} km
                       </span>
                     )}
 
-                    <ChevronRight size={13} className="text-zinc-300 dark:text-[#34443A] group-hover:text-zinc-500 dark:group-hover:text-[#929D93] transition-colors flex-shrink-0" />
+                    <ChevronRight size={13} className="text-[#696B64]/50 dark:text-[#34443A] group-hover:text-[#10251C] dark:group-hover:text-[#F7F5ED] transition-colors flex-shrink-0" />
                   </button>
                 );
               })}
@@ -1891,8 +1891,8 @@ export default function BookPage() {
               {/* Recent Destinations fallback when no active input query */}
               {dropResults.length === 0 && !isSearchingDrop && recentDestinations.length > 0 && (
                 <>
-                  <div className="px-3.5 py-1.5 bg-zinc-50 dark:bg-[#10352C] border-b border-zinc-100 dark:border-[#24483D] flex items-center justify-between">
-                    <span className="text-[10px] font-black uppercase text-zinc-500 dark:text-[#B9C8BF] tracking-wider">🕒 Recent Destinations</span>
+                  <div className="px-3.5 py-1.5 bg-[#FAF7F0] dark:bg-[#10352C] border-b border-[#DED7CA]/60 dark:border-[#24483D] flex items-center justify-between">
+                    <span className="text-[10px] font-black uppercase text-[#696B64] dark:text-[#B9C8BF] tracking-wider">🕒 Recent Destinations</span>
                   </div>
                   {recentDestinations.map((recent) => (
                     <button
@@ -1912,18 +1912,18 @@ export default function BookPage() {
                           false
                         );
                       }}
-                      className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-zinc-50 dark:hover:bg-[#10352C] active:bg-zinc-100 dark:active:bg-[#143D32] transition rounded-xl"
+                      className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-[#FAF7F0] dark:hover:bg-[#10352C] active:bg-[#F0ECE1] dark:active:bg-[#143D32] transition rounded-[10px]"
                     >
-                      <div className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-[#10352C] border border-zinc-200 dark:border-[#24483D] text-zinc-600 dark:text-[#B9C8BF] flex items-center justify-center text-xs flex-shrink-0 shadow-2xs">
+                      <div className="w-8 h-8 rounded-full bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#696B64] dark:text-[#B9C8BF] flex items-center justify-center text-xs flex-shrink-0 shadow-2xs">
                         🕒
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-bold text-zinc-900 dark:text-[#F7F5ED] truncate group-hover:text-black dark:group-hover:text-white">{recent.name}</p>
+                        <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] truncate group-hover:text-black dark:group-hover:text-white">{recent.name}</p>
                         {recent.subtitle && (
-                          <p className="text-[10px] text-zinc-500 dark:text-[#B9C8BF] font-medium truncate mt-0.5">{recent.subtitle}</p>
+                          <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-medium truncate mt-0.5">{recent.subtitle}</p>
                         )}
                       </div>
-                      <ChevronRight size={13} className="text-zinc-300 dark:text-[#34443A] group-hover:text-zinc-500 dark:group-hover:text-[#929D93] flex-shrink-0" />
+                      <ChevronRight size={13} className="text-[#696B64]/50 dark:text-[#34443A] group-hover:text-[#10251C] dark:group-hover:text-[#F7F5ED] flex-shrink-0" />
                     </button>
                   ))}
                 </>
@@ -1932,8 +1932,8 @@ export default function BookPage() {
               {/* No results fallback */}
               {!isSearchingDrop && drop.trim().length >= 2 && dropResults.length === 0 && (
                 <div className="px-4 py-4 text-center space-y-2">
-                  <p className="text-xs font-bold text-zinc-700 dark:text-[#B9C8BF]">No exact places found for &quot;{drop}&quot;</p>
-                  <p className="text-[11px] text-zinc-400 dark:text-[#B9C8BF]">Can&apos;t find your place? Move the pin to pick on the interactive map.</p>
+                  <p className="text-xs font-bold text-[#696B64] dark:text-[#B9C8BF]">No exact places found for &quot;{drop}&quot;</p>
+                  <p className="text-[11px] text-[#696B64]/80 dark:text-[#B9C8BF]">Can&apos;t find your place? Move the pin to pick on the interactive map.</p>
                   <button
                     type="button"
                     onMouseDown={(e) => {
@@ -1941,7 +1941,7 @@ export default function BookPage() {
                       setActiveSearchField(null);
                       setMapSelectionMode("drop");
                     }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 dark:bg-[#E34222] text-white text-xs font-bold shadow-xs hover:bg-black dark:hover:bg-[#8A2514] transition"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] bg-[#E34222] hover:bg-[#C23317] text-white text-xs font-bold shadow-xs transition"
                   >
                     <MapPin size={12} />
                     <span>Set destination on map</span>
@@ -2076,7 +2076,7 @@ export default function BookPage() {
           </div>
 
           <div>
-            <label className="text-[10px] font-bold text-zinc-600 dark:text-[#B9C8BF] block mb-1">Cargo Type</label>
+            <label className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] block mb-1">Cargo Type</label>
             <div className="flex flex-wrap gap-1.5">
               {["Boxes & Cartons", "Furniture & Home", "Commercial Goods", "Machinery & Parts"].map((type) => (
                 <button
@@ -2086,7 +2086,7 @@ export default function BookPage() {
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition ${
                     cargoType === type
                       ? "bg-orange-600 text-white border-orange-600"
-                      : "bg-white dark:bg-[#10352C] text-zinc-700 dark:text-[#B9C8BF] border-zinc-200 dark:border-[#24483D] hover:bg-orange-50/40 dark:hover:bg-[#3A201A]/40"
+                      : "bg-white dark:bg-[#10352C] text-[#696B64] dark:text-[#B9C8BF] border-[#DED7CA] dark:border-[#24483D] hover:bg-[#FAF7F0] dark:hover:bg-[#10352C]"
                   }`}
                 >
                   {type}
@@ -2097,23 +2097,23 @@ export default function BookPage() {
 
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-[10px] font-bold text-zinc-600 dark:text-[#B9C8BF] block mb-1">Receiver Contact (Optional)</label>
+              <label className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] block mb-1">Receiver Contact (Optional)</label>
               <input
                 type="tel"
                 placeholder="Alternate phone"
                 value={receiverContact}
                 onChange={(e) => setReceiverContact(e.target.value)}
-                className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-[#24483D] bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] focus:outline-none focus:ring-1 focus:ring-orange-500"
+                className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
             <div>
-              <label className="text-[10px] font-bold text-zinc-600 dark:text-[#B9C8BF] block mb-1">Delivery Instructions</label>
+              <label className="text-[10px] font-bold text-[#696B64] dark:text-[#B9C8BF] block mb-1">Delivery Instructions</label>
               <input
                 type="text"
                 placeholder="e.g. 2nd floor, handle with care"
                 value={deliveryNotes}
                 onChange={(e) => setDeliveryNotes(e.target.value)}
-                className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-zinc-200 dark:border-[#24483D] bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] focus:outline-none focus:ring-1 focus:ring-orange-500"
+                className="w-full text-xs font-semibold px-2.5 py-1.5 rounded-lg border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] focus:outline-none focus:ring-1 focus:ring-orange-500"
               />
             </div>
           </div>
@@ -2192,22 +2192,22 @@ export default function BookPage() {
       <div>
         <div className="flex items-center justify-between mb-2 px-0.5">
           <div>
-            <h2 className="text-base sm:text-lg font-bold tracking-tight text-zinc-950 dark:text-[#F7F5ED] font-heading">
+            <h2 className="text-base sm:text-lg font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED] font-heading">
               {serviceMode === "passenger" ? "Choose a trip" : "Goods Transport Vehicles"}
             </h2>
-            <p className="text-xs text-zinc-500 dark:text-[#B9C8BF] font-body">
+            <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] font-body">
               {serviceMode === "passenger" ? `${PASSENGER_VEHICLES.length} rides nearby` : `${LOGISTICS_VEHICLES.length} freight sizes`}
             </p>
           </div>
         </div>
 
         {routeDistance === -1 ? (
-          <div className="p-4 bg-rose-50 dark:bg-[#3A201A]/60 border border-rose-200 dark:border-[#6B3A2C] rounded-none text-center">
+          <div className="p-4 bg-rose-50 dark:bg-[#3A201A]/60 border border-rose-200 dark:border-[#6B3A2C] rounded-[12px] text-center">
             <p className="text-rose-600 dark:text-rose-300 text-xs font-black uppercase">No Rides Available</p>
-            <p className="text-zinc-500 dark:text-[#B9C8BF] text-[10px] mt-1 font-bold">No road connection found between these points.</p>
+            <p className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] mt-1 font-bold">No road connection found between these points.</p>
           </div>
         ) : (
-          <div role="group" aria-label={serviceMode === "passenger" ? "Choose a ride vehicle" : "Choose a goods transport vehicle"} className="bg-transparent divide-y divide-zinc-100 dark:divide-[#24483D]/40">
+          <div role="group" aria-label={serviceMode === "passenger" ? "Choose a ride vehicle" : "Choose a goods transport vehicle"} className="bg-transparent divide-y divide-[#DED7CA]/60 dark:divide-[#24483D]/40">
             {(serviceMode === "passenger" ? PASSENGER_VEHICLES : LOGISTICS_VEHICLES).map((v, _index, availableVehicles) => {
               const isSelected = vehicle === v.id;
               const isLimitOk = checkLimit(v.id, effectiveDistance);
@@ -2611,7 +2611,7 @@ export default function BookPage() {
           </motion.button>
 
           {!canContinue && (
-            <p className="text-center text-[10px] font-bold mt-2 text-zinc-600 dark:text-[#B9C8BF] uppercase tracking-wider truncate">
+            <p className="text-center text-[10px] font-bold mt-2 text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider truncate">
               {activeExistingRide
                 ? "Active ride already in progress. Complete or cancel it first."
                 : !drop
@@ -2632,8 +2632,8 @@ export default function BookPage() {
       {/* ══ 2. DESKTOP / TABLET MAP CANVAS (TAKES THE OTHER 50%, FULLSCREEN ONLY DURING PIN SELECTION) ══ */}
       <div className={`hidden md:block ${
         mapSelectionMode !== "none"
-          ? "fixed inset-0 z-40 bg-zinc-100 dark:bg-[#061A16]"
-          : "w-full md:w-1/2 flex-1 h-full relative z-0 bg-zinc-100 dark:bg-[#061A16]"
+          ? "fixed inset-0 z-40 bg-[#FAF7F0] dark:bg-[#061A16]"
+          : "w-full md:w-1/2 flex-1 h-full relative z-0 bg-[#FAF7F0] dark:bg-[#061A16]"
       }`}>
         <RouteMap
           pickup={pickup}
@@ -2660,7 +2660,7 @@ export default function BookPage() {
       <div className="md:hidden flex flex-col w-full h-[100dvh] max-h-[100dvh] overflow-hidden bg-[#FAF7F0] dark:bg-[#061A16]">
         {/* Fullscreen Map when user is picking location pin on mobile */}
         {mapSelectionMode !== "none" ? (
-          <div className="fixed inset-0 z-40 bg-zinc-100 dark:bg-[#061A16]">
+          <div className="fixed inset-0 z-40 bg-[#FAF7F0] dark:bg-[#061A16]">
             <RouteMap
               pickup={pickup}
               drop={drop}
@@ -2719,7 +2719,7 @@ export default function BookPage() {
               <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
               {renderLocationInputs()}
             </div>
-            <div className="flex-1 relative z-0 bg-zinc-100 dark:bg-[#061A16]">
+            <div className="flex-1 relative z-0 bg-[#FAF7F0] dark:bg-[#061A16]">
               <RouteMap
                 pickup={pickup}
                 drop={drop}
@@ -2748,7 +2748,7 @@ export default function BookPage() {
             <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 pointer-events-auto">
               <Link
                 href="/" prefetch={true}
-                className="h-8 px-2.5 bg-white/95 dark:bg-[#0B2822]/95 hover:bg-white dark:hover:bg-[#10352C] text-zinc-900 dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition"
+                className="min-h-[44px] px-3 bg-white/95 dark:bg-[#0B2822]/95 hover:bg-white dark:hover:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] shadow-sm flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider backdrop-blur-sm transition"
                 title="Home"
               >
                 <HomeIcon size={13} />
@@ -2757,7 +2757,7 @@ export default function BookPage() {
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="w-8 h-8 bg-white/95 dark:bg-[#0B2822]/95 hover:bg-white dark:hover:bg-[#10352C] text-zinc-900 dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] shadow-sm flex items-center justify-center backdrop-blur-sm transition"
+                className="min-w-[44px] min-h-[44px] bg-white/95 dark:bg-[#0B2822]/95 hover:bg-white dark:hover:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] shadow-sm flex items-center justify-center backdrop-blur-sm transition"
                 title="Back"
               >
                 <ArrowLeft size={14} />
@@ -2769,7 +2769,7 @@ export default function BookPage() {
               <button
                 type="button"
                 onClick={() => setShowAuthModal(true)}
-                className="absolute top-3 right-3 z-30 h-8 px-3 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] text-white rounded-[8px] shadow-md flex items-center gap-1.5 text-xs font-bold pointer-events-auto transition active:scale-95 cursor-pointer"
+                className="absolute top-3 right-3 z-30 min-h-[44px] px-3.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] text-white rounded-[8px] shadow-md flex items-center gap-1.5 text-xs font-bold pointer-events-auto transition active:scale-95 cursor-pointer"
               >
                 <LogIn size={13} />
                 <span>Sign In</span>
@@ -2777,7 +2777,7 @@ export default function BookPage() {
             )}
 
             {/* Stable Fullscreen Map: NEVER changes container height during gestures */}
-            <div className="absolute inset-0 z-0 bg-zinc-100 dark:bg-[#061A16]">
+            <div className="absolute inset-0 z-0 bg-[#FAF7F0] dark:bg-[#061A16]">
               <RouteMap
                 pickup={pickup}
                 drop={drop}
