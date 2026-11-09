@@ -37,6 +37,54 @@ export function BikeIcon({ size = 56, className = "", ...props }: VehicleIconPro
   );
 }
 
+export function ERickshawIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 48 48"
+      className={className}
+      role="img"
+      aria-hidden="true"
+      {...props}
+    >
+      {/* Flat Toto Canopy Roof */}
+      <rect x="6" y="8" width="36" height="5" rx="2" fill="#046A38" />
+      <path fill="#058A48" d="M6,13h36v3c0,0.552-0.448,1-1,1H7c-0.552,0-1-0.448-1-1V13z" />
+      
+      {/* Vertical Support Pillars */}
+      <rect x="8" y="16" width="2" height="15" fill="#455a64" />
+      <rect x="23" y="16" width="2" height="15" fill="#455a64" />
+      <rect x="38" y="16" width="2" height="15" fill="#455a64" />
+      
+      {/* Front Windshield Area */}
+      <path fill="#81C784" d="M38,17L44,27H38V17z" opacity="0.6" />
+      <path fill="#455a64" d="M38,27h6l-1,4h-5V27z" />
+      
+      {/* Main Body / Chassis */}
+      <rect x="6" y="27" width="33" height="6" rx="1.5" fill="#046A38" />
+      <path fill="#34D399" d="M8,29h29v2H8V29z" />
+      
+      {/* Passenger Seating Benches */}
+      <rect x="10" y="23" width="12" height="4" rx="1" fill="#FFC107" />
+      <rect x="25" y="23" width="10" height="4" rx="1" fill="#FFC107" />
+      
+      {/* Front Wheel */}
+      <circle cx="41" cy="36" r="4.5" fill="#37474F" />
+      <circle cx="41" cy="36" r="2" fill="#CFD8DC" />
+      
+      {/* Rear Wheels */}
+      <circle cx="13" cy="36" r="5" fill="#37474F" />
+      <circle cx="13" cy="36" r="2.2" fill="#CFD8DC" />
+      
+      {/* Electric Bolt Accent on Battery Box */}
+      <path fill="#FFD54F" d="M22,28l-2,3h3l-1.5,3.5l4-4.5h-3l1.5-2H22z" />
+    </svg>
+  );
+}
+
+export const TotoIcon = ERickshawIcon;
+
 export function AutoRickshawIcon({ size = 56, className = "", ...props }: VehicleIconProps) {
   return (
     <svg
@@ -188,8 +236,8 @@ export const VEHICLE_SVG_ICONS: Record<string, React.ComponentType<VehicleIconPr
   scooty: ScootyIcon,
   bike: BikeIcon,
   auto: AutoRickshawIcon,
-  "e-rickshaw": AutoRickshawIcon,
-  toto: AutoRickshawIcon,
+  "e-rickshaw": ERickshawIcon,
+  toto: ERickshawIcon,
   mini: CarMiniIcon,
   car: CarPremierIcon,
   premier: CarPremierIcon,
