@@ -33,8 +33,8 @@ const dmSerifDisplay = DM_Serif_Display({
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#FAF7F0" },
-    { media: "(prefers-color-scheme: dark)", color: "#061A16" },
+    { media: "(prefers-color-scheme: light)", color: "#f6f4eb" },
+    { media: "(prefers-color-scheme: dark)", color: "#121d17" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -142,10 +142,6 @@ export default async function RootLayout({
     >
       <head>
         {/* Preload Critical Hero and Branding WebP Images for Instant Rendering */}
-        <link rel="preload" as="image" href="/mobile-home/hero_landscape.webp" media="(max-width: 767px) and (prefers-color-scheme: light)" type="image/webp" />
-        <link rel="preload" as="image" href="/mobile-home/hero_landscape_dark.webp" media="(max-width: 767px) and (prefers-color-scheme: dark)" type="image/webp" />
-        <link rel="preload" as="image" href="/hero/desktop_hero.webp" media="(min-width: 768px) and (prefers-color-scheme: light)" type="image/webp" />
-        <link rel="preload" as="image" href="/hero/desktop_hero_dark.webp" media="(min-width: 768px) and (prefers-color-scheme: dark)" type="image/webp" />
         <link rel="preload" as="image" href="/logojatri.webp" media="(prefers-color-scheme: light)" type="image/webp" />
         <link rel="preload" as="image" href="/logojatri-dark.webp" media="(prefers-color-scheme: dark)" type="image/webp" />
 
@@ -170,12 +166,12 @@ export default async function RootLayout({
                     root.classList.add('dark');
                     root.classList.remove('light');
                     root.style.colorScheme = 'dark';
-                    root.style.backgroundColor = '#061A16';
+                    root.style.backgroundColor = '#121d17';
                   } else {
                     root.classList.remove('dark');
                     root.classList.add('light');
                     root.style.colorScheme = 'light';
-                    root.style.backgroundColor = '#FAF7F0';
+                    root.style.backgroundColor = '#f6f4eb';
                   }
 
                   // Zero-delay splash screen resolver: hide instantly if already seen in this session
@@ -209,15 +205,15 @@ export default async function RootLayout({
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                background-color: #FAF7F0;
+                background-color: #f6f4eb;
                 user-select: none;
               }
               html.dark #jaatri-splash-screen {
-                background-color: #061A16;
+                background-color: #121d17;
               }
               @media (prefers-color-scheme: dark) {
                 html:not(.light) #jaatri-splash-screen {
-                  background-color: #061A16;
+                  background-color: #121d17;
                 }
               }
               html:not(.splash-hidden) body {
@@ -261,7 +257,8 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="antialiased bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] w-full min-h-screen font-sans flex flex-col">
+      <body className="antialiased bg-[var(--background)] text-[var(--text-primary)] w-full min-h-screen font-sans flex flex-col">
+        <a className="jaatri-skip-link" href="#main-content">Skip to content</a>
         <SplashScreen />
         <Provider session={session}>
           <ThemeProvider>
@@ -270,9 +267,9 @@ export default async function RootLayout({
                 <InitUser />
                 <PhoneLinkModal />
                 <CookieConsent />
-                <main id="main-content" className="flex-1 w-full flex flex-col">
+                <div id="main-content" tabIndex={-1} className="flex-1 w-full flex flex-col">
                   {children}
-                </main>
+                </div>
                 <MobileBottomNav />
               </StoreProvider>
             </LanguageProvider>

@@ -837,27 +837,22 @@ export default function CheckoutContent() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] px-3 sm:px-4 pt-5 pb-[max(28px,env(safe-area-inset-bottom))] sm:py-10">
+    <div className="min-h-[100dvh] bg-[var(--background)] text-[var(--text-primary)] px-3 sm:px-4 pt-5 pb-[max(28px,env(safe-area-inset-bottom))] sm:py-10">
 
-      {/* subtle dot grid */}
-      <div className="fixed inset-0 pointer-events-none opacity-60 dark:opacity-20"
-        style={{ backgroundImage: "radial-gradient(circle, #DED7CA 1px, transparent 1px)", backgroundSize: "28px 28px" }}
-      />
-
-      <div className="relative max-w-2xl mx-auto z-10 space-y-4 sm:space-y-6">
+      <div className="relative max-w-[46rem] mx-auto z-10 space-y-4 sm:space-y-6">
 
         {/* ── PAGE HEADER & NAVIGATION ── */}
         <motion.div
           initial={{ opacity: 0, y: 14 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[#DED7CA] dark:border-[#24483D] pb-3"
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-[var(--border-default)] pb-4 sm:pb-5"
         >
           <div className="flex items-center gap-2.5">
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="min-w-[44px] min-h-[44px] rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-white dark:hover:bg-[#143D32] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED] transition shadow-none cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="min-w-[44px] min-h-[44px] rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-white dark:hover:bg-[#143D32] flex items-center justify-center text-[var(--text-primary)] transition shadow-none cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
               aria-label="Back to Map"
               title="Back to Map"
             >
@@ -865,10 +860,10 @@ export default function CheckoutContent() {
             </Link>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E34222]">Step 2 of 2</span>
+                <span className="text-xs font-semibold text-[var(--text-secondary)]">Step 2 of 2</span>
               </div>
-              <h1 className="text-xl sm:text-2xl font-serif font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED]">
-                Review & Confirm Ride
+              <h1 className="text-[clamp(1.5rem,5vw,2.25rem)] font-semibold tracking-[-0.04em] text-[var(--text-primary)]">
+                Review your ride
               </h1>
             </div>
           </div>
@@ -876,7 +871,7 @@ export default function CheckoutContent() {
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-white dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-white dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
               title="Go to Home"
             >
               <HomeIcon size={13} />
@@ -885,7 +880,7 @@ export default function CheckoutContent() {
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-white dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-white dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <Edit2 size={12} />
               <span>Edit Route</span>
@@ -906,7 +901,7 @@ export default function CheckoutContent() {
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="min-h-[44px] px-3.5 py-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+              className="min-h-[44px] px-3.5 py-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
             >
               Choose on Map
             </Link>
@@ -914,12 +909,12 @@ export default function CheckoutContent() {
         )}
 
         {/* ── UNIFIED BOOKING FLOW (ALL IN ONE TYPE) ── */}
-        <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[14px] border border-[#DED7CA] dark:border-[#24483D] overflow-hidden shadow-sm">
+        <div className="bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] overflow-hidden shadow-sm">
 
           {/* ══ 1. VEHICLE & TOTAL FARE SUMMARY ROW ══ */}
-          <div className="p-4 sm:p-6 border-b border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] flex items-center justify-between gap-4">
+          <div className="p-4 sm:p-6 border-b border-[var(--border-default)] bg-[var(--surface-raised)] flex items-center justify-between gap-4">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-12 h-12 bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#90C8A8] rounded-[10px] flex items-center justify-center flex-shrink-0 shadow-2xs border border-[#cdd6c3] dark:border-[#2D4E3A]">
+              <div className="w-12 h-12 bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#90C8A8] rounded-[10px] flex items-center justify-center flex-shrink-0 border border-[#cdd6c3] dark:border-[#2D4E3A]">
                 <VehicleIcon size={24} className="text-[#123D32] dark:text-[#90C8A8]" />
               </div>
               <div className="min-w-0">
@@ -928,23 +923,23 @@ export default function CheckoutContent() {
                     {opt?.categoryTitle || "Jaatri Fleet"}
                   </span>
                   {opt?.etaText && (
-                    <span className="text-[10px] font-mono text-[#123D32] dark:text-[#90C8A8] bg-[#E5EBDD] dark:bg-[#1D3428] px-2 py-0.5 rounded-full font-bold">
+                    <span className="text-[10px] font-mono text-[#123D32] dark:text-[#90C8A8] bg-[var(--surface-subtle)] px-2 py-0.5 rounded-full font-bold">
                       {opt.etaText}
                     </span>
                   )}
                 </div>
-                <h2 className="text-lg sm:text-xl font-serif text-[#10251C] dark:text-[#F7F5ED] tracking-tight truncate">
+                <h2 className="text-lg sm:text-xl text-[var(--text-primary)] tracking-tight truncate">
                   {vehicleLabel}
                 </h2>
-                <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium truncate mt-0.5">
+                <p className="text-[11px] text-[var(--text-secondary)] font-medium truncate mt-0.5">
                   {opt?.tagline || opt?.description || "Verified drivers with upfront guaranteed pricing"}
                 </p>
               </div>
             </div>
 
             <div className="text-right flex-shrink-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Total Upfront</p>
-              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED] font-mono">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Total Upfront</p>
+              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)] font-mono">
                 ₹{effectiveFare}
               </div>
             </div>
@@ -952,9 +947,9 @@ export default function CheckoutContent() {
 
           <div className="p-4 sm:p-6 space-y-5">
             {/* ══ 2. ROUTE TIMELINE (CLEAN MINIMALIST VERTICAL FLOW) ══ */}
-            <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] p-3.5 sm:p-4 space-y-3 shadow-2xs">
+            <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[10px] p-3.5 sm:p-4 space-y-3 shadow-2xs">
               <div className="flex items-center justify-between border-b border-[#DED7CA]/60 dark:border-[#24483D]/60 pb-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Route Overview</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Route Overview</span>
                 <Link
                   href={editBookUrl}
                   onClick={handleReturnToBook}
@@ -972,8 +967,8 @@ export default function CheckoutContent() {
                   <span className="w-px h-6 bg-[#DED7CA] dark:bg-[#34443A] my-1" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Pickup</p>
-                  <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug truncate">
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Pickup</p>
+                  <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] leading-snug truncate">
                     {pickup}
                   </p>
                 </div>
@@ -983,12 +978,12 @@ export default function CheckoutContent() {
               {stops && stops.length > 0 && stops.map((stop, idx) => (
                 <div key={idx} className="flex items-start gap-3 pl-0.5">
                   <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                    <span className="w-2 h-2 border border-[#123D32] dark:border-[#90C8A8] bg-[#E5EBDD] dark:bg-[#1D3428] rounded-full" />
+                    <span className="w-2 h-2 border border-[#123D32] dark:border-[#90C8A8] bg-[var(--surface-subtle)] rounded-full" />
                     <span className="w-px h-6 bg-[#DED7CA] dark:bg-[#34443A] my-1" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">Stop {idx + 1}</p>
-                    <p className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED] leading-snug truncate">{stop.address}</p>
+                    <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Stop {idx + 1}</p>
+                    <p className="text-xs font-semibold text-[var(--text-primary)] leading-snug truncate">{stop.address}</p>
                   </div>
                 </div>
               ))}
@@ -1000,33 +995,33 @@ export default function CheckoutContent() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[9px] font-bold uppercase tracking-wider text-[#E34222] dark:text-[#E06A50]">Destination</p>
-                  <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] leading-snug truncate">
+                  <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] leading-snug truncate">
                     {drop}
                   </p>
                 </div>
               </div>
 
               {/* Distance and Estimated Travel Time Stats */}
-              <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#24483D]/60 flex items-center justify-between text-[11px] font-mono text-[#696B64] dark:text-[#B9C8BF]">
-                <span>Distance: <strong className="text-[#10251C] dark:text-[#F7F5ED]">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
-                <span>Est. Time: <strong className="text-[#10251C] dark:text-[#F7F5ED]">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
+              <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#24483D]/60 flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)]">
+                <span>Distance: <strong className="text-[var(--text-primary)]">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
+                <span>Est. Time: <strong className="text-[var(--text-primary)]">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
               </div>
             </div>
 
             {/* ══ CONTEXTUAL BADGES ══ */}
             {/* Smart Pickup Zone */}
             {isSmartPickup && smartPickupDetails && (
-              <div className="p-3 bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] flex items-start gap-3 text-xs">
+              <div className="p-3 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[10px] flex items-start gap-3 text-xs">
                 <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   📍
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[var(--text-primary)]">
                     Designated Smart Pickup · {smartPickupDetails.walkingTimeText || "Short Walk"}
                   </p>
-                  <p className="font-extrabold text-[#10251C] dark:text-[#F7F5ED] mt-0.5">{smartPickupDetails.spotName} — {smartPickupDetails.venueName}</p>
+                  <p className="font-extrabold text-[var(--text-primary)] mt-0.5">{smartPickupDetails.spotName} — {smartPickupDetails.venueName}</p>
                   {smartPickupDetails.instructions && (
-                    <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] italic mt-1">&quot;{smartPickupDetails.instructions}&quot;</p>
+                    <p className="text-[11px] text-[var(--text-secondary)] italic mt-1">&quot;{smartPickupDetails.instructions}&quot;</p>
                   )}
                 </div>
               </div>
@@ -1034,13 +1029,13 @@ export default function CheckoutContent() {
 
             {/* Family Ride Badge */}
             {isFamilyRide && familyMemberDetails && (
-              <div className="p-3 bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] flex items-start gap-3 text-xs">
+              <div className="p-3 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[10px] flex items-start gap-3 text-xs">
                 <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   👨‍👩‍👧
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">Family Account Ride</p>
-                  <p className="font-extrabold text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[var(--text-primary)]">Family Account Ride</p>
+                  <p className="font-extrabold text-[var(--text-primary)] mt-0.5">
                     Booked for: {familyMemberDetails.name} ({familyMemberDetails.relation}) · {familyMemberDetails.phone || ""}
                   </p>
                 </div>
@@ -1049,13 +1044,13 @@ export default function CheckoutContent() {
 
             {/* Scheduled Ride Badge */}
             {isScheduled && scheduledPickupDate && (
-              <div className="p-3 bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] flex items-start gap-3 text-xs">
+              <div className="p-3 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[10px] flex items-start gap-3 text-xs">
                 <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   ⏰
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">Scheduled Advance Trip</p>
-                  <p className="font-extrabold text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[var(--text-primary)]">Scheduled Advance Trip</p>
+                  <p className="font-extrabold text-[var(--text-primary)] mt-0.5">
                     Pickup: {scheduledPickupDate.toLocaleDateString("en-US", {
                       weekday: "short",
                       month: "short",
@@ -1064,24 +1059,24 @@ export default function CheckoutContent() {
                       minute: "2-digit",
                     })}
                   </p>
-                  <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5">Driver assigned 15-30 mins prior to pickup time.</p>
+                  <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">Driver assigned 15-30 mins prior to pickup time.</p>
                 </div>
               </div>
             )}
 
             {/* Logistics Cargo Details */}
             {serviceMode === "logistics" && cargoDetails && (
-              <div className="p-3 bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] flex items-start gap-3 text-xs">
+              <div className="p-3 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[10px] flex items-start gap-3 text-xs">
                 <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   <Package size={14} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">Goods Transport Details</p>
-                  <p className="font-extrabold text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
+                  <p className="text-[10px] font-black uppercase tracking-wider text-[var(--text-primary)]">Goods Transport Details</p>
+                  <p className="font-extrabold text-[var(--text-primary)] mt-0.5">
                     {cargoDetails.cargoType || "General Cargo"} {cargoDetails.cargoWeightKg ? `· ~${cargoDetails.cargoWeightKg} kg` : ""}
                   </p>
                   {cargoDetails.receiverContact && (
-                    <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF]">Receiver: {cargoDetails.receiverContact}</p>
+                    <p className="text-[11px] text-[var(--text-secondary)]">Receiver: {cargoDetails.receiverContact}</p>
                   )}
                 </div>
               </div>
@@ -1089,19 +1084,19 @@ export default function CheckoutContent() {
 
             {/* ══ 3. ITEMIZED FARE RECEIPT ══ */}
             {computedBreakdown && (
-              <div className="border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] bg-[#FAF7F0]/80 dark:bg-[#10352C]/70 p-3.5 sm:p-4">
-                <p className="text-[10px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] pb-2 border-b border-[#DED7CA] dark:border-[#24483D] flex items-center justify-between">
+              <div className="border border-[var(--border-default)] rounded-[12px] bg-[#FAF7F0]/80 dark:bg-[#10352C]/70 p-3.5 sm:p-4">
+                <p className="text-[10px] font-black uppercase tracking-wider text-[var(--text-primary)] pb-2 border-b border-[var(--border-default)] flex items-center justify-between">
                   <span>Guaranteed Upfront Pricing</span>
-                  <span className="font-mono text-[#696B64] dark:text-[#B9C8BF]">No Hidden Costs</span>
+                  <span className="font-mono text-[var(--text-secondary)]">No Hidden Costs</span>
                 </p>
-                <div className="space-y-1.5 text-xs text-[#696B64] dark:text-[#B9C8BF] font-medium pt-2">
+                <div className="space-y-1.5 text-xs text-[var(--text-secondary)] font-medium pt-2">
                   <div className="flex justify-between">
                     <span>Base Flagdown Fare</span>
-                    <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{computedBreakdown.baseFare}</span>
+                    <span className="font-bold text-[var(--text-primary)]">₹{computedBreakdown.baseFare}</span>
                   </div>
                   <div className="flex justify-between text-[11px]">
                     <span>Distance Charge ({computedBreakdown.distanceKm} km × ₹{computedBreakdown.pricePerKm}/km)</span>
-                    <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{computedBreakdown.distanceFare}</span>
+                    <span className="font-bold text-[var(--text-primary)]">₹{computedBreakdown.distanceFare}</span>
                   </div>
                   {computedBreakdown.surgeAmount > 0 && (
                     <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold">
@@ -1111,25 +1106,25 @@ export default function CheckoutContent() {
                   )}
                   <div className="flex justify-between text-[11px]">
                     <span>Platform Service Fee</span>
-                    <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{computedBreakdown.platformFee}</span>
+                    <span className="font-bold text-[var(--text-primary)]">₹{computedBreakdown.platformFee}</span>
                   </div>
                   <div className="flex justify-between text-[11px]">
                     <span>Govt GST / Taxes (5%)</span>
-                    <span className="font-bold text-[#10251C] dark:text-[#F7F5ED]">₹{computedBreakdown.taxes}</span>
+                    <span className="font-bold text-[var(--text-primary)]">₹{computedBreakdown.taxes}</span>
                   </div>
                   {computedBreakdown.isStudentDiscountApplied && (
-                    <div className="flex justify-between text-[11px] text-emerald-700 dark:text-emerald-400 font-extrabold pt-1 border-t border-[#DED7CA] dark:border-[#24483D]">
+                    <div className="flex justify-between text-[11px] text-emerald-700 dark:text-emerald-400 font-extrabold pt-1 border-t border-[var(--border-default)]">
                       <span>🎓 Student Pass Discount (10% OFF)</span>
                       <span>-₹{computedBreakdown.studentDiscount}</span>
                     </div>
                   )}
                   {(computedBreakdown.cancellationDues ? computedBreakdown.cancellationDues > 0 : Number((userData as any)?.outstandingAmount || 0) > 0) && (
-                    <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold pt-1 border-t border-[#DED7CA] dark:border-[#24483D]">
+                    <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold pt-1 border-t border-[var(--border-default)]">
                       <span>Unsettled Cancellation Dues</span>
                       <span>+₹{computedBreakdown.cancellationDues || Number((userData as any)?.outstandingAmount || 0)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-sm font-black text-[#10251C] dark:text-[#F7F5ED] pt-2 border-t border-[#DED7CA] dark:border-[#24483D]">
+                  <div className="flex justify-between text-sm font-black text-[var(--text-primary)] pt-2 border-t border-[var(--border-default)]">
                     <span>Final Fare</span>
                     <span className="font-mono text-[#123D32] dark:text-[#D7AC62]">₹{effectiveFare}</span>
                   </div>
@@ -1178,7 +1173,7 @@ export default function CheckoutContent() {
                             <button
                               type="button"
                               onClick={() => setShowAuthModal(true)}
-                              className="mt-2 text-xs font-bold text-white bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] px-3.5 py-1.5 rounded-[6px] transition cursor-pointer"
+                              className="mt-2 text-xs font-bold text-white bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] px-3.5 py-1.5 rounded-[6px] transition cursor-pointer"
                             >
                               Sign In Now
                             </button>
@@ -1203,7 +1198,7 @@ export default function CheckoutContent() {
                       type="button"
                       onClick={() => handleCreateBooking()}
                       disabled={loading || !pickupLat || !dropLat}
-                      className="w-full h-13 py-3.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-white font-bold text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer shadow-sm min-h-[50px] active:scale-[0.99]"
+                      className="w-full h-13 py-3.5 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] disabled:opacity-40 text-white font-bold text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer min-h-[50px] active:scale-[0.99]"
                     >
                       {loading ? (
                         <>
@@ -1218,7 +1213,7 @@ export default function CheckoutContent() {
                       )}
                     </button>
 
-                    <div className="flex items-center justify-center gap-4 text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-bold uppercase tracking-wider pt-1">
+                    <div className="flex items-center justify-center gap-4 text-[10px] text-[var(--text-secondary)] font-bold uppercase tracking-wider pt-1">
                       <span>• Driver answers in &lt; 2 min</span>
                       <span>• Pay after trip begins</span>
                       <span>• 100% verified fleet</span>
@@ -1257,22 +1252,22 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.35 }}
                     className="py-8 flex flex-col items-center justify-center gap-5 text-center"
                   >
-                    <div className="relative w-16 h-16 rounded-full bg-[#FAF7F0] dark:bg-[#10352C] border-2 border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center">
-                      <RotateCcw size={26} className="text-[#10251C] dark:text-[#F7F5ED] animate-spin" />
+                    <div className="relative w-16 h-16 rounded-full bg-[var(--surface-subtle)] border-2 border-[var(--border-default)] flex items-center justify-center">
+                      <RotateCcw size={26} className="text-[var(--text-primary)] animate-spin" />
                     </div>
                     <div>
-                      <div className="inline-flex items-center gap-1.5 bg-[#FAF7F0] dark:bg-[#10352C] px-3 py-1 rounded-full text-[#10251C] dark:text-[#F7F5ED] text-[10px] font-black uppercase tracking-wider mb-2 border border-[#DED7CA] dark:border-[#24483D]">
+                      <div className="inline-flex items-center gap-1.5 bg-[var(--surface-subtle)] px-3 py-1 rounded-full text-[var(--text-primary)] text-[10px] font-black uppercase tracking-wider mb-2 border border-[var(--border-default)]">
                         Auto Re-dispatch Active
                       </div>
-                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Re-matching New Driver</h3>
-                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium max-w-xs mx-auto mt-1">
+                      <h3 className="text-lg font-black text-[var(--text-primary)] font-heading">Re-matching New Driver</h3>
+                      <p className="text-[var(--text-secondary)] text-xs font-medium max-w-xs mx-auto mt-1">
                         Scanning active drivers within 15 km to take over your ride request automatically.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={handleCancelBooking}
-                      className="min-h-[44px] flex items-center gap-2 text-xs font-bold text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition border border-[#DED7CA] dark:border-[#24483D] px-4 py-2 rounded-[8px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                      className="min-h-[44px] flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition border border-[var(--border-default)] px-4 py-2 rounded-[8px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
                     >
                       <XCircle size={13} />
                       <span>Cancel Ride</span>
@@ -1294,8 +1289,8 @@ export default function CheckoutContent() {
                       <CheckCircle2 size={32} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Driver Accepted!</h3>
-                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1">
+                      <h3 className="text-xl font-black text-[var(--text-primary)] font-heading">Driver Accepted!</h3>
+                      <p className="text-[var(--text-secondary)] text-xs font-medium mt-1">
                         Trip confirmed. Loading payment options…
                       </p>
                     </div>
@@ -1343,7 +1338,7 @@ export default function CheckoutContent() {
                           type="button"
                           disabled={(!paymentMethod && remaining > 0) || loading}
                           onClick={handlePaymentConfirm}
-                          className="w-full h-12 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-30 text-white font-bold text-xs uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
+                          className="w-full h-12 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] disabled:opacity-30 text-white font-bold text-xs uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
                         >
                           {loading ? (
                             <><Loader2 size={16} className="animate-spin" /><span>Processing…</span></>
@@ -1376,15 +1371,15 @@ export default function CheckoutContent() {
                       <CheckCircle2 size={30} />
                     </div>
                     <div>
-                      <h3 className="text-xl font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Ride Confirmed!</h3>
-                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1 max-w-xs">
+                      <h3 className="text-xl font-black text-[var(--text-primary)] font-heading">Ride Confirmed!</h3>
+                      <p className="text-[var(--text-secondary)] text-xs font-medium mt-1 max-w-xs">
                         Your driver is en route to pickup point. Live telemetry active.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { window.location.href = `/ride/${bookingId}`; }}
-                      className="mt-2 flex items-center gap-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-[8px] transition cursor-pointer"
+                      className="mt-2 flex items-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-[8px] transition cursor-pointer"
                     >
                       <span>Track Your Ride</span>
                       <ArrowRight size={15} />
@@ -1402,17 +1397,17 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED]">
+                    <div className="w-14 h-14 rounded-[12px] bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center text-[var(--text-primary)]">
                       <XCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Booking Cancelled</h3>
-                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1">Your ride request has been cancelled.</p>
+                      <h3 className="text-lg font-black text-[var(--text-primary)] font-heading">Booking Cancelled</h3>
+                      <p className="text-[var(--text-secondary)] text-xs font-medium mt-1">Your ride request has been cancelled.</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
                     >
                       <RotateCcw size={13} />
                       <span>Book Again</span>
@@ -1430,17 +1425,17 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center text-[#E34222] dark:text-[#E06A50]">
+                    <div className="w-14 h-14 rounded-[12px] bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center text-[#E34222] dark:text-[#E06A50]">
                       <XCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Request Declined</h3>
-                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1">Nearby driver was unavailable. Try requesting again.</p>
+                      <h3 className="text-lg font-black text-[var(--text-primary)] font-heading">Request Declined</h3>
+                      <p className="text-[var(--text-secondary)] text-xs font-medium mt-1">Nearby driver was unavailable. Try requesting again.</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
                     >
                       <RotateCcw size={13} />
                       <span>Try Again</span>
@@ -1458,17 +1453,17 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-[12px] bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center text-amber-600 dark:text-amber-400">
+                    <div className="w-14 h-14 rounded-[12px] bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center text-amber-600 dark:text-amber-400">
                       <AlertCircle size={28} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-black text-[#10251C] dark:text-[#F7F5ED] font-heading">Request Timed Out</h3>
-                      <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs font-medium mt-1">No driver accepted within 2 minutes. Please try again.</p>
+                      <h3 className="text-lg font-black text-[var(--text-primary)] font-heading">Request Timed Out</h3>
+                      <p className="text-[var(--text-secondary)] text-xs font-medium mt-1">No driver accepted within 2 minutes. Please try again.</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
                     >
                       <RotateCcw size={13} />
                       <span>Try Again</span>
@@ -1480,13 +1475,6 @@ export default function CheckoutContent() {
             </div>
           </div>
 
-          {/* Footer trust badge */}
-          <div className="flex items-center justify-center gap-2 py-3 bg-[#FAF7F0] dark:bg-[#0B2822] border-t border-[#DED7CA] dark:border-[#24483D]">
-            <ShieldCheck size={13} className="text-[#696B64] dark:text-[#B9C8BF]" />
-            <span className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] font-bold uppercase tracking-wider">
-              Secure & Verified Booking · GPS Tracked
-            </span>
-          </div>
         </div>
       </div>
 

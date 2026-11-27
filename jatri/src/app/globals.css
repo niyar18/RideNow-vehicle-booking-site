@@ -48,23 +48,23 @@
   --color-muted-text: #696B64;
 
   /* Semantic Theme Tokens - Light Mode Default */
-  --background: #FAF7F0;
-  --surface: #FAF7F0;
+  --background: #f6f4eb;
+  --surface: #f8f6ef;
   --surface-raised: #FFFFFF;
-  --surface-subtle: #E5EBDD;
+  --surface-subtle: #eeeee3;
   --surface-warm: #F9EBD7;
   --surface-inverse: #061A16;
   --surface-active: #046A38;
   --surface-emerald-light: #DDEBE0;
 
-  --text-primary: #10251C;
-  --text-secondary: #4A554E;
-  --text-muted: #696B64;
+  --text-primary: #17221a;
+  --text-secondary: #48574d;
+  --text-muted: #535d53;
   --text-inverse: #F7F5ED;
 
   /* Switched Green Roles: Emerald is primary interactive, Forest is structural */
-  --brand-primary: #046A38;
-  --brand-strong: #03532C;
+  --brand-primary: #145338;
+  --brand-strong: #16402e;
   --brand-hover: #03532C;
   --brand-structural: #123D32;
   --brand-structural-dark: #061A16;
@@ -72,8 +72,8 @@
   --accent-vermilion: #E34222;
   --accent-gold: #C28B38;
 
-  --border-default: #DED7CA;
-  --border-subtle: #E8E2D8;
+  --border-default: #d9dacf;
+  --border-subtle: #e7e7dd;
   --focus-ring: #046A38;
   --overlay: rgba(16, 37, 28, 0.45);
 
@@ -100,10 +100,10 @@
 
 .dark, html.dark {
   /* Semantic Theme Tokens - Nighttime Forest Green Counterpart */
-  --background: #061A16;
-  --surface: #0B2822;
-  --surface-raised: #10352C;
-  --surface-subtle: #08201B;
+  --background: #121d17;
+  --surface: #1a2820;
+  --surface-raised: #202f25;
+  --surface-subtle: #29382e;
   --surface-warm: #0E2F28;
   --surface-inverse: #FAF7F0;
   --surface-active: #046A38;
@@ -115,8 +115,8 @@
   --text-inverse: #10251C;
 
   /* Switched Green Roles: Emerald is primary interactive, Forest is structural */
-  --brand-primary: #046A38;
-  --brand-strong: #03532C;
+  --brand-primary: #145338;
+  --brand-strong: #16402e;
   --brand-hover: #34D399;
   --brand-structural: #123D32;
   --brand-structural-dark: #061A16;
@@ -124,8 +124,8 @@
   --accent-vermilion: #E34222;
   --accent-gold: #D7AC62;
 
-  --border-default: #24483D;
-  --border-subtle: #1E3E34;
+  --border-default: #435345;
+  --border-subtle: #39493b;
   --focus-ring: #34D399;
   --overlay: rgba(0, 0, 0, 0.75);
 }
@@ -136,13 +136,13 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
-  background-color: #FAF7F0;
-  color: #10251C;
+  background-color: var(--background);
+  color: var(--text-primary);
 }
 
 html.dark {
-  background-color: #061A16;
-  color: #F7F5ED;
+  background-color: var(--background);
+  color: var(--text-primary);
 }
 
 body {
@@ -449,3 +449,32 @@ a, button, select, option, [role="button"] {
 
 
 
+
+
+/* Shared, app-wide surfaces; dark and light values come from the theme. */
+.jaatri-shell-header {
+  background: var(--background);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-default);
+}
+.jaatri-nav-active { background: var(--surface-subtle); color: var(--text-primary); font-weight: 720; }
+.jaatri-skip-link {
+  position: fixed;
+  top: 9px;
+  left: 9px;
+  z-index: 1000;
+  padding: 12px 18px;
+  border-radius: 6px;
+  color: white;
+  background: #145338;
+  transform: translateY(calc(-100% - 12px));
+}
+.jaatri-skip-link:focus { transform: translateY(0); }
+:where(a,button,input,textarea,select,[tabindex]):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 3px;
+}
+#main-content:focus { outline: 0; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

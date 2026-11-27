@@ -69,14 +69,14 @@ export default function RideCallModal({
               <button
                 type="button"
                 onClick={onRejectCall}
-                className="w-14 h-14 rounded-2xl bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+                className="w-14 h-14 rounded-2xl bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-lg transition-transform"
               >
                 <PhoneOff size={22} />
               </button>
               <button
                 type="button"
                 onClick={onAcceptCall}
-                className="w-14 h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+                className="w-14 h-14 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center shadow-lg transition-transform"
               >
                 <PhoneCall size={22} />
               </button>
@@ -99,7 +99,7 @@ export default function RideCallModal({
               <button
                 type="button"
                 onClick={onEndCall}
-                className="w-14 h-14 rounded-2xl bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+                className="w-14 h-14 rounded-2xl bg-red-600 hover:bg-red-500 text-white flex items-center justify-center shadow-lg transition-transform"
               >
                 <PhoneOff size={22} />
               </button>

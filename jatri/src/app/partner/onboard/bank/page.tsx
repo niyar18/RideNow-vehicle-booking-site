@@ -1,8 +1,9 @@
 "use client";
 
+import { PartnerSetupFrame, PartnerSetupTitle } from "@/features/partner/components/PartnerWorkspace";
+
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
   ArrowRight,
   CheckCircle,
   Landmark,
@@ -12,7 +13,7 @@ import {
   Phone,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import axios from "axios";
 
 /* ================= VALIDATION ================= */
@@ -99,54 +100,32 @@ export default function PartnerBankPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
-        className="w-full max-w-xl mx-auto bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] p-6 sm:p-10 shadow-sm"
-      >
-        {/* ================= HEADER ================= */}
-        <div className="relative border-b border-[#DED7CA]/70 dark:border-[#1E3E34] pb-6 mb-6">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.back()}
-              aria-label="Go back"
-              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#10352C] flex items-center justify-center hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] transition-colors cursor-pointer"
-            >
-              <ArrowLeft size={16} />
-            </button>
-
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#B9C8BF]">
-              Step 03 / 03
-            </span>
-          </div>
-
-          <h1 className="text-xl sm:text-2xl font-serif font-bold mt-4 tracking-tight text-[#10251C] dark:text-[#F7F5ED]">
-            Bank &amp; Automated Payout Setup
-          </h1>
-
-          <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B9C8BF] mt-1 leading-relaxed">
-            Registered commercial account for immediate daily ride revenue disbursements.
-          </p>
+    <PartnerSetupFrame>
+      <header className="mb-6 border-b border-[var(--border-default)] pb-5">
+        <PartnerSetupTitle
+          step={3}
+          title="Set up your payouts"
+          description="Enter the bank account details you want Jaatri to use for your ride earnings."
+          onBack={() => router.back()}
+        />
 
           {completed && !editMode && (
-            <div className="mt-4 p-3 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] flex items-center justify-between shadow-xs">
-              <div className="flex items-center gap-2 text-[#10251C] dark:text-[#F7F5ED] text-xs font-semibold">
+            <div className="mt-4 p-3 bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] flex items-center justify-between ">
+              <div className="flex items-center gap-2 text-[var(--text-primary)] text-xs font-semibold">
                 <CheckCircle size={15} className="text-[#123D32] dark:text-[#347858]" />
                 <span>Bank account details recorded</span>
               </div>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="text-xs font-mono font-bold text-[#123D32] dark:text-[#347858] underline flex items-center gap-1 hover:text-[#0D3027] dark:hover:text-[#28664D] uppercase tracking-wider cursor-pointer"
+                className="text-xs tabular-nums font-bold text-[#123D32] dark:text-[#347858] underline flex items-center gap-1 hover:text-[#0D3027] dark:hover:text-[#28664D] cursor-pointer"
               >
                 <Pencil size={12} />
                 Edit Account
               </button>
             </div>
           )}
-        </div>
+      </header>
 
         {/* ================= FORM ================= */}
         <div
@@ -211,8 +190,8 @@ export default function PartnerBankPage() {
 
         {/* ================= WHY DISABLED ================= */}
         {!canSubmit && editMode && (
-          <div className="mt-4 text-xs font-mono text-[#10251C] dark:text-[#F7F5ED] bg-white dark:bg-[#061A16] p-3 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] space-y-1">
-            <p className="font-bold uppercase tracking-wider text-[#E34222] dark:text-[#E06A50]">
+          <div className="mt-4 text-xs tabular-nums text-[var(--text-primary)] bg-[var(--surface-raised)] p-3 rounded-[8px] border border-[var(--border-default)] space-y-1">
+            <p className="font-bold text-[#E34222] dark:text-[#E06A50]">
               Required Fields Missing:
             </p>
             {!isNameValid && <p>• Valid account holder name</p>}
@@ -223,7 +202,7 @@ export default function PartnerBankPage() {
         )}
 
         {/* ================= INFO ================= */}
-        <div className="mt-5 flex items-start gap-2.5 text-xs text-[#696B64] dark:text-[#B9C8BF] bg-white dark:bg-[#061A16] p-3.5 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] shadow-xs">
+        <div className="mt-5 flex items-start gap-2.5 text-xs text-[var(--text-secondary)] bg-[var(--surface-raised)] p-3.5 rounded-[8px] border border-[var(--border-default)] ">
           <CheckCircle size={15} className="mt-0.5 shrink-0 text-[#123D32] dark:text-[#347858]" />
           <p className="leading-relaxed">
             Direct IMPS/NEFT bank settlement verifies automatically upon first completed dispatch ride. Zero commission deductions on partner payout.
@@ -232,7 +211,7 @@ export default function PartnerBankPage() {
 
         {/* ================= ERROR ================= */}
         {error && (
-          <div className="mt-4 p-3 rounded-[8px] bg-[#E34222]/10 dark:bg-red-950/30 border border-[#E34222] dark:border-red-900/50 text-xs text-[#E34222] dark:text-[#E06A50] font-mono">
+          <div className="mt-4 p-3 rounded-[8px] bg-[#E34222]/10 dark:bg-red-950/30 border border-[#E34222] dark:border-red-900/50 text-xs text-[#E34222] dark:text-[#E06A50] tabular-nums">
             {error}
           </div>
         )}
@@ -242,7 +221,7 @@ export default function PartnerBankPage() {
           whileTap={{ scale: 0.99 }}
           disabled={!canSubmit || loading}
           onClick={handleSubmit}
-          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer "
         >
           <span>
             {completed && !editMode
@@ -253,8 +232,7 @@ export default function PartnerBankPage() {
           </span>
           <ArrowRight size={16} />
         </motion.button>
-      </motion.div>
-    </div>
+    </PartnerSetupFrame>
   );
 }
 
@@ -281,36 +259,42 @@ function InputFieldMinimal({
   error?: boolean;
   errorText?: string;
 }) {
+  const id = useId();
+  const hasError = Boolean(error && errorText);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#B9C8BF]">
+        <label htmlFor={id} className="text-sm font-medium text-[var(--text-primary)]">
           {label}
         </label>
         {optional && (
-          <span className="text-[10px] font-mono text-[#696B64]/70 dark:text-[#B9C8BF]/70">
+          <span className="text-[10px] tabular-nums text-[#696B64]/70 dark:text-[#B9C8BF]/70">
             Optional
           </span>
         )}
       </div>
 
-      <div className="flex items-center rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#061A16] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition-colors">
+      <div className="flex items-center rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition-colors">
         {icon && (
-          <div className="pl-3 pr-2 text-[#696B64] dark:text-[#B9C8BF] shrink-0">
+          <div className="pl-3 pr-2 text-[var(--text-secondary)] shrink-0">
             {icon}
           </div>
         )}
         <input
+          id={id}
+          aria-invalid={hasError || undefined}
+          aria-describedby={hasError ? `${id}-error` : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
-          className="w-full h-10 px-2.5 text-xs sm:text-sm bg-transparent focus:outline-none font-mono placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/60 text-[#10251C] dark:text-[#F7F5ED]"
+          className="w-full min-h-11 px-2.5 text-base bg-transparent focus:outline-none tabular-nums placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/60 text-[var(--text-primary)]"
         />
       </div>
 
       {error && errorText && (
-        <p className="mt-1 text-[11px] font-mono text-[#E34222] dark:text-[#E06A50]">
+        <p id={`${id}-error`} className="mt-1 text-xs text-[#b63927] dark:text-[#ff9787]">
           {errorText}
         </p>
       )}

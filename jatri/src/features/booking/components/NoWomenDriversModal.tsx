@@ -29,7 +29,7 @@ export default function NoWomenDriversModal({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 100 }}
           transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full sm:max-w-md bg-white dark:bg-[#0B2822] border-t sm:border border-[#DED7CA] dark:border-[#24483D] rounded-t-[20px] sm:rounded-[14px] p-6 shadow-2xl flex flex-col gap-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+          className="w-full sm:max-w-md bg-white dark:bg-[#0B2822] border-t sm:border border-[var(--border-default)] rounded-t-[20px] sm:rounded-[14px] p-6 shadow-2xl flex flex-col gap-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
         >
           {/* Header */}
           <div className="flex items-start justify-between">
@@ -56,7 +56,7 @@ export default function NoWomenDriversModal({
           </div>
 
           {/* Explanation Banner */}
-          <div className="p-3.5 rounded-[10px] bg-[#FAF7F0] dark:bg-[#123D32]/20 border border-[#DED7CA] dark:border-[#24483D] text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
+          <div className="p-3.5 rounded-[10px] bg-[#FAF7F0] dark:bg-[#123D32]/20 border border-[var(--border-default)] text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed">
             <p className="font-semibold text-zinc-900 dark:text-zinc-100 mb-1">
               No eligible woman drivers available nearby right now.
             </p>
@@ -71,7 +71,7 @@ export default function NoWomenDriversModal({
             <button
               type="button"
               onClick={onKeepSearching}
-              className="w-full flex items-center justify-center gap-2 bg-[#046A38] hover:bg-[#03532C] text-white font-bold py-3.5 px-4 rounded-[8px] text-sm transition-colors min-h-[44px] touch-manipulation cursor-pointer shadow-sm active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 bg-[#046A38] hover:bg-[#03532C] text-white font-bold py-3.5 px-4 rounded-[8px] text-sm transition-colors min-h-[44px] touch-manipulation cursor-pointer active:scale-[0.98]"
             >
               <Sparkles size={16} />
               Keep Searching for Woman Driver
@@ -91,7 +91,7 @@ export default function NoWomenDriversModal({
             <button
               type="button"
               onClick={onSwitchToAnyDriver}
-              className="w-full flex items-center justify-center gap-2 bg-[#FAF7F0] dark:bg-[#123D32]/30 border border-[#DED7CA] dark:border-[#24483D] text-[#123D32] dark:text-[#90C8A8] font-bold py-3.5 px-4 rounded-[8px] text-sm transition-colors min-h-[44px] touch-manipulation cursor-pointer active:scale-[0.98]"
+              className="w-full flex items-center justify-center gap-2 bg-[#FAF7F0] dark:bg-[#123D32]/30 border border-[var(--border-default)] text-[#123D32] dark:text-[#90C8A8] font-bold py-3.5 px-4 rounded-[8px] text-sm transition-colors min-h-[44px] touch-manipulation cursor-pointer active:scale-[0.98]"
             >
               <Users size={16} />
               Choose Any Available Driver

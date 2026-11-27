@@ -1,620 +1,328 @@
-'use client';
+"use client";
 
 import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  Users,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  ShieldCheck,
-  ArrowRight,
-  Truck,
-  Video,
-  IndianRupee,
+  ArrowRight, CheckCircle2, Clock, IndianRupee, RefreshCw, Truck, Users, Video, XCircle,
 } from "lucide-react";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { performFastSignOut } from "@/lib/authLogout";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import AdminEarningsChart from "@/features/admin/components/AdminEarningsChart";
 import StatusAreaChart from "@/features/admin/components/AdminStatusChart";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import styles from "@/features/admin/components/admin-ui.module.css";
 
-/* ================= TYPES ================= */
+type Stats = { totalVendors: number; approved: number; pending: number; rejected: number };
+type Tab = "kyc" | "vendor" | "vehicle" | "pricing";
 
-type Stats = {
-  totalVendors: number;
-  approved: number;
-  pending: number;
-  rejected: number;
+type QueueItem = {
+  _id: string;
+  name?: string;
+  email?: string;
+  ownerName?: string;
+  ownerEmail?: string;
+  vehicleType?: string;
+  videoKycStatus?: string;
+  videoKycRoomId?: string;
 };
+type Dashboard = { stats: Stats; pendingVendors: QueueItem[]; pendingVehicles: QueueItem[] };
 
-type TabType = "kyc" | "vendor" | "vehicle" | "pricing";
+const tabs = [
+  { key: "kyc", label: "Video KYC", icon: Video },
+  { key: "vendor", label: "Vendors", icon: Users },
+  { key: "vehicle", label: "Vehicles", icon: Truck },
+  { key: "pricing", label: "Category fares", icon: IndianRupee },
+] as const;
 
-/* ================= PAGE ================= */
+const kpis = [
+  { key: "totalVendors", label: "Total vendors", icon: Users },
+  { key: "approved", label: "Approved", icon: CheckCircle2 },
+  { key: "pending", label: "Pending", icon: Clock },
+  { key: "rejected", label: "Rejected", icon: XCircle },
+] as const;
 
 export default function AdminDashboardClient() {
-  const router = useRouter();
-
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [vendorReviews, setVendorReviews] = useState<any[]>([]);
-  const [vehicleReviews, setVehicleReviews] = useState<any[]>([]);
-  const [videoKycReviews, setVideoKycReviews] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState<TabType>("kyc");
+  const [dashboard, setDashboard] = useState<Dashboard | null>(null);
+  const [videoReviews, setVideoReviews] = useState<QueueItem[]>([]);
+  const [activeTab, setActiveTab] = useState<Tab>("kyc");
+  const [request, setRequest] = useState(0);
   const [loading, setLoading] = useState(true);
-
-  async function loadAll() {
-    try {
-      const [dashboardRes, kycRes] = await Promise.all([
-        axios.get("/api/admin/dashboard", {
-          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
-        }),
-        axios.get("/api/admin/vendors/video-kyc/pending", {
-          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
-        }),
-      ]);
-
-      setStats(dashboardRes.data.stats);
-      setVendorReviews(dashboardRes.data.pendingVendors);
-      setVehicleReviews(dashboardRes.data.pendingVehicles);
-      setVideoKycReviews(kycRes.data || []);
-    } catch (err) {
-      console.error("Dashboard error:", err);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
-    loadAll();
-  }, []);
+    const controller = new AbortController();
+    const options = { signal: controller.signal, headers: { "Cache-Control": "no-cache" } };
+    Promise.all([
+      axios.get<Dashboard>("/api/admin/dashboard", options),
+      axios.get<QueueItem[]>("/api/admin/vendors/video-kyc/pending", options),
+    ]).then(([data, video]) => {
+      setDashboard(data.data);
+      setVideoReviews(video.data || []);
+      setLoadError(false);
+    }).catch(() => {
+      if (!controller.signal.aborted) setLoadError(true);
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoading(false);
+    });
+    return () => controller.abort();
+  }, [request]);
 
-  if (loading || !stats) {
-    return (
-      <div className="min-h-screen grid place-items-center text-gray-400">
-        Loading admin dashboard...
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-[#F7F1E5]">
-
-      {/* HEADER */}
-      <header className="sticky top-0 bg-[#FAF7F0]/90 backdrop-blur-md border-b border-[#DED7CA] z-40">
-        <div className="max-w-7xl mx-auto h-14 sm:h-16 px-3 sm:px-6 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-[10px] bg-[#123D32] text-[#FAF7F0] flex items-center justify-center font-serif font-bold text-sm sm:text-base shadow-xs">
-              য
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="font-serif font-bold text-sm sm:text-lg tracking-wide text-[#10251C]">
-                যাত্ৰী Jaatri
-              </span>
-              <span className="text-[10px] sm:text-xs font-mono font-bold uppercase tracking-wider text-[#123D32] bg-[#123D32]/10 px-1.5 py-0.5 rounded-[4px] border border-[#123D32]/20">
-                ADMIN
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden sm:flex items-center gap-2 text-xs px-3 py-1.5 rounded-full bg-[#123D32]/10 text-[#123D32] border border-[#123D32]/25 font-semibold select-none">
-              <ShieldCheck size={14} />
-              Secure Console
-            </div>
-            <button
-              onClick={() => performFastSignOut("/")}
-              className="text-xs font-semibold text-[#696B64] hover:text-[#E34222] transition-colors border border-[#DED7CA] px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] shadow-xs active:scale-95 cursor-pointer"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-10 space-y-6 sm:space-y-12">
-
-        {/* KPI SECTION */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4">
-          <Kpi
-            label="Total Vendors" value={stats.totalVendors}
-            icon={<Users size={16} className="sm:w-[18px] sm:h-[18px]" />} variant="totalVendors"
-            trend="+12%" trendDir="up" sub="vs last month"
-          />
-          <Kpi
-            label="Approved" value={stats.approved}
-            icon={<CheckCircle2 size={16} className="sm:w-[18px] sm:h-[18px]" />} variant="approved"
-            trend="+8%" trendDir="up" sub="verified vendors"
-          />
-          <Kpi
-            label="Pending" value={stats.pending}
-            icon={<Clock size={16} className="sm:w-[18px] sm:h-[18px]" />} variant="pending"
-            trend="0%" trendDir="flat" sub="awaiting review"
-          />
-          <Kpi
-            label="Rejected" value={stats.rejected}
-            icon={<XCircle size={16} className="sm:w-[18px] sm:h-[18px]" />} variant="rejected"
-            trend="-3%" trendDir="down" sub="declined"
-          />
-        </div>
-
-        <StatusAreaChart stats={stats}/>
-        <AdminEarningsChart/>
-
-        <div className="bg-white rounded-[12px] p-1.5 sm:p-2 shadow-md border border-gray-100 flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none">
-          <TabButton active={activeTab === "kyc"} count={videoKycReviews.length}
-            onClick={() => setActiveTab("kyc")} icon={<Video size={14} className="sm:w-[15px] sm:h-[15px]" />}>
-            Video KYC
-          </TabButton>
-          <TabButton active={activeTab === "vendor"} count={vendorReviews.length}
-            onClick={() => setActiveTab("vendor")} icon={<Users size={14} className="sm:w-[15px] sm:h-[15px]" />}>
-            Vendors
-          </TabButton>
-          <TabButton active={activeTab === "vehicle"} count={vehicleReviews.length}
-            onClick={() => setActiveTab("vehicle")} icon={<Truck size={14} className="sm:w-[15px] sm:h-[15px]" />}>
-            Vehicles
-          </TabButton>
-          <TabButton active={activeTab === "pricing"} count={0}
-            onClick={() => setActiveTab("pricing")} icon={<IndianRupee size={14} className="sm:w-[15px] sm:h-[15px]" />}>
-            Category Fares
-          </TabButton>
-        </div>
-
-        <AnimatePresence mode="wait">
-          <motion.div key={activeTab}
-            initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2, ease: "easeOut" }}
-            className="space-y-3"
-          >
-            {activeTab === "kyc"     && <ContentList data={videoKycReviews} type="kyc" />}
-            {activeTab === "vendor"  && <ContentList data={vendorReviews}   type="vendor" />}
-            {activeTab === "vehicle" && <ContentList data={vehicleReviews}  type="vehicle" />}
-            {activeTab === "pricing" && <PricingConfigEditor />}
-          </motion.div>
-        </AnimatePresence>
-      </main>
-    </div>
-  );
-}
-
-/* ================= COMPONENTS ================= */
-
-function TabButton({ active, onClick, children, icon, count }: any) {
-  return (
-    <motion.button
-      onClick={onClick}
-      whileTap={{ scale: 0.97 }}
-      className={`relative flex items-center gap-1.5 sm:gap-2 px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-[8px] sm:rounded-[12px] text-xs sm:text-sm font-semibold transition-all duration-200 select-none shrink-0
-        ${active
-          ? "bg-neutral-950 text-white shadow-md shadow-black/20"
-          : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
-        }`}
-    >
-      <span className={`flex items-center ${active ? "text-white" : "text-gray-400"}`}>
-        {icon}
-      </span>
-
-      <span className="whitespace-nowrap">{children}</span>
-
-      <span className={`min-w-[18px] sm:min-w-[22px] h-4 sm:h-5 px-1 sm:px-1.5 text-[10px] sm:text-[11px] font-bold rounded-full flex items-center justify-center transition-all
-        ${active
-          ? "bg-white text-black"
-          : count > 0
-          ? "bg-red-500 text-white"
-          : "bg-gray-200 text-gray-400"
-        }`}
-      >
-        {count}
-      </span>
-    </motion.button>
-  );
-}
-
-const KYC_STATUS: Record<string, { label: string; pill: string; dot: string }> = {
-  pending:     { label: "Pending", pill: "bg-amber-50 text-amber-800 border border-amber-200", dot: "bg-amber-500" },
-  in_progress: { label: "Call Active / In Room", pill: "bg-blue-50 text-blue-800 border border-blue-200", dot: "bg-blue-500 animate-ping" },
-  completed:   { label: "Completed", pill: "bg-green-50 text-green-800 border border-green-200", dot: "bg-green-500" },
-};
-
-const AVATAR_COLORS = [
-  "bg-purple-100 text-purple-800",
-  "bg-teal-100 text-teal-800",
-  "bg-blue-100 text-blue-800",
-  "bg-pink-100 text-pink-800",
-];
-
-function ContentList({ data, type }: any) {
-  const router = useRouter();
-
-  const startKyc = async (vendorId: string) => {
-    try {
-      const res = await axios.patch(`/api/admin/vendors/video-kyc/start/${vendorId}`);
-      if (res.data.roomId) router.push(`/video-kyc/${res.data.roomId}`);
-    } catch (err) {
-      console.error("Start KYC error:", err);
-    }
+  const data = {
+    kyc: videoReviews,
+    vendor: dashboard?.pendingVendors || [],
+    vehicle: dashboard?.pendingVehicles || [],
   };
+  const hasSnapshot = dashboard !== null;
 
-  if (data.length === 0) {
-    return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-        className="bg-white rounded-[12px] py-16 text-center border border-dashed border-gray-200 shadow-sm"
-      >
-        <div className="w-12 h-12 rounded-[8px] bg-green-50 flex items-center justify-center mx-auto mb-4">
-          <CheckCircle2 size={22} className="text-green-500" />
-        </div>
-        <p className="font-bold text-gray-800 text-base">All caught up!</p>
-        <p className="text-sm text-gray-400 mt-1">No pending items right now.</p>
-      </motion.div>
-    );
+  function refresh() {
+    setLoading(true);
+    setLoadError(false);
+    setRequest((n) => n + 1);
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between px-1 mb-1">
-        <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">
-          {type === "kyc" ? "Video KYC Queue" : type === "vendor" ? "Vendor Review Queue" : "Vehicle Review Queue"}
-        </p>
-        <p className="text-xs text-gray-400">{data.length} item{data.length > 1 ? "s" : ""}</p>
-      </div>
+    <main className={styles.content}>
+      <section className={styles.hero} aria-labelledby="admin-page-title">
+        <div className={styles.intro}>
+          <p className={styles.eyebrow}>Jaatri &nbsp;/&nbsp; operations</p>
+          <h1 id="admin-page-title" className={styles.title}>Review desk.</h1>
+          <p className={styles.introText}>Verify the people and vehicles behind each ride, and manage the fares riders see.</p>
+        </div>
+        <div className={styles.heroArtwork} aria-hidden="true">
+          <svg viewBox="0 0 240 105" fill="none" preserveAspectRatio="none">
+            <path d="M0 88C35 88 26 31 65 31c30 0 24 47 53 47 30 0 32-54 60-54 24 0 28 29 62 29" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M0 97C35 97 30 43 65 43c28 0 20 45 53 45 34 0 40-52 60-52 26 0 28 29 62 28" stroke="currentColor" />
+            <path d="M0 80C31 80 16 19 65 19c34 0 32 49 53 49 27 0 24-55 60-55 22 0 29 29 62 29" stroke="currentColor" />
+            <path d="M0 104C35 104 34 54 65 54c24 0 16 44 53 44 38 0 49-49 60-49 22 0 28 23 62 24" stroke="currentColor" />
+          </svg>
+          <span className={styles.heroPlace}>Assam &nbsp;/&nbsp; Behind the ride</span>
+        </div>
+      </section>
 
-      {data.map((item: any, i: number) => {
-        const name     = item.name || item.ownerName || "—";
-        const email    = item.email || item.ownerEmail || "—";
-        const initials = name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
-        const avColor  = AVATAR_COLORS[i % AVATAR_COLORS.length];
-        const s        = KYC_STATUS[item.videoKycStatus] ?? KYC_STATUS.pending;
+      <dl className={styles.stats} aria-label="Vendor totals">
+        {kpis.map(({ key, label, icon: Icon }) => (
+          <div className={styles.stat} key={key}>
+            <dt><Icon size={14} aria-hidden="true" />{label}</dt>
+            <dd>{dashboard ? dashboard.stats[key].toLocaleString("en-IN") : "—"}</dd>
+          </div>
+        ))}
+      </dl>
 
-        return (
-          <motion.div key={item._id}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            whileHover={{ y: -3, boxShadow: "0 8px 30px rgba(0,0,0,0.08)" }}
-            onClick={() =>
-              router.push(
-                type === "vehicle"
-                  ? `/admin/vehicles/${item._id}`
-                  : `/admin/vendors/${item._id}`
-              )
-            }
-            className="bg-white border border-gray-100 rounded-[8px] sm:rounded-[12px] p-3.5 sm:px-5 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-sm transition-all cursor-pointer select-none"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className={`w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-[8px] flex items-center justify-center text-xs sm:text-sm font-bold shrink-0 ${avColor}`}>
-                {initials}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-bold text-xs sm:text-sm text-gray-900 truncate">{name}</p>
-                <p className="text-[11px] sm:text-xs text-gray-400 truncate">{email}</p>
-                {type === "kyc" && (
-                  <span className={`mt-1 inline-flex items-center gap-1.5 text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full ${s.pill}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
-                    {s.label}
-                  </span>
-                )}
-              </div>
-            </div>
+      <section aria-labelledby="reviews-title">
+        <div className={styles.sectionTop}>
+          <div>
+            <h2 className={styles.sectionTitle} id="reviews-title">Reviews & fares</h2>
+            <p className={styles.secondary}>Open an application or update a fare category.</p>
+          </div>
+          <button type="button" className={styles.button} onClick={refresh} disabled={loading}>
+            <RefreshCw size={15} aria-hidden="true" /> {loading ? "Refreshing…" : "Refresh queues"}
+          </button>
+        </div>
+        <div className={styles.panel}>
+          <div className={styles.tabList} role="group" aria-label="Review categories">
+            {tabs.map(({ key, label, icon: Icon }) => (
+              <button key={key} type="button" aria-pressed={activeTab === key}
+                onClick={() => setActiveTab(key)} className={styles.tab}>
+                <span className={styles.tabIcon}><Icon size={16} aria-hidden="true" /></span>
+                <span>{label}</span>
+                {key !== "pricing" && hasSnapshot && <span className={styles.tabCount}>{data[key].length}</span>}
+              </button>
+            ))}
+          </div>
 
-            <div className="shrink-0 w-full sm:w-auto flex sm:block justify-end pt-1 sm:pt-0 border-t sm:border-t-0 border-gray-100">
-              {type === "kyc" ? (
-                item.videoKycStatus === "in_progress" ? (
-                  <motion.button
-                    whileTap={{ scale: 0.96 }}
-                    animate={{ opacity: [1, 0.7, 1] }}
-                    transition={{ repeat: Infinity, duration: 1.8 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/video-kyc/${item.videoKycRoomId}`);
-                    }}
-                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-[8px] bg-blue-600 hover:bg-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors"
-                  >
-                    <Video size={13} /> Join Call
-                  </motion.button>
-                ) : (
-                  <motion.button whileTap={{ scale: 0.96 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      startKyc(item._id);
-                    }}
-                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-[8px] bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold transition-colors"
-                  >
-                    <Video size={13} /> Start KYC
-                  </motion.button>
-                )
-              ) : (
-                <motion.button whileTap={{ scale: 0.96 }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    router.push(
-                      type === "vehicle"
-                        ? `/admin/vehicles/${item._id}`
-                        : `/admin/vendors/${item._id}`
-                    );
-                  }}
-                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-[8px] bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold transition-colors"
-                >
-                  Review <ArrowRight size={13} />
-                </motion.button>
+          {activeTab === "pricing" ? <PricingEditor /> : (
+            <>
+              {loadError && (
+                <div className={styles.notice} role="alert">
+                  <strong>Couldn’t refresh the review queues.</strong>
+                  <span>{hasSnapshot ? "Showing the last loaded data." : "Try refreshing the queues."}</span>
+                </div>
               )}
-            </div>
-          </motion.div>
-        );
-      })}
-    </div>
-  );
-}
-
-const KPI_CONFIG: Record<string, {
-  iconBg: string; iconColor: string; trendBg: string; trendText: string; cardHover: string;
-}> = {
-  totalVendors: {
-    iconBg: "bg-purple-50", iconColor: "text-purple-700",
-    trendBg: "bg-purple-50", trendText: "text-purple-800",
-    cardHover: "hover:shadow-purple-100/60",
-  },
-  approved: {
-    iconBg: "bg-blue-50", iconColor: "text-blue-800",
-    trendBg: "bg-green-50", trendText: "text-green-800",
-    cardHover: "hover:shadow-blue-100/60",
-  },
-  pending: {
-    iconBg: "bg-amber-50", iconColor: "text-amber-800",
-    trendBg: "bg-gray-100", trendText: "text-gray-600",
-    cardHover: "hover:shadow-amber-100/60",
-  },
-  rejected: {
-    iconBg: "bg-red-50", iconColor: "text-red-800",
-    trendBg: "bg-red-50", trendText: "text-red-800",
-    cardHover: "hover:shadow-red-100/60",
-  },
-};
-
-function Kpi({
-  label,
-  value,
-  icon,
-  trend,
-  trendDir = "up",
-  sub,
-  variant = "totalVendors",
-  onClick,
-}: {
-  label: string;
-  value: number;
-  icon: React.ReactNode;
-  trend?: string;
-  trendDir?: "up" | "down" | "flat";
-  sub?: string;
-  variant?: keyof typeof KPI_CONFIG;
-  onClick?: () => void;
-}) {
-  const cfg = KPI_CONFIG[variant];
-
-  const trendIcon =
-    trendDir === "up"   ? <TrendingUp size={10} />   :
-    trendDir === "down" ? <TrendingDown size={10} />  :
-    <Minus size={10} />;
-
-  const trendColor =
-    trendDir === "up"   ? "bg-green-50 text-green-800" :
-    trendDir === "down" ? "bg-red-50 text-red-800"     :
-    "bg-gray-100 text-gray-600";
-
-  return (
-    <motion.div
-      whileHover={{ y: -3, boxShadow: "0 12px 30px rgba(0,0,0,0.08)" }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      onClick={onClick}
-      className={`bg-white rounded-[8px] sm:rounded-[12px] p-3.5 sm:p-5 border border-gray-100 shadow-sm
-        cursor-pointer select-none relative overflow-hidden group ${cfg.cardHover}`}
-    >
-      <div className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300
-        rounded-[8px] sm:rounded-[12px] ${cfg.iconBg}`} style={{ zIndex: 0 }} />
-
-      <div className="relative z-10">
-        <div className="flex items-start justify-between mb-2 sm:mb-4">
-          <motion.div
-            whileHover={{ rotate: -6, scale: 1.1 }}
-            transition={{ type: "spring", stiffness: 400 }}
-            className={`w-8 h-8 sm:w-11 sm:h-11 rounded-lg sm:rounded-[8px] flex items-center justify-center ${cfg.iconBg} ${cfg.iconColor}`}
-          >
-            {icon}
-          </motion.div>
-
-          {trend && (
-            <span className={`inline-flex items-center gap-0.5 text-[9px] sm:text-[11px] font-bold
-              px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-full ${trendColor}`}>
-              {trendIcon}
-              {trend}
-            </span>
+              {!hasSnapshot && loading && <p className={styles.notice} role="status">Loading the review queues…</p>}
+              {hasSnapshot && <Queue key={activeTab} items={data[activeTab]} type={activeTab} />}
+            </>
           )}
         </div>
+      </section>
 
-        <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-gray-400 mb-0.5 sm:mb-1 truncate">
-          {label}
-        </p>
-
-        <motion.p
-          className="text-xl sm:text-3xl font-extrabold text-gray-950 leading-tight"
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-        >
-          {value}
-        </motion.p>
-
-        {sub && (
-          <div className="flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-3
-            border-t border-gray-100">
-            <p className="text-[10px] sm:text-[11px] text-gray-400 truncate">{sub}</p>
-            <Clock size={10} className="text-gray-300 shrink-0" />
-          </div>
-        )}
-      </div>
-    </motion.div>
+      <section aria-labelledby="overview-title">
+        <div className={styles.sectionTop}>
+          <h2 className={styles.sectionTitle} id="overview-title">At a glance</h2>
+        </div>
+        <div className={styles.chartGrid}>
+          <StatusAreaChart stats={dashboard?.stats ?? null} />
+          <AdminEarningsChart />
+        </div>
+      </section>
+    </main>
   );
 }
 
-function PricingConfigEditor() {
-  const [configs, setConfigs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [savingId, setSavingId] = useState<string | null>(null);
+const queueTitles = { kyc: "Video verification", vendor: "Vendor applications", vehicle: "Vehicle reviews" };
+const kycStates: Record<string, string> = { pending: "Pending", in_progress: "Call in progress", completed: "Completed", approved: "Approved" };
 
-  const fetchConfigs = async () => {
+function Queue({ items, type }: { items: QueueItem[]; type: Exclude<Tab, "pricing"> }) {
+  const router = useRouter();
+  const [startingId, setStartingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  async function startKyc(id: string) {
+    setStartingId(id);
+    setError(null);
     try {
-      setLoading(true);
-      const res = await axios.get("/api/admin/pricing");
-      if (res.data.success) {
-        setConfigs(res.data.configs || []);
-      }
-    } catch (err) {
-      console.error(err);
+      const { data } = await axios.patch<{ roomId?: string }>(`/api/admin/vendors/video-kyc/start/${id}`);
+      if (!data.roomId) throw new Error("No room ID");
+      router.push(`/video-kyc/${data.roomId}`);
+    } catch {
+      setError("Couldn’t start the verification call. Try again.");
     } finally {
-      setLoading(false);
+      setStartingId(null);
     }
-  };
-
-  useEffect(() => {
-    fetchConfigs();
-  }, []);
-
-  const handleUpdate = (index: number, field: string, value: number) => {
-    setConfigs((prev) => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
-  };
-
-  const handleSave = async (index: number) => {
-    const config = configs[index];
-    try {
-      setSavingId(config.vehicleType);
-      const res = await axios.post("/api/admin/pricing", config);
-      if (res.data.success) {
-        alert(`Successfully updated dynamic pricing for ${config.vehicleType.toUpperCase()}!`);
-      }
-    } catch (err) {
-      alert("Failed to save pricing config.");
-    } finally {
-      setSavingId(null);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="bg-white rounded-[14px] p-12 text-center border text-zinc-500 font-medium flex items-center justify-center gap-3">
-        <Clock className="animate-spin text-zinc-400" size={18} />
-        Loading pricing configurations...
-      </div>
-    );
   }
 
   return (
-    <div className="bg-white rounded-[14px] p-6 sm:p-8 shadow-lg border border-gray-100 space-y-6">
-      <div>
-        <h3 className="text-xl font-bold text-gray-900">Dynamic Fare Pricing</h3>
-        <p className="text-sm text-gray-500 mt-1">Configure the base rates, distance charges, duration charges, and multipliers for each category.</p>
+    <div>
+      <div className={styles.queueHeading}>
+        <h3 className={styles.panelTitle}>{queueTitles[type]}</h3>
+        <span className={styles.secondary}>{items.length} {items.length === 1 ? "item" : "items"}</span>
       </div>
+      {error && <p className={styles.notice} role="alert">{error}</p>}
+      {!items.length ? (
+        <p className={styles.notice}><CheckCircle2 size={17} aria-hidden="true" /><strong>No pending reviews.</strong></p>
+      ) : (
+        <ul className={styles.queueList}>
+          {items.map((item) => {
+            const name = item.name || item.ownerName || "Name unavailable";
+            const email = item.email || item.ownerEmail;
+            const initials = name.split(/\s+/).slice(0, 2).map((word) => Array.from(word)[0]).join("").toUpperCase();
+            const href = type === "vehicle" ? `/admin/vehicles/${item._id}` : `/admin/vendors/${item._id}`;
+            const activeCall = item.videoKycStatus === "in_progress";
+            const status = kycStates[item.videoKycStatus ?? "pending"] || "Awaiting verification";
+            return (
+              <li className={styles.queueRow} key={item._id}>
+                <Link href={href} className={styles.queueIdentity}>
+                  <span className={styles.avatar} aria-hidden="true">{initials}</span>
+                  <span><strong>{name}</strong>{(email || item.vehicleType) &&
+                    <small>{[email, item.vehicleType].filter(Boolean).join(" · ")}</small>}</span>
+                </Link>
+                <div className={styles.queueActions}>
+                  {type === "kyc" ? (
+                    <>
+                      <span className={`${styles.status} ${activeCall ? styles.statusLive : ""}`}>{status}</span>
+                      {activeCall && item.videoKycRoomId ? (
+                        <Link href={`/video-kyc/${item.videoKycRoomId}`} className={styles.primary} aria-label={`Join call for ${name}`}>
+                          <Video size={15} aria-hidden="true" />Join call
+                        </Link>
+                      ) : (
+                        <button type="button" className={styles.primary} disabled={startingId !== null} aria-label={`Start KYC for ${name}`} onClick={() => startKyc(item._id)}>
+                          <Video size={15} aria-hidden="true" />{startingId === item._id ? "Starting…" : "Start KYC"}
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <Link href={href} aria-label={`Review ${name}`} className={styles.button}>Review<ArrowRight size={14} aria-hidden="true" /></Link>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="border-b border-gray-200 text-xs font-black uppercase text-gray-400 tracking-wider">
-              <th className="py-4 px-3">Category</th>
-              <th className="py-4 px-3">Base Fare (₹)</th>
-              <th className="py-4 px-3">Per KM Rate (₹)</th>
-              <th className="py-4 px-3">Per Min Rate (₹)</th>
-              <th className="py-4 px-3">Multiplier</th>
-              <th className="py-4 px-3">Min Dist (km)</th>
-              <th className="py-4 px-3">Max Dist (km)</th>
-              <th className="py-4 px-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {configs.map((config, idx) => (
-              <tr key={config._id} className="text-sm text-gray-700">
-                <td className="py-4 px-3 font-bold uppercase text-black">{config.vehicleType}</td>
-                
-                <td className="py-4 px-3">
-                  <input
-                    type="number"
-                    value={config.baseFare}
-                    onChange={(e) => handleUpdate(idx, "baseFare", Number(e.target.value))}
-                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
-                  />
-                </td>
+const fareFields = [
+  { field: "baseFare", label: "Base fare (₹)", step: "0.01", fallback: 0 },
+  { field: "pricePerKm", label: "Per km (₹)", step: "0.01", fallback: 0 },
+  { field: "pricePerMinute", label: "Per minute (₹)", step: "0.01", fallback: 0 },
+  { field: "multiplier", label: "Multiplier", step: "0.1", fallback: 1 },
+  { field: "minDistance", label: "Min distance (km)", step: "0.1", fallback: 0 },
+  { field: "maxDistance", label: "Max distance (km)", step: "0.1", fallback: 9999 },
+] as const;
+type FareField = typeof fareFields[number]["field"];
+type Fare = { _id?: string; vehicleType: string } & Partial<Record<FareField, number>>;
 
-                <td className="py-4 px-3">
-                  <input
-                    type="number"
-                    value={config.pricePerKm}
-                    onChange={(e) => handleUpdate(idx, "pricePerKm", Number(e.target.value))}
-                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
-                  />
-                </td>
+function PricingEditor() {
+  const [configs, setConfigs] = useState<Fare[]>([]);
+  const [edits, setEdits] = useState<Record<string, Partial<Record<FareField, string>>>>({});
+  const [saving, setSaving] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ id: string; text: string; error?: boolean } | null>(null);
+  const [load, setLoad] = useState<"loading" | "ready" | "error">("loading");
+  const [attempt, setAttempt] = useState(0);
 
-                <td className="py-4 px-3">
-                  <input
-                    type="number"
-                    value={config.pricePerMinute}
-                    onChange={(e) => handleUpdate(idx, "pricePerMinute", Number(e.target.value))}
-                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
-                  />
-                </td>
+  useEffect(() => {
+    const controller = new AbortController();
+    axios.get<{ success: boolean; configs: Fare[] }>("/api/admin/pricing", { signal: controller.signal })
+      .then(({ data }) => {
+        if (!data.success) throw new Error("Unable to load pricing");
+        setConfigs(data.configs || []);
+        setLoad("ready");
+      })
+      .catch(() => { if (!controller.signal.aborted) setLoad("error"); });
+    return () => controller.abort();
+  }, [attempt]);
 
-                <td className="py-4 px-3">
-                  <input
-                    type="number"
-                    step="0.1"
-                    value={config.multiplier}
-                    onChange={(e) => handleUpdate(idx, "multiplier", Number(e.target.value))}
-                    className="w-16 border rounded-[8px] px-2 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
-                  />
-                </td>
+  async function save(config: Fare) {
+    const id = config.vehicleType;
+    setSaving(id);
+    setMessage(null);
+    const changes = Object.fromEntries(Object.entries(edits[id] || {}).map(([key, value]) => [key, Number(value)]));
+    try {
+      const { data } = await axios.post<{ success: boolean; config?: Fare }>("/api/admin/pricing", { ...config, ...changes });
+      if (!data.success) throw new Error("Unable to save pricing");
+      setConfigs((previous) => previous.map((item) => item.vehicleType === id ? data.config ?? { ...item, ...changes } : item));
+      setEdits((previous) => ({ ...previous, [id]: {} }));
+      setMessage({ id, text: "Rates saved." });
+    } catch {
+      setMessage({ id, text: "Couldn’t save these rates. Try again.", error: true });
+    } finally {
+      setSaving(null);
+    }
+  }
 
-                <td className="py-4 px-3">
-                  <input
-                    type="number"
-                    value={config.minDistance !== undefined ? config.minDistance : 0}
-                    onChange={(e) => handleUpdate(idx, "minDistance", Number(e.target.value))}
-                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
-                  />
-                </td>
-
-                <td className="py-4 px-3">
-                  <input
-                    type="number"
-                    value={config.maxDistance !== undefined ? config.maxDistance : 9999}
-                    onChange={(e) => handleUpdate(idx, "maxDistance", Number(e.target.value))}
-                    className="w-20 border rounded-[8px] px-2.5 py-1.5 focus:outline-none focus:border-black font-semibold text-black"
-                  />
-                </td>
-
-                <td className="py-4 px-3 text-right">
-                  <button
-                    onClick={() => handleSave(idx)}
-                    disabled={savingId === config.vehicleType}
-                    className="bg-[#046A38] text-white hover:bg-[#03532C] font-bold px-4 py-2 rounded-[8px] text-xs transition disabled:opacity-50"
-                  >
-                    {savingId === config.vehicleType ? "Saving..." : "Save"}
+  return (
+    <div className={styles.panelPad}>
+      <h3 className={styles.panelTitle}>Category fares</h3>
+      <p className={styles.secondary}>Set the base fare, time and distance rates for each vehicle category. Amounts are in rupees.</p>
+      {load === "loading" && <p className={styles.notice} role="status">Loading fare configurations…</p>}
+      {load === "error" && <div className={styles.notice} role="alert">
+        Couldn’t load fares.
+        <button type="button" className={styles.button} onClick={() => { setLoad("loading"); setAttempt((n) => n + 1); }}>Try again</button>
+      </div>}
+      {load === "ready" && !configs.length && <p className={styles.notice}>No fare categories found.</p>}
+      {load === "ready" && configs.length > 0 && (
+        <div className={styles.fareCards}>
+          {configs.map((config) => {
+            const id = config.vehicleType;
+            return (
+              <form key={id} className={styles.fareCard} onSubmit={(event) => { event.preventDefault(); void save(config); }}>
+                <h4>{id.replaceAll("_", " ")}</h4>
+                <div className={styles.fareFields}>
+                  {fareFields.map(({ field, label, step, fallback }) => (
+                    <label key={field}>
+                      {label}
+                      <input
+                        type="number" min="0" step={step} required className={styles.field}
+                        value={edits[id]?.[field] ?? config[field] ?? fallback}
+                        onChange={(e) => {
+                          const value = e.currentTarget.value;
+                          setEdits((previous) => ({ ...previous, [id]: { ...previous[id], [field]: value } }));
+                          if (message?.id === id) setMessage(null);
+                        }}
+                      />
+                    </label>
+                  ))}
+                </div>
+                <div className={styles.fareFooter}>
+                  <button type="submit" disabled={saving !== null || !Object.keys(edits[id] || {}).length} className={styles.primary}>
+                    {saving === id ? "Saving…" : "Save rates"}
                   </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  {message?.id === id && <span className={styles.secondary} role={message.error ? "alert" : "status"}>{message.text}</span>}
+                </div>
+              </form>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

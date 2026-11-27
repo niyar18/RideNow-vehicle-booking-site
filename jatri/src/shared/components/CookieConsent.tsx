@@ -88,7 +88,7 @@ export default function CookieConsent() {
           aria-live="polite"
           aria-label="Cookie consent banner"
         >
-          <div className="bg-[#FAF7F0]/95 dark:bg-[#0B2822]/95 backdrop-blur-md border border-[#DED7CA] dark:border-[#24483D] rounded-[16px] shadow-2xl p-4 sm:p-5 text-[#10251C] dark:text-[#F7F5ED] flex flex-col gap-3.5">
+          <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[12px] shadow-lg p-4 sm:p-5 text-[var(--text-primary)] flex flex-col gap-3.5">
             {/* Header */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2.5">
@@ -97,7 +97,7 @@ export default function CookieConsent() {
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
-                    <h3 className="text-sm font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED]">Cookie Preferences</h3>
+                    <h3 className="text-sm font-bold tracking-tight text-[var(--text-primary)]">Cookie Preferences</h3>
                     <span className="px-1.5 py-0.5 rounded-[4px] bg-[#E5EBDD] dark:bg-[#1D3428] border border-[#cdd6c3] dark:border-[#24483D] text-[9px] font-bold uppercase text-[#123D32] dark:text-[#A3E635]">
                       Privacy
                     </span>
@@ -131,11 +131,11 @@ export default function CookieConsent() {
                   className="space-y-2.5 pt-2 border-t border-[#DED7CA]/60 dark:border-[#24483D] overflow-hidden"
                 >
                   {/* Necessary Category */}
-                  <div className="p-2.5 bg-white dark:bg-[#10352C] rounded-[10px] border border-[#DED7CA]/70 dark:border-[#24483D] flex items-start justify-between gap-2">
+                  <div className="p-2.5 bg-[var(--surface-raised)] rounded-[10px] border border-[#DED7CA]/70 dark:border-[#24483D] flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0 pr-2">
                       <div className="flex items-center gap-1.5">
                         <Lock size={12} className="text-[#123D32] dark:text-[#A3E635]" />
-                        <span className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED]">Strictly Necessary</span>
+                        <span className="text-xs font-bold text-[var(--text-primary)]">Strictly Necessary</span>
                       </div>
                       <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5 leading-snug">
                         Essential for booking checkout, GPS coordinate tracking, authentication, and secure payment processing.
@@ -147,9 +147,9 @@ export default function CookieConsent() {
                   </div>
 
                   {/* Analytics Category */}
-                  <div className="p-2.5 bg-white dark:bg-[#10352C] rounded-[10px] border border-[#DED7CA]/70 dark:border-[#24483D] flex items-start justify-between gap-2">
+                  <div className="p-2.5 bg-[var(--surface-raised)] rounded-[10px] border border-[#DED7CA]/70 dark:border-[#24483D] flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0 pr-2">
-                      <span className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] block">Performance & Telemetry</span>
+                      <span className="text-xs font-bold text-[var(--text-primary)] block">Performance & Telemetry</span>
                       <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5 leading-snug">
                         Helps measure map route rendering speed, error logs, and driver dispatch latency to improve ride quality.
                       </p>
@@ -168,9 +168,9 @@ export default function CookieConsent() {
                   </div>
 
                   {/* Personalization Category */}
-                  <div className="p-2.5 bg-white dark:bg-[#10352C] rounded-[10px] border border-[#DED7CA]/70 dark:border-[#24483D] flex items-start justify-between gap-2">
+                  <div className="p-2.5 bg-[var(--surface-raised)] rounded-[10px] border border-[#DED7CA]/70 dark:border-[#24483D] flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0 pr-2">
-                      <span className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] block">Personalization & Spots</span>
+                      <span className="text-xs font-bold text-[var(--text-primary)] block">Personalization & Spots</span>
                       <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5 leading-snug">
                         Saves favorite places, recent pickup history, and language preferences across sessions.
                       </p>
@@ -217,7 +217,7 @@ export default function CookieConsent() {
                   <button
                     type="button"
                     onClick={handleRejectNonEssential}
-                    className="py-2.5 px-3 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold transition active:scale-98 cursor-pointer text-center"
+                    className="py-2.5 px-3 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition active:scale-98 cursor-pointer text-center"
                   >
                     Essential Only
                   </button>
@@ -235,7 +235,7 @@ export default function CookieConsent() {
                   <button
                     type="button"
                     onClick={handleRejectNonEssential}
-                    className="py-2.5 px-3 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold transition active:scale-98 cursor-pointer text-center"
+                    className="py-2.5 px-3 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition active:scale-98 cursor-pointer text-center"
                   >
                     Essential Only
                   </button>

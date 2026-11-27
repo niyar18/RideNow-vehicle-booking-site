@@ -22,9 +22,9 @@ export default function NotificationToggle({
     setMounted(true);
   }, []);
 
-  if (!mounted || !isSupported) return null;
-
   const { userData } = useSelector((state: RootState) => state.user);
+
+  if (!mounted || !isSupported) return null;
 
   const handleClick = async () => {
     // Require authentication before requesting push permission
@@ -89,7 +89,7 @@ export default function NotificationToggle({
         onClick={handleClick}
         disabled={loading}
         aria-label="Notifications"
-        className={`relative w-10 h-10 rounded-full bg-white/85 dark:bg-[#0B2822]/90 backdrop-blur-md border border-[#DED7CA]/80 dark:border-[#24483D] shadow-xs text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-center active:scale-95 transition hover:bg-white dark:hover:bg-[#10352C] cursor-pointer ${className}`}
+        className={`relative w-10 h-10 rounded-md bg-[var(--surface-raised)] border border-[var(--border-default)] text-[var(--text-primary)] flex items-center justify-center active:scale-95 transition hover:bg-white dark:hover:bg-[#10352C] cursor-pointer ${className}`}
         title={
           isSubscribed
             ? "Notifications Enabled (Tap to manage)"

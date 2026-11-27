@@ -3,6 +3,7 @@ export const revalidate = 0;
 
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import AdminChrome from "@/features/admin/components/AdminChrome";
 
 export default async function AdminLayout({
   children,
@@ -15,5 +16,5 @@ export default async function AdminLayout({
     redirect("/");
   }
 
-  return <>{children}</>;
+  return <AdminChrome>{children}</AdminChrome>;
 }

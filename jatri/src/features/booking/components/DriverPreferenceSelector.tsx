@@ -22,7 +22,7 @@ export default function DriverPreferenceSelector({
   return (
     <div className={`flex flex-col gap-2.5 ${className}`}>
       <div className="flex items-center justify-between">
-        <label className="text-xs font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] flex items-center gap-1.5">
+        <label className="text-xs font-black uppercase tracking-wider text-[var(--text-primary)] flex items-center gap-1.5">
           <Shield size={14} className="text-[#046A38] dark:text-[#90C8A8]" />
           <span>Safety Preferences</span>
         </label>
@@ -59,23 +59,23 @@ export default function DriverPreferenceSelector({
           className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#061A16] ${
             value === "any"
               ? "border-[#046A38] bg-[#F7F1E5]/80 dark:bg-[#123D32]/40 ring-1 ring-[#046A38]"
-              : "border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#0B2822] hover:border-[#046A38]/50 dark:hover:border-[#34D399]/50"
+              : "border-[var(--border-default)] bg-white dark:bg-[#0B2822] hover:border-[#046A38]/50 dark:hover:border-[#34D399]/50"
           }`}
         >
           <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">
             {value === "any" && <div className="w-2 h-2 rounded-full bg-[#046A38]" />}
           </div>
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-between gap-1.5">
+            <span className="text-sm font-bold text-[var(--text-primary)] flex items-center justify-between gap-1.5">
               <span className="flex items-center gap-1.5">
-                <Users size={14} className="text-[#696B64] dark:text-[#B9C8BF]" />
+                <Users size={14} className="text-[var(--text-secondary)]" />
                 <span>Any driver</span>
               </span>
               <span className="text-[10px] font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-800">
                 Fastest pickup
               </span>
             </span>
-            <span className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5 leading-snug">
+            <span className="text-xs text-[var(--text-secondary)] mt-0.5 leading-snug">
               Standard dispatch with highest driver availability nearby.
             </span>
           </div>
@@ -90,23 +90,23 @@ export default function DriverPreferenceSelector({
           className={`flex items-start gap-3 p-3.5 rounded-[10px] border text-left transition-all min-h-[56px] touch-manipulation cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#061A16] ${
             value === "woman"
               ? "border-[#046A38] bg-[#F7F1E5]/80 dark:bg-[#123D32]/40 ring-1 ring-[#046A38]"
-              : "border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#0B2822] hover:border-[#046A38]/50 dark:hover:border-[#34D399]/50"
+              : "border-[var(--border-default)] bg-white dark:bg-[#0B2822] hover:border-[#046A38]/50 dark:hover:border-[#34D399]/50"
           }`}
         >
           <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">
             {value === "woman" && <div className="w-2 h-2 rounded-full bg-[#046A38]" />}
           </div>
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-between gap-1.5">
+            <span className="text-sm font-bold text-[var(--text-primary)] flex items-center justify-between gap-1.5">
               <span className="flex items-center gap-1.5">
                 <Sparkles size={14} className="text-emerald-600 dark:text-emerald-400" />
                 <span>Woman driver</span>
               </span>
-              <span className="text-[10px] font-bold text-[#046A38] dark:text-[#90C8A8] bg-[#FAF7F0] dark:bg-[#10352C] px-1.5 py-0.2 rounded border border-[#DED7CA] dark:border-[#24483D]">
+              <span className="text-[10px] font-bold text-[#046A38] dark:text-[#90C8A8] bg-[var(--surface-subtle)] px-1.5 py-0.2 rounded border border-[var(--border-default)]">
                 Verified
               </span>
             </span>
-            <span className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5 leading-snug">
+            <span className="text-xs text-[var(--text-secondary)] mt-0.5 leading-snug">
               Priority match with verified women drivers. Never auto-swapped without consent.
             </span>
           </div>

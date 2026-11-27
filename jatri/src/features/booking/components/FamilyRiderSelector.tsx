@@ -78,7 +78,7 @@ export default function FamilyRiderSelector({
       <button
         type="button"
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#0B2822] dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] text-xs font-bold transition border border-[#DED7CA] dark:border-[#1E3E34] shadow-xs cursor-pointer"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#0B2822] dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition border border-[var(--border-default)] cursor-pointer"
       >
         <Users size={14} className="text-[#046A38] dark:text-[#347858]" />
         <span>
@@ -87,8 +87,8 @@ export default function FamilyRiderSelector({
       </button>
 
       {dropdownOpen && (
-        <div className="absolute left-0 mt-2 w-64 bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[10px] shadow-xl p-2 z-50">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] px-3 py-1.5">
+        <div className="absolute left-0 mt-2 w-64 bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[10px] shadow-xl p-2 z-50">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] px-3 py-1.5">
             Who is riding?
           </p>
 
@@ -99,7 +99,7 @@ export default function FamilyRiderSelector({
               setDropdownOpen(false);
             }}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-[8px] text-xs font-semibold transition cursor-pointer ${
-              !selectedFamilyMember ? "bg-[#046A38] text-white" : "hover:bg-[#EFE9DC]/60 dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED]"
+              !selectedFamilyMember ? "bg-[#046A38] text-white" : "hover:bg-[#EFE9DC]/60 dark:hover:bg-[#143D32] text-[var(--text-primary)]"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export default function FamilyRiderSelector({
                   setDropdownOpen(false);
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-[8px] text-xs font-semibold transition mt-1 cursor-pointer ${
-                  active ? "bg-[#046A38] text-white" : "hover:bg-[#EFE9DC]/60 dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED]"
+                  active ? "bg-[#046A38] text-white" : "hover:bg-[#EFE9DC]/60 dark:hover:bg-[#143D32] text-[var(--text-primary)]"
                 }`}
               >
                 <div className="flex items-center gap-2 truncate">

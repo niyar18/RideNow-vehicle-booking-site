@@ -257,7 +257,7 @@ export default function SmartRideAssistantModal({
           </div>
 
           {/* ── REAL-TIME RECOMMENDATION CARD ── */}
-          <div className="p-4 rounded-[12px] bg-[#FAF7F0] dark:bg-[#123D32]/25 border-2 border-[#046A38]/30 dark:border-[#046A38]/50 shadow-sm flex flex-col gap-3">
+          <div className="p-4 rounded-[12px] bg-[#FAF7F0] dark:bg-[#123D32]/25 border-2 border-[#046A38]/30 dark:border-[#046A38]/50 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-[#046A38] dark:text-[#90C8A8] border border-emerald-300 dark:border-emerald-800 flex items-center gap-1">
                 <Sparkles size={11} /> Jaatri Recommends
@@ -322,7 +322,7 @@ export default function SmartRideAssistantModal({
               type="button"
               disabled={!isEligible}
               onClick={handleChoose}
-              className={`w-full py-3 px-4 rounded-[8px] font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer min-h-[48px] touch-manipulation shadow-xs ${
+              className={`w-full py-3 px-4 rounded-[8px] font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer min-h-[48px] touch-manipulation ${
                 isAlreadySelected
                   ? "bg-emerald-700 dark:bg-emerald-800 text-white hover:bg-emerald-800"
                   : "bg-[#046A38] hover:bg-[#03532C] text-white active:scale-[0.99]"

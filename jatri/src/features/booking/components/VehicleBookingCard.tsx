@@ -72,7 +72,7 @@ function VehicleBookingCard({
       whileHover={{ y: -6 }}
       transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
       onClick={onBook}
-      className="relative bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] overflow-hidden flex flex-col group cursor-pointer select-none transition-all shadow-sm"
+      className="relative bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[14px] overflow-hidden flex flex-col group cursor-pointer select-none transition-all shadow-sm"
     >
       {/* Hover border glow */}
       <div className="absolute inset-0 rounded-[14px] border-2 border-transparent group-hover:border-[#046A38] transition-all duration-300 pointer-events-none z-10" />
@@ -91,7 +91,7 @@ function VehicleBookingCard({
       )}
 
       {/* IMAGE AREA */}
-      <div className="relative h-48 bg-white dark:bg-[#10352C] flex items-center justify-center overflow-hidden">
+      <div className="relative h-48 bg-[var(--surface-raised)] flex items-center justify-center overflow-hidden">
 
         {/* Subtle grid pattern */}
         <div
@@ -119,7 +119,7 @@ function VehicleBookingCard({
         </div>
 
         {/* Rating pill — bottom left */}
-        <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] text-[#10251C] dark:text-[#F7F5ED] text-[10px] font-bold px-2 py-1 rounded-[6px] shadow-xs">
+        <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white dark:bg-[#0B2822] border border-[var(--border-default)] text-[var(--text-primary)] text-[10px] font-bold px-2 py-1 rounded-[6px] shadow-xs">
           <Star size={9} className="fill-amber-500 text-amber-500" />
           4.8
         </div>
@@ -134,12 +134,12 @@ function VehicleBookingCard({
         {/* Title + plate row */}
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <h3 className="text-[#10251C] dark:text-[#F7F5ED] text-base font-black tracking-tight leading-tight truncate">
+            <h3 className="text-[var(--text-primary)] text-base font-black tracking-tight leading-tight truncate">
               {vehicleModel}
             </h3>
             <div className="mt-1.5 flex items-center gap-2">
-              <div className="inline-flex items-center bg-[#F7F1E5] dark:bg-[#10352C] px-2 py-0.5 rounded-md border border-[#DED7CA] dark:border-[#24483D]">
-                <span className="text-[#696B64] dark:text-[#B9C8BF] text-[11px] font-black tracking-[0.15em] font-mono uppercase">
+              <div className="inline-flex items-center bg-[#F7F1E5] dark:bg-[#10352C] px-2 py-0.5 rounded-md border border-[var(--border-default)]">
+                <span className="text-[var(--text-secondary)] text-[11px] font-black tracking-[0.15em] font-mono uppercase">
                   {number}
                 </span>
               </div>
@@ -164,42 +164,42 @@ function VehicleBookingCard({
               {distanceKm > 0 ? (
                 <span className="font-semibold">{arrivalInfo.displayLine}</span>
               ) : (
-                <span className="text-[#696B64] dark:text-[#B9C8BF] italic text-[11px]">
+                <span className="text-[var(--text-secondary)] italic text-[11px]">
                   {t("booking.selectDestForArrival", "Select destination for arrival time")}
                 </span>
               )}
             </div>
           </div>
-          <div className="flex-shrink-0 w-10 h-10 rounded-[10px] bg-[#F7F1E5] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center">
+          <div className="flex-shrink-0 w-10 h-10 rounded-[10px] bg-[#F7F1E5] dark:bg-[#10352C] border border-[var(--border-default)] flex items-center justify-center">
             <Icon size={17} className="text-[#123D32] dark:text-[#90C8A8]" />
           </div>
         </div>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] px-3.5 py-3 shadow-2xs">
+          <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[10px] px-3.5 py-3 shadow-2xs">
             <div className="flex items-center gap-1.5 mb-1">
-              <Gauge size={11} className="text-[#696B64] dark:text-[#B9C8BF]" />
-              <p className="text-[#696B64] dark:text-[#B9C8BF] text-[9px] uppercase tracking-widest font-bold">{t("fleet.perKm", "Per km")}</p>
+              <Gauge size={11} className="text-[var(--text-secondary)]" />
+              <p className="text-[var(--text-secondary)] text-[9px] uppercase tracking-widest font-bold">{t("fleet.perKm", "Per km")}</p>
             </div>
-            <p className="text-[#10251C] dark:text-[#F7F5ED] text-sm font-black">₹{pricePerKm}</p>
+            <p className="text-[var(--text-primary)] text-sm font-black">₹{pricePerKm}</p>
           </div>
-          <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] px-3.5 py-3 shadow-2xs">
+          <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[10px] px-3.5 py-3 shadow-2xs">
             <div className="flex items-center gap-1.5 mb-1">
-              <Clock size={11} className="text-[#696B64] dark:text-[#B9C8BF]" />
-              <p className="text-[#696B64] dark:text-[#B9C8BF] text-[9px] uppercase tracking-widest font-bold">{t("booking.waiting", "Waiting")}</p>
+              <Clock size={11} className="text-[var(--text-secondary)]" />
+              <p className="text-[var(--text-secondary)] text-[9px] uppercase tracking-widest font-bold">{t("booking.waiting", "Waiting")}</p>
             </div>
-            <p className="text-[#10251C] dark:text-[#F7F5ED] text-sm font-black">
+            <p className="text-[var(--text-primary)] text-sm font-black">
               ₹{waitingCharge}
-              <span className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] font-normal">/min</span>
+              <span className="text-[var(--text-secondary)] text-[10px] font-normal">/min</span>
             </p>
           </div>
         </div>
 
         {/* FARE + BOOK */}
-        <div className="flex items-end justify-between pt-3 border-t border-[#DED7CA] dark:border-[#24483D]">
+        <div className="flex items-end justify-between pt-3 border-t border-[var(--border-default)]">
           <div>
-            <p className="text-[#696B64] dark:text-[#B9C8BF] text-[9px] uppercase tracking-widest font-bold mb-0.5">
+            <p className="text-[var(--text-secondary)] text-[9px] uppercase tracking-widest font-bold mb-0.5">
               {t("booking.estFare", "Est. Fare")}
             </p>
             <motion.div
@@ -209,8 +209,8 @@ function VehicleBookingCard({
               transition={{ duration: 0.25 }}
               className="flex items-baseline gap-0.5"
             >
-              <IndianRupee size={16} className="text-[#10251C] dark:text-[#F7F5ED] mb-0.5" strokeWidth={2.5} />
-              <span className="text-[#10251C] dark:text-[#F7F5ED] text-3xl font-black tracking-tight leading-none font-mono">
+              <IndianRupee size={16} className="text-[var(--text-primary)] mb-0.5" strokeWidth={2.5} />
+              <span className="text-[var(--text-primary)] text-3xl font-black tracking-tight leading-none font-mono">
                 {estimated}
               </span>
             </motion.div>
@@ -221,7 +221,7 @@ function VehicleBookingCard({
             whileHover={{ scale: 1.04 }}
             onClick={onBook}
             aria-label={`Book ${vehicleModel} ${label}`}
-            className="group/btn flex items-center justify-center gap-2 bg-[#046A38] hover:bg-[#03532C] text-white text-sm font-bold px-5 py-3 min-h-[44px] min-w-[44px] rounded-[8px] transition-colors shadow-sm active:scale-95 touch-manipulation"
+            className="group/btn flex items-center justify-center gap-2 bg-[#046A38] hover:bg-[#03532C] text-white text-sm font-bold px-5 py-3 min-h-[44px] min-w-[44px] rounded-[8px] transition-colors touch-manipulation"
           >
             {t("fleet.bookNow", "Book")}
             <motion.div

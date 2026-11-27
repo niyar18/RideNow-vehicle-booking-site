@@ -71,6 +71,7 @@ export default function AuthModal({ open, onClose }: Props) {
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
+  const dialogRef = useRef<HTMLDivElement>(null);
   const otpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   /* Lock body scroll when modal is open */
@@ -78,6 +79,16 @@ export default function AuthModal({ open, onClose }: Props) {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
+    };
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    const previous = document.activeElement;
+    const frame = requestAnimationFrame(() => dialogRef.current?.focus());
+    return () => {
+      cancelAnimationFrame(frame);
+      if (previous instanceof HTMLElement && previous.isConnected) previous.focus();
     };
   }, [open]);
 
@@ -391,7 +402,17 @@ export default function AuthModal({ open, onClose }: Props) {
             transition={{ duration: 0.2, ease: "easeOut" }}
             className="fixed inset-0 z-[100] flex items-center justify-center px-4"
           >
-            <div className="relative w-full max-w-md rounded-[14px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] shadow-xl p-6 sm:p-7 text-zinc-900 dark:text-[#F7F5ED] max-h-[92dvh] overflow-y-auto">
+            <div ref={dialogRef} role="dialog" aria-modal="true" aria-label={t("nav.signIn", "Sign in")} tabIndex={-1}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") onClose();
+                if (event.key !== "Tab") return;
+                const items = [...event.currentTarget.querySelectorAll<HTMLElement>("button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled])")].filter((item) => item.getClientRects().length);
+                const first = items[0], last = items[items.length - 1];
+                if (!first || !last) return;
+                if (event.shiftKey && (document.activeElement === first || document.activeElement === event.currentTarget)) { event.preventDefault(); last.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+              }}
+              className="relative w-full max-w-md rounded-[14px] bg-[var(--surface-raised)] border border-[var(--border-default)] shadow-xl p-6 sm:p-7 text-[var(--text-primary)] max-h-[92dvh] overflow-y-auto">
               {/* CLOSE BUTTON */}
               <button
                 onClick={onClose}
@@ -403,7 +424,7 @@ export default function AuthModal({ open, onClose }: Props) {
 
               {/* BRAND HEADER */}
               <div className="mb-6 text-center">
-                <h1 className="text-2xl font-black tracking-tight text-zinc-900 dark:text-[#F7F5ED]">Jaatri</h1>
+                <h1 className="text-2xl font-black tracking-tight text-[var(--text-primary)]">Jaatri</h1>
                 <p className="text-xs text-zinc-500 dark:text-[#B9C8BF] font-medium mt-1">
                   {t("auth.signInSubtitle", "Enter your mobile number to get started")}
                 </p>
@@ -428,7 +449,7 @@ export default function AuthModal({ open, onClose }: Props) {
                     className="space-y-4"
                   >
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F7F5ED]">{t("auth.orPhone", "Enter your Mobile Number")}</h2>
+                      <h2 className="text-lg font-black text-[var(--text-primary)]">{t("auth.orPhone", "Enter your Mobile Number")}</h2>
                       <p className="text-xs text-zinc-400 dark:text-[#B9C8BF] font-medium mt-0.5">
                         {t("auth.sendOtpDesc", "We will send a 6-digit verification code to your WhatsApp.")}
                       </p>
@@ -436,7 +457,7 @@ export default function AuthModal({ open, onClose }: Props) {
 
                     <form onSubmit={handleSendPhoneOtp} className="space-y-3.5">
                       {/* Phone Input with +91 Indian Flag badge */}
-                      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-[8px] border border-zinc-300 dark:border-[#24483D] focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#061A16]/50 transition">
+                      <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-[8px] border border-[var(--border-default)] focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-[var(--surface)] transition">
                         <div className="flex items-center gap-1.5 pr-2.5 border-r border-zinc-200 dark:border-[#1E3E34] flex-shrink-0">
                           <span className="text-base leading-none">🇮🇳</span>
                           <span className="text-xs font-bold text-zinc-800 dark:text-[#F7F5ED]">+91</span>
@@ -451,7 +472,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           onChange={(e) =>
                             setMobileNumber(e.target.value.replace(/\D/g, "").slice(0, 10))
                           }
-                          className="w-full text-sm font-semibold text-zinc-900 dark:text-[#F7F5ED] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF] outline-none bg-transparent"
+                          className="w-full text-sm font-semibold text-[var(--text-primary)] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF] outline-none bg-transparent"
                         />
                       </div>
 
@@ -461,7 +482,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           type="button"
                           onClick={(e) => handleSendPhoneOtp(e, "whatsapp")}
                           disabled={sendingPhoneOtp || mobileNumber.replace(/\D/g, "").length !== 10}
-                          className="h-11 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-98"
+                          className="h-11 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] disabled:opacity-40 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition active:scale-98"
                         >
                           {sendingPhoneOtp && selectedChannel === "whatsapp" ? (
                             <>
@@ -511,7 +532,7 @@ export default function AuthModal({ open, onClose }: Props) {
                       type="button"
                       disabled={googleLoading}
                       onClick={handleGoogleLogin}
-                      className="w-full h-11 rounded-[8px] border border-zinc-300 dark:border-[#24483D] bg-white dark:bg-[#10352C] hover:border-zinc-900 dark:hover:border-[#426457] flex items-center justify-center gap-2.5 text-sm font-semibold text-zinc-800 dark:text-[#F7F5ED] transition active:scale-98 disabled:opacity-60"
+                      className="w-full h-11 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] hover:border-zinc-900 dark:hover:border-[#426457] flex items-center justify-center gap-2.5 text-sm font-semibold text-zinc-800 dark:text-[#F7F5ED] transition active:scale-98 disabled:opacity-60"
                     >
                       {googleLoading ? (
                         <Loader2 className="animate-spin text-zinc-600 dark:text-[#B9C8BF]" size={18} />
@@ -565,10 +586,10 @@ export default function AuthModal({ open, onClose }: Props) {
                     </div>
 
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F7F5ED]">{t("auth.enterOtp", "Verify your Number")}</h2>
+                      <h2 className="text-lg font-black text-[var(--text-primary)]">{t("auth.enterOtp", "Verify your Number")}</h2>
                       <p className="text-xs text-zinc-500 dark:text-[#B9C8BF] font-medium mt-0.5">
                         Enter the 6-digit code sent via {selectedChannel === "whatsapp" ? "WhatsApp" : "SMS"} to{" "}
-                        <strong className="text-zinc-900 dark:text-[#F7F5ED]">+91 {mobileNumber}</strong>
+                        <strong className="text-[var(--text-primary)]">+91 {mobileNumber}</strong>
                       </p>
                     </div>
 
@@ -603,7 +624,7 @@ export default function AuthModal({ open, onClose }: Props) {
                           onChange={(e) => handlePhoneOtpChange(i, e.target.value)}
                           onKeyDown={(e) => handlePhoneOtpKeyDown(i, e)}
                           onPaste={(e) => handlePhoneOtpPaste(i, e)}
-                          className="w-11 h-13 text-center text-lg font-bold rounded-[8px] bg-zinc-50 dark:bg-[#061A16] border border-zinc-300 dark:border-[#24483D] text-zinc-900 dark:text-[#F7F5ED] focus:border-zinc-900 dark:focus:border-[#28664D] focus:bg-white dark:focus:bg-[#17211B] outline-none transition"
+                          className="w-11 h-13 text-center text-lg font-bold rounded-[8px] bg-zinc-50 dark:bg-[#061A16] border border-[var(--border-default)] text-[var(--text-primary)] focus:border-zinc-900 dark:focus:border-[#28664D] focus:bg-white dark:focus:bg-[#17211B] outline-none transition"
                         />
                       ))}
                     </div>
@@ -612,7 +633,7 @@ export default function AuthModal({ open, onClose }: Props) {
                     <button
                       onClick={handleVerifyPhoneOtp}
                       disabled={verifyingPhoneOtp || phoneOtp.join("").length !== 6}
-                      className="w-full h-11 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-white font-bold text-sm flex items-center justify-center gap-2 transition active:scale-98"
+                      className="w-full h-11 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] disabled:opacity-40 text-white font-bold text-sm flex items-center justify-center gap-2 transition active:scale-98"
                     >
                       {verifyingPhoneOtp ? (
                         <>
@@ -677,32 +698,32 @@ export default function AuthModal({ open, onClose }: Props) {
                     </div>
 
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F7F5ED]">Email Login</h2>
+                      <h2 className="text-lg font-black text-[var(--text-primary)]">Email Login</h2>
                       <p className="text-xs text-zinc-400 dark:text-[#B9C8BF] font-medium">
                         Log in with your email and password.
                       </p>
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#24483D] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#061A16]/50 transition">
+                      <div className="flex items-center gap-3 border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-[var(--surface)] transition">
                         <Mail size={16} className="text-zinc-400 dark:text-[#B9C8BF]" />
                         <input
                           type="email"
                           placeholder="Email Address"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F7F5ED] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-[var(--text-primary)] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
                         />
                       </div>
 
-                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#24483D] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#061A16]/50 transition">
+                      <div className="flex items-center gap-3 border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-[var(--surface)] transition">
                         <Lock size={16} className="text-zinc-400 dark:text-[#B9C8BF]" />
                         <input
                           type={showPassword ? "text" : "password"}
                           placeholder="Password"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F7F5ED] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-[var(--text-primary)] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
                         />
                         <button
                           type="button"
@@ -715,7 +736,7 @@ export default function AuthModal({ open, onClose }: Props) {
 
                       <button
                         onClick={handleEmailLogin}
-                        className="w-full h-11 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-sm transition active:scale-98"
+                        className="w-full h-11 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-sm transition active:scale-98"
                       >
                         Log In
                       </button>
@@ -725,7 +746,7 @@ export default function AuthModal({ open, onClose }: Props) {
                       Don’t have an account?{" "}
                       <button
                         onClick={() => setStep("email_signup")}
-                        className="text-zinc-900 dark:text-[#F7F5ED] font-bold hover:underline"
+                        className="text-[var(--text-primary)] font-bold hover:underline"
                       >
                         Sign up with Email
                       </button>
@@ -750,47 +771,47 @@ export default function AuthModal({ open, onClose }: Props) {
                     </button>
 
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F7F5ED]">Create Account</h2>
+                      <h2 className="text-lg font-black text-[var(--text-primary)]">Create Account</h2>
                       <p className="text-xs text-zinc-400 dark:text-[#B9C8BF] font-medium">
                         Register with your email to get started.
                       </p>
                     </div>
 
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#24483D] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#061A16]/50 transition">
+                      <div className="flex items-center gap-3 border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-[var(--surface)] transition">
                         <User size={16} className="text-zinc-400 dark:text-[#B9C8BF]" />
                         <input
                           placeholder="Full Name"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F7F5ED] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-[var(--text-primary)] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
                         />
                       </div>
 
-                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#24483D] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#061A16]/50 transition">
+                      <div className="flex items-center gap-3 border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-[var(--surface)] transition">
                         <Mail size={16} className="text-zinc-400 dark:text-[#B9C8BF]" />
                         <input
                           placeholder="Email Address"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F7F5ED] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-[var(--text-primary)] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
                         />
                       </div>
 
-                      <div className="flex items-center gap-3 border border-zinc-300 dark:border-[#24483D] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-zinc-50/50 dark:bg-[#061A16]/50 transition">
+                      <div className="flex items-center gap-3 border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 focus-within:border-zinc-900 dark:focus-within:border-[#28664D] bg-[var(--surface)] transition">
                         <Lock size={16} className="text-zinc-400 dark:text-[#B9C8BF]" />
                         <input
                           type="password"
                           placeholder="Password (min 6 characters)"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
-                          className="w-full bg-transparent outline-none text-sm font-semibold text-zinc-900 dark:text-[#F7F5ED] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
+                          className="w-full bg-transparent outline-none text-sm font-semibold text-[var(--text-primary)] placeholder:text-zinc-400 dark:placeholder:text-[#B9C8BF]"
                         />
                       </div>
 
                       <button
                         onClick={handleEmailSignUp}
-                        className="w-full h-11 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-sm transition active:scale-98"
+                        className="w-full h-11 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-sm transition active:scale-98"
                       >
                         Send Verification Code
                       </button>
@@ -824,9 +845,9 @@ export default function AuthModal({ open, onClose }: Props) {
                     </div>
 
                     <div>
-                      <h2 className="text-lg font-black text-zinc-900 dark:text-[#F7F5ED]">Verify Email</h2>
+                      <h2 className="text-lg font-black text-[var(--text-primary)]">Verify Email</h2>
                       <p className="text-xs text-zinc-500 dark:text-[#B9C8BF] font-medium mt-0.5">
-                        Enter the 6-digit verification code sent to <strong className="text-zinc-900 dark:text-[#F7F5ED]">{email}</strong>
+                        Enter the 6-digit verification code sent to <strong className="text-[var(--text-primary)]">{email}</strong>
                       </p>
                     </div>
 
@@ -869,7 +890,7 @@ export default function AuthModal({ open, onClose }: Props) {
                               document.getElementById(`email-otp-${i - 1}`)?.focus();
                             }
                           }}
-                          className="w-11 h-13 text-center text-lg font-bold rounded-[8px] bg-zinc-50 dark:bg-[#061A16] border border-zinc-300 dark:border-[#24483D] text-zinc-900 dark:text-[#F7F5ED] focus:border-zinc-900 dark:focus:border-[#28664D] focus:bg-white dark:focus:bg-[#17211B] outline-none transition"
+                          className="w-11 h-13 text-center text-lg font-bold rounded-[8px] bg-zinc-50 dark:bg-[#061A16] border border-[var(--border-default)] text-[var(--text-primary)] focus:border-zinc-900 dark:focus:border-[#28664D] focus:bg-white dark:focus:bg-[#17211B] outline-none transition"
                         />
                       ))}
                     </div>
@@ -878,7 +899,7 @@ export default function AuthModal({ open, onClose }: Props) {
                       type="button"
                       onClick={handleVerifyEmailOtp}
                       disabled={emailOtp.join("").length !== 6}
-                      className="w-full h-11 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] disabled:opacity-40 text-white font-bold text-sm transition active:scale-98"
+                      className="w-full h-11 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] disabled:opacity-40 text-white font-bold text-sm transition active:scale-98"
                     >
                       Verify & Complete Signup
                     </button>

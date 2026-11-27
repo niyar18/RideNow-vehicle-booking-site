@@ -11,9 +11,11 @@ import {
   PhoneOff,
   CheckCircle,
   XCircle,
-  X,
+  ArrowRight,
+  ShieldCheck,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import AdminDecisionDialog from "@/features/admin/components/AdminDecisionDialog";
+import ui from "@/features/admin/components/admin-ui.module.css";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/redux/store";
 import { setUserData } from "@/redux/userSlice";
@@ -58,7 +60,11 @@ export default function VideoKYCPage() {
   const [loading, setLoading] = useState(false);
   const [cameraOn, setCameraOn] = useState(true);
   const [micOn, setMicOn] = useState(true);
+  const previewDevices = useRef({ camera: true, mic: true });
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [previewError, setPreviewError] = useState(false);
+  const [previewAttempt, setPreviewAttempt] = useState(0);
+  const [callError, setCallError] = useState("");
 
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -132,6 +138,7 @@ const handleReject = async () => {
     if (joined) return;
 
     let localStream: MediaStream;
+    let disposed = false;
 
     const init = async () => {
       try {
@@ -140,27 +147,36 @@ const handleReject = async () => {
           audio: true,
         });
 
+        if (disposed) {
+          localStream.getTracks().forEach((track) => track.stop());
+          return;
+        }
+        setPreviewError(false);
         setStream(localStream);
+        localStream.getVideoTracks().forEach((track) => { track.enabled = previewDevices.current.camera; });
+        localStream.getAudioTracks().forEach((track) => { track.enabled = previewDevices.current.mic; });
         if (previewRef.current) {
           previewRef.current.srcObject = localStream;
         }
-      } catch (err) {
-        console.error(err);
+      } catch {
+        if (!disposed) setPreviewError(true);
       }
     };
 
-    init();
+    void init();
 
     return () => {
-      localStream?.getTracks().forEach((t) => t.stop());
+      disposed = true;
+      localStream?.getTracks().forEach((track) => track.stop());
     };
-  }, [joined]);
+  }, [joined, previewAttempt]);
 
   const toggleCamera = () => {
     if (!stream) return;
     stream.getVideoTracks().forEach(
       (track) => (track.enabled = !cameraOn)
     );
+    previewDevices.current.camera = !cameraOn;
     setCameraOn(!cameraOn);
   };
 
@@ -169,6 +185,7 @@ const handleReject = async () => {
     stream.getAudioTracks().forEach(
       (track) => (track.enabled = !micOn)
     );
+    previewDevices.current.mic = !micOn;
     setMicOn(!micOn);
   };
 
@@ -205,6 +222,7 @@ const handleReject = async () => {
 
     joinedRef.current = true;
     setLoading(true);
+    setCallError("");
 
     try {
       // Release camera preview tracks so Zego can acquire the webcam hardware
@@ -246,6 +264,8 @@ const handleReject = async () => {
           mode: ZegoUIKitPrebuilt.OneONoneCall,
         },
         showPreJoinView: false,
+        turnOnCameraWhenJoining: cameraOn,
+        turnOnMicrophoneWhenJoining: micOn,
         onUserJoin: (users: any[]) => {
           if (users && users.length > 0) {
             setRemoteJoined(true);
@@ -266,7 +286,8 @@ const handleReject = async () => {
       setJoined(true);
     } catch (err: any) {
       console.error(err);
-      alert(err.message || "Failed to start call");
+      setCallError(err.message || "Couldn’t start the call. Try joining again.");
+      setPreviewAttempt((attempt) => attempt + 1);
       joinedRef.current = false;
     } finally {
       setLoading(false);
@@ -289,243 +310,111 @@ const handleReject = async () => {
 
  
 
-  /* ================= UI ================= */
-
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col">
-
-      {/* HEADER */}
-      <header className="px-3.5 py-2.5 sm:px-6 sm:py-3.5 border-b border-white/10 flex items-center justify-between gap-2 shrink-0 z-20 bg-[#0D3027]">
-
-        <div className="min-w-0">
-          <p className="font-serif font-bold tracking-wider text-sm sm:text-base truncate text-[#FAF7F0]">
-            যাত্ৰী Jaatri <span className="text-xs font-sans font-normal text-[#FAF7F0]/60">by RideNow</span>
-          </p>
-          <p className="text-[10px] sm:text-xs text-[#FAF7F0]/70 truncate font-sans">
-            {isAdmin ? "Admin Verification Console" : "Driver Statutory Video KYC"}
-          </p>
-        </div>
-
-        {/* HEADER ACTIONS */}
-        {joined && (
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-
-            {isAdmin && (
-              <>
-                <button
-                  onClick={() => setShowApproveModal(true)}
-                  className="bg-green-600 hover:bg-green-700 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 active:scale-95 transition"
-                >
-                  <CheckCircle size={14} className="sm:w-4 sm:h-4" />
-                  <span>Approve</span>
-                </button>
-
-                <button
-                  onClick={() => setShowRejectModal(true)}
-                  className="bg-red-600 hover:bg-red-700 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 active:scale-95 transition"
-                >
-                  <XCircle size={14} className="sm:w-4 sm:h-4" />
-                  <span>Reject</span>
-                </button>
-              </>
-            )}
-
-            <button
-              onClick={handleEndCall}
-              className="bg-red-700 hover:bg-red-800 px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg sm:rounded-full text-xs sm:text-sm font-medium flex items-center gap-1 sm:gap-2 active:scale-95 transition"
-            >
-              <PhoneOff size={14} className="sm:w-4 sm:h-4" />
-              <span>End</span>
-            </button>
-
+    <div className={`${ui.shell} ${ui.kycShell}`}>
+      <header className={ui.kycHeader}>
+        <div className={ui.kycHeaderInner}>
+          <div className={ui.brand}>
+            <span className={ui.brandGlyph} lang="as" aria-hidden="true">য</span>
+            <span className={ui.brandText}>Jaatri <small>Video verification</small></span>
           </div>
-        )}
+          {joined && (
+            <div className={ui.kycToolbar} role="group" aria-label="Call actions">
+              {isAdmin && (
+                <>
+                  <button type="button" className={ui.primary} onClick={() => setShowApproveModal(true)}>
+                    <CheckCircle size={15} aria-hidden="true" />Approve
+                  </button>
+                  <button type="button" className={ui.button} onClick={() => setShowRejectModal(true)}>
+                    <XCircle size={15} aria-hidden="true" />Reject
+                  </button>
+                </>
+              )}
+              <button type="button" className={ui.danger} onClick={handleEndCall}>
+                <PhoneOff size={15} aria-hidden="true" />End call
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
-      {/* BODY */}
-      <div className="flex-1 relative overflow-hidden flex flex-col">
-
-        {joined && !remoteJoined && (
-          <div className="absolute top-3 sm:top-6 left-1/2 -translate-x-1/2 z-30 pointer-events-none w-auto max-w-[90vw]">
-            <div className="bg-black/85 backdrop-blur-md border border-white/20 text-white text-[11px] sm:text-sm px-3.5 py-2 sm:px-5 sm:py-2.5 rounded-full flex items-center gap-2 sm:gap-3 shadow-2xl justify-center truncate">
-              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400 animate-ping shrink-0" />
-              <span className="truncate">Waiting for {isAdmin ? "driver" : "admin"} to connect...</span>
-            </div>
-          </div>
-        )}
-
-        <div
-          ref={containerRef}
-          className={`absolute inset-0 ${
-            joined ? "block" : "hidden"
-          }`}
-        />
+      <main className={ui.kycBody} aria-label="Video verification">
+        <div className={ui.videoStage} data-joined={joined}>
+          {joined && !remoteJoined && (
+            <p className={ui.waitingLabel} role="status">
+              <span className={ui.waitDot} aria-hidden="true" />
+              Waiting for {isAdmin ? "the driver" : "the reviewer"} to connect…
+            </p>
+          )}
+          <div ref={containerRef} className={ui.videoContainer} />
+        </div>
 
         {!joined && (
-          <div className="flex-1 flex items-center justify-center px-4 py-6 sm:py-10 overflow-y-auto">
-            <div className="w-full max-w-md lg:max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
-
-              <div className="relative rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-xl">
-                <video
-                  ref={previewRef}
-                  autoPlay
-                  muted
-                  playsInline
-                  className="w-full h-[240px] sm:h-[380px] object-cover"
-                />
-
-                {!cameraOn && (
-                  <div className="absolute inset-0 bg-black/90 flex flex-col items-center justify-center gap-2 text-gray-400">
-                    <VideoOff size={36} />
-                    <span className="text-xs">Camera is Off</span>
-                  </div>
+          <div className={ui.preflight}>
+            <section className={ui.preview} aria-label="Camera preview">
+              <div className={ui.previewStage}>
+                <video ref={previewRef} autoPlay muted playsInline aria-label="Your camera preview" />
+                {(!cameraOn || !stream) && (
+                  <p className={ui.previewOff}>
+                    <VideoOff size={24} aria-hidden="true" />
+                    {!cameraOn ? "Camera off" : previewError ? "Camera preview unavailable" : "Starting camera preview…"}
+                  </p>
                 )}
               </div>
+              <div className={ui.previewLabel}><span>Your preview</span><span>Not in call</span></div>
+            </section>
 
-              <div className="space-y-6 sm:space-y-8 text-center lg:text-left">
-                <div>
-                  <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">
-                    Secure Video KYC
-                  </h1>
-                  <p className="text-xs sm:text-sm text-gray-400 mt-1.5 sm:mt-2">
-                    Check your camera and microphone before entering the verification room
-                  </p>
+            <section className={`${ui.panel} ${ui.kycSetup}`} aria-labelledby="kyc-title">
+              <p className={ui.eyebrow}>{isAdmin ? "Operations / verification" : "Partner / verification"}</p>
+              <h1 id="kyc-title" className={ui.kycTitle}>Ready for verification?</h1>
+              <p className={ui.secondary}>Check your camera and microphone before joining your one-to-one call.</p>
+              {previewError && (
+                <div className={ui.callNotice} role="status">
+                  Check your browser camera and microphone permissions, then try the preview again.
+                  <button type="button" className={`mt-2 ${ui.button}`} onClick={() => {
+                    setPreviewError(false);
+                    setPreviewAttempt((attempt) => attempt + 1);
+                  }}>Retry preview</button>
                 </div>
-
-                <div className="flex justify-center lg:justify-start gap-4 sm:gap-6">
-                  <button
-                    onClick={toggleCamera}
-                    aria-label="Toggle camera"
-                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition active:scale-90 ${
-                      cameraOn
-                        ? "bg-white text-black shadow-md"
-                        : "bg-white/10 border border-white/20 text-white"
-                    }`}
-                  >
-                    {cameraOn ? <Video size={20} /> : <VideoOff size={20} />}
-                  </button>
-
-                  <button
-                    onClick={toggleMic}
-                    aria-label="Toggle microphone"
-                    className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center transition active:scale-90 ${
-                      micOn
-                        ? "bg-white text-black shadow-md"
-                        : "bg-white/10 border border-white/20 text-white"
-                    }`}
-                  >
-                    {micOn ? <Mic size={20} /> : <MicOff size={20} />}
-                  </button>
-                </div>
-
-                <button
-                  onClick={startCall}
-                  disabled={loading}
-                  className="w-full bg-white text-black hover:bg-gray-100 py-3.5 sm:py-4 rounded-xl font-bold text-sm sm:text-base shadow-lg transition active:scale-[0.98] disabled:opacity-50"
-                >
-                  {loading ? (
-                    <span className="flex justify-center items-center gap-2">
-                      <Loader2 className="animate-spin" size={18} />
-                      Connecting...
-                    </span>
-                  ) : (
-                    "Join Secure Call"
-                  )}
+              )}
+              <div className={ui.deviceControls} role="group" aria-label="Camera and microphone">
+                <button type="button" className={`${ui.button} ${ui.deviceControl}`}
+                  onClick={toggleCamera} aria-pressed={cameraOn} disabled={!stream || loading}>
+                  <span>{cameraOn ? <Video size={16} aria-hidden="true" /> : <VideoOff size={16} aria-hidden="true" />}Camera</span>
+                  <small>{stream ? cameraOn ? "On" : "Off" : "Unavailable"}</small>
+                </button>
+                <button type="button" className={`${ui.button} ${ui.deviceControl}`}
+                  onClick={toggleMic} aria-pressed={micOn} disabled={!stream || loading}>
+                  <span>{micOn ? <Mic size={16} aria-hidden="true" /> : <MicOff size={16} aria-hidden="true" />}Microphone</span>
+                  <small>{stream ? micOn ? "On" : "Off" : "Unavailable"}</small>
                 </button>
               </div>
-            </div>
+              {callError && <p role="alert" className={ui.callNotice}>{callError}</p>}
+              <button type="button" onClick={startCall} disabled={loading || !roomId}
+                className={`${ui.primary} ${ui.kycJoin}`}>
+                {loading ? "Connecting…" : "Join verification call"}
+                {loading ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <ArrowRight size={16} aria-hidden="true" />}
+              </button>
+              <p className={`flex items-center gap-2 ${ui.secondary}`}>
+                <ShieldCheck size={15} aria-hidden="true" /> Only join if you’re ready to speak.
+              </p>
+            </section>
           </div>
         )}
-      </div>
+      </main>
 
-      {/* APPROVE MODAL */}
-      <AnimatePresence>
-        {showApproveModal && (
-          <Modal onClose={() => setShowApproveModal(false)}>
-            <h2 className="text-lg font-semibold mb-4">
-              Confirm Approval
-            </h2>
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowApproveModal(false)}
-                className="flex-1 border rounded-xl py-2"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleApprove}
-                className="flex-1 bg-green-600 rounded-xl py-2"
-              >
-                {actionLoading ? "Processing..." : "Approve"}
-              </button>
-            </div>
-          </Modal>
-        )}
-      </AnimatePresence>
-
-      {/* REJECT MODAL */}
-      <AnimatePresence>
-        {showRejectModal && (
-          <Modal onClose={() => setShowRejectModal(false)}>
-            <h2 className="text-lg font-semibold mb-4">
-              Reject Vendor
-            </h2>
-            <textarea
-              value={rejectReason}
-              onChange={(e) =>
-                setRejectReason(e.target.value)
-              }
-              className="w-full bg-white/10 border border-white/20 rounded-xl p-3 mb-4 text-sm"
-            />
-            <div className="flex gap-4">
-              <button
-                onClick={() => setShowRejectModal(false)}
-                className="flex-1 border rounded-xl py-2"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleReject}
-                className="flex-1 bg-red-600 rounded-xl py-2"
-              >
-                {actionLoading ? "Processing..." : "Reject"}
-              </button>
-            </div>
-          </Modal>
-        )}
-      </AnimatePresence>
+      <AdminDecisionDialog open={showApproveModal} title="Approve video verification?"
+        confirmLabel="Approve" loading={actionLoading} onClose={() => setShowApproveModal(false)} onConfirm={handleApprove}>
+        <p className={ui.secondary}>Approve only after you finish reviewing the driver’s identity.</p>
+      </AdminDecisionDialog>
+      <AdminDecisionDialog open={showRejectModal} title="Reject video verification?"
+        confirmLabel="Reject" loading={actionLoading} destructive confirmDisabled={!rejectReason.trim()}
+        onClose={() => setShowRejectModal(false)} onConfirm={handleReject}>
+        <label className={ui.secondary}>
+          Rejection reason
+          <textarea className={ui.field} value={rejectReason} onChange={(e) => setRejectReason(e.currentTarget.value)} rows={3} />
+        </label>
+      </AdminDecisionDialog>
     </div>
-  );
-}
-
-function Modal({
-  children,
-  onClose,
-}: {
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-    >
-      <motion.div
-        initial={{ scale: 0.9 }}
-        animate={{ scale: 1 }}
-        className="relative bg-[#111] w-full max-w-md rounded-2xl p-6 shadow-2xl"
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400"
-        >
-          <X size={16} />
-        </button>
-
-        {children}
-      </motion.div>
-    </motion.div>
   );
 }

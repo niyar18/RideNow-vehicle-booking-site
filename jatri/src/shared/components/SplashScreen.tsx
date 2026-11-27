@@ -19,7 +19,7 @@ export default function SplashScreen() {
 
     let unmountTimer: ReturnType<typeof setTimeout> | undefined;
 
-    // Minimum display time for brand impact (650ms), then smoothly fade out
+    // Brief handoff after hydration without holding navigation.
     const fadeTimer = setTimeout(() => {
       setFading(true);
       try {
@@ -30,8 +30,8 @@ export default function SplashScreen() {
       unmountTimer = setTimeout(() => {
         setVisible(false);
         document.documentElement.classList.add("splash-hidden");
-      }, 350);
-    }, 650);
+      }, 200);
+    }, 120);
 
     return () => {
       clearTimeout(fadeTimer);
@@ -44,7 +44,7 @@ export default function SplashScreen() {
   return (
     <div
       id="jaatri-splash-screen"
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center select-none bg-[#FAF7F0] dark:bg-[#061A16] transition-all duration-350 ease-out ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center select-none bg-[var(--background)] transition-opacity duration-200 ease-out ${
         fading ? "opacity-0 scale-[1.02] pointer-events-none" : "opacity-100 scale-100 pointer-events-auto"
       }`}
       aria-hidden="true"

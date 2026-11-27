@@ -77,17 +77,6 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
   const router = useRouter();
   const profileRef = useRef<HTMLDivElement>(null);
 
-  const [isScrolled, setIsScrolled] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    handleScroll();
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   const dispatch = useDispatch<AppDispatch>();
   const { userData } = useSelector((state: RootState) => state.user);
   const { data: session, status } = useSession();
@@ -190,9 +179,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         <nav className="flex items-center gap-1 sm:gap-2 lg:gap-3" aria-label="Partner Navigation">
           <Link
             href="/partners/dashboard"
-            className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
+            className={`text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partners/dashboard"
-                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "jaatri-nav-active rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
@@ -201,9 +190,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           <Link
             href="/partner/active-ride"
-            className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
+            className={`relative text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partner/active-ride"
-                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "jaatri-nav-active rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
@@ -217,9 +206,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           <Link
             href="/partner/pending-requests"
-            className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
+            className={`relative text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partner/pending-requests"
-                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "jaatri-nav-active rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
@@ -233,9 +222,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           <Link
             href="/partner/bookings"
-            className={`relative text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
+            className={`relative text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partner/bookings"
-                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "jaatri-nav-active rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
@@ -249,9 +238,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
 
           <Link
             href="/partner/wallet"
-            className={`text-[16px] lg:text-[17px] font-bold px-4 py-2 transition active:scale-95 ${
+            className={`text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partner/wallet"
-                ? "bg-[#046A38] dark:bg-[#058A48] text-white font-extrabold shadow-sm rounded-[7px]"
+                ? "jaatri-nav-active rounded-[7px]"
                 : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
@@ -270,7 +259,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             <Link
               key={item}
               href={href}
-              className={`text-base sm:text-[16px] lg:text-[17px] px-3.5 sm:px-4 py-1.5 sm:py-2 transition-all duration-150 active:scale-[0.97] ${
+              className={`text-base sm:text-[13px] xl:text-[14px] px-3.5 sm:px-4 py-1.5 sm:py-2 transition-all duration-150 active:scale-[0.97] ${
                 active
                   ? "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] font-extrabold shadow-2xs border border-[#DED7CA]/80 dark:border-[#24483D] rounded-[7px]"
                   : "text-[#10251C]/85 dark:text-[#F7F5ED]/85 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 font-semibold rounded-[8px]"
@@ -293,17 +282,11 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
     );
   };
 
-  const isHome = pathname === "/";
-
   return (
     <>
       {/* ================= SEAMLESS HEADER / NAVBAR ================= */}
       <header
-        className={`fixed top-0 left-0 w-full z-50 px-4 sm:px-6 lg:px-8 transition-all duration-300 ${
-          isHome && !isScrolled
-            ? "bg-transparent border-transparent shadow-none text-[#10251C] dark:text-[#F7F5ED]"
-            : "bg-[#FAF7F0]/95 dark:bg-[#061A16]/95 backdrop-blur-xl border-b border-[#DED7CA]/80 dark:border-[#1E3E34] shadow-[0_4px_20px_rgba(18,61,50,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.4)] text-[#10251C] dark:text-[#F7F5ED]"
-        }`}
+        className="jaatri-shell-header fixed top-0 left-0 w-full z-50 px-4 sm:px-6 lg:px-8"
       >
         <div className="max-w-7xl mx-auto h-[68px] sm:h-20 md:h-24 pt-1 sm:pt-0 flex items-center justify-between transition-all duration-300">
           {/* LEFT: BRAND LOGO */}
@@ -326,7 +309,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 alt="Jaatri by RideNow"
                 width={260}
                 height={82}
-                className="h-9 sm:h-12 md:h-16 lg:h-18 w-auto object-contain transition-transform group-hover:scale-105 block dark:hidden"
+                className="h-8 sm:h-9 lg:h-11 w-auto object-contain block dark:hidden"
                 priority
               />
               <Image
@@ -334,13 +317,13 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 alt="Jaatri by RideNow"
                 width={260}
                 height={82}
-                className="h-9 sm:h-12 md:h-16 lg:h-18 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block"
+                className="h-8 sm:h-9 lg:h-11 w-auto object-contain hidden dark:block"
                 priority
               />
             </Link>
 
             {/* DESKTOP NAV */}
-            <div className="hidden md:flex items-center">{renderNavItems()}</div>
+            <div className="hidden lg:flex items-center">{renderNavItems()}</div>
           </div>
 
           {/* RIGHT: ONGOING RIDE, TOOLS & PROFILE */}
@@ -357,14 +340,14 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             )}
 
             {/* Desktop Notification, Language & Theme controls */}
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-2">
               <NotificationToggle />
               <ThemeToggle variant="pill" />
               <LanguageSelector variant="pill" />
             </div>
 
             {/* DESKTOP PROFILE BUTTON & DROPDOWN */}
-            <div className="hidden md:block relative" ref={profileRef}>
+            <div className="hidden lg:block relative" ref={profileRef}>
               {currentUser ? (
                 <>
                   <button
@@ -382,7 +365,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.98 }}
                         transition={{ type: "spring", damping: 28, stiffness: 350 }}
-                        className="absolute top-14 right-0 w-[340px] bg-white dark:bg-[#0B2822] text-zinc-950 dark:text-[#F7F5ED] rounded-[14px] shadow-[0_20px_60px_rgba(0,0,0,0.35)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.7)] border border-zinc-200 dark:border-[#24483D] overflow-hidden z-50"
+                        className="absolute top-14 right-0 w-[340px] bg-white dark:bg-[#0B2822] text-zinc-950 dark:text-[#F7F5ED] rounded-[14px] shadow-lg border border-zinc-200 dark:border-[#24483D] overflow-hidden z-50"
                       >
                         <UberProfileDropdown
                           userData={currentUser}
@@ -408,7 +391,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             </div>
 
             {/* MOBILE HEADER RIGHT CONTROLS */}
-            <div className="md:hidden flex items-center gap-1.5">
+            <div className="lg:hidden flex items-center gap-1.5">
               <NotificationToggle variant="circular" />
 
               {/* MOBILE QUICK SIGN IN / PROFILE BUTTON */}
@@ -432,11 +415,12 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               )}
 
               {/* MOBILE HAMBURGER BUTTON */}
-              {!isHome && (
+              {(
                 <button
                   type="button"
                   onClick={() => setMenuOpen((p) => !p)}
                   className="p-1.5 rounded-[8px] active:scale-90 transition cursor-pointer text-[#10251C] dark:text-[#F7F5ED] hover:bg-black/5 dark:hover:bg-white/5"
+                  aria-expanded={menuOpen}
                   aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
                 >
                   {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -455,7 +439,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ type: "spring", damping: 30, stiffness: 350 }}
-            className="fixed inset-0 top-0 left-0 w-full h-[100dvh] bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] z-50 md:hidden flex flex-col justify-between overflow-y-auto px-6 py-6"
+            className="fixed inset-0 top-0 left-0 w-full h-[100dvh] bg-[var(--background)] text-[var(--text-primary)] z-50 lg:hidden flex flex-col justify-between overflow-y-auto px-6 py-6"
           >
             {/* TOP BAR INSIDE DRAWER */}
             <div>
@@ -713,14 +697,14 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               animate={{ opacity: 0.6 }}
               exit={{ opacity: 0 }}
               onClick={() => setProfileOpen(false)}
-              className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 md:hidden"
+              className="fixed inset-0 bg-black/60 z-50 lg:hidden"
             />
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 350 }}
-              className="fixed inset-x-0 bottom-0 bg-white dark:bg-[#0B2822] text-zinc-950 dark:text-[#F7F5ED] rounded-t-3xl shadow-2xl z-50 md:hidden overflow-hidden max-h-[85vh] overflow-y-auto border-t border-transparent dark:border-[#24483D]"
+              className="fixed inset-x-0 bottom-0 bg-[var(--surface-raised)] text-[var(--text-primary)] rounded-t-xl shadow-xl z-50 lg:hidden overflow-hidden max-h-[85vh] overflow-y-auto border-t border-[var(--border-default)]"
             >
               <div className="w-12 h-1.5 bg-zinc-300 dark:bg-zinc-700 rounded-full mx-auto mt-3 mb-1" />
               <UberProfileDropdown

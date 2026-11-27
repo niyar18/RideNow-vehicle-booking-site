@@ -1,8 +1,9 @@
 "use client";
 
+import { PartnerSetupFrame, PartnerSetupTitle } from "@/features/partner/components/PartnerWorkspace";
+
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
   ArrowRight,
   UploadCloud,
   CheckCircle,
@@ -195,78 +196,56 @@ export default function PartnerDocumentsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] flex flex-col justify-center px-3 sm:px-6 py-8 sm:py-16 font-sans">
-      <motion.div
-        initial={{ opacity: 0, y: 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
-        className="w-full max-w-2xl mx-auto bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] p-6 sm:p-10 shadow-sm"
-      >
-        {/* ================= HEADER ================= */}
-        <div className="relative border-b border-[#DED7CA]/70 dark:border-[#1E3E34] pb-6 mb-6">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={() => router.back()}
-              aria-label="Go back"
-              className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#10352C] flex items-center justify-center hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[#10251C] dark:text-[#F7F5ED] transition-colors cursor-pointer"
-            >
-              <ArrowLeft size={16} />
-            </button>
-
-            <span className="text-[10px] font-mono font-bold tracking-widest uppercase text-[#696B64] dark:text-[#B9C8BF]">
-              Step 02 / 03
-            </span>
-          </div>
-
-          <h1 className="text-xl sm:text-2xl font-serif font-bold mt-4 tracking-tight text-[#10251C] dark:text-[#F7F5ED]">
-            Driver &amp; Vehicle Verification
-          </h1>
-
-          <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B9C8BF] mt-1 leading-relaxed">
-            Mandatory identity compliance under Motor Vehicle Aggregator Guidelines, 2025.
-          </p>
+    <PartnerSetupFrame>
+      <header className="mb-6 border-b border-[var(--border-default)] pb-5">
+        <PartnerSetupTitle
+          step={2}
+          title="Verify your documents"
+          description="Upload your profile photo and the driver and vehicle documents needed for verification."
+          onBack={() => router.back()}
+        />
 
           {completed && !editMode && (
-            <div className="mt-4 p-3 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] flex items-center justify-between shadow-xs">
-              <div className="flex items-center gap-2 text-[#10251C] dark:text-[#F7F5ED] text-xs font-semibold">
+            <div className="mt-4 p-3 bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] flex items-center justify-between ">
+              <div className="flex items-center gap-2 text-[var(--text-primary)] text-xs font-semibold">
                 <CheckCircle size={15} className="text-[#123D32] dark:text-[#347858]" />
                 <span>Verification documents on file</span>
               </div>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="text-xs font-mono font-bold text-[#123D32] dark:text-[#347858] underline flex items-center gap-1 hover:text-[#0D3027] dark:hover:text-[#28664D] uppercase tracking-wider cursor-pointer"
+                className="text-xs tabular-nums font-bold text-[#123D32] dark:text-[#347858] underline flex items-center gap-1 hover:text-[#0D3027] dark:hover:text-[#28664D] cursor-pointer"
               >
                 <Pencil size={12} />
                 Update Documents
               </button>
             </div>
           )}
-        </div>
+      </header>
 
         {/* ================= SECTION 0: MANDATORY PROFILE PICTURE ================= */}
-        <div className={`mb-6 p-4 border border-[#DED7CA] dark:border-[#1E3E34] rounded-[12px] bg-white dark:bg-[#061A16] shadow-xs ${completed && !editMode ? "opacity-60 pointer-events-none" : ""}`}>
+        <div className={`mb-6 p-4 border border-[var(--border-default)] rounded-[12px] bg-[var(--surface-raised)]  ${completed && !editMode ? "opacity-60 pointer-events-none" : ""}`}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[4px] flex items-center justify-center font-mono text-[10px] font-bold">
+              <div className="w-5 h-5 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[4px] flex items-center justify-center tabular-nums text-[10px] font-bold">
                 01
               </div>
-              <h2 className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight uppercase">
+              <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] tracking-tight uppercase">
                 Mandatory Driver Profile Photo *
               </h2>
             </div>
-            <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-[4px] bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] border border-[#123D32]/10 dark:border-[#28664D]/30">
+            <span className="text-[9px] tabular-nums font-bold px-2 py-0.5 rounded-[4px] bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] border border-[#123D32]/10 dark:border-[#28664D]/30">
               Strictly Required
             </span>
           </div>
 
-          <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mb-4 leading-relaxed">
+          <p className="text-xs text-[var(--text-secondary)] mb-4 leading-relaxed">
             Must be a clear, front-facing photograph taken in good lighting. Sunglass or face-mask photos will be rejected during automatic validation.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center gap-4">
             {/* PHOTO PREVIEW BOX */}
-            <div className="w-28 h-32 sm:w-32 sm:h-36 rounded-[10px] border border-[#DED7CA] dark:border-[#1E3E34] bg-[#FAF7F0] dark:bg-[#0B2822] flex flex-col items-center justify-center relative overflow-hidden shrink-0 shadow-xs">
+            <div className="w-28 h-32 sm:w-32 sm:h-36 rounded-[10px] border border-[var(--border-default)] bg-[var(--surface-raised)] flex flex-col items-center justify-center relative overflow-hidden shrink-0 ">
               {profilePreview ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -275,9 +254,9 @@ export default function PartnerDocumentsPage() {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center text-[#696B64] dark:text-[#B9C8BF] p-2 text-center">
-                  <Camera size={26} className="mb-1 text-[#696B64] dark:text-[#B9C8BF]" />
-                  <span className="text-[10px] font-mono uppercase tracking-wider">No Photo</span>
+                <div className="flex flex-col items-center justify-center text-[var(--text-secondary)] p-2 text-center">
+                  <Camera size={26} className="mb-1 text-[var(--text-secondary)]" />
+                  <span className="text-[10px] tabular-nums ">No Photo</span>
                 </div>
               )}
             </div>
@@ -296,13 +275,13 @@ export default function PartnerDocumentsPage() {
               <button
                 type="button"
                 onClick={() => profilePicInputRef.current?.click()}
-                className="w-full h-10 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
+                className="w-full h-10 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white text-xs tabular-nums font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer "
               >
                 <Camera size={14} />
                 <span>{profilePreview ? "Change Profile Photo" : "Take / Upload Profile Photo"}</span>
               </button>
 
-              <p className="text-[10px] font-mono text-[#696B64] dark:text-[#B9C8BF]">
+              <p className="text-[10px] tabular-nums text-[var(--text-secondary)]">
                 Supports JPG, PNG or WEBP · Maximum 5MB · Clear headshot
               </p>
 
@@ -317,24 +296,24 @@ export default function PartnerDocumentsPage() {
         </div>
 
         {/* ================= DIGILOCKER INSTANT VERIFICATION CARD ================= */}
-        <div className="mb-6 p-4 rounded-[12px] bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] space-y-3 shadow-xs">
+        <div className="mb-6 p-4 rounded-[12px] bg-[var(--surface-raised)] border border-[var(--border-default)] space-y-3 ">
           <div className="flex items-start sm:items-center justify-between gap-2">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] uppercase tracking-tight">
+                <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-tight">
                   DigiLocker National Identity Gateway
                 </span>
-                <span className="text-[9px] font-mono font-bold uppercase tracking-wider bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] px-1.5 py-0.5 rounded-[4px]">
+                <span className="text-[9px] tabular-nums font-bold bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] px-1.5 py-0.5 rounded-[4px]">
                   Fast Track
                 </span>
               </div>
-              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5">
+              <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">
                 Instant digital authentication for Aadhaar &amp; Driving Licence credentials.
               </p>
             </div>
 
             {(existingSummary?.isDigiLockerVerified || digiLockerSuccess) && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] text-[10px] font-mono font-bold uppercase tracking-wider rounded-[4px] shrink-0">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] text-[10px] tabular-nums font-bold rounded-[4px] shrink-0">
                 <CheckCircle size={11} />
                 Verified
               </span>
@@ -342,14 +321,14 @@ export default function PartnerDocumentsPage() {
           </div>
 
           {existingSummary?.isDigiLockerVerified || digiLockerSuccess ? (
-            <div className="p-3 bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] text-xs text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-between">
+            <div className="p-3 bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] text-xs text-[var(--text-primary)] flex items-center justify-between">
               <div>
-                <p className="font-bold text-xs text-[#10251C] dark:text-[#F7F5ED]">Govt DigiLocker Verified</p>
-                <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-mono mt-0.5">
+                <p className="font-bold text-xs text-[var(--text-primary)]">Govt DigiLocker Verified</p>
+                <p className="text-[10px] text-[var(--text-secondary)] tabular-nums mt-0.5">
                   Ref: {existingSummary?.digiLockerDlRef || "DL-VERIFIED"} • {existingSummary?.digiLockerAadhaarRef || "AADHAAR-MKYC"}
                 </p>
               </div>
-              <span className="text-[10px] font-mono text-[#123D32] dark:text-[#347858] font-bold uppercase">Verified</span>
+              <span className="text-[10px] tabular-nums text-[#123D32] dark:text-[#347858] font-bold uppercase">Verified</span>
             </div>
           ) : (
             <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -359,13 +338,13 @@ export default function PartnerDocumentsPage() {
                 maxLength={4}
                 value={aadhaarLast4Input}
                 onChange={(e) => setAadhaarLast4Input(e.target.value.replace(/\D/g, ""))}
-                className="h-9 px-3 text-xs rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#0B2822] text-[#10251C] dark:text-[#F7F5ED] font-mono placeholder:text-[#696B64] dark:placeholder:text-[#B9C8BF] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] sm:w-56"
+                className="h-9 px-3 text-xs rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] text-[var(--text-primary)] tabular-nums placeholder:text-[#696B64] dark:placeholder:text-[#B9C8BF] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] sm:w-56"
               />
               <button
                 type="button"
                 disabled={digiLockerLoading}
                 onClick={handleDigiLockerVerify}
-                className="h-9 px-4 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] disabled:opacity-50 text-white font-bold text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+                className="h-9 px-4 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] disabled:opacity-50 text-white font-bold text-xs tabular-nums flex items-center justify-center gap-1.5 transition-colors cursor-pointer "
               >
                 {digiLockerLoading ? "Verifying with Gateway..." : "Verify via DigiLocker"}
               </button>
@@ -375,11 +354,11 @@ export default function PartnerDocumentsPage() {
 
         {/* ================= SECTION 1: DRIVER IDENTITY ================= */}
         <div className={`space-y-4 ${completed && !editMode ? "opacity-60 pointer-events-none" : ""}`}>
-          <div className="flex items-center gap-2 pb-2 border-b border-[#DED7CA]/70 dark:border-[#1E3E34]">
-            <div className="w-5 h-5 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[4px] flex items-center justify-center font-mono text-[10px] font-bold">
+          <div className="flex items-center gap-2 pb-2 border-b border-[var(--border-default)]">
+            <div className="w-5 h-5 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[4px] flex items-center justify-center tabular-nums text-[10px] font-bold">
               02
             </div>
-            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] font-sans">
+            <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] font-sans">
               Driver Identification Proof
             </h2>
           </div>
@@ -403,25 +382,26 @@ export default function PartnerDocumentsPage() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#B9C8BF] mb-1">
+            <label htmlFor="driver-licence-number" className="mb-1.5 block text-sm font-medium text-[var(--text-primary)]">
               Driving Licence Number
             </label>
             <input
+              id="driver-licence-number"
               type="text"
               placeholder="e.g. AS01 20210012345"
               value={metadata.licenseNumber}
               onChange={(e) => setMetadata({ ...metadata, licenseNumber: e.target.value.toUpperCase() })}
-              className="w-full h-10 px-3 text-xs sm:text-sm rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] uppercase font-mono bg-white dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED]"
+              className="w-full min-h-11 px-3 text-base rounded-[8px] border border-[var(--border-default)] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] uppercase tabular-nums bg-[var(--surface-raised)] text-[var(--text-primary)]"
             />
           </div>
 
           {/* ================= SECTION 2: VEHICLE COMPLIANCE ================= */}
-          <div className="flex items-center gap-2 pt-4 pb-2 border-b border-[#DED7CA]/70 dark:border-[#1E3E34]">
-            <div className="w-5 h-5 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[4px] flex items-center justify-center font-mono text-[10px] font-bold">
+          <div className="flex items-center gap-2 pt-4 pb-2 border-b border-[var(--border-default)]">
+            <div className="w-5 h-5 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[4px] flex items-center justify-center tabular-nums text-[10px] font-bold">
               03
             </div>
-            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED] font-sans">
-              Vehicle Statutory Documentation
+            <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] font-sans">
+              Vehicle documents
             </h2>
           </div>
 
@@ -461,27 +441,29 @@ export default function PartnerDocumentsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#B9C8BF] mb-1">
+              <label htmlFor="driver-document-registration" className="mb-1.5 block text-sm font-medium text-[var(--text-primary)]">
                 Vehicle Registration Number (RC)
               </label>
               <input
+                id="driver-document-registration"
                 type="text"
                 placeholder="e.g. AS01AB1234"
                 value={metadata.rcNumber}
                 onChange={(e) => setMetadata({ ...metadata, rcNumber: e.target.value.toUpperCase() })}
-                className="w-full h-10 px-3 text-xs sm:text-sm rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] uppercase font-mono bg-white dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED]"
+                className="w-full min-h-11 px-3 text-base rounded-[8px] border border-[var(--border-default)] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] uppercase tabular-nums bg-[var(--surface-raised)] text-[var(--text-primary)]"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-mono uppercase tracking-wider font-semibold text-[#696B64] dark:text-[#B9C8BF] mb-1">
+              <label htmlFor="driver-insurance-expiry" className="mb-1.5 block text-sm font-medium text-[var(--text-primary)]">
                 Insurance Expiry Date
               </label>
               <input
+                id="driver-insurance-expiry"
                 type="date"
                 value={metadata.insuranceExpiry}
                 onChange={(e) => setMetadata({ ...metadata, insuranceExpiry: e.target.value })}
-                className="w-full h-10 px-3 text-xs sm:text-sm rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] bg-white dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] font-mono"
+                className="w-full min-h-11 px-3 text-base rounded-[8px] border border-[var(--border-default)] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] bg-[var(--surface-raised)] text-[var(--text-primary)] tabular-nums"
               />
             </div>
           </div>
@@ -497,11 +479,11 @@ export default function PartnerDocumentsPage() {
               className="mt-1 w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
             />
             <div className="space-y-1">
-              <span className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] flex items-center gap-1.5">
+              <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
                 <ShieldCheck size={16} className="text-emerald-600 dark:text-[#A3E635]" />
                 Apply for Women&apos;s Safety Driver Matching (Female Drivers)
               </span>
-              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] leading-relaxed">
+              <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
                 Check this if you are a woman driver. Once verified by our safety team, you can receive requests from passengers who specifically prefer a woman driver, and you will have the option to receive only women-passenger requests.
               </p>
             </div>
@@ -509,16 +491,16 @@ export default function PartnerDocumentsPage() {
         </div>
 
         {/* DPDP 2025 INFO */}
-        <div className="mt-6 flex items-start gap-2.5 text-xs text-[#696B64] dark:text-[#B9C8BF] bg-white dark:bg-[#061A16] p-3.5 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] shadow-xs">
+        <div className="mt-6 flex items-start gap-2.5 text-xs text-[var(--text-secondary)] bg-[var(--surface-raised)] p-3.5 rounded-[8px] border border-[var(--border-default)] ">
           <ShieldCheck size={16} className="mt-0.5 shrink-0 text-[#123D32] dark:text-[#347858]" />
           <p className="leading-relaxed">
-            <strong className="text-[#10251C] dark:text-[#F7F5ED] font-bold">DPDP Rules 2025 Compliance:</strong> All driver photographs and statutory credentials are encrypted (AES-256) and strictly maintained for safety dispatch verification.
+            <strong className="text-[var(--text-primary)] font-bold">DPDP Rules 2025 Compliance:</strong> All driver photographs and statutory credentials are encrypted (AES-256) and strictly maintained for safety dispatch verification.
           </p>
         </div>
 
         {/* ERROR */}
         {error && (
-          <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-[#E34222] dark:text-[#E06A50] bg-[#E34222]/10 dark:bg-red-950/30 p-3 rounded-[8px] border border-[#E34222] dark:border-red-900/50 font-mono">
+          <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-[#E34222] dark:text-[#E06A50] bg-[#E34222]/10 dark:bg-red-950/30 p-3 rounded-[8px] border border-[#E34222] dark:border-red-900/50 tabular-nums">
             <AlertCircle size={15} className="shrink-0" />
             <p>{error}</p>
           </div>
@@ -529,7 +511,7 @@ export default function PartnerDocumentsPage() {
           whileTap={{ scale: 0.99 }}
           disabled={loading}
           onClick={submitDocuments}
-          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white font-bold text-xs sm:text-sm tracking-wider uppercase flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
+          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer "
         >
           <span>
             {completed && !editMode
@@ -542,8 +524,7 @@ export default function PartnerDocumentsPage() {
           </span>
           <ArrowRight size={16} />
         </motion.button>
-      </motion.div>
-    </div>
+    </PartnerSetupFrame>
   );
 }
 
@@ -563,27 +544,27 @@ function DocUploadMinimal({
   onChange: (f: File | null) => void;
 }) {
   return (
-    <label className="flex items-center justify-between p-3.5 rounded-[10px] border border-[#DED7CA] dark:border-[#1E3E34] cursor-pointer hover:border-[#123D32]/50 dark:hover:border-[#28664D]/60 transition-colors bg-white dark:bg-[#061A16] shadow-xs">
+    <label className="flex items-center justify-between p-3.5 rounded-[10px] border border-[var(--border-default)] cursor-pointer hover:border-[#123D32]/50 dark:hover:border-[#28664D]/60 transition-colors bg-[var(--surface-raised)] ">
       <div className="min-w-0 pr-2">
-        <p className="text-xs sm:text-sm font-bold truncate text-[#10251C] dark:text-[#F7F5ED]">
+        <p className="text-xs sm:text-sm font-bold truncate text-[var(--text-primary)]">
           {label}
         </p>
-        <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] truncate font-mono mt-0.5">
+        <p className="text-[11px] text-[var(--text-secondary)] truncate tabular-nums mt-0.5">
           {file ? file.name : existing ? "Document on file" : desc}
         </p>
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
         {file ? (
-          <span className="text-[10px] text-[#123D32] dark:text-[#347858] font-mono font-bold bg-[#E5EBDD] dark:bg-[#28664D]/20 px-2 py-0.5 rounded-[4px] border border-[#123D32]/10 dark:border-[#28664D]/30">
+          <span className="text-[10px] text-[#123D32] dark:text-[#347858] tabular-nums font-bold bg-[#E5EBDD] dark:bg-[#28664D]/20 px-2 py-0.5 rounded-[4px] border border-[#123D32]/10 dark:border-[#28664D]/30">
             Selected
           </span>
         ) : existing ? (
-          <span className="text-[10px] text-[#123D32] dark:text-[#347858] font-mono font-bold bg-[#E5EBDD] dark:bg-[#28664D]/20 px-2 py-0.5 rounded-[4px] border border-[#123D32]/10 dark:border-[#28664D]/30">
+          <span className="text-[10px] text-[#123D32] dark:text-[#347858] tabular-nums font-bold bg-[#E5EBDD] dark:bg-[#28664D]/20 px-2 py-0.5 rounded-[4px] border border-[#123D32]/10 dark:border-[#28664D]/30">
             Uploaded
           </span>
         ) : (
-          <span className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-mono">
+          <span className="text-[10px] text-[var(--text-secondary)] tabular-nums">
             Browse
           </span>
         )}

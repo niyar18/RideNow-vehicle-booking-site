@@ -175,7 +175,7 @@ export default function VehicleCategoriesSlider() {
   return (
     <section
       ref={sectionRef}
-      className="w-full bg-[#FAF7F0] dark:bg-[#061A16] border-t border-[#DED7CA]/80 dark:border-[#1E3E34] pt-10 sm:pt-14 lg:pt-16 pb-8 sm:pb-10 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="w-full bg-[var(--background)] border-t border-[#DED7CA]/80 dark:border-[#1E3E34] pt-10 sm:pt-14 lg:pt-16 pb-8 sm:pb-10 px-4 sm:px-6 lg:px-8 overflow-hidden"
       aria-label="Jaatri Vehicle Categories"
     >
       <div className="max-w-7xl mx-auto">
@@ -198,12 +198,12 @@ export default function VehicleCategoriesSlider() {
             {/* Main Editorial Heading: DM Serif Display, 22-34px */}
             <h2
               style={{ fontFamily: "var(--font-serif), 'DM Serif Display', Georgia, serif" }}
-              className="text-2xl sm:text-3xl lg:text-[34px] font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED] leading-[1.12]"
+              className="text-2xl sm:text-3xl lg:text-[34px] font-bold tracking-tight text-[var(--text-primary)] leading-[1.12]"
             >
               {t("fleet.title", "Choose Your Ride")}
             </h2>
             {/* Subtitle: 13-15px */}
-            <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-[14px] mt-1 font-normal leading-normal">
+            <p className="text-[var(--text-secondary)] text-xs sm:text-[14px] mt-1 font-normal leading-normal">
               {t("fleet.subtitle", "Find the right vehicle for your journey.")}
             </p>
           </div>
@@ -215,7 +215,7 @@ export default function VehicleCategoriesSlider() {
               onClick={() => scroll("left")}
               disabled={!canLeft}
               aria-label="Scroll left"
-              className="w-9 h-9 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#0B2822] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#046A38] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] dark:text-[#F7F5ED] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="w-9 h-9 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#0B2822] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#046A38] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[var(--text-primary)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <ChevronLeft size={16} strokeWidth={2.4} />
             </motion.button>
@@ -224,7 +224,7 @@ export default function VehicleCategoriesSlider() {
               onClick={() => scroll("right")}
               disabled={!canRight}
               aria-label="Scroll right"
-              className="w-9 h-9 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#0B2822] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#046A38] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] dark:text-[#F7F5ED] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="w-9 h-9 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#0B2822] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#046A38] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[var(--text-primary)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <ChevronRight size={16} strokeWidth={2.4} />
             </motion.button>
@@ -281,7 +281,7 @@ export default function VehicleCategoriesSlider() {
                 <div className="relative rounded-[14px] border border-[#DED7CA]/85 dark:border-[#24483D] bg-white dark:bg-[#0B2822] p-3.5 sm:p-4 overflow-hidden h-full flex flex-col justify-between shadow-[0_2px_8px_rgba(18,61,50,0.04)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.4)] group-hover:shadow-[0_8px_20px_rgba(18,61,50,0.08)] dark:group-hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] group-hover:border-[#046A38]/50 dark:group-hover:border-[#34D399]/50 transition-all duration-200">
                   <div>
                     {/* CARD TOP MEDIA: Hero vehicle artwork with mobile-native proportions */}
-                    <div className="-mx-3.5 -mt-3.5 sm:-mx-4 sm:-mt-4 mb-3 relative overflow-hidden select-none h-38 sm:h-46 rounded-t-[13px] bg-[#FAF7F0] dark:bg-[#061A16]">
+                    <div className="-mx-3.5 -mt-3.5 sm:-mx-4 sm:-mt-4 mb-3 relative overflow-hidden select-none h-38 sm:h-46 rounded-t-[13px] bg-[var(--background)]">
                       <img
                         src={item.image}
                         alt={item.title}
@@ -290,7 +290,7 @@ export default function VehicleCategoriesSlider() {
 
                       {/* Unified category badge in upper-left */}
                       <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10 pointer-events-none">
-                        <span className="inline-flex items-center gap-1 border border-[#DED7CA]/90 dark:border-[#24483D] bg-[#FAF7F0]/95 dark:bg-[#10352C]/95 text-[#046A38] dark:text-[#34D399] text-[9.5px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full shadow-2xs backdrop-blur-xs">
+                        <span className="inline-flex items-center gap-1 border border-[#DED7CA]/90 dark:border-[#24483D] bg-[#FAF7F0]/95 dark:bg-[#10352C]/95 text-[#046A38] dark:text-[#34D399] text-[9.5px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full backdrop-blur-xs">
                           {item.TagIcon ? (
                             <item.TagIcon size={10} className="stroke-[2.2]" />
                           ) : (
@@ -307,12 +307,12 @@ export default function VehicleCategoriesSlider() {
                     </div>
 
                     {/* Title: 16-17px, bold, high contrast */}
-                    <h3 className="text-[16px] sm:text-[17px] font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-snug mb-1">
+                    <h3 className="text-[16px] sm:text-[17px] font-bold text-[var(--text-primary)] tracking-tight leading-snug mb-1">
                       {item.title}
                     </h3>
 
                     {/* Description: 12-13px, clamped */}
-                    <p className="text-[12px] sm:text-[12.5px] text-[#696B64] dark:text-[#B9C8BF] font-normal leading-relaxed line-clamp-2 min-h-[34px]">
+                    <p className="text-[12px] sm:text-[12.5px] text-[var(--text-secondary)] font-normal leading-relaxed line-clamp-2 min-h-[34px]">
                       {item.desc}
                     </p>
                   </div>
@@ -320,13 +320,13 @@ export default function VehicleCategoriesSlider() {
                   {/* Bottom Pricing & Action Row */}
                   <div className="mt-3 pt-2.5 border-t border-[#DED7CA]/70 dark:border-[#24483D] flex items-center justify-between">
                     {/* Price Badge with emerald styling */}
-                    <div className="inline-flex items-baseline gap-1 bg-[#FAF7F0] dark:bg-[#061A16] text-[#046A38] dark:text-[#34D399] border border-[#DED7CA]/80 dark:border-[#24483D] px-2.5 py-1 rounded-[8px]">
-                      <span className="text-[9.5px] font-semibold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider">From</span>
+                    <div className="inline-flex items-baseline gap-1 bg-[var(--background)] text-[#046A38] dark:text-[#34D399] border border-[#DED7CA]/80 dark:border-[#24483D] px-2.5 py-1 rounded-[8px]">
+                      <span className="text-[9.5px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">From</span>
                       <span className="text-[13px] sm:text-[14px] font-extrabold tracking-tight">₹{item.rate}</span>
                     </div>
 
                     {/* Refined Arrow Affordance with 8px radius */}
-                    <div className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#061A16] group-hover:border-[#046A38] dark:group-hover:border-[#046A38] group-hover:bg-[#046A38] dark:group-hover:bg-[#046A38] text-[#10251C] dark:text-[#F7F5ED] group-hover:text-white transition-all duration-200 flex items-center justify-center shadow-2xs">
+                    <div className="w-8 h-8 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] group-hover:border-[#046A38] dark:group-hover:border-[#046A38] group-hover:bg-[#046A38] dark:group-hover:bg-[#046A38] text-[var(--text-primary)] group-hover:text-white transition-all duration-200 flex items-center justify-center shadow-2xs">
                       <ArrowRight size={13} strokeWidth={2.4} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-white" />
                     </div>
                   </div>
@@ -352,7 +352,7 @@ export default function VehicleCategoriesSlider() {
               <p className="text-[#046A38] dark:text-[#34D399] text-lg sm:text-xl font-extrabold tracking-tight tabular-nums leading-none">
                 {s.num}
               </p>
-              <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-[12.5px] font-medium leading-tight">
+              <p className="text-[var(--text-secondary)] text-xs sm:text-[12.5px] font-medium leading-tight">
                 {s.label}
               </p>
               {i < 2 && <div className="hidden sm:block w-px h-3.5 bg-[#DED7CA] dark:bg-[#24483D] ml-3 sm:ml-4" />}
