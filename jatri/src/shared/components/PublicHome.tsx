@@ -78,11 +78,11 @@ export default function PublicHome() {
         </div>
         <figure className={styles.heroArt}>
           <div className={styles.artImage}>
-            <Image src="/hero/brahmaputra-at-dusk-desktop.webp" fill alt="" fetchPriority="high" sizes="(max-width: 767px) 1px, 50vw" className={styles.cover} />
             <div className={styles.artStamp} lang="as">নমস্কাৰ</div>
           </div>
           <figcaption>
-            <span><MapPin size={16} aria-hidden />{t("landing.heroLocation", "Lachit Ghat, Guwahati")}</span>
+            <span className={styles.dayLocation}><MapPin size={16} aria-hidden />{t("landing.heroLocationDay", "Luit River, Majuli")}</span>
+            <span className={styles.nightLocation}><MapPin size={16} aria-hidden />{t("landing.heroLocationNight", "Brahmaputra River")}</span>
             <small>{t("landing.assam", "Assam, India")}</small>
           </figcaption>
         </figure>

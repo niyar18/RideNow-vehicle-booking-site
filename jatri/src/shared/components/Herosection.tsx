@@ -101,7 +101,7 @@ export default function LandingBooking() {
   }
 
   function keyboard(event: KeyboardEvent<HTMLInputElement>, field: Field) {
-    if (event.key === "Escape" || event.key === "Tab") {
+    if (event.key === "Escape") {
       activate(null);
       return;
     }
@@ -178,12 +178,14 @@ export default function LandingBooking() {
         <button type="button" aria-pressed={mode === "ride"} onClick={() => setMode("ride")}><Car size={18} aria-hidden />{t("landing.ride", "Ride")}</button>
         <button type="button" aria-pressed={mode === "cargo"} onClick={() => setMode("cargo")}><Package size={17} aria-hidden />{t("landing.cargo", "Cargo")}</button>
       </div>
-      <AddressSearchCredit />
       <div className={styles.bookingFields}>
         {fields.map((field) => {
           const visible = active === field && items.length > 0;
           return (
-            <div className={styles.field} key={field}>
+            <div className={styles.field} key={field}
+              onBlur={(event) => {
+                if (active === field && event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) activate(null);
+              }}>
               <label htmlFor={`${id}-${field}`}>
                 {field === "pickup" ? t("landing.pickup", "Pickup") : t("landing.destination", "Destination")}
               </label>
@@ -204,15 +206,18 @@ export default function LandingBooking() {
               )}
               {active === field && loading && !visible && <p className={styles.fieldStatus} role="status">{t("landing.searching", "Looking up places…")}</p>}
               {visible && (
-                <ul className={styles.suggestions} role="listbox" id={`${id}-${field}-results`}>
-                  {items.map((item, index) => (
-                    <li role="option" aria-selected={highlight === index} id={`${id}-${field}-option-${index}`}
-                      key={item.place_id || `${placeTitle(item)}-${index}`}
-                      onPointerDown={(event) => event.preventDefault()} onClick={() => void choose(item, field)}>
-                      <MapPin size={16} aria-hidden /><span><strong>{placeTitle(item)}</strong>{item.subtitle && <small>{item.subtitle}</small>}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className={styles.suggestions}>
+                  <ul role="listbox" id={`${id}-${field}-results`}>
+                    {items.map((item, index) => (
+                      <li role="option" aria-selected={highlight === index} id={`${id}-${field}-option-${index}`}
+                        key={item.place_id || `${placeTitle(item)}-${index}`}
+                        onPointerDown={(event) => event.preventDefault()} onClick={() => void choose(item, field)}>
+                        <MapPin size={16} aria-hidden /><span><strong>{placeTitle(item)}</strong>{item.subtitle && <small>{item.subtitle}</small>}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <AddressSearchCredit geoapify={items.some((item) => item.place_id?.startsWith("geo_"))} />
+                </div>
               )}
             </div>
           );

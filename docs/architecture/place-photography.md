@@ -4,6 +4,10 @@ These local WebP assets are cropped and resized from real Wikimedia Commons phot
 
 | Public asset | Scene | Photographer | License | Wikimedia Commons |
 | --- | --- | --- | --- | --- |
+| `/hero/luit-morning-desktop.webp` | Misty morning on the Luit River, Majuli | Shikhers | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Misty_Morning_at_Luit.jpg) |
+| `/hero/luit-morning-mobile.webp` | Misty morning on the Luit River, Majuli | Shikhers | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Misty_Morning_at_Luit.jpg) |
+| `/hero/brahmaputra-night-desktop.webp` | The Brahmaputra River at night, Assam | Hemchandra Mili, Dergaon | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Night_view_of_the_Brahmaputra_River,_Assam.jpg) |
+| `/hero/brahmaputra-night-mobile.webp` | The Brahmaputra River at night, Assam | Hemchandra Mili, Dergaon | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Night_view_of_the_Brahmaputra_River,_Assam.jpg) |
 | `/mobile-home/hero_landscape.webp` | Saraighat Bridge at sunset, Assam | Shivshant Tripathi | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Sunset_at_Saraighat_Bridge.jpg) |
 | `/mobile-home/hero_landscape_dark.webp` | Twilight over the Brahmaputra, Guwahati | Srabanti.basak | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Sunset_from_the_bank_of_Brahmaputra.jpg) |
 | `/mobile-home/dest_guwahati.webp` | The Brahmaputra at Guwahati | VINOYBLOG | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:River_Brahmaputra,_Guwahati,_Assam,_India.jpg) |

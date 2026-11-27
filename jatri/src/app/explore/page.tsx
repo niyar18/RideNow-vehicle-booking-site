@@ -263,8 +263,9 @@ export default function ExplorePage() {
         A quick errand in Guwahati, a lift to the airport, or a weekend away. Find a ride for the day you have planned.
       </PublicHeading>
 
-      <div className={styles.serviceSearch} ref={searchContainerRef}>
-        <AddressSearchCredit />
+      <div className={styles.serviceSearch} ref={searchContainerRef} onBlur={(event) => {
+        if (event.relatedTarget && !event.currentTarget.contains(event.relatedTarget)) setShowDropdown(false);
+      }}>
         <label className={styles.searchLabel} htmlFor="explore-destination">Plan a ride</label>
         <form onSubmit={handleSearchSubmit} className={styles.searchForm} role="search" aria-label="Find a destination">
           <Search size={20} aria-hidden="true" />
@@ -291,19 +292,22 @@ export default function ExplorePage() {
         </form>
         <span className="sr-only" role="status">{isSearching ? "Searching destinations" : ""}</span>
         {showDropdown && suggestions.length > 0 && (
-          <ul id="explore-suggestions" className={styles.searchList} aria-label="Suggested destinations">
-            {suggestions.map((item, idx) => (
-              <li key={item.place_id || idx}>
-                <button type="button" onClick={() => handleSelectSuggestion(item)}>
-                  <MapPin size={17} aria-hidden="true" />
-                  <span>
-                    <strong>{item.title || item.name || item.description}</strong>
-                    {item.subtitle ? <small>{item.subtitle}</small> : null}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          <div className={styles.searchList}>
+            <ul id="explore-suggestions" aria-label="Suggested destinations">
+              {suggestions.map((item, idx) => (
+                <li key={item.place_id || idx}>
+                  <button type="button" onClick={() => handleSelectSuggestion(item)}>
+                    <MapPin size={17} aria-hidden="true" />
+                    <span>
+                      <strong>{item.title || item.name || item.description}</strong>
+                      {item.subtitle ? <small>{item.subtitle}</small> : null}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <AddressSearchCredit geoapify={suggestions.some((item) => item.place_id?.startsWith("geo_"))} />
+          </div>
         )}
       </div>
 

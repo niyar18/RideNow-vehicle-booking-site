@@ -1,12 +1,39 @@
 [
   {
-    "file": "/hero/brahmaputra-at-dusk-desktop.webp",
-    "title": "Sunset at Lachit Ghat, Guwahati",
-    "author": "Gitartha.bordoloi",
+    "file": "/hero/luit-morning-desktop.webp",
+    "title": "Misty morning on the Luit River, Majuli",
+    "author": "Shikhers",
     "license": "CC BY-SA 4.0",
-    "source": "https://commons.wikimedia.org/wiki/File:Sunset_at_Lachit_ghat,_Guwahati.jpg",
+    "source": "https://commons.wikimedia.org/wiki/File:Misty_Morning_at_Luit.jpg",
     "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-    "description": "Cropped and resized for desktop and mobile, then encoded as WebP. Both adapted crops are under the same license."
+    "description": "Cropped and resized for desktop, then encoded as WebP."
+  },
+  {
+    "file": "/hero/luit-morning-mobile.webp",
+    "title": "Misty morning on the Luit River, Majuli",
+    "author": "Shikhers",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Misty_Morning_at_Luit.jpg",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "description": "Cropped and resized for mobile, then encoded as WebP."
+  },
+  {
+    "file": "/hero/brahmaputra-night-desktop.webp",
+    "title": "The Brahmaputra River at night, Assam",
+    "author": "Hemchandra Mili, Dergaon",
+    "license": "CC0 1.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Night_view_of_the_Brahmaputra_River,_Assam.jpg",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "description": "Cropped and resized for desktop, then encoded as WebP."
+  },
+  {
+    "file": "/hero/brahmaputra-night-mobile.webp",
+    "title": "The Brahmaputra River at night, Assam",
+    "author": "Hemchandra Mili, Dergaon",
+    "license": "CC0 1.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Night_view_of_the_Brahmaputra_River,_Assam.jpg",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "description": "Cropped and resized for mobile, then encoded as WebP."
   },
   {
     "file": "/mobile-home/hero_landscape.webp",

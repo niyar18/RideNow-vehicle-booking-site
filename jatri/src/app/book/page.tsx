@@ -1622,6 +1622,7 @@ export default function BookPage() {
                   </button>
                 );
               })}
+              {pickupResults.length > 0 && <AddressSearchCredit geoapify={pickupResults.some((p) => p.id.startsWith("geo_"))} />}
 
               {/* No results fallback */}
               {!isSearchingPickup && pickup.trim().length >= 2 && pickupResults.length === 0 && (
@@ -1843,6 +1844,7 @@ export default function BookPage() {
                   </button>
                 );
               })}
+              {dropResults.length > 0 && <AddressSearchCredit geoapify={dropResults.some((p) => p.id.startsWith("geo_"))} />}
 
               {/* Recent Destinations fallback when no active input query */}
               {dropResults.length === 0 && !isSearchingDrop && recentDestinations.length > 0 && (
@@ -2402,7 +2404,6 @@ export default function BookPage() {
 
           {/* Location Inputs */}
           {renderLocationInputs()}
-          <AddressSearchCredit />
         </div>
 
         {/* Scrollable Card Body */}
@@ -2518,7 +2519,7 @@ export default function BookPage() {
                 <h1 className="text-[1.7rem] leading-tight font-semibold tracking-[-0.045em]">Where are you headed?</h1>
               </div>
               <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
-              {renderLocationInputs()}<AddressSearchCredit />
+              {renderLocationInputs()}
             </div>
             <div className="flex-1 relative z-0 bg-[var(--background)]">
               <RouteMap
@@ -2674,7 +2675,7 @@ export default function BookPage() {
                 {mobileSheetState !== "down" && (
                   <>
                     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-2.5 [scroll-padding-block:0.75rem]">
-                      {isEditingRoute && <div className="mb-3 border-b border-[var(--border-default)] pb-3">{renderLocationInputs()}<AddressSearchCredit /></div>}
+                      {isEditingRoute && <div className="mb-3 border-b border-[var(--border-default)] pb-3">{renderLocationInputs()}</div>}
                       {renderRideSelection()}
                     </div>
                     {renderTripAction()}

@@ -1,8 +1,9 @@
-export function AddressSearchCredit() {
+export function AddressSearchCredit({ geoapify }: { geoapify: boolean }) {
+  const linkClass = "inline-flex min-h-6 items-center underline underline-offset-2 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2";
   return (
-    <p className="my-1 text-xs text-[var(--text-secondary)]">
-      Address data: <a className="underline underline-offset-2" href="https://www.openstreetmap.org/copyright">© OpenStreetMap</a>
-      {" · "}<a className="underline underline-offset-2" href="https://www.geoapify.com/">Powered by Geoapify</a> when enabled
-    </p>
+    <div className="flex flex-wrap items-center gap-x-2 px-2 py-1 border-t border-[var(--border-default)] text-xs text-[var(--text-secondary)]" aria-label="Address data credits" role="group">
+      <a className={linkClass} href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© OpenStreetMap</a>
+      {geoapify && <a className={linkClass} href="https://www.geoapify.com/" target="_blank" rel="noopener noreferrer">Powered by Geoapify</a>}
+    </div>
   );
 }
