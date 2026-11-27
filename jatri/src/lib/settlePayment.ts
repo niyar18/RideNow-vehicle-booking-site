@@ -122,7 +122,7 @@ export async function settleCompletedRidePayment(
     }
 
     // Recover customer outstanding cancellation dues if included in this ride
-    if (booking.user && booking.cancellationDuesIncluded && booking.cancellationDuesIncluded > 0) {
+    if (!booking.walletPaymentConfirmedAt && booking.user && booking.cancellationDuesIncluded && booking.cancellationDuesIncluded > 0) {
       try {
         await recoverCustomerOutstandingDues({
           userId: booking.user,

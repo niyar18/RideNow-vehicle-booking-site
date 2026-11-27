@@ -71,3 +71,11 @@
 - **Config Variables**: `NEXT_PUBLIC_VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`.
 - **Implementation**: [`jatri/src/lib/webPush.ts`](file:///d:/git/RideNow/jatri/src/lib/webPush.ts).
 - **Failure Handling**: Expired subscription endpoints (HTTP 410 Gone) are automatically pruned from `push-subscription.model.ts`.
+
+---
+
+## 8. Scheduled ride dispatch
+
+- The [GitHub Actions workflow](../../.github/workflows/rides-cron.yml) is the only production scheduler for `/api/cron/rides`. It targets a five-minute cadence, but GitHub scheduled jobs may be delayed.
+- Before merging, configure the repository secrets `PRODUCTION_APP_URL` (the HTTPS web-app origin) and `CRON_SECRET` (matching the web app). Disable any separate legacy scheduler during cutover and watch the first scheduled run. Missing configuration, network failures and unexpected HTTP statuses fail the workflow.
+- Wallet charges and automatic expiry refunds use MongoDB transactions. Use Atlas, a replica set, or a sharded cluster; a standalone MongoDB server is not sufficient.

@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+import { dispatchOfferProjection } from "@/lib/bookingPrivacy";
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
@@ -22,31 +23,14 @@ export async function GET() {
       );
     }
 
-    const driverIds: any[] = [];
-    if (session.user.id) {
-      driverIds.push(session.user.id);
-      try {
-        driverIds.push(new Types.ObjectId(session.user.id));
-      } catch (_) {}
-    }
+    const sessionId = session.user.id;
+    const driver = sessionId && Types.ObjectId.isValid(sessionId)
+      ? await User.findById(sessionId).select("_id role isVendorBlocked").lean()
+      : session.user.email
+        ? await User.findOne({ email: session.user.email }).select("_id role isVendorBlocked").lean()
+        : null;
 
-    let userDoc: any = null;
-    if (session.user.id) {
-      userDoc = await User.findById(session.user.id).select("_id role").lean();
-    }
-    if (!userDoc && session.user.email) {
-      userDoc = await User.findOne({ email: session.user.email }).select("_id role").lean();
-    }
-
-    if (userDoc?._id) {
-      const idStr = userDoc._id.toString();
-      if (!driverIds.includes(idStr)) driverIds.push(idStr);
-      try {
-        driverIds.push(new Types.ObjectId(idStr));
-      } catch (_) {}
-    }
-
-    if (userDoc && userDoc.role !== "vendor" && userDoc.role !== "driver" && session.user.role !== "vendor" && session.user.role !== "driver") {
+    if (!driver || driver.isVendorBlocked || (driver.role !== "vendor" && String(driver.role) !== "driver")) {
       return NextResponse.json(
         { message: "Forbidden", bookings: [] },
         { status: 403 }
@@ -58,17 +42,16 @@ export async function GET() {
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     const bookings = await Booking.find({
       $or: [
-        { candidateDrivers: { $in: driverIds } },
-        { driver: { $in: driverIds } },
-        { driver: null },
-        { driver: { $exists: false } },
+        { candidateDrivers: driver._id },
+        { driver: driver._id },
+        // Preserve open matching only when no driver or candidates have been selected.
+        { driver: null, "candidateDrivers.0": { $exists: false } },
       ],
       status: { $in: ["requested", "searching_driver"] },
       createdAt: { $gte: fiveMinutesAgo },
     })
+      .select(dispatchOfferProjection)
       .sort({ createdAt: -1 })
-      .populate("vehicle", "number vehicleModel type")
-      .populate("user", "name mobileNumber")
       .lean();
 
     return NextResponse.json({

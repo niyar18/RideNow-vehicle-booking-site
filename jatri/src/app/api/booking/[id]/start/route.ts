@@ -1,3 +1,4 @@
+import { withoutRiderSecrets } from "@/lib/bookingPrivacy";
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import { auth } from "@/auth";
@@ -125,7 +126,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       message: "Ride started successfully",
-      booking: transitionRes.booking,
+      booking: withoutRiderSecrets(transitionRes.booking),
     });
   } catch (error) {
     console.error("Start booking error:", error);

@@ -32,7 +32,7 @@ export function isTrackingTokenExpired(booking, now = Date.now()) {
 }
 
 /**
- * Public observers share a booking room with the rider and driver. Only these
+ * Public observers use a tracking room separate from the rider and driver. Only these
  * explicitly approved fields/events may cross that boundary.
  */
 export function sanitizePublicTrackingEvent(event, data, bookingId) {

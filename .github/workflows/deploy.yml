@@ -55,7 +55,7 @@ jobs:
           npm test
 
       - name: Trigger Vercel Deploy Hook (Optional)
-        if: env.VERCEL_DEPLOY_HOOK != ''
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.VERCEL_DEPLOY_HOOK != ''
         run: |
           echo "Pinging Vercel Deploy Hook..."
           curl -s -X POST "$VERCEL_DEPLOY_HOOK"
@@ -63,7 +63,7 @@ jobs:
           VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
 
       - name: Trigger Render Deploy Hook (Optional)
-        if: env.RENDER_DEPLOY_HOOK != ''
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && env.RENDER_DEPLOY_HOOK != ''
         run: |
           echo "Pinging Render Deploy Hook..."
           curl -s -X POST "$RENDER_DEPLOY_HOOK"

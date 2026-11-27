@@ -2,22 +2,38 @@ name: Rides Scheduled Dispatch Cron
 
 on:
   schedule:
-    # Runs every 10 minutes to dispatch upcoming scheduled rides and sweep stale requests
-    - cron: '*/10 * * * *'
+    # Dispatch upcoming scheduled rides and sweep stale requests.
+    - cron: '3-58/5 * * * *'
   workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: rides-production-dispatch
+  cancel-in-progress: false
 
 jobs:
   run-rides-cron:
     name: Trigger Scheduled Rides Dispatch
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    timeout-minutes: 3
     steps:
       - name: Ping Rides Cron Endpoint
+        env:
+          PRODUCTION_APP_URL: ${{ secrets.PRODUCTION_APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
-          ENDPOINT="${{ secrets.PRODUCTION_APP_URL || 'https://ridenow-vehicle-booking-site.vercel.app' }}/api/cron/rides"
-          echo "Pinging: $ENDPOINT"
-          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$ENDPOINT" \
-            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}")
-          echo "HTTP Status Code: $HTTP_STATUS"
-          if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 204 ]; then
-            echo "Warning: Cron returned status $HTTP_STATUS (check CRON_SECRET or network reachability)"
+          if [[ "$PRODUCTION_APP_URL" != https://* || -z "$CRON_SECRET" ]]; then
+            echo "::error::Configure the HTTPS PRODUCTION_APP_URL and CRON_SECRET repository secrets."
+            exit 1
           fi
+          ENDPOINT="${PRODUCTION_APP_URL%/}/api/cron/rides"
+          HTTP_STATUS=$(curl --silent --show-error --output /dev/null --write-out "%{http_code}" \
+            --connect-timeout 10 --max-time 90 --request POST "$ENDPOINT" \
+            --header "Authorization: Bearer $CRON_SECRET")
+          echo "HTTP Status Code: $HTTP_STATUS"
+          case "$HTTP_STATUS" in
+            200|204) ;;
+            *) echo "::error::Rides cron returned HTTP $HTTP_STATUS."; exit 1 ;;
+          esac

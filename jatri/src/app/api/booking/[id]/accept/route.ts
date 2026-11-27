@@ -1,3 +1,4 @@
+import { withoutRiderSecrets } from "@/lib/bookingPrivacy";
 import { Types } from "mongoose";
 import connectDb from "@/lib/db";
 import { NextResponse } from "next/server";
@@ -47,7 +48,7 @@ export async function POST(
     return NextResponse.json({
       success: true,
       message: "Booking already accepted by you.",
-      booking: existingBooking,
+      booking: withoutRiderSecrets(existingBooking),
       isDuplicate: true,
     });
   }
@@ -236,9 +237,6 @@ export async function POST(
     console.warn("Push notification error on accept:", pushErr);
   }
 
-  const sanitizedBooking = booking.toObject ? booking.toObject() : { ...booking };
-  delete sanitizedBooking.pickupOtp;
-  delete sanitizedBooking.dropOtp;
 
-  return NextResponse.json({ success: true, booking: sanitizedBooking, isDuplicate: transitionRes.isDuplicateCall });
+  return NextResponse.json({ success: true, booking: withoutRiderSecrets(booking), isDuplicate: transitionRes.isDuplicateCall });
 }
