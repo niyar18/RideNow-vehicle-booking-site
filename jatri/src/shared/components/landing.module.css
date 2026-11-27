@@ -258,7 +258,8 @@
 .hero h1 { font-size: clamp(44px, 5.2vw, 81px); }
 .hero h1 span, :global(.dark) .hero h1 span, .kicker { color: var(--accent-mint); }
 .heroArt { min-height: 0; align-self: stretch; background: #1e314a; color: #f3f8f6; border-color: #526d84; }
-.artImage { min-height: 390px; }
+.artImage { min-height: 390px; background: var(--midnight); }
+.artImage .cover { object-position: 42% 49%; }
 .heroArt figcaption { border-color: #526d84; }
 .heroArt figcaption small { color: #d2e1e5; }
 .artStamp { color: var(--midnight); background: var(--accent-mint); border-color: var(--accent-mint); }

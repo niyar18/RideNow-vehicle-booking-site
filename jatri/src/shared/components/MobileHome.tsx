@@ -9,7 +9,6 @@ import { useSession } from "next-auth/react";
 import { ArrowRight, ArrowUpRight, BriefcaseBusiness, House, MapPin, Plane, Plus, Search } from "lucide-react";
 import type { RootState } from "@/redux/store";
 import { useTranslation } from "@/context/LanguageContext";
-import { useTheme } from "@/context/ThemeContext";
 import styles from "./mobile-home.module.css";
 
 const destinations = [
@@ -58,7 +57,6 @@ function bookingFor(address: string, lat?: number, lng?: number) {
 export default function MobileHome() {
   const router = useRouter();
   const { t } = useTranslation();
-  const { resolvedTheme } = useTheme();
   const { data: session } = useSession();
   const user = useSelector((state: RootState) => state.user.userData) || session?.user;
   const firstName = user?.name?.trim()?.split(/\s+/)[0];
@@ -85,7 +83,7 @@ export default function MobileHome() {
     <div className={styles.home}>
       <section className={styles.hero} aria-labelledby="mobile-home-title">
         <div className={styles.photo} aria-hidden="true">
-          <Image src={resolvedTheme === "dark" ? "/mobile-home/hero_landscape_dark.webp?v=photo-1" : "/mobile-home/hero_landscape.webp?v=photo-1"} fill alt="" sizes="(max-width: 767px) 100vw, 1px" fetchPriority="high" className={styles.cover} />
+          <Image src="/hero/brahmaputra-at-dusk-mobile.webp" fill alt="" sizes="(max-width: 767px) 100vw, 1px" fetchPriority="high" className={styles.cover} />
         </div>
         <div className={styles.heroInner}>
           <div className={styles.greeting}>

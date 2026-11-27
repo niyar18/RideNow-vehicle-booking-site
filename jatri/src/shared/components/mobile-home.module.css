@@ -33,14 +33,13 @@
   background: #284d3d;
 }
 .cover { object-fit: cover; }
-.photo img { object-position: 53% 50%; }
+.photo img { object-position: 41% 50%; }
 .photo::after {
   position: absolute;
   inset: 0;
   content: "";
   background: linear-gradient(180deg, #10281fd9 0%, #10281f65 36%, transparent 57%, #132c25b8 100%);
 }
-:global(.dark) .photo img { filter: brightness(.8); }
 .heroInner { display: flex; flex: 1; flex-direction: column; width: min(100%, 550px); margin-inline: auto; padding: 28px 18px 0; }
 .greeting { color: #fffdf2; }
 .eyebrow { display: flex; align-items: center; gap: 10px; font-size: 10px; font-weight: 750; text-transform: uppercase; letter-spacing: .135em; }
@@ -109,7 +108,9 @@
   --home-card: var(--surface-raised);
   --home-border: var(--border-default);
 }
-.photo::after { background: linear-gradient(180deg,#142238 0%,#142238e8 34%,#14223853 66%,#142238c4 100%); }
+.photo { background: var(--midnight); }
+/* Keep a dark field behind the title while leaving the ferry and reflected light visible. */
+.photo::after { background: linear-gradient(180deg, #142238 0%, #142238e8 27%, #142238c9 43%, #14223818 64%, #142238a6 100%); }
 .greeting { color: var(--ice); }
 .greeting em { color: var(--accent-mint); }
 .greeting h1, .sectionTitle h2, .partner strong { font-family: var(--font-outfit), var(--font-inter), system-ui, sans-serif; font-weight: 620; }
