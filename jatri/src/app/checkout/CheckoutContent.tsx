@@ -1,6 +1,8 @@
 "use client";
 import { Suspense } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { VEHICLE_ART_SRC } from "@/lib/vehiclePhotos";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MapPin, Navigation, ShieldCheck,
@@ -852,7 +854,7 @@ export default function CheckoutContent() {
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="min-w-[44px] min-h-[44px] rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-white dark:hover:bg-[#143D32] flex items-center justify-center text-[var(--text-primary)] transition shadow-none cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="min-w-[44px] min-h-[44px] rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-white dark:hover:bg-[var(--surface-subtle)] flex items-center justify-center text-[var(--text-primary)] transition shadow-none cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               aria-label="Back to Map"
               title="Back to Map"
             >
@@ -871,8 +873,9 @@ export default function CheckoutContent() {
           <div className="flex items-center gap-2">
             <Link
               href="/"
-              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-white dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-white dark:hover:bg-[var(--surface-subtle)] text-[var(--text-primary)] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
               title="Go to Home"
+              aria-label="Go to Home"
             >
               <HomeIcon size={13} />
               <span className="hidden sm:inline">Home</span>
@@ -880,7 +883,7 @@ export default function CheckoutContent() {
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-white dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="min-h-[44px] inline-flex items-center gap-1.5 px-3 py-2 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-white dark:hover:bg-[var(--surface-subtle)] text-[var(--text-primary)] text-xs font-bold transition shadow-none cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
             >
               <Edit2 size={12} />
               <span>Edit Route</span>
@@ -890,18 +893,18 @@ export default function CheckoutContent() {
 
         {/* Missing locations warning banner */}
         {isHydrated && (!pickupLat || !dropLat || pickup === "Pickup Location" || drop === "Drop Location") && (
-          <div className="p-3.5 sm:p-4 bg-[#faebe8] dark:bg-[#3A201A] border border-[#f0c8c1] dark:border-[#6B3A2C] rounded-[10px] flex items-center justify-between shadow-none gap-3">
+          <div className="p-3.5 sm:p-4 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[10px] flex items-center justify-between shadow-none gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <AlertCircle size={18} className="text-[#E34222] flex-shrink-0" />
+              <AlertCircle size={18} className="text-[var(--accent-vermilion)] flex-shrink-0" />
               <div>
-                <p className="text-xs font-bold text-[#782313] dark:text-rose-200 uppercase tracking-wide">No active route selected</p>
-                <p className="text-[11px] text-[#782313]/90 dark:text-rose-300/90 font-medium">Please choose your pickup and drop locations on the map.</p>
+                <p className="text-xs font-bold text-[var(--accent-vermilion)] dark:text-rose-200 uppercase tracking-wide">No active route selected</p>
+                <p className="text-[11px] text-[var(--accent-vermilion)]/90 dark:text-rose-300/90 font-medium">Please choose your pickup and drop locations on the map.</p>
               </div>
             </div>
             <Link
               href={editBookUrl}
               onClick={handleReturnToBook}
-              className="min-h-[44px] px-3.5 py-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white text-xs font-bold uppercase tracking-wider rounded-[8px] transition shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+              className="min-h-[44px] px-3.5 py-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[var(--on-primary)] text-xs font-bold uppercase tracking-wider rounded-[8px] transition shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2"
             >
               Choose on Map
             </Link>
@@ -911,35 +914,24 @@ export default function CheckoutContent() {
         {/* ── UNIFIED BOOKING FLOW (ALL IN ONE TYPE) ── */}
         <div className="bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] overflow-hidden shadow-sm">
 
-          {/* ══ 1. VEHICLE & TOTAL FARE SUMMARY ROW ══ */}
-          <div className="p-4 sm:p-6 border-b border-[var(--border-default)] bg-[var(--surface-raised)] flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="w-12 h-12 bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#90C8A8] rounded-[10px] flex items-center justify-center flex-shrink-0 border border-[#cdd6c3] dark:border-[#2D4E3A]">
-                <VehicleIcon size={24} className="text-[#123D32] dark:text-[#90C8A8]" />
+          <div className="flex items-center justify-between gap-2 border-b border-[var(--border-default)] p-3.5 sm:gap-4 sm:p-6">
+            <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+              <div className="relative grid h-14 w-14 shrink-0 place-items-center rounded-[10px] bg-[var(--surface-subtle)] sm:h-16 sm:w-20">
+                {opt ? (
+                  <Image src={VEHICLE_ART_SRC[opt.id]} alt="" fill sizes="(max-width: 639px) 56px, 80px" unoptimized className="object-contain" />
+                ) : <VehicleIcon size={24} aria-hidden="true" />}
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-2 mb-0.5">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#E34222]">
-                    {opt?.categoryTitle || "Jaatri Fleet"}
-                  </span>
-                  {opt?.etaText && (
-                    <span className="text-[10px] font-mono text-[#123D32] dark:text-[#90C8A8] bg-[var(--surface-subtle)] px-2 py-0.5 rounded-full font-bold">
-                      {opt.etaText}
-                    </span>
-                  )}
-                </div>
-                <h2 className="text-lg sm:text-xl text-[var(--text-primary)] tracking-tight truncate">
-                  {vehicleLabel}
-                </h2>
-                <p className="text-[11px] text-[var(--text-secondary)] font-medium truncate mt-0.5">
-                  {opt?.tagline || opt?.description || "Verified drivers with upfront guaranteed pricing"}
+                <h2 className="text-base font-semibold leading-snug tracking-tight sm:text-xl">{vehicleLabel}</h2>
+                <p className="mt-0.5 text-xs leading-snug text-[var(--text-secondary)]">
+                  {opt?.tagline || "Upfront pricing"}
                 </p>
               </div>
             </div>
 
-            <div className="text-right flex-shrink-0">
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Total Upfront</p>
-              <div className="text-2xl sm:text-3xl font-bold tracking-tight text-[var(--text-primary)] font-mono">
+            <div className="shrink-0 text-right">
+              <p className="text-xs font-medium text-[var(--text-secondary)]">Upfront total</p>
+              <div className="text-lg font-semibold tabular-nums tracking-tight text-[var(--text-primary)] sm:text-3xl">
                 ₹{effectiveFare}
               </div>
             </div>
@@ -948,12 +940,12 @@ export default function CheckoutContent() {
           <div className="p-4 sm:p-6 space-y-5">
             {/* ══ 2. ROUTE TIMELINE (CLEAN MINIMALIST VERTICAL FLOW) ══ */}
             <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[10px] p-3.5 sm:p-4 space-y-3 shadow-2xs">
-              <div className="flex items-center justify-between border-b border-[#DED7CA]/60 dark:border-[#24483D]/60 pb-2">
+              <div className="flex items-center justify-between border-b border-[var(--border-default)]/60 pb-2">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Route Overview</span>
                 <Link
                   href={editBookUrl}
                   onClick={handleReturnToBook}
-                  className="text-[11px] font-bold text-[#123D32] dark:text-[#90C8A8] hover:underline flex items-center gap-1"
+                  className="text-[11px] font-bold text-[var(--text-primary)] hover:underline flex items-center gap-1"
                 >
                   <MapPin size={11} />
                   <span>Change</span>
@@ -963,8 +955,8 @@ export default function CheckoutContent() {
               {/* Pickup Point */}
               <div className="flex items-start gap-3">
                 <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                  <span className="w-2.5 h-2.5 bg-[#123D32] dark:bg-[#90C8A8] rounded-full" />
-                  <span className="w-px h-6 bg-[#DED7CA] dark:bg-[#34443A] my-1" />
+                  <span className="w-2.5 h-2.5 bg-[var(--brand-primary)] rounded-full" />
+                  <span className="w-px h-6 bg-[var(--border-default)] my-1" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Pickup</p>
@@ -978,8 +970,8 @@ export default function CheckoutContent() {
               {stops && stops.length > 0 && stops.map((stop, idx) => (
                 <div key={idx} className="flex items-start gap-3 pl-0.5">
                   <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                    <span className="w-2 h-2 border border-[#123D32] dark:border-[#90C8A8] bg-[var(--surface-subtle)] rounded-full" />
-                    <span className="w-px h-6 bg-[#DED7CA] dark:bg-[#34443A] my-1" />
+                    <span className="w-2 h-2 border border-[var(--border-interactive)] bg-[var(--surface-subtle)] rounded-full" />
+                    <span className="w-px h-6 bg-[var(--border-default)] my-1" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Stop {idx + 1}</p>
@@ -991,10 +983,10 @@ export default function CheckoutContent() {
               {/* Drop Point */}
               <div className="flex items-start gap-3">
                 <div className="flex-shrink-0 pt-1">
-                  <span className="w-2.5 h-2.5 bg-[#E34222] dark:bg-[#E06A50] rounded-full" />
+                  <span className="w-2.5 h-2.5 bg-[var(--accent-vermilion)] rounded-full" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#E34222] dark:text-[#E06A50]">Destination</p>
+                  <p className="text-[9px] font-bold uppercase tracking-wider text-[var(--accent-vermilion)]">Destination</p>
                   <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)] leading-snug truncate">
                     {drop}
                   </p>
@@ -1002,7 +994,7 @@ export default function CheckoutContent() {
               </div>
 
               {/* Distance and Estimated Travel Time Stats */}
-              <div className="pt-2 border-t border-[#DED7CA]/60 dark:border-[#24483D]/60 flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)]">
+              <div className="pt-2 border-t border-[var(--border-default)]/60 flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)]">
                 <span>Distance: <strong className="text-[var(--text-primary)]">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
                 <span>Est. Time: <strong className="text-[var(--text-primary)]">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
               </div>
@@ -1012,7 +1004,7 @@ export default function CheckoutContent() {
             {/* Smart Pickup Zone */}
             {isSmartPickup && smartPickupDetails && (
               <div className="p-3 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[10px] flex items-start gap-3 text-xs">
-                <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                <div className="w-7 h-7 bg-[var(--brand-primary)] text-[var(--on-primary)] rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   📍
                 </div>
                 <div className="min-w-0 flex-1">
@@ -1030,7 +1022,7 @@ export default function CheckoutContent() {
             {/* Family Ride Badge */}
             {isFamilyRide && familyMemberDetails && (
               <div className="p-3 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[10px] flex items-start gap-3 text-xs">
-                <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                <div className="w-7 h-7 bg-[var(--brand-primary)] text-[var(--on-primary)] rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   👨‍👩‍👧
                 </div>
                 <div className="min-w-0 flex-1">
@@ -1045,7 +1037,7 @@ export default function CheckoutContent() {
             {/* Scheduled Ride Badge */}
             {isScheduled && scheduledPickupDate && (
               <div className="p-3 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[10px] flex items-start gap-3 text-xs">
-                <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                <div className="w-7 h-7 bg-[var(--brand-primary)] text-[var(--on-primary)] rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   ⏰
                 </div>
                 <div className="min-w-0 flex-1">
@@ -1067,7 +1059,7 @@ export default function CheckoutContent() {
             {/* Logistics Cargo Details */}
             {serviceMode === "logistics" && cargoDetails && (
               <div className="p-3 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[10px] flex items-start gap-3 text-xs">
-                <div className="w-7 h-7 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
+                <div className="w-7 h-7 bg-[var(--brand-primary)] text-[var(--on-primary)] rounded-[6px] flex items-center justify-center font-bold text-xs flex-shrink-0 mt-0.5">
                   <Package size={14} />
                 </div>
                 <div className="min-w-0 flex-1">
@@ -1084,7 +1076,7 @@ export default function CheckoutContent() {
 
             {/* ══ 3. ITEMIZED FARE RECEIPT ══ */}
             {computedBreakdown && (
-              <div className="border border-[var(--border-default)] rounded-[12px] bg-[#FAF7F0]/80 dark:bg-[#10352C]/70 p-3.5 sm:p-4">
+              <div className="border border-[var(--border-default)] rounded-[12px] bg-[var(--surface-subtle)]/80 dark:bg-[var(--surface-subtle)]/70 p-3.5 sm:p-4">
                 <p className="text-[10px] font-black uppercase tracking-wider text-[var(--text-primary)] pb-2 border-b border-[var(--border-default)] flex items-center justify-between">
                   <span>Guaranteed Upfront Pricing</span>
                   <span className="font-mono text-[var(--text-secondary)]">No Hidden Costs</span>
@@ -1099,7 +1091,7 @@ export default function CheckoutContent() {
                     <span className="font-bold text-[var(--text-primary)]">₹{computedBreakdown.distanceFare}</span>
                   </div>
                   {computedBreakdown.surgeAmount > 0 && (
-                    <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold">
+                    <div className="flex justify-between text-[11px] text-[var(--accent-vermilion)] font-bold">
                       <span>High Demand Surge ({computedBreakdown.surgeMultiplier}x)</span>
                       <span>+₹{computedBreakdown.surgeAmount}</span>
                     </div>
@@ -1119,14 +1111,14 @@ export default function CheckoutContent() {
                     </div>
                   )}
                   {(computedBreakdown.cancellationDues ? computedBreakdown.cancellationDues > 0 : Number((userData as any)?.outstandingAmount || 0) > 0) && (
-                    <div className="flex justify-between text-[11px] text-[#E34222] dark:text-[#E06A50] font-bold pt-1 border-t border-[var(--border-default)]">
+                    <div className="flex justify-between text-[11px] text-[var(--accent-vermilion)] font-bold pt-1 border-t border-[var(--border-default)]">
                       <span>Unsettled Cancellation Dues</span>
                       <span>+₹{computedBreakdown.cancellationDues || Number((userData as any)?.outstandingAmount || 0)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm font-black text-[var(--text-primary)] pt-2 border-t border-[var(--border-default)]">
                     <span>Final Fare</span>
-                    <span className="font-mono text-[#123D32] dark:text-[#D7AC62]">₹{effectiveFare}</span>
+                    <span className="font-mono text-[var(--text-primary)] dark:text-[#D7AC62]">₹{effectiveFare}</span>
                   </div>
                 </div>
               </div>
@@ -1267,7 +1259,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={handleCancelBooking}
-                      className="min-h-[44px] flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition border border-[var(--border-default)] px-4 py-2 rounded-[8px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                      className="min-h-[44px] flex items-center gap-2 text-xs font-bold text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition border border-[var(--border-default)] px-4 py-2 rounded-[8px] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)]"
                     >
                       <XCircle size={13} />
                       <span>Cancel Ride</span>
@@ -1285,7 +1277,7 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.35 }}
                     className="py-8 flex flex-col items-center justify-center gap-5 text-center"
                   >
-                    <div className="w-16 h-16 rounded-[12px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-[12px] bg-[var(--brand-primary)] text-[var(--on-primary)] flex items-center justify-center">
                       <CheckCircle2 size={32} />
                     </div>
                     <div>
@@ -1294,12 +1286,12 @@ export default function CheckoutContent() {
                         Trip confirmed. Loading payment options…
                       </p>
                     </div>
-                    <div className="w-48 h-1.5 bg-[#E8E1D5] dark:bg-[#143D32] rounded-full overflow-hidden">
+                    <div className="w-48 h-1.5 bg-[var(--surface-subtle)] rounded-full overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: "100%" }}
                         transition={{ duration: 2 }}
-                        className="h-full bg-[#123D32] dark:bg-[#28664D]"
+                        className="h-full bg-[var(--brand-primary)]"
                       />
                     </div>
                   </motion.div>
@@ -1338,12 +1330,12 @@ export default function CheckoutContent() {
                           type="button"
                           disabled={(!paymentMethod && remaining > 0) || loading}
                           onClick={handlePaymentConfirm}
-                          className="w-full h-12 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] disabled:opacity-30 text-white font-bold text-xs uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
+                          className="flex min-h-12 w-full items-center justify-center gap-2 rounded-[8px] border border-[var(--border-interactive)] bg-[var(--action-bg)] px-3 py-2 text-sm font-semibold text-[var(--action-fg)] hover:brightness-95 disabled:cursor-not-allowed disabled:border-[var(--border-default)] disabled:bg-[var(--surface-subtle)] disabled:text-[var(--text-secondary)]"
                         >
                           {loading ? (
                             <><Loader2 size={16} className="animate-spin" /><span>Processing…</span></>
                           ) : remaining === 0 || paymentMethod === "wallet" ? (
-                            <><Wallet size={15} /><span>Pay ₹{fare} from Wallet (1-Tap)</span></>
+                            <><Wallet size={15} /><span>Pay ₹{fare} from Jaatri Cash</span></>
                           ) : paymentMethod === "cash" ? (
                             <><Banknote size={15} /><span>{walletDeduct > 0 ? `Pay ₹${walletDeduct} Wallet + ₹${remaining} Cash` : "Confirm Cash Ride"}</span></>
                           ) : paymentMethod === "online" ? (
@@ -1367,7 +1359,7 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-[12px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-[12px] bg-[var(--brand-primary)] text-[var(--on-primary)] flex items-center justify-center">
                       <CheckCircle2 size={30} />
                     </div>
                     <div>
@@ -1379,7 +1371,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={() => { window.location.href = `/ride/${bookingId}`; }}
-                      className="mt-2 flex items-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-[8px] transition cursor-pointer"
+                      className="mt-2 flex items-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[var(--on-primary)] font-bold text-xs uppercase tracking-wider px-6 py-3.5 rounded-[8px] transition cursor-pointer"
                     >
                       <span>Track Your Ride</span>
                       <ArrowRight size={15} />
@@ -1407,7 +1399,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[var(--on-primary)] font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2"
                     >
                       <RotateCcw size={13} />
                       <span>Book Again</span>
@@ -1425,7 +1417,7 @@ export default function CheckoutContent() {
                     transition={{ duration: 0.25 }}
                     className="py-8 flex flex-col items-center justify-center gap-4 text-center"
                   >
-                    <div className="w-14 h-14 rounded-[12px] bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center text-[#E34222] dark:text-[#E06A50]">
+                    <div className="w-14 h-14 rounded-[12px] bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center text-[var(--accent-vermilion)]">
                       <XCircle size={28} />
                     </div>
                     <div>
@@ -1435,7 +1427,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[var(--on-primary)] font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2"
                     >
                       <RotateCcw size={13} />
                       <span>Try Again</span>
@@ -1463,7 +1455,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={() => { setBookingId(null); setStatus("idle"); setPaymentMethod(null); }}
-                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+                      className="min-h-[44px] flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[var(--on-primary)] font-bold text-xs uppercase tracking-wider px-5 py-3 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--focus-ring)] focus-visible:ring-offset-2"
                     >
                       <RotateCcw size={13} />
                       <span>Try Again</span>

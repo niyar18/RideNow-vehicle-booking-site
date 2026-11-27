@@ -48,7 +48,7 @@ export default function GrievancePage() {
           <p className="text-sm sm:text-base text-[var(--text-secondary)]">
             In accordance with Rule 5(9) of the Consumer Protection (E-Commerce) Rules, 2020 and the DPDP Act, 2023, the contact details of the Grievance Officer are set out below:
           </p>
-          <div className="p-5 bg-[var(--page-moss)] rounded-[10px] border border-[#cdd6c3] text-xs text-[var(--page-accent)] space-y-2">
+          <div className="p-5 bg-[var(--page-tint)] rounded-[10px] border border-[var(--border-default)] text-xs text-[var(--page-accent)] space-y-2">
             <p><strong className="text-[var(--text-primary)]">Designation:</strong> Head of Legal & Grievance Redressal</p>
             <p><strong className="text-[var(--text-primary)]">Officer Name:</strong> Grievance Officer, Jaatri Mobility Technologies</p>
             <p><strong className="text-[var(--text-primary)]">Email Address:</strong> <a href="mailto:grievance@ridenow.in" className="text-[var(--page-accent)] font-bold underline">grievance@ridenow.in</a></p>
@@ -66,7 +66,7 @@ export default function GrievancePage() {
             <div className="p-4 bg-[var(--surface-raised)] rounded-[10px] border border-[var(--border-default)]/70">
               <div className="flex items-center justify-between font-bold text-[var(--text-primary)] mb-1">
                 <span>Level 1: 24×7 In-App & Email Customer Support</span>
-                <span className="text-[10px] font-black uppercase bg-[var(--page-moss)] text-[var(--page-accent)] px-2 py-0.5 rounded-full">TAT: 2–24 Hours</span>
+                <span className="text-[10px] font-black uppercase bg-[var(--page-tint)] text-[var(--page-accent)] px-2 py-0.5 rounded-full">TAT: 2–24 Hours</span>
               </div>
               <p className="text-[var(--text-secondary)] leading-relaxed">
                 Submit an inquiry via our <Link href="/contact" className="text-[var(--page-accent)] font-bold underline">Help Center</Link> or email <a href="mailto:support@ridenow.in" className="text-[var(--page-accent)] underline">support@ridenow.in</a>. Most booking, fare, and wallet queries are resolved within 24 hours.
@@ -76,7 +76,7 @@ export default function GrievancePage() {
             <div className="p-4 bg-[var(--surface-raised)] rounded-[10px] border border-[var(--border-default)]/70">
               <div className="flex items-center justify-between font-bold text-[var(--text-primary)] mb-1">
                 <span>Level 2: Escalation to Grievance Officer</span>
-                <span className="text-[10px] font-black uppercase bg-[var(--page-moss)] text-[var(--page-accent)] px-2 py-0.5 rounded-full">TAT: 48 Hours Ack / 15 Days Resolution</span>
+                <span className="text-[10px] font-black uppercase bg-[var(--page-tint)] text-[var(--page-accent)] px-2 py-0.5 rounded-full">TAT: 48 Hours Ack / 15 Days Resolution</span>
               </div>
               <p className="text-[var(--text-secondary)] leading-relaxed">
                 If your issue remains unresolved after Level 1, quote your Ticket/Booking ID and email <a href="mailto:grievance@ridenow.in" className="text-[var(--page-accent)] underline">grievance@ridenow.in</a>. Acknowledged within 48 hours under statutory guidelines.
@@ -86,7 +86,7 @@ export default function GrievancePage() {
             <div className="p-4 bg-[var(--surface-raised)] rounded-[10px] border border-[var(--border-default)]/70">
               <div className="flex items-center justify-between font-bold text-[var(--text-primary)] mb-1">
                 <span>Level 3: Regulatory & Consumer Fora</span>
-                <span className="text-[10px] font-black uppercase bg-[#faebe8] text-[#782313] px-2 py-0.5 rounded-full">Statutory Escalation</span>
+                <span className="text-[10px] font-black uppercase bg-[var(--policy-danger-bg)] text-[var(--policy-danger)] px-2 py-0.5 rounded-full">Statutory Escalation</span>
               </div>
               <p className="text-[var(--text-secondary)] leading-relaxed">
                 Users may approach the National Consumer Helpline (NCH: 1915 / <a href="https://consumerhelpline.gov.in" target="_blank" rel="noreferrer" className="text-[var(--page-accent)] underline">consumerhelpline.gov.in</a>) or the State Transport Department as provided under applicable law.

@@ -9,6 +9,7 @@ import styles from "./admin-ui.module.css";
 export default function AdminChrome({ children }: { children: ReactNode }) {
   return (
     <div className={styles.shell}>
+      <a href="#admin-content" className={styles.skipLink}>Skip to main content</a>
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <Link href="/admin/dashboard" className={styles.brand} aria-label="Jaatri Operations">

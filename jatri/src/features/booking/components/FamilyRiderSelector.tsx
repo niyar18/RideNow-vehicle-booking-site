@@ -78,9 +78,9 @@ export default function FamilyRiderSelector({
       <button
         type="button"
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[#FAF7F0] hover:bg-[#F7F1E5] dark:bg-[#0B2822] dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition border border-[var(--border-default)] cursor-pointer"
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] bg-[var(--surface-subtle)] hover:bg-[var(--surface-subtle)] text-[var(--text-primary)] text-xs font-bold transition border border-[var(--border-default)] cursor-pointer"
       >
-        <Users size={14} className="text-[#046A38] dark:text-[#347858]" />
+        <Users size={14} className="text-[var(--text-primary)] dark:text-[var(--text-primary)]" />
         <span>
           {selectedFamilyMember ? `For: ${selectedFamilyMember.name}` : "For Me"}
         </span>
@@ -99,7 +99,7 @@ export default function FamilyRiderSelector({
               setDropdownOpen(false);
             }}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-[8px] text-xs font-semibold transition cursor-pointer ${
-              !selectedFamilyMember ? "bg-[#046A38] text-white" : "hover:bg-[#EFE9DC]/60 dark:hover:bg-[#143D32] text-[var(--text-primary)]"
+              !selectedFamilyMember ? "bg-[var(--brand-primary)] text-[var(--on-primary)]" : "hover:bg-[var(--surface-subtle)]/60 dark:hover:bg-[var(--surface-subtle)] text-[var(--text-primary)]"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export default function FamilyRiderSelector({
                   setDropdownOpen(false);
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2 rounded-[8px] text-xs font-semibold transition mt-1 cursor-pointer ${
-                  active ? "bg-[#046A38] text-white" : "hover:bg-[#EFE9DC]/60 dark:hover:bg-[#143D32] text-[var(--text-primary)]"
+                  active ? "bg-[var(--brand-primary)] text-[var(--on-primary)]" : "hover:bg-[var(--surface-subtle)]/60 dark:hover:bg-[var(--surface-subtle)] text-[var(--text-primary)]"
                 }`}
               >
                 <div className="flex items-center gap-2 truncate">

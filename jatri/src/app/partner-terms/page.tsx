@@ -57,7 +57,7 @@ export default function DriverPartnerTermsPage() {
               <p className="text-[var(--text-secondary)] leading-relaxed">Valid emission compliance and identity verification completed via admin Video KYC.</p>
             </div>
           </div>
-          <p className="text-xs text-[#782313] bg-[#faebe8] p-3.5 rounded-[8px] border border-[#f0c8c1] font-medium leading-relaxed">
+          <p className="text-xs text-[var(--policy-danger)] bg-[var(--policy-danger-bg)] p-3.5 rounded-[8px] border border-[var(--policy-danger-border)] font-medium leading-relaxed">
             The Platform reserves the right to automatically deactivate or place on hold any driver profile whose statutory vehicle documents have expired.
           </p>
         </section>
@@ -70,17 +70,17 @@ export default function DriverPartnerTermsPage() {
           <p className="text-sm sm:text-base text-[var(--text-secondary)]">
             In compliance with the 2025 aggregator economics standards:
           </p>
-          <div className="p-5 bg-[#123D32] text-white rounded-[12px] space-y-2.5 text-xs">
+          <div className="p-5 bg-[var(--policy-inverse)] text-white rounded-[12px] space-y-2.5 text-xs">
             <div className="flex justify-between border-b border-white/20 pb-2">
-              <span className="text-[#F7F1E5]/80">Driver Partner Earnings Share</span>
-              <strong className="text-emerald-300 text-sm font-bold">90% of Base Trip Fare</strong>
+              <span className="text-[var(--policy-inverse-text)]">Driver Partner Earnings Share</span>
+              <strong className="text-[var(--accent-mint)] text-sm font-bold">90% of Base Trip Fare</strong>
             </div>
             <div className="flex justify-between border-b border-white/20 pb-2">
-              <span className="text-[#F7F1E5]/80">Platform Service Commission</span>
-              <strong className="text-[#E5EBDD] text-sm font-bold">10% of Trip Fare</strong>
+              <span className="text-[var(--policy-inverse-text)]">Platform Service Commission</span>
+              <strong className="text-[var(--accent-mint)] text-sm font-bold">10% of Trip Fare</strong>
             </div>
             <div className="flex justify-between pt-1">
-              <span className="text-[#F7F1E5]/80">Settlement Mode</span>
+              <span className="text-[var(--policy-inverse-text)]">Settlement Mode</span>
               <span className="text-white font-medium">Jaatri Driver Wallet & Bank IMPS/UPI</span>
             </div>
           </div>
@@ -93,7 +93,7 @@ export default function DriverPartnerTermsPage() {
               <strong>Cash Rides:</strong> The passenger hands 100% of the fare directly to you in cash. Jaatri automatically debits the 10% platform commission from your Driver Wallet balance.
             </p>
             <p>
-              <strong>Withdrawals:</strong> Drivers may withdraw their available wallet earnings to their linked bank account (<code className="bg-[var(--page-moss)] px-1 py-0.5 rounded text-[var(--page-accent)] font-bold">PartnerBank</code>) at any time (minimum withdrawal: ₹100).
+              <strong>Withdrawals:</strong> Drivers may withdraw their available wallet earnings to their linked bank account (<code className="bg-[var(--page-tint)] px-1 py-0.5 rounded text-[var(--page-accent)] font-bold">PartnerBank</code>) at any time (minimum withdrawal: ₹100).
             </p>
           </div>
         </section>
@@ -113,7 +113,7 @@ export default function DriverPartnerTermsPage() {
         {/* 5. Suspension & Deactivation */}
         <section className="space-y-3">
           <h2 className="font-serif text-xl sm:text-2xl text-[var(--text-primary)] flex items-center gap-2">
-            <AlertTriangle size={20} className="text-[#E34222]" /> 5. Suspension, Deactivation & Appeals
+            <AlertTriangle size={20} className="text-[var(--policy-danger)]" /> 5. Suspension, Deactivation & Appeals
           </h2>
           <p className="text-sm sm:text-base text-[var(--text-secondary)]">
             Driver accounts may be temporarily suspended or permanently deactivated for:

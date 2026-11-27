@@ -144,8 +144,8 @@ export default function SearchPageContent() {
           >
             <div className="flex gap-3 px-4 py-3 border-b border-[var(--border-default)]/60">
               <div className="flex flex-col items-center pt-1.5 flex-shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#123D32]" />
-                <div className="w-px flex-1 bg-[#DED7CA] my-1" style={{ minHeight: 14 }} />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#142238]" />
+                <div className="w-px flex-1 bg-[#b3c8ca] my-1" style={{ minHeight: 14 }} />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider font-bold mb-0.5">Pickup</p>
@@ -195,7 +195,7 @@ export default function SearchPageContent() {
                   exit={{ opacity: 0, scale: 0.85 }}
                   className="flex items-center gap-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] px-3 py-1.5 rounded-full"
                 >
-                  <div className="w-3.5 h-3.5 rounded-full border-2 border-[#123D32]/30 border-t-[#123D32] animate-spin" />
+                  <div className="w-3.5 h-3.5 rounded-full border-2 border-[#142238]/30 border-t-[#142238] animate-spin" />
                   <span className="text-[var(--text-primary)] text-xs font-semibold">Searching</span>
                 </motion.div>
               ) : vehicles.length > 0 ? (
@@ -205,7 +205,7 @@ export default function SearchPageContent() {
                   animate={{ opacity: 1 }}
                   className="flex items-center gap-1.5 bg-[var(--surface-subtle)] border border-[var(--border-default)] px-3 py-1.5 rounded-full"
                 >
-                  <Zap size={11} className="text-[var(--text-primary)] fill-[#123D32]" />
+                  <Zap size={11} className="text-[var(--text-primary)] fill-[#142238]" />
                   <span className="text-[var(--text-primary)] text-xs font-bold">Live</span>
                 </motion.div>
               ) : null}
@@ -230,7 +230,7 @@ export default function SearchPageContent() {
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => fetchNearbyVehicles(pickupLat, pickupLng)}
-                  className="mt-4 flex items-center gap-2 bg-[#123D32] hover:bg-[#0D3027] text-white text-xs font-bold px-5 py-2.5 rounded-[8px] transition cursor-pointer"
+                  className="mt-4 flex items-center gap-2 bg-[#142238] hover:bg-[#101c2f] text-white text-xs font-bold px-5 py-2.5 rounded-[8px] transition cursor-pointer"
                 >
                   <RefreshCw size={13} />
                   <span>Retry Search</span>

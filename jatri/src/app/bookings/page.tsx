@@ -242,7 +242,7 @@ export default function MyBookingsPage() {
 
                     <dl className="relative my-4 space-y-3">
                       <div className="flex items-start gap-2.5">
-                        <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full border-2 border-[var(--brand-primary)] dark:border-[#d9ea84]" aria-hidden="true" />
+                        <span className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full border-2 border-[var(--brand-primary)] dark:border-[#91f2ce]" aria-hidden="true" />
                         <div className="min-w-0">
                           <dt className="text-xs text-[var(--text-secondary)]">Pickup</dt>
                           <dd className="break-words text-sm font-medium">{booking.pickupAddress}</dd>

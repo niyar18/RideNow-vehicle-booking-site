@@ -97,8 +97,8 @@ export default function RideFailedView({
         <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[14px] overflow-hidden mb-6 text-left">
           <div className="flex gap-3 p-4 border-b border-[var(--border-default)]">
             <div className="flex flex-col items-center flex-shrink-0 pt-1">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#28664D]" />
-              <div className="w-px bg-[#DED7CA] dark:bg-[#34443A] mt-1" style={{ height: 18 }} />
+              <div className="w-2.5 h-2.5 rounded-full bg-[#142238] dark:bg-[#365671]" />
+              <div className="w-px bg-[#b3c8ca] dark:bg-[#435e76] mt-1" style={{ height: 18 }} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[10px] font-bold text-[var(--text-secondary)] uppercase tracking-wider mb-0.5">Pickup</p>
@@ -120,7 +120,7 @@ export default function RideFailedView({
         <button
           type="button"
           onClick={() => router.push("/")}
-          className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white font-bold py-3.5 rounded-[8px] text-xs transition-colors cursor-pointer"
+          className="w-full bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] text-white font-bold py-3.5 rounded-[8px] text-xs transition-colors cursor-pointer"
         >
           Book Another Ride
         </button>

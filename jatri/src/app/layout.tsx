@@ -33,12 +33,11 @@ const dmSerifDisplay = DM_Serif_Display({
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f6f4eb" },
-    { media: "(prefers-color-scheme: dark)", color: "#121d17" },
+    { media: "(prefers-color-scheme: light)", color: "#f3f8f6" },
+    { media: "(prefers-color-scheme: dark)", color: "#101c30" },
   ],
   width: "device-width",
   initialScale: 1,
-  maximumScale: 5,
   viewportFit: "cover",
 };
 
@@ -166,12 +165,12 @@ export default async function RootLayout({
                     root.classList.add('dark');
                     root.classList.remove('light');
                     root.style.colorScheme = 'dark';
-                    root.style.backgroundColor = '#121d17';
+                    root.style.backgroundColor = '#101c30';
                   } else {
                     root.classList.remove('dark');
                     root.classList.add('light');
                     root.style.colorScheme = 'light';
-                    root.style.backgroundColor = '#f6f4eb';
+                    root.style.backgroundColor = '#f3f8f6';
                   }
 
                   // Zero-delay splash screen resolver: hide instantly if already seen in this session
@@ -205,15 +204,15 @@ export default async function RootLayout({
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                background-color: #f6f4eb;
+                background-color: #f3f8f6;
                 user-select: none;
               }
               html.dark #jaatri-splash-screen {
-                background-color: #121d17;
+                background-color: #101c30;
               }
               @media (prefers-color-scheme: dark) {
                 html:not(.light) #jaatri-splash-screen {
-                  background-color: #121d17;
+                  background-color: #101c30;
                 }
               }
               html:not(.splash-hidden) body {

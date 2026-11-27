@@ -143,13 +143,13 @@ export default function PartnerVehiclePage() {
           {completed && !editMode && (
             <div className="mt-4 p-3 bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] flex items-center justify-between ">
               <div className="flex items-center gap-2 text-[var(--text-primary)] text-xs font-semibold">
-                <CheckCircle size={15} className="text-[#123D32] dark:text-[#347858]" />
+                <CheckCircle size={15} className="text-[var(--accent-ink)]" />
                 <span>Vehicle details recorded on file</span>
               </div>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="text-xs tabular-nums font-bold text-[#123D32] dark:text-[#347858] underline flex items-center gap-1 hover:text-[#0D3027] dark:hover:text-[#28664D] cursor-pointer"
+                className="text-xs tabular-nums font-bold text-[var(--accent-ink)] underline flex items-center gap-1 hover:text-[#0d192b] dark:hover:text-[#263b56] cursor-pointer"
               >
                 <Pencil size={12} />
                 Edit
@@ -170,7 +170,7 @@ export default function PartnerVehiclePage() {
               Vehicle Classification
             </label>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-1 gap-2 min-[375px]:grid-cols-2 sm:grid-cols-3">
               {VEHICLES.map((v) => {
                 const Icon = v.icon;
                 const active = vehicleType === v.id;
@@ -180,11 +180,12 @@ export default function PartnerVehiclePage() {
                     type="button"
                     key={v.id}
                     onClick={() => setVehicleType(v.id)}
-                    className={`rounded-[10px] border p-3.5 flex flex-col items-start gap-2 transition-colors text-left cursor-pointer
+                    aria-pressed={active}
+                    className={`min-h-11 min-w-0 rounded-[10px] border p-3.5 flex flex-col items-start gap-2 transition-colors text-left cursor-pointer
                       ${
                         active
-                          ? "bg-[#123D32] dark:bg-[#28664D] text-white border-[#123D32] dark:border-[#28664D] "
-                          : "border-[var(--border-default)] hover:border-[#123D32]/40 dark:hover:border-[#28664D]/50 bg-[var(--surface-raised)] text-[var(--text-primary)]"
+                          ? "bg-[var(--midnight)] dark:bg-[#263b56] text-white border-[var(--midnight)] dark:border-[#263b56] "
+                          : "border-[var(--border-default)] hover:border-[var(--midnight)]/40 dark:hover:border-[#263b56]/50 bg-[var(--surface-raised)] text-[var(--text-primary)]"
                       }`}
                   >
                     <div
@@ -192,7 +193,7 @@ export default function PartnerVehiclePage() {
                         ${
                           active
                             ? "bg-white/20 text-white"
-                            : "bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858]"
+                            : "bg-[var(--surface-subtle)] text-[var(--accent-ink)]"
                         }`}
                     >
                       <Icon size={15} />
@@ -204,7 +205,7 @@ export default function PartnerVehiclePage() {
                       </p>
                       <p
                         className={`text-[10px] leading-tight mt-0.5 tabular-nums ${
-                          active ? "text-[#E5EBDD]/80" : "text-[var(--text-secondary)]"
+                          active ? "text-[var(--ice)]" : "text-[var(--text-secondary)]"
                         }`}
                       >
                         {v.desc}
@@ -228,7 +229,7 @@ export default function PartnerVehiclePage() {
                 setVehicleNumber(e.target.value.toUpperCase())
               }
               placeholder="e.g. AS01AB1234"
-              className="w-full border border-[var(--border-default)] rounded-[8px] p-3 text-base focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] transition-colors bg-[var(--surface-raised)] text-[var(--text-primary)] uppercase tabular-nums tracking-wider"
+              className="w-full border border-[var(--border-interactive)] rounded-[8px] p-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] focus:border-[var(--focus-ring)] transition-colors bg-[var(--surface-raised)] text-[var(--text-primary)] uppercase tabular-nums tracking-wider"
             />
             <p className="text-[10px] tabular-nums text-[var(--text-secondary)] mt-1">
               Must match the vehicle RC document uploaded in Step 2.
@@ -245,14 +246,14 @@ export default function PartnerVehiclePage() {
               value={vehicleModel}
               onChange={(e) => setVehicleModel(e.target.value)}
               placeholder="e.g. Maruti Suzuki WagonR 2023 / Tata Ace 1.5T"
-              className="w-full border border-[var(--border-default)] rounded-[8px] p-3 text-base focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] transition-colors bg-[var(--surface-raised)] text-[var(--text-primary)]"
+              className="w-full border border-[var(--border-interactive)] rounded-[8px] p-3 text-base focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] focus:border-[var(--focus-ring)] transition-colors bg-[var(--surface-raised)] text-[var(--text-primary)]"
             />
           </div>
         </div>
 
         {/* ERROR */}
         {error && (
-          <div className="mt-4 p-3 rounded-[8px] bg-[#E34222]/10 dark:bg-red-950/30 border border-[#E34222] dark:border-red-900/50 text-xs text-[#E34222] dark:text-[#E06A50] tabular-nums">
+          <div role="alert" className="mt-4 p-3 rounded-[8px] bg-[#992f22]/10 dark:bg-red-950/30 border border-[#992f22] dark:border-red-900/50 text-xs text-[#992f22] dark:text-[#ffab9c] tabular-nums">
             {error}
           </div>
         )}
@@ -262,7 +263,7 @@ export default function PartnerVehiclePage() {
           whileTap={{ scale: 0.99 }}
           disabled={loading}
           onClick={submitVehicle}
-          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer "
+          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer "
         >
           <span>
             {completed && !editMode

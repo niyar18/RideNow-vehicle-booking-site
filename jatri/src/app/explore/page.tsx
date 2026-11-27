@@ -25,6 +25,7 @@ interface ServiceCardItem {
   title: string;
   subtitle: string;
   image: string;
+  vehicleArt?: boolean;
   icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
   route: string;
 }
@@ -37,7 +38,8 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
     id: "daily-rides",
     title: "Daily Rides",
     subtitle: "From the market to the office",
-    image: "/explore/explore_daily_rides.webp?v=photo-1",
+    image: "/vehicle-art/auto.webp",
+    vehicleArt: true,
     icon: Car,
     route: "/book?category=cars",
   },
@@ -70,7 +72,8 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
     id: "group",
     title: "Group Booking",
     subtitle: "Share a plan with your group",
-    image: "/explore/explore_group.webp?v=photo-1",
+    image: "/vehicle-art/priority.webp",
+    vehicleArt: true,
     icon: Users,
     route: "/group/join",
   },
@@ -78,7 +81,8 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
     id: "cargo",
     title: "Parcel & Cargo",
     subtitle: "For parcels, stock and small moves",
-    image: "/explore/explore_cargo.webp?v=photo-1",
+    image: "/vehicle-art/loading.webp",
+    vehicleArt: true,
     icon: Package,
     route: "/book?category=trucks&serviceMode=logistics",
   },
@@ -303,7 +307,7 @@ export default function ExplorePage() {
       <section aria-label="Ride options" className={styles.cardGrid}>
         {EXPLORE_SERVICES.map((service, index) => (
           <Link href={service.route} key={service.id} className={styles.card}>
-            <div className={styles.cardImage}>
+            <div className={service.vehicleArt ? `${styles.studioTile} ${styles.serviceStudio}` : styles.cardImage}>
               <Image src={service.image} alt="" fill sizes="(max-width: 669px) 48vw, (max-width: 1250px) 31vw, 390px" />
             </div>
             <div className={styles.cardBody}>

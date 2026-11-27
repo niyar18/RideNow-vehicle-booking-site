@@ -339,18 +339,18 @@ export default function VendorDashboard({
             className="bg-[var(--surface-raised)] text-[var(--text-primary)] rounded-[14px] p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 border border-[var(--border-default)] font-sans"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[10px] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-[10px] bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] flex items-center justify-center shrink-0">
                 <Video size={24} />
               </div>
               <div>
-                <span className="text-[10px] font-bold text-[#123D32] dark:text-emerald-400">Live Call Session Ready</span>
+                <span className="text-[10px] font-bold text-[var(--midnight)] dark:text-emerald-400">Live Call Session Ready</span>
                 <h2 className="text-xl sm:text-2xl font-sans font-bold mt-0.5 tracking-tight">Video KYC Verification Active</h2>
                 <p className="text-xs text-[var(--text-secondary)] mt-1 font-medium">Verification room is established. Connect now to finalize identity verification.</p>
               </div>
             </div>
             <button
               onClick={() => router.push(`/video-kyc/${roomId}`)}
-              className="w-full sm:w-auto px-6 py-3 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[#FAF7F0] text-xs font-semibold rounded-[8px] transition-colors shrink-0 flex items-center justify-center gap-2 cursor-pointer "
+              className="w-full sm:w-auto px-6 py-3 bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] text-xs font-semibold rounded-[8px] transition-colors shrink-0 flex items-center justify-center gap-2 cursor-pointer "
             >
               <Video size={16} /> Join Video KYC Call
             </button>
@@ -413,7 +413,7 @@ export default function VendorDashboard({
         >
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block" />
-            <span className="text-[10px] text-[#123D32] dark:text-emerald-400 font-bold">
+            <span className="text-[10px] text-[var(--midnight)] dark:text-emerald-400 font-bold">
               Verification Approved
             </span>
           </div>
@@ -426,7 +426,7 @@ export default function VendorDashboard({
 
           <button
             onClick={() => router.push("/partner/bookings")}
-            className="mt-6 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[#FAF7F0] px-6 py-3 rounded-[8px] text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer "
+            className="mt-6 bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] px-6 py-3 rounded-[8px] text-xs font-semibold flex items-center gap-2 transition-colors cursor-pointer "
           >
             Access Dispatch Orders <ArrowRight size={15} />
           </button>
@@ -454,7 +454,7 @@ export default function VendorDashboard({
   if ((activeStep >= 6 || vendorStep >= 6) && loadingPricing && !initialPricing) {
     return (
       <section className="min-h-screen bg-[var(--background)] pt-28 pb-20 px-4 md:px-8 font-sans transition-colors">
-        <div className="max-w-7xl mx-auto space-y-6 animate-pulse">
+        <div className="max-w-7xl mx-auto space-y-6 motion-safe:animate-pulse">
           <div className="h-8 bg-[var(--surface-raised)] rounded-[8px] w-48 border border-[var(--border-default)]" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="h-40 bg-[var(--surface-raised)] rounded-[12px] border border-[var(--border-default)]" />
@@ -473,8 +473,8 @@ export default function VendorDashboard({
 
         <div className="border-b border-[var(--border-default)] pb-5">
           <div className="flex items-center gap-2 mb-1.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#28664D] inline-block" />
-            <span className="text-[10px] font-bold text-[#123D32] dark:text-[#347858]">
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--midnight)] dark:bg-[#263b56] inline-block" />
+            <span className="text-[10px] font-bold text-[var(--accent-ink)]">
               Partner Verification
             </span>
           </div>
@@ -492,7 +492,7 @@ export default function VendorDashboard({
             <span className="text-[10px] font-bold text-[var(--text-secondary)] ">
               Step 0{activeStep} / 0{TOTAL_STEPS}
             </span>
-            <span className="text-[10px] font-bold px-2 py-0.5 bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] rounded-[6px]">
+            <span className="text-[10px] font-bold px-2 py-0.5 bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] rounded-[6px]">
               {STEPS[activeStep - 1]?.title || "Onboarding"}
             </span>
           </div>
@@ -501,7 +501,7 @@ export default function VendorDashboard({
             <motion.div
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.3 }}
-              className="h-full bg-[#123D32] dark:bg-[#28664D]"
+              className="h-full bg-[var(--midnight)] dark:bg-[#263b56]"
             />
           </div>
 
@@ -519,9 +519,9 @@ export default function VendorDashboard({
                   onClick={() => goToStep(step)}
                   className={`flex items-center gap-1.5 px-2.5 py-1 rounded-[6px] text-[11px] font-medium tracking-wide shrink-0 transition-colors ${
                     completed
-                      ? "bg-[#123D32]/10 dark:bg-[#28664D]/25 text-[#123D32] dark:text-[#347858] border border-[#123D32]/30 dark:border-[#28664D]/50 font-semibold"
+                      ? "bg-[var(--midnight)]/10 dark:bg-[#263b56]/25 text-[var(--accent-ink)] border border-[var(--midnight)]/30 dark:border-[#263b56]/50 font-semibold"
                       : active
-                      ? "bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] font-bold "
+                      ? "bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] font-bold "
                       : "bg-[var(--surface-subtle)] text-[var(--text-secondary)] border border-[var(--border-default)]"
                   }`}
                 >
@@ -536,12 +536,12 @@ export default function VendorDashboard({
         {/* DESKTOP STEPPER */}
         <div className="hidden md:block bg-[var(--surface-raised)] rounded-[14px] p-6 sm:p-8 border border-[var(--border-default)] overflow-x-auto">
           <div className="relative min-w-[700px]">
-            <div className="absolute top-6 left-0 w-full h-[2px] bg-[#DED7CA] dark:bg-[#34443A]" />
+            <div className="absolute top-6 left-0 w-full h-[2px] bg-[#b8c7ca] dark:bg-[#617689]" />
 
             <motion.div
               animate={{ width: `${progressPercent}%` }}
               transition={{ duration: 0.4 }}
-              className="absolute top-6 left-0 h-[2px] bg-[#123D32] dark:bg-[#28664D]"
+              className="absolute top-6 left-0 h-[2px] bg-[var(--midnight)] dark:bg-[#263b56]"
             />
 
             <div className="relative flex justify-between">
@@ -560,9 +560,9 @@ export default function VendorDashboard({
                       className={`w-12 h-12 rounded-[10px] flex items-center justify-center border text-xs font-bold transition-all
                       ${
                         completed
-                          ? "bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] border-[#123D32] dark:border-[#28664D] "
+                          ? "bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] border-[var(--midnight)] dark:border-[#263b56] "
                           : active
-                          ? "border-[#123D32] dark:border-[#28664D] bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#347858] ring-2 ring-[#123D32]/20 dark:ring-[#28664D]/30 font-bold"
+                          ? "border-[var(--midnight)] dark:border-[#263b56] bg-[var(--surface-subtle)] text-[var(--accent-ink)] ring-2 ring-[var(--midnight)]/20 dark:ring-[#263b56]/30 font-bold"
                           : "border-[var(--border-default)] text-[var(--text-secondary)] bg-[var(--surface-subtle)]"
                       }`}
                     >
@@ -576,7 +576,7 @@ export default function VendorDashboard({
                     </div>
 
                     <p className={`mt-2.5 text-xs font-medium text-center ${
-                      active ? "text-[#123D32] dark:text-[#347858] font-bold" : "text-[var(--text-secondary)]"
+                      active ? "text-[var(--accent-ink)] font-bold" : "text-[var(--text-secondary)]"
                     }`}>
                       {step.title}
                     </p>
@@ -673,7 +673,7 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
             className="bg-[var(--surface-raised)] w-full max-w-lg rounded-[14px] border border-[var(--border-default)] overflow-hidden p-6 font-sans"
           >
             <div className="border-b border-[var(--border-default)] pb-4 mb-4">
-              <span className="text-[10px] text-[#123D32] dark:text-[#347858] font-bold">
+              <span className="text-[10px] text-[var(--accent-ink)] font-bold">
                 Vehicle Compliance & Fleet
               </span>
               <h2 className="text-lg font-bold font-sans text-[var(--text-primary)] tracking-tight mt-0.5">
@@ -690,10 +690,10 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
                 <select
                   value={selectedType}
                   onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full text-xs font-semibold p-2.5 bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] text-[var(--text-primary)] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
+                  className="w-full text-xs font-semibold p-2.5 bg-[var(--surface-raised)] border border-[var(--border-interactive)] rounded-[8px] text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] focus:border-[var(--focus-ring)]"
                 >
                   {FLEET_CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.id} className="dark:bg-[#0B2822]">
+                    <option key={cat.id} value={cat.id} className="dark:bg-[#192940]">
                       {cat.label}
                     </option>
                   ))}
@@ -707,10 +707,10 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
                 <label className="text-xs font-bold text-[var(--text-primary)] block mb-1.5">
                   Vehicle Exterior Photo
                 </label>
-                <label className="relative h-40 border border-[var(--border-default)] rounded-[8px] bg-[var(--surface-raised)] flex items-center justify-center cursor-pointer hover:border-[#123D32] dark:hover:border-[#28664D] transition-colors overflow-hidden">
+                <label className="relative h-40 border border-[var(--border-default)] rounded-[8px] bg-[var(--surface-raised)] flex items-center justify-center cursor-pointer hover:border-[var(--midnight)] dark:hover:border-[#263b56] transition-colors overflow-hidden">
                   {!preview ? (
                     <div className="flex flex-col items-center gap-1.5 text-[var(--text-secondary)]">
-                      <ImagePlus size={26} className="text-[#123D32] dark:text-[#347858]" />
+                      <ImagePlus size={26} className="text-[var(--accent-ink)]" />
                       <span className="text-[10px] font-semibold">Select Vehicle Photo</span>
                     </div>
                   ) : (
@@ -742,14 +742,14 @@ function PricingModal({ open, onClose, pricing, isLive, onSaved }: any){
             <div className="pt-5 mt-5 border-t border-[var(--border-default)] flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 py-2.5 border border-[var(--border-default)] rounded-[8px] text-xs uppercase font-semibold text-[var(--text-primary)] bg-[var(--surface-subtle)] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] transition-colors cursor-pointer"
+                className="flex-1 py-2.5 border border-[var(--border-default)] rounded-[8px] text-xs uppercase font-semibold text-[var(--text-primary)] bg-[var(--surface-subtle)] hover:bg-[#e4eeeb] dark:hover:bg-[#2b4160] transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={submitPricing}
                 disabled={loading}
-                className="flex-1 py-2.5 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[#FAF7F0] text-xs font-semibold rounded-[8px] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer "
+                className="flex-1 py-2.5 bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] text-xs font-semibold rounded-[8px] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer "
               >
                 {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Save Fleet Details"}
               </button>
@@ -782,7 +782,7 @@ function StatusCard({ icon, title, desc }: any) {
         items-start sm:items-center
       "
     >
-      <div className="bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] p-3 rounded-[8px] shrink-0 tabular-nums">
+      <div className="bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] p-3 rounded-[8px] shrink-0 tabular-nums">
         {icon}
       </div>
 
@@ -818,7 +818,7 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
       "
     >
       <div className="flex items-center gap-4">
-        <div className="bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] p-3 rounded-[8px] shrink-0 tabular-nums">
+        <div className="bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] p-3 rounded-[8px] shrink-0 tabular-nums">
           {icon}
         </div>
 
@@ -838,9 +838,9 @@ function ActionCard({ icon, title, desc, button, onClick }: any) {
         onClick={onClick}
         className="
           w-full sm:w-auto
-          bg-[#123D32] hover:bg-[#0D3027] 
-          dark:bg-[#28664D] dark:hover:bg-[#347858] 
-          text-[#FAF7F0] 
+          bg-[var(--midnight)] hover:bg-[#0d192b]
+          dark:bg-[#263b56] dark:hover:bg-[#354b66]
+          text-[var(--ice)]
           px-6 
           py-2.5 
           rounded-[8px] 
@@ -876,7 +876,7 @@ function RejectionCard({
         space-y-4
       "
     >
-      <div className="flex items-center gap-2 text-[#E34222] dark:text-[#E06A50] font-bold text-xs ">
+      <div className="flex items-center gap-2 text-[#992f22] dark:text-[#ffab9c] font-bold text-xs ">
         <AlertTriangle size={16} />
         {title}
       </div>
@@ -892,8 +892,8 @@ function RejectionCard({
             w-full sm:w-auto
             px-6 
             py-2.5 
-            bg-[#E34222] hover:bg-[#9E2F1B] 
-            text-[#FAF7F0] 
+            bg-[#992f22] hover:bg-[#782718]
+            text-[var(--ice)]
             rounded-[8px] 
             text-xs font-semibold
             transition-colors
@@ -914,7 +914,7 @@ function PriceInput({ label, value, onChange }: any) {
     <div>
       <p className="text-xs font-semibold text-[var(--text-secondary)] mb-1">{label}</p>
       <div className="flex items-center gap-2 border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 bg-[var(--surface-raised)] text-[var(--text-primary)]">
-        <IndianRupee size={15} className="text-[#123D32] dark:text-[#347858]" />
+        <IndianRupee size={15} className="text-[var(--accent-ink)]" />
         <input
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -1476,7 +1476,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         {/* Header Block */}
         <div className="flex flex-col gap-4 border-b border-[var(--border-default)] pb-5 sm:pb-7 md:flex-row md:items-end md:justify-between">
           <div className="flex items-center gap-3.5 sm:gap-4">
-            <div className="relative group w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-[12px] border border-[var(--border-default)] overflow-hidden bg-[#123D32] dark:bg-[#28664D]">
+            <div className="relative group w-14 h-14 sm:w-16 sm:h-16 shrink-0 rounded-[12px] border border-[var(--border-default)] overflow-hidden bg-[var(--midnight)] dark:bg-[#263b56]">
               {profilePicture ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -1485,7 +1485,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   className="w-full h-full object-cover rounded-[12px]"
                 />
               ) : (
-                <div className="w-full h-full text-[#FAF7F0] flex items-center justify-center font-bold text-xl sm:text-2xl font-sans">
+                <div className="w-full h-full text-[var(--ice)] flex items-center justify-center font-bold text-xl sm:text-2xl font-sans">
                   {userData?.name?.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -1520,11 +1520,11 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             <div className="min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-sans font-semibold text-[var(--text-primary)] tracking-[-0.04em] truncate">{userData?.name}</h1>
-                <span className="inline-flex items-center gap-1 bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#347858] text-[10px] font-semibold px-2 py-0.5 rounded-[6px] border border-[var(--border-default)]">
+                <span className="inline-flex items-center gap-1 bg-[var(--surface-subtle)] text-[var(--accent-ink)] text-[10px] font-semibold px-2 py-0.5 rounded-[6px] border border-[var(--border-default)]">
                   Verified driver
                 </span>
                 {!profilePicture && (
-                  <span className="inline-flex items-center gap-1 bg-[#E34222] text-white text-[9px] tabular-nums font-bold px-1.5 py-0.5 rounded-[6px]">
+                  <span className="inline-flex items-center gap-1 bg-[#992f22] text-white text-[9px] tabular-nums font-bold px-1.5 py-0.5 rounded-[6px]">
                     Photo Required
                   </span>
                 )}
@@ -1538,14 +1538,14 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           <div className="flex flex-col min-[400px]:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
             <button
               onClick={() => router.push("/partner/pending-requests")}
-              className="flex items-center justify-center gap-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[#FAF7F0] text-xs sm:text-sm font-semibold px-5 py-3 rounded-[8px] transition cursor-pointer "
+              className="flex items-center justify-center gap-2 bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] text-xs sm:text-sm font-semibold px-5 py-3 rounded-[8px] transition cursor-pointer "
             >
               <span>Ride requests</span>
               <ArrowRight size={15} />
             </button>
             <button
               onClick={() => router.push("/partner/bookings")}
-              className="flex items-center justify-center gap-2 border border-[var(--border-default)] hover:bg-[#F7F1E5] dark:hover:bg-[#10352C] bg-[var(--surface-raised)] text-[var(--text-primary)] text-xs sm:text-sm font-semibold px-4 py-3 rounded-[8px] transition cursor-pointer "
+              className="flex items-center justify-center gap-2 border border-[var(--border-default)] hover:bg-[#e4eeeb] dark:hover:bg-[#243751] bg-[var(--surface-raised)] text-[var(--text-primary)] text-xs sm:text-sm font-semibold px-4 py-3 rounded-[8px] transition cursor-pointer "
             >
               Trip history
             </button>
@@ -1556,7 +1556,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         {!profilePicture && (
           <div className="bg-[var(--surface-raised)] text-[var(--text-primary)] border border-[var(--border-default)] rounded-[12px] p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 font-sans ">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center font-bold shrink-0">
+              <div className="w-8 h-8 rounded-[8px] bg-[var(--midnight)] dark:bg-[#263b56] text-white flex items-center justify-center font-bold shrink-0">
                 <Camera size={16} />
               </div>
               <div>
@@ -1571,7 +1571,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             <button
               onClick={() => photoInputRef.current?.click()}
               disabled={uploadingPhoto}
-              className="px-4 py-2 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[#FAF7F0] text-xs font-semibold transition-colors shrink-0 rounded-[8px] cursor-pointer"
+              className="px-4 py-2 bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] text-xs font-semibold transition-colors shrink-0 rounded-[8px] cursor-pointer"
             >
               {uploadingPhoto ? "Uploading..." : "Upload Profile Photo"}
             </button>
@@ -1580,14 +1580,14 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
         {/* Cash Ride Debt Threshold Alert Banner */}
         {isDebtBlocked && (
-          <div className="bg-red-50 dark:bg-red-950/30 text-[#E34222] dark:text-[#E06A50] border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans ">
+          <div className="bg-red-50 dark:bg-red-950/30 text-[#992f22] dark:text-[#ffab9c] border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans ">
             <div className="flex items-center gap-3.5">
-              <div className="w-10 h-10 rounded-[8px] bg-[#E34222] text-white flex items-center justify-center font-bold shrink-0">
+              <div className="w-10 h-10 rounded-[8px] bg-[#992f22] text-white flex items-center justify-center font-bold shrink-0">
                 <AlertTriangle size={20} />
               </div>
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <p className="text-xs font-bold text-[#E34222] dark:text-[#E06A50]">
+                  <p className="text-xs font-bold text-[#992f22] dark:text-[#ffab9c]">
                     Dispatch Blocked &bull; Platform Commission Dues Limit Exceeded
                   </p>
                   <span className="bg-red-200 dark:bg-red-900/60 text-red-900 dark:text-red-200 text-[10px] tabular-nums px-2 py-0.5 font-bold uppercase rounded-[4px]">
@@ -1601,7 +1601,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
             <button
               onClick={() => router.push("/partner/wallet")}
-              className="w-full sm:w-auto px-5 py-2.5 bg-[#E34222] hover:bg-[#9E2F1B] text-white text-xs font-semibold transition-colors shrink-0 flex items-center justify-center gap-2 rounded-[8px] cursor-pointer "
+              className="w-full sm:w-auto px-5 py-2.5 bg-[#992f22] hover:bg-[#782718] text-white text-xs font-semibold transition-colors shrink-0 flex items-center justify-center gap-2 rounded-[8px] cursor-pointer "
             >
               <WalletIcon size={14} /> Settle Dues Now
             </button>
@@ -1611,7 +1611,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
         {/* Cooldown Alert Banner */}
         {shiftSummary?.isCooldownActive && shiftSummary?.dispatchBlockedUntil && (
           <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 flex items-center gap-3">
-            <AlertTriangle className="text-[#E34222] dark:text-[#E06A50] flex-shrink-0" size={20} />
+            <AlertTriangle className="text-[#992f22] dark:text-[#ffab9c] flex-shrink-0" size={20} />
             <div className="text-xs">
               <p className="text-red-900 dark:text-red-200 font-bold uppercase tracking-wide">Dispatch Cooldown Active</p>
               <p className="text-red-800 dark:text-red-300 text-[11px] mt-0.5 font-medium">
@@ -1638,7 +1638,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 >
                   <div className="flex items-start gap-3">
                     <AlertTriangle
-                      className={isExpired ? "text-[#E34222] dark:text-[#E06A50] mt-0.5 flex-shrink-0" : "text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"}
+                      className={isExpired ? "text-[#992f22] dark:text-[#ffab9c] mt-0.5 flex-shrink-0" : "text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0"}
                       size={18}
                     />
                     <div>
@@ -1668,8 +1668,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     onClick={() => router.push("/partner/onboard/documents")}
                     className={`text-xs font-semibold px-4 py-2 rounded-[8px] transition whitespace-nowrap self-start sm:self-center cursor-pointer  ${
                       isExpired
-                        ? "bg-[#E34222] hover:bg-[#9E2F1B] text-white"
-                        : "bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[#FAF7F0]"
+                        ? "bg-[#992f22] hover:bg-[#782718] text-white"
+                        : "bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)]"
                     }`}
                   >
                     Renew Document
@@ -1700,9 +1700,9 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
             </div>
 
             {isDebtBlocked && (
-              <div className="mt-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-[#E34222] dark:text-[#E06A50] text-xs font-medium flex items-center justify-between gap-2">
+              <div className="mt-2 p-2.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-[#992f22] dark:text-[#ffab9c] text-xs font-medium flex items-center justify-between gap-2">
                 <span className="truncate tabular-nums text-[11px]">Dues limit reached (₹{platformDues.toFixed(2)} / ₹{maxAllowedPlatformDues})</span>
-                <Link href="/partner/wallet" className="underline font-bold text-[#E34222] dark:text-[#E06A50] shrink-0 text-xs uppercase">
+                <Link href="/partner/wallet" className="underline font-bold text-[#992f22] dark:text-[#ffab9c] shrink-0 text-xs uppercase">
                   Settle
                 </Link>
               </div>
@@ -1715,8 +1715,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     {isOnline ? "Duty: Online" : "Duty: Offline"}
                   </p>
                   {isOnline && isWakeLockActive && (
-                    <span className="flex items-center gap-1 text-[10px] tabular-nums text-[#123D32] dark:text-[#347858] bg-[#123D32]/10 dark:bg-[#28664D]/20 px-1.5 py-0.5 rounded-[4px] border border-[#123D32]/20 dark:border-[#28664D]/30 font-bold">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#123D32] dark:bg-[#347858] animate-pulse" />
+                    <span className="flex items-center gap-1 text-[10px] tabular-nums text-[var(--accent-ink)] bg-[var(--surface-subtle)] px-1.5 py-0.5 rounded-[4px] border border-[var(--border-default)] font-bold">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--midnight)] dark:bg-[var(--accent-mint)] motion-safe:animate-pulse" />
                       SCREEN AWAKE
                     </span>
                   )}
@@ -1748,7 +1748,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
             <div className="flex items-center justify-between pt-2 border-t border-[var(--border-default)] text-xs text-[var(--text-secondary)]">
               <div className="flex items-center gap-1.5 min-w-0">
-                <MapPin size={13} className="text-[#123D32] dark:text-[#347858] shrink-0" />
+                <MapPin size={13} className="text-[var(--accent-ink)] shrink-0" />
                 <span className="truncate tabular-nums tabular-nums text-[11px] text-[var(--text-primary)]">
                   {coords
                     ? `${coords.latitude.toFixed(5)}, ${coords.longitude.toFixed(5)}`
@@ -1759,10 +1759,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 type="button"
                 onClick={() => syncDriverLocation()}
                 disabled={isLocating}
-                className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-[var(--text-primary)] hover:text-[#123D32] dark:hover:text-[#347858] border border-[var(--border-default)] hover:border-[#123D32] dark:hover:border-[#28664D] px-2.5 py-1 rounded-[8px] bg-[var(--surface-raised)] transition cursor-pointer shrink-0 ml-2 "
+                className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-[var(--text-primary)] hover:text-[var(--midnight)] dark:hover:text-[var(--accent-mint)] border border-[var(--border-default)] hover:border-[var(--midnight)] dark:hover:border-[#263b56] px-2.5 py-1 rounded-[8px] bg-[var(--surface-raised)] transition cursor-pointer shrink-0 ml-2 "
                 title="Refresh and sync GPS location now"
               >
-                <RefreshCw size={11} className={isLocating ? "animate-spin text-[#123D32] dark:text-[#347858]" : "text-[#123D32] dark:text-[#347858]"} />
+                <RefreshCw size={11} className={isLocating ? "animate-spin text-[var(--accent-ink)]" : "text-[var(--accent-ink)]"} />
                 <span>{isLocating ? "Syncing..." : "Sync GPS"}</span>
               </button>
             </div>
@@ -1779,7 +1779,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   Your GPS position
                 </h2>
               </div>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[var(--background)] border border-[var(--border-default)] text-[#123D32] dark:text-[#347858] text-[10px] font-semibold ">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-[6px] bg-[var(--background)] border border-[var(--border-default)] text-[var(--accent-ink)] text-[10px] font-semibold ">
                 <span>Live GPS</span>
               </span>
             </div>
@@ -1794,7 +1794,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   ? `Synced ${lastSyncedTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })}`
                   : "Continuous device tracking active"}
               </span>
-              <span className="text-[10px] font-semibold uppercase text-[#123D32] dark:text-[#347858] bg-[var(--background)] px-2 py-0.5 rounded-[4px] border border-[var(--border-default)] shrink-0 ml-2">
+              <span className="text-[10px] font-semibold uppercase text-[var(--accent-ink)] bg-[var(--background)] px-2 py-0.5 rounded-[4px] border border-[var(--border-default)] shrink-0 ml-2">
                 Active Radar
               </span>
             </div>
@@ -1814,7 +1814,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               <button
                 type="button"
                 onClick={() => setShowPricing(true)}
-                className="text-[var(--text-primary)] hover:text-[#123D32] dark:hover:text-[#347858] p-2 rounded-[8px] border border-[var(--border-default)] hover:border-[#123D32] dark:hover:border-[#28664D] hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition-all cursor-pointer "
+                className="text-[var(--text-primary)] hover:text-[var(--midnight)] dark:hover:text-[var(--accent-mint)] p-2 rounded-[8px] border border-[var(--border-default)] hover:border-[var(--midnight)] dark:hover:border-[#263b56] hover:bg-[#e4eeeb] dark:hover:bg-[#0d192b] transition-all cursor-pointer "
                 title="Edit pricing and vehicle details"
               >
                 <Edit3 size={15} />
@@ -1829,15 +1829,15 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   className="w-20 h-20 rounded-[12px] object-cover border border-[var(--border-default)] shrink-0"
                 />
               ) : (
-                <div className="w-20 h-20 rounded-[12px] bg-[var(--background)] border border-[var(--border-default)] flex flex-col items-center justify-center text-[#123D32] dark:text-[#347858] shrink-0 gap-1">
+                <div className="w-20 h-20 rounded-[12px] bg-[var(--background)] border border-[var(--border-default)] flex flex-col items-center justify-center text-[var(--accent-ink)] shrink-0 gap-1">
                   {vType === "auto" ? (
                     <Car size={26} className="text-amber-600" />
                   ) : vType === "bike" || vType === "scooty" ? (
-                    <Bike size={26} className="text-[#123D32] dark:text-[#347858]" />
+                    <Bike size={26} className="text-[var(--accent-ink)]" />
                   ) : vType === "loading" || vType === "truck" ? (
                     <Truck size={26} className="text-[var(--text-primary)]" />
                   ) : (
-                    <Car size={26} className="text-[#123D32] dark:text-[#347858]" />
+                    <Car size={26} className="text-[var(--accent-ink)]" />
                   )}
                   <span className="text-[9px] font-bold text-[var(--text-secondary)]">
                     {vType}
@@ -1864,8 +1864,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[#123D32] dark:text-[#347858] bg-emerald-50 dark:bg-[#1D3428] px-2.5 py-1 rounded-[6px] border border-emerald-200 dark:border-[#28664D] mt-auto self-start ">
-              <Check size={12} className="text-[#123D32] dark:text-[#347858]" />
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-[var(--accent-ink)] bg-emerald-50 dark:bg-[#203f41] px-2.5 py-1 rounded-[6px] border border-emerald-200 dark:border-[#263b56] mt-auto self-start ">
+              <Check size={12} className="text-[var(--accent-ink)]" />
               <span>Pricing Approved & Verified</span>
             </div>
           </div>
@@ -1877,7 +1877,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 sm:p-5 border border-[var(--border-default)] flex flex-col justify-between">
             <div className="flex items-center justify-between text-[var(--text-secondary)] mb-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-secondary)]">{t("driver.todayEarnings", "Today's Earnings")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--accent-ink)] flex items-center justify-center">
                 <IndianRupee size={13} />
               </div>
             </div>
@@ -1892,7 +1892,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 sm:p-5 border border-[var(--border-default)] flex flex-col justify-between">
             <div className="flex items-center justify-between text-[var(--text-secondary)] mb-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-secondary)]">{t("driver.tripsCompleted", "Trips Completed")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--accent-ink)] flex items-center justify-center">
                 <CheckCircle2 size={13} />
               </div>
             </div>
@@ -1909,7 +1909,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 sm:p-5 border border-[var(--border-default)] flex flex-col justify-between">
             <div className="flex items-center justify-between text-[var(--text-secondary)] mb-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-secondary)]">{t("driver.onlineShift", "Online Shift")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--accent-ink)] flex items-center justify-center">
                 <Clock size={13} />
               </div>
             </div>
@@ -1924,7 +1924,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
           <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 sm:p-5 border border-[var(--border-default)] flex flex-col justify-between">
             <div className="flex items-center justify-between text-[var(--text-secondary)] mb-2">
               <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-[var(--text-secondary)]">{t("driver.rating", "Driver Rating")}</span>
-              <div className="w-7 h-7 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[#123D32] dark:text-[#347858] flex items-center justify-center">
+              <div className="w-7 h-7 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[var(--accent-ink)] flex items-center justify-center">
                 <Shield size={13} />
               </div>
             </div>
@@ -1935,8 +1935,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 </p>
                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-[4px]  ${
                   (shiftSummary?.cancellationRate ?? 0) > 10
-                    ? "text-[#E34222] dark:text-[#E06A50] bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50"
-                    : "text-[#123D32] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60"
+                    ? "text-[#992f22] dark:text-[#ffab9c] bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50"
+                    : "text-[var(--midnight)] dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60"
                 }`}>
                   {shiftSummary?.acceptanceRate ?? 100}% accept
                 </span>
@@ -2004,20 +2004,20 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 return (
                   <div
                     key={trip.id}
-                    className="p-4 rounded-[12px] border border-[var(--border-default)] bg-[#F7F1E5]/60 dark:bg-[#061A16]/60 hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition flex flex-col md:flex-row md:items-center md:justify-between gap-4 "
+                    className="p-4 rounded-[12px] border border-[var(--border-default)] bg-[#e4eeeb]/60 dark:bg-[#0d192b]/60 hover:bg-[#e4eeeb] dark:hover:bg-[#0d192b] transition flex flex-col md:flex-row md:items-center md:justify-between gap-4 "
                   >
                     {/* Route Details */}
                     <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold tabular-nums uppercase bg-[#F7F1E5] dark:bg-[#0B2822] text-[var(--text-primary)] px-2 py-0.5 rounded-[4px] border border-[var(--border-default)]">
+                        <span className="text-[10px] font-bold tabular-nums uppercase bg-[#e4eeeb] dark:bg-[#192940] text-[var(--text-primary)] px-2 py-0.5 rounded-[4px] border border-[var(--border-default)]">
                           #{trip.id.slice(-6)}
                         </span>
                         <span
                           className={`text-[10px] font-semibold px-2 py-0.5 rounded-[4px] ${
                             isCompleted
-                              ? "bg-emerald-100 dark:bg-[#1D3428] text-[#123D32] dark:text-[#347858]"
+                              ? "bg-emerald-100 dark:bg-[#203f41] text-[var(--accent-ink)]"
                               : isCancelled
-                              ? "bg-red-100 dark:bg-red-950/40 text-[#E34222] dark:text-[#E06A50]"
+                              ? "bg-red-100 dark:bg-red-950/40 text-[#992f22] dark:text-[#ffab9c]"
                               : "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300"
                           }`}
                         >
@@ -2035,11 +2035,11 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
                       <div className="grid sm:grid-cols-2 gap-2 text-xs">
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-[#123D32] dark:bg-[#347858] mt-1 flex-shrink-0" />
+                          <span className="w-2 h-2 rounded-full bg-[var(--midnight)] dark:bg-[var(--accent-mint)] mt-1 flex-shrink-0" />
                           <span className="text-[var(--text-secondary)] truncate">{trip.pickupAddress}</span>
                         </div>
                         <div className="flex items-start gap-1.5 min-w-0">
-                          <span className="w-2 h-2 rounded-full border border-[#123D32] dark:border-[#347858] bg-[var(--surface-raised)] mt-1 flex-shrink-0" />
+                          <span className="w-2 h-2 rounded-full border border-[var(--midnight)] dark:border-[var(--accent-mint)] bg-[var(--surface-raised)] mt-1 flex-shrink-0" />
                           <span className="text-[var(--text-primary)] font-semibold truncate">{trip.dropAddress}</span>
                         </div>
                       </div>
@@ -2047,7 +2047,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                       {/* Drop-off Time & Timing Info */}
                       <div className="text-[11px] font-medium text-[var(--text-secondary)] flex items-center gap-2 flex-wrap">
                         {isCompleted && dropTime && (
-                          <span className="text-[#123D32] dark:text-[#347858] bg-emerald-50 dark:bg-[#1D3428] px-2 py-0.5 rounded-[4px] border border-emerald-200 dark:border-[#28664D] flex items-center gap-1 font-semibold">
+                          <span className="text-[var(--accent-ink)] bg-emerald-50 dark:bg-[#203f41] px-2 py-0.5 rounded-[4px] border border-emerald-200 dark:border-[#263b56] flex items-center gap-1 font-semibold">
                             <CheckCircle2 size={12} /> Dropped off at {dropTime} ({trip.tripDurationMinutes} mins)
                           </span>
                         )}
@@ -2057,7 +2057,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                           </span>
                         )}
                         {isCancelled && (
-                          <span className="text-[#E34222] dark:text-[#E06A50] bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded-[4px] border border-red-200 dark:border-red-900/50 flex items-center gap-1 font-semibold">
+                          <span className="text-[#992f22] dark:text-[#ffab9c] bg-red-50 dark:bg-red-950/30 px-2 py-0.5 rounded-[4px] border border-red-200 dark:border-red-900/50 flex items-center gap-1 font-semibold">
                             ✕ {trip.cancellationReason || "Cancelled"}
                             {trip.cancellationFeeApplied ? " • ₹40 Driver Compensation" : " • Free cancel"}
                           </span>
@@ -2104,17 +2104,17 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 transition={{ type: "spring", damping: 25, stiffness: 350 }}
-                className="bg-[var(--surface-raised)] w-full max-w-md rounded-[14px] border border-[var(--border-default)] overflow-hidden flex flex-col"
+                className="bg-[var(--surface-raised)] w-full max-w-md rounded-[14px] border border-[var(--border-default)] overflow-y-auto max-h-[calc(100dvh-2rem)] flex flex-col"
               >
                 {/* Header */}
-                <div className="bg-[#123D32] dark:bg-[#0D3027] px-6 py-5 flex items-center justify-between text-white border-b border-[#DED7CA]/20 dark:border-[#1E3E34]">
+                <div className="bg-[var(--midnight)] dark:bg-[#0d192b] px-4 sm:px-6 py-5 flex flex-wrap gap-2 items-center justify-between text-white border-b border-[#b8c7ca]/20 dark:border-[#536779]">
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
-                    <h3 className="font-bold text-xs text-[#FAF7F0]">{t("driver.incomingRequest", "Incoming Request")}</h3>
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-400 motion-safe:animate-pulse" />
+                    <h3 className="font-bold text-xs text-[var(--ice)]">{t("driver.incomingRequest", "Incoming Request")}</h3>
                   </div>
-                  <div className="flex items-center gap-1.5 bg-white/10 dark:bg-black/30 px-3 py-1 rounded-[8px] text-xs font-semibold text-[#FAF7F0]">
-                    <Clock size={12} className={requestCountdown <= 5 ? "text-[#E34222] animate-pulse" : "text-amber-400"} />
-                    <span className={requestCountdown <= 5 ? "text-[#E34222] font-semibold" : "text-[#FAF7F0]"}>{requestCountdown}s left</span>
+                  <div className="flex items-center gap-1.5 bg-white/10 dark:bg-black/30 px-3 py-1 rounded-[8px] text-xs font-semibold text-[var(--ice)]">
+                    <Clock size={12} className={requestCountdown <= 5 ? "text-[#ffab9c] motion-safe:animate-pulse" : "text-amber-400"} />
+                    <span className={requestCountdown <= 5 ? "text-[#ffab9c] font-semibold" : "text-[var(--ice)]"}>{requestCountdown}s left</span>
                   </div>
                 </div>
 
@@ -2123,10 +2123,10 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
 
                   {/* Women's Safety Ride Indicator */}
                   {pendingRequest.driverPreference === "woman" && (
-                    <div className="bg-emerald-50 dark:bg-[#1D3428] border border-emerald-200 dark:border-[#28664D] rounded-[10px] p-3 flex items-center gap-2.5 text-xs font-bold text-[#046A38] dark:text-[#A3E635]">
-                      <Shield size={18} className="text-[#046A38] dark:text-[#A3E635] flex-shrink-0" />
+                    <div className="bg-emerald-50 dark:bg-[#203f41] border border-emerald-200 dark:border-[#263b56] rounded-[10px] p-3 flex items-center gap-2.5 text-xs font-bold text-[var(--accent-ink)]">
+                      <Shield size={18} className="text-[var(--accent-ink)] flex-shrink-0" />
                       <div>
-                        <p className="uppercase tracking-wide text-[10px] font-semibold text-[#046A38] dark:text-[#A3E635]">Women's Safety Ride</p>
+                        <p className="uppercase tracking-wide text-[10px] font-semibold text-[var(--accent-ink)]">Women's Safety Ride</p>
                         <p className="text-[11px] font-medium text-[var(--text-primary)]">Passenger requested a verified woman driver</p>
                       </div>
                     </div>
@@ -2136,8 +2136,8 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <div className="bg-[var(--background)] border border-[var(--border-default)] rounded-[12px] p-4 space-y-3">
                     <div className="flex gap-3 items-start">
                       <div className="flex flex-col items-center flex-shrink-0 pt-1">
-                        <div className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#347858] border-2 border-white dark:border-[#17211B] " />
-                        <div className="w-px bg-[#DED7CA] dark:bg-[#29372E] mt-1 h-8" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[var(--midnight)] dark:bg-[var(--accent-mint)] border-2 border-white dark:border-[var(--midnight)] " />
+                        <div className="w-px bg-[#b8c7ca] dark:bg-[#374d62] mt-1 h-8" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] font-bold text-[var(--text-secondary)] mb-0.5">{t("booking.pickup", "Pickup Location")}</p>
@@ -2146,7 +2146,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                     </div>
                     <div className="flex gap-3 items-start">
                       <div className="flex-shrink-0 pt-1">
-                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#E34222] dark:bg-[#E06A50] border-2 border-white dark:border-[#17211B] " />
+                        <div className="w-2.5 h-2.5 rounded-[2px] bg-[#992f22] dark:bg-[#ffab9c] border-2 border-white dark:border-[var(--midnight)] " />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-[10px] font-bold text-[var(--text-secondary)] mb-0.5">{t("booking.drop", "Drop Location")}</p>
@@ -2163,7 +2163,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                       <span className="font-bold text-[var(--text-primary)]">~{pendingRequest.tripDurationMinutes || 15} mins</span>
                     </div>
                     <div className="flex items-center gap-1.5 text-[var(--text-secondary)]">
-                      <Navigation size={13} className="text-[#123D32] dark:text-[#347858]" />
+                      <Navigation size={13} className="text-[var(--accent-ink)]" />
                       <span className="font-medium">{t("driver.estDropoff", "Drop-off:")}</span>
                       <span className="font-bold text-[var(--text-primary)]">
                         {pendingRequest.estimatedDropoffTime
@@ -2174,13 +2174,13 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   </div>
 
                   {/* Earnings Display: Upfront Net Payout (Commission already deducted) */}
-                  <div className="bg-[#123D32] dark:bg-[#0D3027] rounded-[12px] p-5 text-center border border-[#123D32]/30 dark:border-[#1E3E34] flex flex-col items-center justify-center">
-                    <p className="text-[#FAF7F0]/80 text-[10px] font-bold mb-1">{t("driver.netFare", "Your Net Payout (Take-Home)")}</p>
-                    <div className="flex items-center gap-1.5 text-[#FAF7F0] text-4xl font-sans font-semibold tracking-tight leading-none">
-                      <IndianRupee size={24} className="text-[#D7AC62]" />
+                  <div className="bg-[var(--midnight)] dark:bg-[#0d192b] rounded-[12px] p-5 text-center border border-[var(--midnight)]/30 dark:border-[#536779] flex flex-col items-center justify-center">
+                    <p className="text-[var(--ice)]/80 text-[10px] font-bold mb-1">{t("driver.netFare", "Your Net Payout (Take-Home)")}</p>
+                    <div className="flex items-center gap-1.5 text-[var(--ice)] text-4xl font-sans font-semibold tracking-tight leading-none">
+                      <IndianRupee size={24} className="text-[var(--accent-mint)]" />
                       <span>{pendingRequest.partnerAmount || Math.round((pendingRequest.fare || 0) * 0.9)}</span>
                     </div>
-                    <p className="text-[10px] text-[#FAF7F0]/70 mt-2 font-medium">Guaranteed driver earnings. Platform commission already deducted.</p>
+                    <p className="text-[10px] text-[var(--ice)]/70 mt-2 font-medium">Guaranteed driver earnings. Platform commission already deducted.</p>
                   </div>
 
                 </div>
@@ -2190,7 +2190,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <button
                     onClick={() => handleRequestAction(pendingRequest._id, "reject")}
                     disabled={processingAction !== null}
-                    className="flex-1 border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] text-[var(--text-primary)] py-3 rounded-[8px] text-xs font-bold active:scale-[0.98] transition-all disabled:opacity-40 cursor-pointer "
+                    className="flex-1 border border-[var(--border-default)] bg-[var(--surface-subtle)] hover:bg-[#e4eeeb] dark:hover:bg-[#2b4160] text-[var(--text-primary)] py-3 rounded-[8px] text-xs font-bold active:scale-[0.98] transition-all disabled:opacity-40 cursor-pointer "
                   >
                     {processingAction === "reject" ? (
                       <Loader2 className="animate-spin w-4 h-4 mx-auto text-[var(--text-secondary)]" />
@@ -2201,7 +2201,7 @@ function LiveVendorDashboard({ userData, pricing, setShowPricing, showPricing }:
                   <button
                     onClick={() => handleRequestAction(pendingRequest._id, "accept")}
                     disabled={processingAction !== null}
-                    className="flex-1 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[#FAF7F0] min-h-[48px] py-3.5 rounded-[8px] text-xs sm:text-sm font-bold active:scale-[0.98] transition-all disabled:opacity-40 cursor-pointer"
+                    className="flex-1 bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] min-h-[48px] py-3.5 rounded-[8px] text-xs sm:text-sm font-bold active:scale-[0.98] transition-all disabled:opacity-40 cursor-pointer"
                   >
                     {processingAction === "accept" ? (
                       <Loader2 className="animate-spin w-4 h-4 mx-auto text-white" />

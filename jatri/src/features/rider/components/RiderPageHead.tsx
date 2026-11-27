@@ -28,7 +28,7 @@ export default function RiderPageHead({
       <div className="flex flex-wrap items-end justify-between gap-x-5 gap-y-4">
         <div className="min-w-0">
           <p className="mb-2.5 flex items-center gap-2 text-xs font-semibold text-[var(--text-secondary)]">
-            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[var(--brand-primary)] dark:bg-[#d9ea84]" />
+            <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-[var(--brand-primary)] dark:bg-[#91f2ce]" />
             {section}
           </p>
           <h1 className="text-[clamp(2rem,6vw,3.2rem)] leading-[1.04] font-semibold tracking-[-0.05em] text-[var(--text-primary)]">
@@ -47,7 +47,7 @@ export default function RiderPageHead({
               aria-current={current === href ? "page" : undefined}
               className={`flex min-h-11 items-center justify-center border-b-2 px-1 text-sm font-medium transition-colors hover:text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] sm:justify-start sm:px-2 ${
                 current === href
-                  ? "border-[var(--brand-primary)] text-[var(--text-primary)] dark:border-[#d9ea84]"
+                  ? "border-[var(--brand-primary)] text-[var(--text-primary)] dark:border-[#91f2ce]"
                   : "border-transparent text-[var(--text-secondary)]"
               }`}
             >

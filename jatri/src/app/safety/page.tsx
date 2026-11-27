@@ -28,21 +28,21 @@ export default function SafetyPolicyPage() {
         </div>
 
         {/* 1. In-App Emergency Assistance */}
-        <section className="text-[#782313] dark:text-[#E06A50] space-y-3">
-          <h2 className="font-serif text-xl sm:text-2xl font-bold flex items-center gap-2 text-[#782313] dark:text-[#E06A50]">
-            <PhoneCall size={20} className="text-[#E34222] dark:text-[#E06A50]" /> In-Ride Emergency Assistance & SOS
+        <section className="text-[var(--policy-danger)] space-y-3">
+          <h2 className="font-serif text-xl sm:text-2xl font-bold flex items-center gap-2 text-[var(--policy-danger)]">
+            <PhoneCall size={20} className="text-[var(--policy-danger)]" /> In-Ride Emergency Assistance & SOS
           </h2>
-          <p className="text-xs text-[#782313]/90 dark:text-[#E06A50]/90 leading-relaxed">
+          <p className="text-xs text-[var(--policy-danger)] leading-relaxed">
             Every active ride in Jaatri features an integrated emergency protocol. In an unexpected safety or medical event:
           </p>
           <div className="grid sm:grid-cols-2 gap-3 text-xs pt-1">
-            <div className="bg-[var(--surface-raised)] p-4 rounded-[10px] border border-[#f0c8c1] dark:border-[#24483D]">
-              <strong className="text-[#782313] dark:text-[#E06A50] block mb-1">State Police Emergency (112):</strong>
-              <p className="text-[#782313]/90 dark:text-[#B9C8BF] leading-relaxed">Instant one-tap dialer connecting directly to the nearest State Police Control Room (112 Emergency Response Support System).</p>
+            <div className="bg-[var(--surface-raised)] p-4 rounded-[10px] border border-[var(--policy-danger-border)] dark:border-[var(--border-default)]">
+              <strong className="text-[var(--policy-danger)] block mb-1">State Police Emergency (112):</strong>
+              <p className="text-[var(--policy-danger)] dark:text-[var(--text-secondary)] leading-relaxed">Instant one-tap dialer connecting directly to the nearest State Police Control Room (112 Emergency Response Support System).</p>
             </div>
-            <div className="bg-[var(--surface-raised)] p-4 rounded-[10px] border border-[#f0c8c1] dark:border-[#24483D]">
-              <strong className="text-[#782313] dark:text-[#E06A50] block mb-1">Jaatri 24×7 Safety Response Desk:</strong>
-              <p className="text-[#782313]/90 dark:text-[#B9C8BF] leading-relaxed">Real-time emergency telemetry dispatch that notifies our dedicated incident response team with live vehicle coordinates.</p>
+            <div className="bg-[var(--surface-raised)] p-4 rounded-[10px] border border-[var(--policy-danger-border)] dark:border-[var(--border-default)]">
+              <strong className="text-[var(--policy-danger)] block mb-1">Jaatri 24×7 Safety Response Desk:</strong>
+              <p className="text-[var(--policy-danger)] dark:text-[var(--text-secondary)] leading-relaxed">Real-time emergency telemetry dispatch that notifies our dedicated incident response team with live vehicle coordinates.</p>
             </div>
           </div>
         </section>

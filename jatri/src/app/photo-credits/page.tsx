@@ -47,10 +47,16 @@ function CreditList({ title, credits }: { title: string; credits: Credit[] }) {
 
 export default function PhotoCreditsPage() {
   return <PublicPage>
-    <PublicHeading label="Photography" title="The people behind the pictures.">
-      Jaatri uses photographs shared under open licences. Some images were cropped or resized for the site. Vehicle photos show examples of the categories, not the exact vehicle assigned to a trip.
+    <PublicHeading label="Images & credits" title="Behind the pictures.">
+      The location photographs below were shared under open licences. Some were cropped or resized for the site.
     </PublicHeading>
     <CreditList title="Places and journeys" credits={places} />
-    <CreditList title="Vehicles" credits={vehicles} />
+    <section className="mb-10 max-w-2xl">
+      <h2 className="mb-2 text-xl font-semibold tracking-tight sm:text-2xl">Fleet illustrations</h2>
+      <p className="text-sm leading-relaxed text-[var(--text-secondary)]">
+        The fleet catalogue and some ride options use original AI-generated vehicle illustrations, separate from the real photos credited here. They show vehicle categories, not the exact model assigned to a ride.
+      </p>
+    </section>
+    <CreditList title="Vehicle photography archive" credits={vehicles} />
   </PublicPage>;
 }

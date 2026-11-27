@@ -101,16 +101,16 @@ export default function SmartRideAssistantModal({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 80 }}
           transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          className="relative z-10 w-full sm:max-w-lg bg-white dark:bg-[#17211B] border-t sm:border border-[#DED7CA] dark:border-[#34443A] rounded-t-[20px] sm:rounded-[14px] p-5 sm:p-6 shadow-2xl flex flex-col gap-4 max-h-[92vh] overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
+          className="relative z-10 w-full sm:max-w-lg bg-white dark:bg-[var(--surface-subtle)] border-t sm:border border-[var(--border-default)] rounded-t-[20px] sm:rounded-[14px] p-5 sm:p-6 shadow-2xl flex flex-col gap-4 max-h-[92vh] overflow-y-auto pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
         >
           {/* Header */}
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-[#046A38] dark:text-[#90C8A8] shrink-0">
+              <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-950/60 flex items-center justify-center text-[var(--text-primary)] shrink-0">
                 <Sparkles size={20} />
               </div>
               <div>
-                <h3 id={titleId} className="text-base sm:text-lg font-black tracking-tight text-zinc-950 dark:text-[#F3F1E8]">
+                <h3 id={titleId} className="text-base sm:text-lg font-black tracking-tight text-zinc-950 dark:text-[var(--text-primary)]">
                   Find Your Ideal Ride
                 </h3>
                 <p id={descId} className="text-xs text-zinc-500 dark:text-[#929D93]">
@@ -136,7 +136,7 @@ export default function SmartRideAssistantModal({
                 {/* 1. Who's travelling? */}
                 <div>
                   <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                    <Users size={13} className="text-[#046A38] dark:text-[#90C8A8]" />
+                    <Users size={13} className="text-[var(--text-primary)] dark:text-[var(--text-primary)]" />
                     Who&apos;s travelling?
                   </label>
                   <div className="grid grid-cols-4 gap-1.5">
@@ -153,8 +153,8 @@ export default function SmartRideAssistantModal({
                         onClick={() => setPassengers(item.num)}
                         className={`py-2 px-1 text-center rounded-[8px] text-xs font-bold border transition min-h-[44px] touch-manipulation cursor-pointer ${
                           passengers === item.num
-                            ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
-                            : "bg-white dark:bg-[#1E2B23] text-zinc-800 dark:text-zinc-200 border-[#DED7CA] dark:border-[#34443A] hover:border-[#046A38]"
+                            ? "bg-[var(--brand-primary)] text-[var(--on-primary)] border-[var(--border-interactive)] shadow-xs"
+                            : "bg-white dark:bg-[#1E2B23] text-zinc-800 dark:text-zinc-200 border-[var(--border-default)] hover:border-[var(--border-interactive)]"
                         }`}
                       >
                         {item.label}
@@ -166,7 +166,7 @@ export default function SmartRideAssistantModal({
                 {/* 2. How much luggage? */}
                 <div>
                   <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                    <Briefcase size={13} className="text-[#046A38] dark:text-[#90C8A8]" />
+                    <Briefcase size={13} className="text-[var(--text-primary)] dark:text-[var(--text-primary)]" />
                     How much luggage?
                   </label>
                   <div className="grid grid-cols-3 gap-1.5">
@@ -182,8 +182,8 @@ export default function SmartRideAssistantModal({
                         onClick={() => setLuggage(item.id)}
                         className={`py-2 px-1 text-center rounded-[8px] text-xs font-bold border transition min-h-[44px] touch-manipulation cursor-pointer ${
                           luggage === item.id
-                            ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
-                            : "bg-white dark:bg-[#1E2B23] text-zinc-800 dark:text-zinc-200 border-[#DED7CA] dark:border-[#34443A] hover:border-[#046A38]"
+                            ? "bg-[var(--brand-primary)] text-[var(--on-primary)] border-[var(--border-interactive)] shadow-xs"
+                            : "bg-white dark:bg-[#1E2B23] text-zinc-800 dark:text-zinc-200 border-[var(--border-default)] hover:border-[var(--border-interactive)]"
                         }`}
                       >
                         {item.label}
@@ -195,7 +195,7 @@ export default function SmartRideAssistantModal({
                 {/* 3. Priority */}
                 <div>
                   <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                    <Compass size={13} className="text-[#046A38] dark:text-[#90C8A8]" />
+                    <Compass size={13} className="text-[var(--text-primary)] dark:text-[var(--text-primary)]" />
                     What&apos;s most important to you?
                   </label>
                   <div className="grid grid-cols-2 gap-2">
@@ -210,12 +210,12 @@ export default function SmartRideAssistantModal({
                         onClick={() => setPreference(item.id)}
                         className={`py-2 px-2.5 text-left rounded-[8px] text-xs font-bold border transition min-h-[44px] touch-manipulation cursor-pointer flex flex-col justify-center ${
                           preference === item.id
-                            ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
-                            : "bg-white dark:bg-[#1E2B23] text-zinc-800 dark:text-zinc-200 border-[#DED7CA] dark:border-[#34443A] hover:border-[#046A38]"
+                            ? "bg-[var(--brand-primary)] text-[var(--on-primary)] border-[var(--border-interactive)] shadow-xs"
+                            : "bg-white dark:bg-[#1E2B23] text-zinc-800 dark:text-zinc-200 border-[var(--border-default)] hover:border-[var(--border-interactive)]"
                         }`}
                       >
                         <span>{item.label}</span>
-                        <span className={`text-[10px] font-normal mt-0.5 ${preference === item.id ? "text-white/80" : "text-zinc-500 dark:text-zinc-400"}`}>
+                        <span className={`text-[10px] font-normal mt-0.5 ${preference === item.id ? "text-[var(--on-primary)]/90" : "text-zinc-500 dark:text-zinc-400"}`}>
                           {item.desc}
                         </span>
                       </button>
@@ -227,7 +227,7 @@ export default function SmartRideAssistantModal({
               /* Logistics Mode Cargo Weight */
               <div>
                 <label className="text-[11px] font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300 mb-1.5 flex items-center gap-1.5">
-                  <Package size={13} className="text-[#046A38] dark:text-[#90C8A8]" />
+                  <Package size={13} className="text-[var(--text-primary)] dark:text-[var(--text-primary)]" />
                   Estimated Cargo Weight
                 </label>
                 <div className="grid grid-cols-4 gap-1.5">
@@ -244,8 +244,8 @@ export default function SmartRideAssistantModal({
                       onClick={() => setCargoWeightKg(item.wt)}
                       className={`py-2 px-1 text-center rounded-[8px] text-xs font-bold border transition min-h-[44px] touch-manipulation cursor-pointer ${
                         cargoWeightKg === item.wt
-                          ? "bg-[#046A38] text-white border-[#046A38] shadow-xs"
-                          : "bg-white dark:bg-[#1E2B23] text-zinc-800 dark:text-zinc-200 border-[#DED7CA] dark:border-[#34443A] hover:border-[#046A38]"
+                          ? "bg-[var(--brand-primary)] text-[var(--on-primary)] border-[var(--border-interactive)] shadow-xs"
+                          : "bg-white dark:bg-[#1E2B23] text-zinc-800 dark:text-zinc-200 border-[var(--border-default)] hover:border-[var(--border-interactive)]"
                       }`}
                     >
                       {item.label}
@@ -257,23 +257,23 @@ export default function SmartRideAssistantModal({
           </div>
 
           {/* ── REAL-TIME RECOMMENDATION CARD ── */}
-          <div className="p-4 rounded-[12px] bg-[#FAF7F0] dark:bg-[#123D32]/25 border-2 border-[#046A38]/30 dark:border-[#046A38]/50 flex flex-col gap-3">
+          <div className="p-4 rounded-[12px] bg-[var(--surface-subtle)] dark:bg-[var(--brand-primary)]/25 border-2 border-[var(--border-interactive)]/30 dark:border-[var(--border-interactive)]/50 flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-[#046A38] dark:text-[#90C8A8] border border-emerald-300 dark:border-emerald-800 flex items-center gap-1">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/70 text-[var(--text-primary)] border border-emerald-300 dark:border-emerald-800 flex items-center gap-1">
                 <Sparkles size={11} /> Jaatri Recommends
               </span>
-              <span className="text-xs font-black text-[#046A38] dark:text-[#90C8A8]">
+              <span className="text-xs font-black text-[var(--text-primary)]">
                 {recommendation.matchScore}% Match
               </span>
             </div>
 
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h4 className="text-base font-extrabold text-zinc-950 dark:text-[#F3F1E8] flex items-center gap-2">
-                  <Car size={18} className="text-[#046A38] dark:text-[#90C8A8]" />
+                <h4 className="text-base font-extrabold text-zinc-950 dark:text-[var(--text-primary)] flex items-center gap-2">
+                  <Car size={18} className="text-[var(--text-primary)] dark:text-[var(--text-primary)]" />
                   {recommendedVehicleMeta?.label || recommendation.vehicleId}
                 </h4>
-                <p className="text-xs text-zinc-600 dark:text-[#A2ADA2] mt-0.5">
+                <p className="text-xs text-zinc-600 dark:text-[var(--text-secondary)] mt-0.5">
                   {recommendedVehicleMeta?.tagline}
                 </p>
               </div>
@@ -281,7 +281,7 @@ export default function SmartRideAssistantModal({
               {fare !== null && (
                 <div className="text-right shrink-0">
                   <span className="text-xs text-zinc-500 dark:text-zinc-400 block leading-tight">Est. Fare</span>
-                  <span className="text-lg font-black text-zinc-950 dark:text-[#F3F1E8] tabular-nums">
+                  <span className="text-lg font-black text-zinc-950 dark:text-[var(--text-primary)] tabular-nums">
                     ₹{fare}
                   </span>
                 </div>
@@ -289,7 +289,7 @@ export default function SmartRideAssistantModal({
             </div>
 
             {/* Quick Metrics */}
-            <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300 pt-1 border-t border-[#DED7CA]/70 dark:border-[#34443A]/60">
+            <div className="grid grid-cols-2 gap-2 text-[11px] font-semibold text-zinc-600 dark:text-zinc-300 pt-1 border-t border-[var(--border-default)]/70 dark:border-[var(--border-default)]/60">
               <div className="flex items-center gap-1.5">
                 <Clock size={12} className="text-zinc-400" />
                 <span>ETA: {recommendedVehicleMeta?.etaText || "3–5 min"}</span>
@@ -305,8 +305,8 @@ export default function SmartRideAssistantModal({
             </div>
 
             {/* Route & Distance Reason */}
-            <div className="p-2.5 rounded-[8px] bg-white dark:bg-[#1E2B23] border border-[#DED7CA] dark:border-[#34443A] text-xs text-zinc-700 dark:text-zinc-300 flex items-start gap-2">
-              <CheckCircle2 size={14} className="text-[#046A38] dark:text-[#90C8A8] shrink-0 mt-0.5" />
+            <div className="p-2.5 rounded-[8px] bg-white dark:bg-[#1E2B23] border border-[var(--border-default)] text-xs text-zinc-700 dark:text-zinc-300 flex items-start gap-2">
+              <CheckCircle2 size={14} className="text-[var(--text-primary)] dark:text-[var(--text-primary)] shrink-0 mt-0.5" />
               <p className="leading-snug">{recommendation.reason}</p>
             </div>
 
@@ -325,7 +325,7 @@ export default function SmartRideAssistantModal({
               className={`w-full py-3 px-4 rounded-[8px] font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition cursor-pointer min-h-[48px] touch-manipulation ${
                 isAlreadySelected
                   ? "bg-emerald-700 dark:bg-emerald-800 text-white hover:bg-emerald-800"
-                  : "bg-[#046A38] hover:bg-[#03532C] text-white active:scale-[0.99]"
+                  : "bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[var(--on-primary)] active:scale-[0.99]"
               } disabled:opacity-40 disabled:cursor-not-allowed`}
             >
               <span>{isAlreadySelected ? "Selected (Choose to confirm)" : "Choose this ride"}</span>

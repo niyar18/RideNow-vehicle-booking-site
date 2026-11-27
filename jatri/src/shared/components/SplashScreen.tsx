@@ -75,13 +75,13 @@ export default function SplashScreen() {
         </div>
 
         {/* Minimalist Subtitle */}
-        <p className="mt-4 text-[11px] sm:text-[12px] font-bold tracking-[0.24em] uppercase text-[#696B64] dark:text-[#B9C8BF]">
+        <p className="mt-4 text-[11px] sm:text-[12px] font-bold tracking-[0.24em] uppercase text-[#4d6374] dark:text-[#b3cbd1]">
           MORE THAN A RIDE
         </p>
 
         {/* Refined Emerald Loading Bar */}
-        <div className="w-28 sm:w-32 h-[3px] bg-[#E8E2D8] dark:bg-[#1E3E34] rounded-full overflow-hidden mt-6 relative">
-          <div className="absolute inset-0 w-full h-full bg-[#046A38] dark:bg-[#34D399] rounded-full animate-pulse" />
+        <div className="w-28 sm:w-32 h-[3px] bg-[#d5e3e2] dark:bg-[#425b73] rounded-full overflow-hidden mt-6 relative">
+          <div className="absolute inset-0 w-full h-full bg-[#213650] dark:bg-[#91f2ce] rounded-full animate-pulse" />
         </div>
       </div>
     </div>

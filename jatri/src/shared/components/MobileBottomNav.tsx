@@ -47,7 +47,7 @@ export default function MobileBottomNav() {
           return <Link href={href} key={href} aria-current={current ? "page" : undefined}
             className={`flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 rounded-md px-0.5 text-center text-[10px] leading-tight ${current ? "font-bold text-[var(--text-primary)]" : "font-semibold text-[var(--text-muted)]"}`}
           >
-            <span className={`flex items-center justify-center ${homeBook ? "h-9 w-9 rounded-full bg-[#145338] text-white" : "h-7 w-10 rounded-md"} ${!homeBook && mainAction ? "bg-[#145338] text-white" : current ? "bg-[var(--surface-subtle)]" : ""}`}>
+            <span className={`flex items-center justify-center ${homeBook ? "h-9 w-9 rounded-full bg-[var(--action-bg)] text-[var(--action-fg)]" : "h-7 w-10 rounded-md"} ${!homeBook && mainAction ? "bg-[var(--action-bg)] text-[var(--action-fg)]" : current ? "bg-[var(--surface-subtle)]" : ""}`}>
               <Icon size={19} strokeWidth={current ? 2.35 : 1.8} aria-hidden />
             </span>
             {t(`nav.${key}`, label)}

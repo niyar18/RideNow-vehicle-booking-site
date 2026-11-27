@@ -50,7 +50,7 @@ export default function CookiePolicyPage() {
               <p className="text-[var(--text-secondary)] text-xs leading-relaxed">
                 Essential for the core platform functionality. Without these tokens, logging in, maintaining your active trip session, or authenticating WebSocket telematics is technically impossible.
               </p>
-              <div className="bg-[#FAF7F0] p-3 rounded-[8px] border border-[var(--border-default)]/60 font-mono text-[11px] text-[var(--text-primary)] space-y-1">
+              <div className="bg-[var(--surface)] p-3 rounded-[8px] border border-[var(--border-default)]/60 font-mono text-[11px] text-[var(--text-primary)] space-y-1">
                 <div><strong>next-auth.session-token:</strong> Encrypted JWT validating your logged-in user profile (Session-based).</div>
                 <div><strong>next-auth.csrf-token:</strong> Mitigates Cross-Site Request Forgery attacks during checkout and bookings.</div>
               </div>
@@ -59,13 +59,13 @@ export default function CookiePolicyPage() {
             {/* Functional */}
             <div className="p-4 sm:p-5 rounded-[10px] bg-[var(--surface-raised)] border border-[var(--border-default)]/70 space-y-2">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#123D32]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[var(--policy-inverse)]" />
                 <h3 className="font-bold text-[var(--text-primary)] text-sm">B. Functional & Local Experience Storage</h3>
               </div>
               <p className="text-[var(--text-secondary)] text-xs leading-relaxed">
                 Used to preserve your booking form selections across page reloads without burdening our cloud servers repeatedly.
               </p>
-              <div className="bg-[#FAF7F0] p-3 rounded-[8px] border border-[var(--border-default)]/60 font-mono text-[11px] text-[var(--text-primary)] space-y-1">
+              <div className="bg-[var(--surface)] p-3 rounded-[8px] border border-[var(--border-default)]/60 font-mono text-[11px] text-[var(--text-primary)] space-y-1">
                 <div><strong>sessionStorage (bookingDraft):</strong> Temporarily holds selected pickup coordinates, destination, and vehicle type during the checkout journey. Cleared upon booking completion.</div>
                 <div><strong>localStorage (savedContacts):</strong> Stores your family and emergency contact nicknames on your device for one-tap passenger selection.</div>
               </div>

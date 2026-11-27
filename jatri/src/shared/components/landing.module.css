@@ -220,3 +220,56 @@
 @media (prefers-reduced-motion: no-preference) {
   .service, .destination, .primaryButton, .reserveButton, .partnerLink { transition: background-color .16s ease, border-color .16s ease; }
 }
+
+/* Midnight / Ice / Mint. Scenic Assam imagery remains the warm counterpoint. */
+.landing {
+  --landing-earth: var(--accent-ink);
+  --landing-lime: var(--accent-mint);
+  --landing-forest: var(--midnight);
+  --landing-sand: var(--surface-subtle);
+  padding-top: clamp(108px, 9vw, 146px);
+}
+:global(.dark) .landing { --landing-earth: var(--accent-mint); --landing-sand: var(--surface-subtle); }
+.hero {
+  gap: clamp(18px, 3vw, 44px);
+  background: var(--midnight);
+  border: 1px solid #4b6b83;
+  border-radius: 20px;
+  padding: clamp(17px, 2.5vw, 37px);
+}
+.heroContent {
+  --text-primary: #f3f8f6;
+  --text-secondary: #d2e1e5;
+  --text-muted: #b3cbd1;
+  --surface: #182940;
+  --surface-raised: #1e314a;
+  --surface-subtle: #29455b;
+  --border-default: #768f9e;
+  --border-subtle: #4e6980;
+  --brand-primary: #91f2ce;
+  --action-bg: #91f2ce;
+  --action-fg: #142238;
+  --focus-ring: #91f2ce;
+  color: var(--text-primary);
+  padding: clamp(10px, 2vw, 26px) 0 2px clamp(0px, 1.2vw, 17px);
+}
+.heroContent :is(a,button,input):focus-visible { outline-color: var(--focus-ring); }
+.hero h1, .sectionHead h2, .partnerGroup h2 { font-family: var(--font-outfit), var(--font-inter), system-ui, sans-serif; font-weight: 620; letter-spacing: -.06em; }
+.hero h1 { font-size: clamp(44px, 5.2vw, 81px); }
+.hero h1 span, :global(.dark) .hero h1 span, .kicker { color: var(--accent-mint); }
+.heroArt { min-height: 0; align-self: stretch; background: #1e314a; color: #f3f8f6; border-color: #526d84; }
+.artImage { min-height: 390px; }
+.heroArt figcaption { border-color: #526d84; }
+.heroArt figcaption small { color: #d2e1e5; }
+.artStamp { color: var(--midnight); background: var(--accent-mint); border-color: var(--accent-mint); }
+.bookingModes button[aria-pressed=true] { border-color: var(--accent-mint); text-decoration: underline; text-underline-offset: .23em; text-decoration-thickness: 1px; }
+.primaryButton { color: var(--action-fg); background: var(--action-bg); }
+.primaryButton:hover { color: #142238; background: #b7f8e1; }
+:global(.dark) .fieldIcon, :global(.dark) .originIcon { color: var(--accent-mint); }
+.serviceIcon, :global(.dark) .serviceIcon { color: var(--accent-ink); }
+.serviceArrow, .destinationLabel svg { color: var(--accent-ink); }
+.partner { background: var(--midnight); color: var(--ice); }
+.partner .eyebrow { color: #b3cbd1; }
+.partnerWeave { color: var(--accent-mint); }
+.partnerLink { color: var(--midnight); }
+.partnerLink:hover { background: #bef8e4; }

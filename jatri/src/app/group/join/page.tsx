@@ -85,7 +85,7 @@ function GroupJoinContent() {
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder="e.g. AB12CD"
-                className="w-full bg-[var(--surface-raised)] border border-[var(--border-default)] focus:border-[#123D32] text-[var(--text-primary)] font-mono font-bold text-center text-2xl tracking-widest uppercase py-3 rounded-[8px] outline-none transition shadow-2xs"
+                className="w-full bg-[var(--surface-raised)] border border-[var(--border-default)] focus:border-[#142238] text-[var(--text-primary)] font-mono font-bold text-center text-2xl tracking-widest uppercase py-3 rounded-[8px] outline-none transition shadow-2xs"
               />
             </div>
 
@@ -136,7 +136,7 @@ function GroupJoinContent() {
                 <MapPin size={15} className="text-[var(--text-primary)] flex-shrink-0" />
                 <p className="text-xs text-[var(--text-primary)] truncate">{joinResult.booking.pickupAddress}</p>
               </div>
-              <div className="h-px bg-[#DED7CA]/60" />
+              <div className="h-px bg-[#b3c8ca]/60" />
               <div className="flex gap-2.5 items-center">
                 <Navigation size={15} className="text-[#E34222] flex-shrink-0" />
                 <p className="text-xs text-[var(--text-primary)] truncate">{joinResult.booking.dropAddress}</p>

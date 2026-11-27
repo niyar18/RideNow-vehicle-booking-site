@@ -40,7 +40,7 @@ function ReferralContent() {
         {/* Guest View Banner if not logged in */}
         {status === "unauthenticated" && (
           <div className="bg-[var(--surface-raised)] border border-[#E5DEC9] dark:border-[#1E3A2F] rounded-[14px] p-6 text-center space-y-4 shadow-sm">
-            <div className="w-12 h-12 rounded-full bg-[#046A38]/10 text-[#046A38] dark:text-[#52B788] flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-full bg-[#213650]/10 text-[#213650] dark:text-[#91f2ce] flex items-center justify-center mx-auto">
               <Gift className="w-6 h-6" />
             </div>
             <div>
@@ -53,7 +53,7 @@ function ReferralContent() {
             </div>
             <button
               onClick={() => setShowAuthModal(true)}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-[10px] bg-[#046A38] hover:bg-[#03542C] text-white text-sm font-bold transition cursor-pointer min-h-[44px]"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-[10px] bg-[#213650] hover:bg-[#03542C] text-white text-sm font-bold transition cursor-pointer min-h-[44px]"
             >
               <span>Sign In to Claim</span>
               <ArrowRight className="w-4 h-4" />
@@ -71,7 +71,7 @@ function ReferralContent() {
         {/* Rules & Transparency Section */}
         <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[14px] p-5 sm:p-6 space-y-4">
           <h3 className="text-sm sm:text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-[#046A38] dark:text-[#52B788]" />
+            <ShieldCheck className="w-4 h-4 text-[#213650] dark:text-[#91f2ce]" />
             Referral Programme Guidelines
           </h3>
           <ul className="text-xs text-[var(--text-secondary)] space-y-2 list-disc list-inside">
@@ -107,7 +107,7 @@ export default function ReferralPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F7F1E5] flex items-center justify-center">
+        <div className="min-h-screen bg-[#e8f2ef] flex items-center justify-center">
           <div className="text-xs text-[#5C6F64]">Loading rewards...</div>
         </div>
       }

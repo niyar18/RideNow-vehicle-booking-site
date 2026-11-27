@@ -129,7 +129,7 @@ export default function VendorPendingPage() {
         <PartnerPageTitle label="Driver workspace" title="Ride requests" description="Review the pickup, drop-off and fare before accepting an offer." />
         {loading ? (
           <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin w-8 h-8 text-[#123D32] dark:text-[#347858]" />
+            <Loader2 className="animate-spin w-8 h-8 text-[var(--accent-ink)]" />
           </div>
         ) : bookings.length === 0 ? (
           <div className="bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] p-8 sm:p-16 text-center ">
@@ -151,11 +151,11 @@ export default function VendorPendingPage() {
                   {/* Left Info */}
                   <div className="flex-1 space-y-4 sm:space-y-6">
                     <div className="flex gap-3 sm:gap-4">
-                      <div className="bg-[#123D32]/10 dark:bg-[#28664D]/20 p-2.5 sm:p-3 rounded-[8px] flex items-center justify-center shrink-0 border border-[#123D32]/20 dark:border-[#28664D]/30">
-                        <MapPin size={18} className="text-[#123D32] dark:text-[#347858]" />
+                      <div className="bg-[var(--surface-subtle)] p-2.5 sm:p-3 rounded-[8px] flex items-center justify-center shrink-0 border border-[var(--border-default)]">
+                        <MapPin size={18} className="text-[var(--accent-ink)]" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] sm:text-xs uppercase text-[#123D32] dark:text-[#347858] mb-0.5 sm:mb-1 font-bold tracking-wider">
+                        <p className="text-[10px] sm:text-xs uppercase text-[var(--accent-ink)] mb-0.5 sm:mb-1 font-bold tracking-wider">
                           Pickup Location
                         </p>
                         <p className="text-[var(--text-primary)] font-semibold text-xs sm:text-base leading-snug">
@@ -165,11 +165,11 @@ export default function VendorPendingPage() {
                     </div>
 
                     <div className="flex gap-3 sm:gap-4">
-                      <div className="bg-[#E34222]/10 dark:bg-[#E06A50]/20 p-2.5 sm:p-3 rounded-[8px] flex items-center justify-center shrink-0 border border-[#E34222]/20 dark:border-[#E06A50]/30">
-                        <Navigation size={18} className="text-[#E34222] dark:text-[#E06A50]" />
+                      <div className="bg-[#992f22]/10 dark:bg-[#ffab9c]/20 p-2.5 sm:p-3 rounded-[8px] flex items-center justify-center shrink-0 border border-[#992f22]/20 dark:border-[#ffab9c]/30">
+                        <Navigation size={18} className="text-[#992f22] dark:text-[#ffab9c]" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[10px] sm:text-xs uppercase text-[#E34222] dark:text-[#E06A50] mb-0.5 sm:mb-1 font-bold tracking-wider">
+                        <p className="text-[10px] sm:text-xs uppercase text-[#992f22] dark:text-[#ffab9c] mb-0.5 sm:mb-1 font-bold tracking-wider">
                           Drop Location
                         </p>
                         <p className="text-[var(--text-primary)] font-semibold text-xs sm:text-base leading-snug">
@@ -199,7 +199,7 @@ export default function VendorPendingPage() {
                         Estimated Fare
                       </p>
                       <div className="flex items-center gap-1.5 sm:gap-2 text-2xl sm:text-3xl font-bold text-[var(--text-primary)] lg:justify-end">
-                        <IndianRupee size={20} className="text-[#123D32] dark:text-[#347858]" />
+                        <IndianRupee size={20} className="text-[var(--accent-ink)]" />
                         {booking.fare}
                       </div>
                     </div>
@@ -208,7 +208,7 @@ export default function VendorPendingPage() {
                       <button
                         onClick={() => handleDeclineOrTimeout(booking._id)}
                         disabled={processingId === booking._id}
-                        className="flex-1 lg:flex-none px-4 sm:px-6 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] text-[var(--text-primary)] text-xs sm:text-sm font-semibold hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                        className="flex-1 lg:flex-none px-4 sm:px-6 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-subtle)] text-[var(--text-primary)] text-xs sm:text-sm font-semibold hover:bg-[#e4eeeb] dark:hover:bg-[#2b4160] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 cursor-pointer"
                       >
                         Decline
                       </button>
@@ -216,7 +216,7 @@ export default function VendorPendingPage() {
                       <button
                         onClick={() => handleAccept(booking._id)}
                         disabled={processingId === booking._id}
-                        className="flex-1 lg:flex-none px-5 sm:px-8 py-2.5 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[#FAF7F0] text-xs sm:text-sm font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+                        className="flex-1 lg:flex-none px-5 sm:px-8 py-2.5 rounded-[8px] bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] text-xs sm:text-sm font-semibold transition-all duration-200 active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
                       >
                         {processingId === booking._id ? (
                           <Loader2 className="animate-spin w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -255,16 +255,16 @@ export default function VendorPendingPage() {
               {/* Top Banner */}
               <div className="flex items-center justify-between mb-6 border-b border-[var(--border-default)] pb-4">
                 <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#123D32] dark:bg-[#347858] animate-ping" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-[var(--midnight)] dark:bg-[var(--accent-mint)] motion-safe:animate-ping" />
                   <h2 id="driver-offer-title" className="text-base font-semibold">Incoming ride offer</h2>
                 </div>
                 {/* 45s Circular Countdown Ring */}
                 <div className="relative w-12 h-12 flex items-center justify-center">
                   <svg className="w-12 h-12 -rotate-90">
-                    <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" className="text-[#DED7CA] dark:text-[#29372E]" fill="transparent" />
+                    <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4" className="text-[#b8c7ca] dark:text-[#374d62]" fill="transparent" />
                     <circle
                       cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="4"
-                      className="text-[#123D32] dark:text-[#347858] transition-all duration-1000"
+                      className="text-[var(--accent-ink)] transition-all duration-1000"
                       fill="transparent"
                       strokeDasharray={125.6}
                       strokeDashoffset={125.6 * (1 - timeLeft / 45)}
@@ -278,28 +278,28 @@ export default function VendorPendingPage() {
               <div className="bg-[var(--background)] border border-[var(--border-default)] rounded-[12px] p-5 text-center mb-5">
                 <p className="text-[var(--text-secondary)] text-[10px] font-bold mb-1">Estimated Fare</p>
                 <div className="text-4xl font-bold text-[var(--text-primary)] flex items-center justify-center gap-1 font-sans">
-                  <IndianRupee size={28} className="text-[#123D32] dark:text-[#347858]" /> {activeDispatch.fare}
+                  <IndianRupee size={28} className="text-[var(--accent-ink)]" /> {activeDispatch.fare}
                 </div>
               </div>
 
               {/* Pickup & Drop Details */}
               <div className="bg-[var(--background)] border border-[var(--border-default)] rounded-[12px] p-4 space-y-3 mb-6">
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-[6px] bg-[#123D32]/10 dark:bg-[#28664D]/20 flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#123D32]/20 dark:border-[#28664D]/30">
-                    <MapPin size={16} className="text-[#123D32] dark:text-[#347858]" />
+                  <div className="w-8 h-8 rounded-[6px] bg-[var(--surface-subtle)] flex items-center justify-center flex-shrink-0 mt-0.5 border border-[var(--border-default)]">
+                    <MapPin size={16} className="text-[var(--accent-ink)]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-[#123D32] dark:text-[#347858] ">Pickup</p>
+                    <p className="text-[10px] font-bold text-[var(--accent-ink)] ">Pickup</p>
                     <p className="text-sm font-semibold text-[var(--text-primary)] leading-snug">{activeDispatch.pickupAddress}</p>
                   </div>
                 </div>
-                <div className="h-px bg-[#DED7CA] dark:bg-[#29372E] ml-11" />
+                <div className="h-px bg-[#b8c7ca] dark:bg-[#374d62] ml-11" />
                 <div className="flex items-start gap-3">
-                  <div className="w-8 h-8 rounded-[6px] bg-[#E34222]/10 dark:bg-[#E06A50]/20 flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#E34222]/20 dark:border-[#E06A50]/30">
-                    <Navigation size={16} className="text-[#E34222] dark:text-[#E06A50]" />
+                  <div className="w-8 h-8 rounded-[6px] bg-[#992f22]/10 dark:bg-[#ffab9c]/20 flex items-center justify-center flex-shrink-0 mt-0.5 border border-[#992f22]/20 dark:border-[#ffab9c]/30">
+                    <Navigation size={16} className="text-[#992f22] dark:text-[#ffab9c]" />
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold text-[#E34222] dark:text-[#E06A50] ">Drop</p>
+                    <p className="text-[10px] font-bold text-[#992f22] dark:text-[#ffab9c] ">Drop</p>
                     <p className="text-sm font-semibold text-[var(--text-primary)] leading-snug">{activeDispatch.dropAddress}</p>
                   </div>
                 </div>
@@ -310,14 +310,14 @@ export default function VendorPendingPage() {
                 <button
                   onClick={() => handleDeclineOrTimeout(activeDispatch._id)}
                   disabled={processingId === activeDispatch._id}
-                  className="flex-1 py-3 bg-[var(--surface-subtle)] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] border border-[var(--border-default)] text-[var(--text-primary)] rounded-[8px] text-sm font-bold transition active:scale-95 disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-3 bg-[var(--surface-subtle)] hover:bg-[#e4eeeb] dark:hover:bg-[#2b4160] border border-[var(--border-default)] text-[var(--text-primary)] rounded-[8px] text-sm font-bold transition active:scale-95 disabled:opacity-50 cursor-pointer"
                 >
                   Decline
                 </button>
                 <button
                   onClick={() => handleAccept(activeDispatch._id)}
                   disabled={processingId === activeDispatch._id}
-                  className="flex-1 py-3 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[#FAF7F0] rounded-[8px] text-sm font-bold transition active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  className="flex-1 py-3 bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] rounded-[8px] text-sm font-bold transition active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
                   {processingId === activeDispatch._id ? (
                     <Loader2 className="animate-spin w-5 h-5 text-white" />

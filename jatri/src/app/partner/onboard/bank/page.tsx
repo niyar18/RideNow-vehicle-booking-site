@@ -112,13 +112,13 @@ export default function PartnerBankPage() {
           {completed && !editMode && (
             <div className="mt-4 p-3 bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] flex items-center justify-between ">
               <div className="flex items-center gap-2 text-[var(--text-primary)] text-xs font-semibold">
-                <CheckCircle size={15} className="text-[#123D32] dark:text-[#347858]" />
+                <CheckCircle size={15} className="text-[var(--accent-ink)]" />
                 <span>Bank account details recorded</span>
               </div>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="text-xs tabular-nums font-bold text-[#123D32] dark:text-[#347858] underline flex items-center gap-1 hover:text-[#0D3027] dark:hover:text-[#28664D] cursor-pointer"
+                className="text-xs tabular-nums font-bold text-[var(--accent-ink)] underline flex items-center gap-1 hover:text-[#0d192b] dark:hover:text-[#263b56] cursor-pointer"
               >
                 <Pencil size={12} />
                 Edit Account
@@ -191,7 +191,7 @@ export default function PartnerBankPage() {
         {/* ================= WHY DISABLED ================= */}
         {!canSubmit && editMode && (
           <div className="mt-4 text-xs tabular-nums text-[var(--text-primary)] bg-[var(--surface-raised)] p-3 rounded-[8px] border border-[var(--border-default)] space-y-1">
-            <p className="font-bold text-[#E34222] dark:text-[#E06A50]">
+            <p className="font-bold text-[#992f22] dark:text-[#ffab9c]">
               Required Fields Missing:
             </p>
             {!isNameValid && <p>• Valid account holder name</p>}
@@ -203,7 +203,7 @@ export default function PartnerBankPage() {
 
         {/* ================= INFO ================= */}
         <div className="mt-5 flex items-start gap-2.5 text-xs text-[var(--text-secondary)] bg-[var(--surface-raised)] p-3.5 rounded-[8px] border border-[var(--border-default)] ">
-          <CheckCircle size={15} className="mt-0.5 shrink-0 text-[#123D32] dark:text-[#347858]" />
+          <CheckCircle size={15} className="mt-0.5 shrink-0 text-[var(--accent-ink)]" />
           <p className="leading-relaxed">
             Direct IMPS/NEFT bank settlement verifies automatically upon first completed dispatch ride. Zero commission deductions on partner payout.
           </p>
@@ -211,7 +211,7 @@ export default function PartnerBankPage() {
 
         {/* ================= ERROR ================= */}
         {error && (
-          <div className="mt-4 p-3 rounded-[8px] bg-[#E34222]/10 dark:bg-red-950/30 border border-[#E34222] dark:border-red-900/50 text-xs text-[#E34222] dark:text-[#E06A50] tabular-nums">
+          <div className="mt-4 p-3 rounded-[8px] bg-[#992f22]/10 dark:bg-red-950/30 border border-[#992f22] dark:border-red-900/50 text-xs text-[#992f22] dark:text-[#ffab9c] tabular-nums">
             {error}
           </div>
         )}
@@ -221,7 +221,7 @@ export default function PartnerBankPage() {
           whileTap={{ scale: 0.99 }}
           disabled={!canSubmit || loading}
           onClick={handleSubmit}
-          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer "
+          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer "
         >
           <span>
             {completed && !editMode
@@ -269,13 +269,13 @@ function InputFieldMinimal({
           {label}
         </label>
         {optional && (
-          <span className="text-[10px] tabular-nums text-[#696B64]/70 dark:text-[#B9C8BF]/70">
+          <span className="text-[10px] tabular-nums text-[#475a65]/70 dark:text-[#c9d8df]/70">
             Optional
           </span>
         )}
       </div>
 
-      <div className="flex items-center rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition-colors">
+      <div className="flex items-center rounded-[8px] border border-[var(--border-interactive)] bg-[var(--surface-raised)] focus-within:border-[var(--focus-ring)] transition-colors">
         {icon && (
           <div className="pl-3 pr-2 text-[var(--text-secondary)] shrink-0">
             {icon}
@@ -289,12 +289,12 @@ function InputFieldMinimal({
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
           maxLength={maxLength}
-          className="w-full min-h-11 px-2.5 text-base bg-transparent focus:outline-none tabular-nums placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/60 text-[var(--text-primary)]"
+          className="w-full min-h-11 px-2.5 text-base bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] tabular-nums placeholder:text-[var(--text-muted)] text-[var(--text-primary)]"
         />
       </div>
 
       {error && errorText && (
-        <p id={`${id}-error`} className="mt-1 text-xs text-[#b63927] dark:text-[#ff9787]">
+        <p id={`${id}-error`} role="status" className="mt-1 text-xs text-[#992f22] dark:text-[#ffab9c]">
           {errorText}
         </p>
       )}

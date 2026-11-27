@@ -134,7 +134,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                   ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 border border-emerald-500/30"
                   : booking.paymentStatus === "cash"
                   ? "bg-amber-500/10 text-amber-800 dark:text-amber-400 border border-amber-500/30"
-                  : "bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#D7AC62]"
+                  : "bg-[var(--surface-subtle)] text-[#142238] dark:text-[#D7AC62]"
               }`}
             >
               {booking.paymentStatus === "cash" ? "Paid in Cash" : "Paid Online"}
@@ -145,13 +145,13 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
           <div className="py-3 grid grid-cols-2 gap-3 text-xs border-b border-[var(--border-default)]">
             {booking.tripDurationMinutes && (
               <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-                <Clock size={14} className="text-[#123D32] dark:text-[#D7AC62]" />
+                <Clock size={14} className="text-[#142238] dark:text-[#D7AC62]" />
                 <span>{booking.tripDurationMinutes} mins</span>
               </div>
             )}
             {booking.actualDropoffTime && (
               <div className="flex items-center gap-2 text-[var(--text-secondary)]">
-                <Navigation size={14} className="text-[#123D32] dark:text-[#D7AC62]" />
+                <Navigation size={14} className="text-[#142238] dark:text-[#D7AC62]" />
                 <span>
                   Drop: {new Date(booking.actualDropoffTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </span>
@@ -162,7 +162,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
           {/* Route Summary */}
           <div className="pt-3 space-y-2">
             <div className="flex items-start gap-2.5">
-              <div className="w-2 h-2 rounded-full bg-[#123D32] dark:bg-[#28664D] mt-1 flex-shrink-0" />
+              <div className="w-2 h-2 rounded-full bg-[#142238] dark:bg-[#365671] mt-1 flex-shrink-0" />
               <p className="text-xs text-[var(--text-primary)] leading-snug line-clamp-1">{booking.pickupAddress}</p>
             </div>
             <div className="flex items-start gap-2.5">
@@ -184,7 +184,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                 onClick={() => !submitted && setSelectedRating(star)}
                 className={`w-11 h-11 rounded-[8px] text-lg font-bold transition-all active:scale-90 cursor-pointer ${
                   selectedRating >= star
-                    ? "bg-amber-400 text-[#10251C] shadow-md shadow-amber-400/20"
+                    ? "bg-amber-400 text-[#142238] shadow-md shadow-amber-400/20"
                     : "bg-[var(--surface-raised)] border border-[var(--border-default)] text-[#929D93] hover:text-amber-500"
                 }`}
               >
@@ -207,7 +207,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                   value={ratingFeedback}
                   onChange={(e) => setRatingFeedback(e.target.value)}
                   maxLength={200}
-                  className="w-full bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[#929D93] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
+                  className="w-full bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] placeholder-[#929D93] focus:outline-none focus:border-[#142238] dark:focus:border-[#365671]"
                 />
                 {ratingError && (
                   <p className="text-[#E34222] dark:text-[#E06A50] text-[11px] font-medium">{ratingError}</p>
@@ -216,7 +216,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                   type="button"
                   disabled={submittingRating}
                   onClick={handleRatingSubmit}
-                  className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white py-3 rounded-[8px] text-xs font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                  className="w-full bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] text-white py-3 rounded-[8px] text-xs font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
                   {submittingRating ? (
                     <>
@@ -247,7 +247,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
         <button
           type="button"
           onClick={() => router.push("/")}
-          className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white font-bold py-3.5 rounded-[8px] text-xs transition-colors cursor-pointer"
+          className="w-full bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] text-white font-bold py-3.5 rounded-[8px] text-xs transition-colors cursor-pointer"
         >
           Book Another Ride
         </button>
@@ -256,7 +256,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
         <button
           type="button"
           onClick={() => setShowReportModal(true)}
-          className="w-full mt-3 border border-[var(--border-default)] hover:border-[#123D32] dark:hover:border-[#28664D] bg-[var(--surface-raised)] text-[var(--text-secondary)] hover:text-[#10251C] dark:hover:text-[#F3F1E8] font-semibold py-3 rounded-[8px] text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          className="w-full mt-3 border border-[var(--border-default)] hover:border-[#142238] dark:hover:border-[#365671] bg-[var(--surface-raised)] text-[var(--text-secondary)] hover:text-[#142238] dark:hover:text-[#f3f8f6] font-semibold py-3 rounded-[8px] text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
         >
           <ShieldAlert size={14} className="text-[var(--text-secondary)]" />
           Report Safety Concern or Lost Item
@@ -281,7 +281,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
               <button
                 type="button"
                 onClick={() => setShowReportModal(false)}
-                className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition-colors cursor-pointer"
+                className="absolute top-4 right-4 text-[var(--text-secondary)] hover:text-[#142238] dark:hover:text-[#f3f8f6] transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>
@@ -309,7 +309,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                     <select
                       value={reportType}
                       onChange={(e) => setReportType(e.target.value)}
-                      className="w-full bg-[var(--surface-raised)] border border-[var(--border-default)] text-[var(--text-primary)] text-xs rounded-[8px] p-3 outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
+                      className="w-full bg-[var(--surface-raised)] border border-[var(--border-default)] text-[var(--text-primary)] text-xs rounded-[8px] p-3 outline-none focus:border-[#142238] dark:focus:border-[#365671]"
                     >
                       <option value="driver_misbehavior">Driver Behavior / Misconduct</option>
                       <option value="accident">Accident or Rash Driving</option>
@@ -328,7 +328,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                       value={reportNotes}
                       onChange={(e) => setReportNotes(e.target.value)}
                       placeholder="Please share details to help us investigate..."
-                      className="w-full bg-[var(--surface-raised)] border border-[var(--border-default)] text-[var(--text-primary)] text-xs rounded-[8px] p-3 outline-none focus:border-[#123D32] dark:focus:border-[#28664D] resize-none placeholder-[#929D93]"
+                      className="w-full bg-[var(--surface-raised)] border border-[var(--border-default)] text-[var(--text-primary)] text-xs rounded-[8px] p-3 outline-none focus:border-[#142238] dark:focus:border-[#365671] resize-none placeholder-[#929D93]"
                       required
                     />
                   </div>
@@ -337,7 +337,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                     <button
                       type="button"
                       onClick={() => setShowReportModal(false)}
-                      className="flex-1 border border-[var(--border-default)] bg-[var(--surface-raised)] hover:bg-[#FAF7F0] dark:hover:bg-[#25362C] text-[var(--text-primary)] font-bold py-3 rounded-[8px] text-xs transition-colors cursor-pointer"
+                      className="flex-1 border border-[var(--border-default)] bg-[var(--surface-raised)] hover:bg-[#f3f8f6] dark:hover:bg-[#25362C] text-[var(--text-primary)] font-bold py-3 rounded-[8px] text-xs transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>

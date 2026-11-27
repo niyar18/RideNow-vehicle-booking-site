@@ -89,7 +89,7 @@ export default function NotificationToggle({
         onClick={handleClick}
         disabled={loading}
         aria-label="Notifications"
-        className={`relative w-10 h-10 rounded-md bg-[var(--surface-raised)] border border-[var(--border-default)] text-[var(--text-primary)] flex items-center justify-center active:scale-95 transition hover:bg-white dark:hover:bg-[#10352C] cursor-pointer ${className}`}
+        className={`relative w-10 h-10 rounded-md bg-[var(--surface-raised)] border border-[var(--border-default)] text-[var(--text-primary)] flex items-center justify-center active:scale-95 transition hover:bg-white dark:hover:bg-[#263d54] cursor-pointer ${className}`}
         title={
           isSubscribed
             ? "Notifications Enabled (Tap to manage)"
@@ -97,15 +97,15 @@ export default function NotificationToggle({
         }
       >
         {loading ? (
-          <Loader2 className="w-4 h-4 animate-spin text-[#046A38] dark:text-[#34D399]" />
+          <Loader2 className="w-4 h-4 animate-spin text-[#213650] dark:text-[#91f2ce]" />
         ) : isSubscribed ? (
           <>
-            <BellRing size={18} className="text-[#046A38] dark:text-[#34D399]" />
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#046A38] dark:bg-[#34D399] animate-pulse" />
+            <BellRing size={18} className="text-[#213650] dark:text-[#91f2ce]" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#213650] dark:bg-[#91f2ce] animate-pulse" />
           </>
         ) : (
           <>
-            <Bell size={18} className="text-[#10251C]/80 dark:text-[#F7F5ED]" />
+            <Bell size={18} className="text-[#142238]/80 dark:text-[#f3f8f6]" />
             <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#E34222]" />
           </>
         )}
@@ -121,7 +121,7 @@ export default function NotificationToggle({
       className={`relative p-2 rounded-[8px] transition-all flex items-center justify-center active:scale-95 ${
         isSubscribed
           ? "text-amber-600 dark:text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
-          : "text-[#10251C]/70 hover:text-[#10251C] hover:bg-black/5 dark:text-[#B9C8BF] dark:hover:text-[#F3F1E8] dark:hover:bg-white/5"
+          : "text-[#142238]/70 hover:text-[#142238] hover:bg-black/5 dark:text-[#b3cbd1] dark:hover:text-[#F3F1E8] dark:hover:bg-white/5"
       } ${className}`}
       title={
         isSubscribed

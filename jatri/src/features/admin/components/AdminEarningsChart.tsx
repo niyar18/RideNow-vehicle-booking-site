@@ -37,16 +37,29 @@ export default function AdminEarningsChart() {
       {status === "error" && <p className={styles.secondary} role="alert">Daily earnings are unavailable.</p>}
       {status === "ready" && !series.length && <p className={styles.secondary}>No daily earnings are recorded.</p>}
       {status === "ready" && series.length > 0 && (
-        <ul className={styles.earnBars} aria-label="Earnings for each day">
-          {series.map((day, index) => (
-            <li key={day.date} className={styles.earnBar} aria-label={`${day.date}, ${rupees.format(day.earnings)}`} title={`${day.date}: ${rupees.format(day.earnings)}`}>
-              <span className={styles.earnTrack} aria-hidden="true">
-                <span className={`${styles.earnFill} ${index === series.length - 1 ? styles.earnNow : ""}`} style={{ height: `${Math.max(0, day.earnings / max * 100)}%` }} />
-              </span>
-              <span aria-hidden="true">{day.date}</span>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className={styles.earnBars} aria-hidden="true">
+            {series.map((day, index) => (
+              <li key={day.date} className={styles.earnBar} title={`${day.date}: ${rupees.format(day.earnings)}`}>
+                <span className={styles.earnTrack} aria-hidden="true">
+                  <span className={`${styles.earnFill} ${index === series.length - 1 ? styles.earnNow : ""}`} style={{ height: `${Math.max(0, day.earnings / max * 100)}%` }} />
+                </span>
+                <span aria-hidden="true">{day.date}</span>
+              </li>
+            ))}
+          </ul>
+          <details className={styles.chartValues}>
+            <summary>View daily values</summary>
+            <dl>
+              {series.map((day, index) => (
+                <div key={day.date}>
+                  <dt>{day.date}{index === series.length - 1 ? " (most recent)" : ""}</dt>
+                  <dd>{rupees.format(day.earnings)}</dd>
+                </div>
+              ))}
+            </dl>
+          </details>
+        </>
       )}
     </section>
   );

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { ReviewIntro } from "@/features/admin/components/AdminChrome";
 import AdminDecisionDialog from "@/features/admin/components/AdminDecisionDialog";
 import ui from "@/features/admin/components/admin-ui.module.css";
@@ -94,13 +93,13 @@ export default function AdminVehicleReviewPage() {
 
   if (loading)
     return (
-      <div className={ui.content} role="status">
-        Loading vehicle review...
-      </div>
+      <main id="admin-content" tabIndex={-1} className={ui.content}><p role="status">
+        Loading vehicle review…
+      </p></main>
     );
 
   if (!data) return (
-    <main className={ui.content}>
+    <main id="admin-content" tabIndex={-1} className={ui.content}>
       <ReviewIntro eyebrow="Vehicle review" title="Review unavailable" />
       <p className={ui.secondary} role="alert">This vehicle record couldn’t be loaded.</p>
     </main>
@@ -118,18 +117,16 @@ export default function AdminVehicleReviewPage() {
   const cfg = (rates && rates[vType.toLowerCase()]) || standardRates[vType.toLowerCase()] || standardRates.car;
 
   return (
-    <div>
+    <main id="admin-content" tabIndex={-1}>
       <ReviewIntro eyebrow="Vehicle application" title={data.model || data.number || "Vehicle review"}
         detail={[data.owner?.name, data.owner?.email].filter(Boolean).join(" · ")}
         status={<StatusBadge status={data.status} />} />
 
       {/* MAIN */}
-      <main className={`${ui.reviewWrap} grid lg:grid-cols-2 gap-4 lg:gap-5`}>
+      <div className={`${ui.reviewWrap} grid lg:grid-cols-2 gap-4 lg:gap-5`}>
 
         {/* IMAGE */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
+        <div
           className={ui.reviewPhoto}
         >
           {data.imageUrl ? (
@@ -139,11 +136,14 @@ export default function AdminVehicleReviewPage() {
               className="w-full"
             />
           ) : (
-            <div className="h-[220px] sm:h-[420px] grid place-items-center text-gray-300">
-              <ImageIcon size={40} className="sm:w-[50px] sm:h-[50px]" />
+            <div className="h-[220px] sm:h-[420px] grid place-items-center text-[var(--admin-muted)]">
+              <div className="flex flex-col items-center gap-2">
+                <ImageIcon size={32} aria-hidden="true" />
+                <span className={ui.secondary}>No vehicle photo was submitted.</span>
+              </div>
             </div>
           )}
-        </motion.div>
+        </div>
 
         {/* DETAILS */}
         <div className="min-w-0 space-y-4">
@@ -162,9 +162,7 @@ export default function AdminVehicleReviewPage() {
           </Card>
 
           {data.status === "pending" && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
+            <div
               className={ui.reviewCard}
             >
               <div className="flex items-center gap-2 font-semibold text-sm sm:text-base">
@@ -187,10 +185,10 @@ export default function AdminVehicleReviewPage() {
                   Reject
                 </button>
               </div>
-            </motion.div>
+            </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* APPROVE MODAL */}
       <ConfirmModal
@@ -210,7 +208,7 @@ export default function AdminVehicleReviewPage() {
         onClose={() => setShowReject(false)}
         onConfirm={reject}
       />
-    </div>
+    </main>
   );
 }
 

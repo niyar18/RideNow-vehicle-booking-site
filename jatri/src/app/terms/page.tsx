@@ -88,7 +88,7 @@ export default function TermsAndConditionsPage() {
         {/* 5. Conduct & Safety */}
         <section className="space-y-3">
           <h2 className="font-serif text-xl sm:text-2xl text-[var(--text-primary)] flex items-center gap-2">
-            <Ban size={20} className="text-[#E34222] dark:text-[#E06A50]" /> 5. Prohibited Conduct & Safety
+            <Ban size={20} className="text-[var(--policy-danger)]" /> 5. Prohibited Conduct & Safety
           </h2>
           <p className="text-sm sm:text-base text-[var(--text-secondary)]">Customers and drivers must adhere to safety norms:</p>
           <ul className="list-disc list-inside space-y-1.5 text-sm sm:text-base text-[var(--text-secondary)] leading-relaxed">

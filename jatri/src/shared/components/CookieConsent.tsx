@@ -92,23 +92,23 @@ export default function CookieConsent() {
             {/* Header */}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-[10px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center flex-shrink-0 shadow-xs">
+                <div className="w-9 h-9 rounded-[10px] bg-[#142238] dark:bg-[#365671] text-white flex items-center justify-center flex-shrink-0 shadow-xs">
                   <Cookie size={18} className="text-[#D7AC62]" />
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5">
                     <h3 className="text-sm font-bold tracking-tight text-[var(--text-primary)]">Cookie Preferences</h3>
-                    <span className="px-1.5 py-0.5 rounded-[4px] bg-[#E5EBDD] dark:bg-[#1D3428] border border-[#cdd6c3] dark:border-[#24483D] text-[9px] font-bold uppercase text-[#123D32] dark:text-[#A3E635]">
+                    <span className="px-1.5 py-0.5 rounded-[4px] bg-[#ddede8] dark:bg-[#1D3428] border border-[#cdd6c3] dark:border-[#4e697f] text-[9px] font-bold uppercase text-[#142238] dark:text-[#A3E635]">
                       Privacy
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium">Bharat Mobility & Data Choice</p>
+                  <p className="text-[11px] text-[#4d6374] dark:text-[#b3cbd1] font-medium">Bharat Mobility & Data Choice</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={handleRejectNonEssential}
-                className="w-7 h-7 rounded-[8px] text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center transition cursor-pointer"
+                className="w-7 h-7 rounded-[8px] text-[#4d6374] dark:text-[#b3cbd1] hover:text-[#142238] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/10 flex items-center justify-center transition cursor-pointer"
                 aria-label="Dismiss cookie notice with essential cookies only"
               >
                 <X size={15} />
@@ -116,7 +116,7 @@ export default function CookieConsent() {
             </div>
 
             {/* Description */}
-            <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] leading-relaxed font-normal">
+            <p className="text-xs text-[#4d6374] dark:text-[#b3cbd1] leading-relaxed font-normal">
               RideNow uses cookies and secure local storage to remember your pickup points, calculate verified route fares, maintain session safety, and optimize dispatch times.
             </p>
 
@@ -128,29 +128,29 @@ export default function CookieConsent() {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="space-y-2.5 pt-2 border-t border-[#DED7CA]/60 dark:border-[#24483D] overflow-hidden"
+                  className="space-y-2.5 pt-2 border-t border-[#b3c8ca]/60 dark:border-[#4e697f] overflow-hidden"
                 >
                   {/* Necessary Category */}
-                  <div className="p-2.5 bg-[var(--surface-raised)] rounded-[10px] border border-[#DED7CA]/70 dark:border-[#24483D] flex items-start justify-between gap-2">
+                  <div className="p-2.5 bg-[var(--surface-raised)] rounded-[10px] border border-[#b3c8ca]/70 dark:border-[#4e697f] flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0 pr-2">
                       <div className="flex items-center gap-1.5">
-                        <Lock size={12} className="text-[#123D32] dark:text-[#A3E635]" />
+                        <Lock size={12} className="text-[#142238] dark:text-[#A3E635]" />
                         <span className="text-xs font-bold text-[var(--text-primary)]">Strictly Necessary</span>
                       </div>
-                      <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5 leading-snug">
+                      <p className="text-[10px] text-[#4d6374] dark:text-[#b3cbd1] mt-0.5 leading-snug">
                         Essential for booking checkout, GPS coordinate tracking, authentication, and secure payment processing.
                       </p>
                     </div>
-                    <span className="text-[9px] font-bold uppercase tracking-wider bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#A3E635] px-2 py-0.5 rounded-[4px] flex-shrink-0">
+                    <span className="text-[9px] font-bold uppercase tracking-wider bg-[#ddede8] dark:bg-[#1D3428] text-[#142238] dark:text-[#A3E635] px-2 py-0.5 rounded-[4px] flex-shrink-0">
                       Always Active
                     </span>
                   </div>
 
                   {/* Analytics Category */}
-                  <div className="p-2.5 bg-[var(--surface-raised)] rounded-[10px] border border-[#DED7CA]/70 dark:border-[#24483D] flex items-start justify-between gap-2">
+                  <div className="p-2.5 bg-[var(--surface-raised)] rounded-[10px] border border-[#b3c8ca]/70 dark:border-[#4e697f] flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0 pr-2">
                       <span className="text-xs font-bold text-[var(--text-primary)] block">Performance & Telemetry</span>
-                      <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5 leading-snug">
+                      <p className="text-[10px] text-[#4d6374] dark:text-[#b3cbd1] mt-0.5 leading-snug">
                         Helps measure map route rendering speed, error logs, and driver dispatch latency to improve ride quality.
                       </p>
                     </div>
@@ -158,7 +158,7 @@ export default function CookieConsent() {
                       type="button"
                       onClick={() => setAnalytics(!analytics)}
                       className={`w-9 h-5 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${
-                        analytics ? "bg-[#123D32] dark:bg-[#28664D] justify-end" : "bg-[#DED7CA] dark:bg-[#34443A] justify-start"
+                        analytics ? "bg-[#142238] dark:bg-[#365671] justify-end" : "bg-[#b3c8ca] dark:bg-[#435e76] justify-start"
                       }`}
                       role="switch"
                       aria-checked={analytics}
@@ -168,10 +168,10 @@ export default function CookieConsent() {
                   </div>
 
                   {/* Personalization Category */}
-                  <div className="p-2.5 bg-[var(--surface-raised)] rounded-[10px] border border-[#DED7CA]/70 dark:border-[#24483D] flex items-start justify-between gap-2">
+                  <div className="p-2.5 bg-[var(--surface-raised)] rounded-[10px] border border-[#b3c8ca]/70 dark:border-[#4e697f] flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0 pr-2">
                       <span className="text-xs font-bold text-[var(--text-primary)] block">Personalization & Spots</span>
-                      <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5 leading-snug">
+                      <p className="text-[10px] text-[#4d6374] dark:text-[#b3cbd1] mt-0.5 leading-snug">
                         Saves favorite places, recent pickup history, and language preferences across sessions.
                       </p>
                     </div>
@@ -179,7 +179,7 @@ export default function CookieConsent() {
                       type="button"
                       onClick={() => setMarketing(!marketing)}
                       className={`w-9 h-5 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${
-                        marketing ? "bg-[#123D32] dark:bg-[#28664D] justify-end" : "bg-[#DED7CA] dark:bg-[#34443A] justify-start"
+                        marketing ? "bg-[#142238] dark:bg-[#365671] justify-end" : "bg-[#b3c8ca] dark:bg-[#435e76] justify-start"
                       }`}
                       role="switch"
                       aria-checked={marketing}
@@ -196,7 +196,7 @@ export default function CookieConsent() {
               <button
                 type="button"
                 onClick={() => setShowPreferences(!showPreferences)}
-                className="inline-flex items-center gap-1 font-bold text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition cursor-pointer"
+                className="inline-flex items-center gap-1 font-bold text-[#4d6374] dark:text-[#b3cbd1] hover:text-[#142238] dark:hover:text-[#F3F1E8] transition cursor-pointer"
               >
                 <SlidersHorizontal size={12} />
                 <span>{showPreferences ? "Hide Options" : "Customize Settings"}</span>
@@ -204,7 +204,7 @@ export default function CookieConsent() {
               </button>
               <Link
                 href="/privacy"
-                className="text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8] underline transition"
+                className="text-[#4d6374] dark:text-[#b3cbd1] hover:text-[#142238] dark:hover:text-[#F3F1E8] underline transition"
               >
                 Privacy Policy
               </Link>
@@ -217,14 +217,14 @@ export default function CookieConsent() {
                   <button
                     type="button"
                     onClick={handleRejectNonEssential}
-                    className="py-2.5 px-3 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition active:scale-98 cursor-pointer text-center"
+                    className="py-2.5 px-3 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] hover:bg-[#f3f8f6] dark:hover:bg-[#2a425a] text-[var(--text-primary)] text-xs font-bold transition active:scale-98 cursor-pointer text-center"
                   >
                     Essential Only
                   </button>
                   <button
                     type="button"
                     onClick={handleSaveCustom}
-                    className="py-2.5 px-3 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white text-xs font-bold transition active:scale-98 shadow-sm cursor-pointer text-center flex items-center justify-center gap-1"
+                    className="py-2.5 px-3 rounded-[8px] bg-[#142238] dark:bg-[#365671] hover:bg-[#101c2f] dark:hover:bg-[#406780] text-white text-xs font-bold transition active:scale-98 shadow-sm cursor-pointer text-center flex items-center justify-center gap-1"
                   >
                     <Check size={13} className="text-[#A3E635]" />
                     <span>Save Choice</span>
@@ -235,14 +235,14 @@ export default function CookieConsent() {
                   <button
                     type="button"
                     onClick={handleRejectNonEssential}
-                    className="py-2.5 px-3 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-[var(--text-primary)] text-xs font-bold transition active:scale-98 cursor-pointer text-center"
+                    className="py-2.5 px-3 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] hover:bg-[#f3f8f6] dark:hover:bg-[#2a425a] text-[var(--text-primary)] text-xs font-bold transition active:scale-98 cursor-pointer text-center"
                   >
                     Essential Only
                   </button>
                   <button
                     type="button"
                     onClick={handleAcceptAll}
-                    className="py-2.5 px-3 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] text-white text-xs font-bold transition active:scale-98 shadow-sm cursor-pointer text-center flex items-center justify-center gap-1"
+                    className="py-2.5 px-3 rounded-[8px] bg-[#142238] dark:bg-[#365671] hover:bg-[#101c2f] dark:hover:bg-[#406780] text-white text-xs font-bold transition active:scale-98 shadow-sm cursor-pointer text-center flex items-center justify-center gap-1"
                   >
                     <Check size={13} className="text-[#A3E635]" />
                     <span>Accept All</span>

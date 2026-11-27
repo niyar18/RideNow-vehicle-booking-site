@@ -32,6 +32,8 @@ type Props = {
   onSelectSmartPickup?: (spot: any) => void;
   stops?: Array<{ address: string; lat: number; lng: number }>;
   bottomPadding?: number;
+  hideMapControls?: boolean;
+  compactRouteSummary?: boolean;
   selectionMode?: "none" | "pickup" | "drop";
   onSelectionModeChange?: (mode: "none" | "pickup" | "drop") => void;
   onConfirmPinSelection?: (
@@ -57,8 +59,8 @@ function createPickupEl(locationName?: string, durationMin?: number | null): HTM
     <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(18,61,50,0.18));transform:translateY(3px);">
       <!-- Elevated Callout Badge (Jaatri Emerald & Ivory Design) -->
       <div style="
-        background: #FAF7F0;
-        color: #10251C;
+        background: var(--surface-raised);
+        color: var(--text-primary);
         padding: 5px 10px;
         border-radius: 8px;
         font-size: 10px;
@@ -67,31 +69,31 @@ function createPickupEl(locationName?: string, durationMin?: number | null): HTM
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
         box-shadow: 0 4px 12px rgba(18,61,50,0.15);
-        border: 1.5px solid #DED7CA;
+        border: 1.5px solid var(--border-default);
         display: flex;
         align-items: center;
         gap: 6px;
       ">
-        <span style="width:7px;height:7px;border-radius:50%;background:#046A38;display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(4,106,56,0.2);"></span>
+        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent-mint);display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(4,106,56,0.2);"></span>
         <span>${cleanTitle}</span>
-        ${etaBadge ? `<span style="color:#046A38;font-size:9px;font-weight:700;">${etaBadge}</span>` : ""}
+        ${etaBadge ? `<span style="color:var(--text-primary);font-size:9px;font-weight:700;">${etaBadge}</span>` : ""}
       </div>
 
       <!-- Hairline Elevated Stem -->
       <div style="
         width: 2px;
         height: 6px;
-        background: #046A38;
+        background: #142238;
       "></div>
 
       <!-- Precision Road Contact Anchor Circle -->
       <div style="
         width: 7px;
         height: 7px;
-        background: #046A38;
+        background: #142238;
         border-radius: 50%;
         border: 1.5px solid #ffffff;
-        box-shadow: 0 0 0 1px #046A38;
+        box-shadow: 0 0 0 1px #142238;
       "></div>
     </div>
   `;
@@ -110,8 +112,8 @@ function createDropEl(locationName?: string): HTMLElement {
     <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(227,66,34,0.18));transform:translateY(2px);">
       <!-- Elevated Callout Badge (Jaatri Assamese Vermilion Accent) -->
       <div style="
-        background: #123D32;
-        color: #FAF7F0;
+        background: var(--brand-primary);
+        color: var(--on-primary);
         padding: 5px 10px;
         border-radius: 8px;
         font-size: 10px;
@@ -120,7 +122,7 @@ function createDropEl(locationName?: string): HTMLElement {
         white-space: nowrap;
         font-family: system-ui, -apple-system, sans-serif;
         box-shadow: 0 4px 12px rgba(18,61,50,0.25);
-        border: 1.5px solid #123D32;
+        border: 1.5px solid var(--on-primary);
         display: flex;
         align-items: center;
         gap: 6px;
@@ -156,7 +158,7 @@ function createStopEl(index: number): HTMLElement {
   el.innerHTML = `
     <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 8px rgba(18,61,50,0.2));">
       <div style="
-        background:#123D32;color:#FAF7F0;
+        background:var(--brand-primary);color:var(--on-primary);
         padding:3px 8px;border-radius:6px;
         font-size:9px;font-weight:900;
         white-space:nowrap;
@@ -344,7 +346,7 @@ function ensureRouteLayers(map: maplibregl.Map): boolean {
         source: "route-source",
         layout: { "line-join": "round", "line-cap": "round" },
         paint: {
-          "line-color": "#046A38",
+          "line-color": "#142238",
           "line-width": 5.5,
           "line-opacity": 1.0,
         },
@@ -371,6 +373,8 @@ export default function RouteMap({
   onSelectSmartPickup,
   stops,
   bottomPadding = 340,
+  hideMapControls = false,
+  compactRouteSummary = false,
   selectionMode,
   onSelectionModeChange,
   onConfirmPinSelection,
@@ -1249,11 +1253,11 @@ export default function RouteMap({
           fill="none"
           opacity="1.0"
         />
-        {/* Primary route core (Jaatri Emerald interactive brand line) */}
+        {/* Primary route core (Midnight route line) */}
         <path
           ref={svgCoreRef}
           d=""
-          stroke="#046A38"
+          stroke="#142238"
           strokeWidth="5.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -1414,25 +1418,26 @@ export default function RouteMap({
                 initial={{ opacity: 0, y: -8, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="pointer-events-auto flex items-center gap-2 md:gap-3 bg-[#FAF7F0]/95 backdrop-blur-xs border border-[#DED7CA] dark:border-[#24483D] px-2.5 py-1.5 md:px-3.5 md:py-2 shadow-sm rounded-[8px]"
+                className="flex items-center gap-2 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] px-2.5 py-1.5 text-[var(--text-primary)] md:gap-3 md:px-3.5 md:py-2"
               >
                 {isRouting ? (
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-[#046A38] animate-pulse rounded-full" />
-                    <span className="text-[#10251C] dark:text-[#F7F5ED] text-[11px] md:text-xs font-bold">Finding fastest route...</span>
+                    <span className="text-[11px] font-semibold md:text-xs">Finding route…</span>
                   </div>
                 ) : (
                   <>
                     <div className="flex items-center gap-1.5">
-                      <span className="text-[#10251C] dark:text-[#F7F5ED] text-[11px] md:text-xs font-black">
+                      <span className="text-[11px] font-semibold tabular-nums md:text-xs">
                         {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
                       </span>
-                      <span className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] md:text-xs font-bold">({km} km)</span>
+                      <span className="text-xs font-medium text-[var(--text-secondary)]">({km} km)</span>
                     </div>
-                    <span className="w-px h-3 bg-[#DED7CA] dark:bg-[#34443A]" />
-                    <span className="text-[9px] md:text-[10px] text-[#123D32] dark:text-[#347858] font-bold uppercase tracking-wider bg-[#E5EBDD] dark:bg-[#10352C] px-1.5 md:px-2 py-0.5 border border-[#DED7CA] dark:border-[#28664D]/40 rounded-[6px]">
-                      Fastest Route
-                    </span>
+                    {!compactRouteSummary && (
+                      <span className="rounded-full bg-[var(--surface-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--text-primary)]">
+                        Fastest route
+                      </span>
+                    )}
                   </>
                 )}
               </motion.div>
@@ -1440,7 +1445,7 @@ export default function RouteMap({
           </AnimatePresence>
 
           {/* Pinpoint Selector Pill (Hidden on mobile when route is already active to prevent map overlaps) */}
-          <div className={`pointer-events-auto items-center gap-1 bg-[#FAF7F0]/95 backdrop-blur-xs border border-[#DED7CA] dark:border-[#24483D] p-1 shadow-sm rounded-[8px] ${
+          <div className={`pointer-events-auto items-center gap-1 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] p-1 ${
             p1 && p2 ? "hidden md:flex" : "flex"
           }`}>
             <button
@@ -1449,9 +1454,9 @@ export default function RouteMap({
                 setActivePinMode("pickup");
                 onSelectionModeChange?.("pickup");
               }}
-              className="px-2.5 py-1 text-xs font-bold transition-all flex items-center gap-1.5 text-[#10251C] dark:text-[#F7F5ED] hover:bg-[#E5EBDD] dark:hover:bg-[#10352C] rounded-[6px] cursor-pointer"
+              className="flex min-h-11 items-center gap-1.5 rounded-[6px] px-2.5 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
             >
-              <span className="w-2.5 h-2.5 bg-[#046A38] flex-shrink-0 rounded-full" />
+              <span className="size-2.5 shrink-0 rounded-full bg-[var(--text-primary)]" />
               <span>Pin Pickup</span>
             </button>
 
@@ -1461,9 +1466,9 @@ export default function RouteMap({
                 setActivePinMode("drop");
                 onSelectionModeChange?.("drop");
               }}
-              className="px-2.5 py-1 text-xs font-bold transition-all flex items-center gap-1.5 text-[#10251C] dark:text-[#F7F5ED] hover:bg-[#E5EBDD] dark:hover:bg-[#10352C] rounded-[6px] cursor-pointer"
+              className="flex min-h-11 items-center gap-1.5 rounded-[6px] px-2.5 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
             >
-              <span className="w-2.5 h-2.5 bg-[#E34222] flex-shrink-0 rounded-full" />
+              <span className="size-2.5 shrink-0 rounded-full bg-[var(--accent-vermilion)]" />
               <span>Pin Drop</span>
             </button>
 
@@ -1472,7 +1477,8 @@ export default function RouteMap({
                 type="button"
                 onClick={handleReset}
                 title="Reset pins"
-                className="p-1 text-[#696B64] hover:text-[#10251C] hover:bg-[#E5EBDD] dark:hover:bg-[#10352C] transition-all rounded-[6px] cursor-pointer"
+                aria-label="Reset pins"
+                className="grid size-11 place-items-center rounded-[6px] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
               >
                 <RotateCcw size={13} />
               </button>
@@ -1483,7 +1489,8 @@ export default function RouteMap({
 
       {/* ── BOTTOM RIGHT CONTROLS (RE-CENTER CROSSHAIR & ZOOM) ── */}
       <div
-        className="absolute right-4 z-20 flex flex-col gap-2 transition-all duration-300"
+        hidden={hideMapControls}
+        className={`absolute right-4 z-20 flex-col gap-2 ${hideMapControls ? "hidden" : "flex"}`}
         style={{
           bottom: bottomPadding && bottomPadding > 40 ? `${Math.min(bottomPadding + 14, 280)}px` : "24px",
         }}
@@ -1494,25 +1501,25 @@ export default function RouteMap({
           onClick={handleRecenter}
           aria-label="Re-center on route"
           title="Re-center view"
-          className="w-9 h-9 bg-white dark:bg-[#0B2822] border border-zinc-300 dark:border-[#24483D] rounded-[8px] flex items-center justify-center text-[#10251C] dark:text-[#F7F5ED] shadow-sm hover:bg-[#F7F1E5] dark:hover:bg-[#10352C] transition-all cursor-pointer"
+          className="grid size-11 place-items-center rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
         >
-          <Crosshair size={18} className="text-[#046A38] dark:text-[#90C8A8]" />
+          <Crosshair size={18} aria-hidden="true" />
         </button>
 
         {/* Zoom In & Out */}
-        <div className="flex flex-col bg-white dark:bg-[#0B2822] border border-zinc-300 dark:border-[#24483D] rounded-[8px] overflow-hidden shadow-sm">
+        <div className="flex flex-col rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)]">
           <button
             onClick={() => mapRef.current?.zoomIn()}
             aria-label="Zoom in"
-            className="w-9 h-9 flex items-center justify-center text-zinc-800 dark:text-[#F7F5ED] hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#10352C] transition cursor-pointer"
+            className="grid size-11 place-items-center rounded-[7px] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
           >
             <Plus size={15} />
           </button>
-          <div className="h-px bg-zinc-200 dark:bg-[#34443A]" />
+          <div className="h-px bg-[var(--border-default)]" />
           <button
             onClick={() => mapRef.current?.zoomOut()}
             aria-label="Zoom out"
-            className="w-9 h-9 flex items-center justify-center text-zinc-800 dark:text-[#F7F5ED] hover:text-black dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-[#10352C] transition cursor-pointer"
+            className="grid size-11 place-items-center rounded-[7px] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
           >
             <Minus size={15} />
           </button>

@@ -80,7 +80,7 @@ export default function AdminDashboardClient() {
   }
 
   return (
-    <main className={styles.content}>
+    <main id="admin-content" tabIndex={-1} className={styles.content}>
       <section className={styles.hero} aria-labelledby="admin-page-title">
         <div className={styles.intro}>
           <p className={styles.eyebrow}>Jaatri &nbsp;/&nbsp; operations</p>
@@ -301,7 +301,7 @@ function PricingEditor() {
                     <label key={field}>
                       {label}
                       <input
-                        type="number" min="0" step={step} required className={styles.field}
+                        type="number" min="0" step={step} required disabled={saving === id} className={styles.field}
                         value={edits[id]?.[field] ?? config[field] ?? fallback}
                         onChange={(e) => {
                           const value = e.currentTarget.value;

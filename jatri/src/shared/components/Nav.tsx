@@ -76,6 +76,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
   const pathname = usePathname();
   const router = useRouter();
   const profileRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const dispatch = useDispatch<AppDispatch>();
   const { userData } = useSelector((state: RootState) => state.user);
@@ -152,6 +153,16 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
     });
   }, [pathname]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      menuButtonRef.current?.focus();
+    };
+  }, [menuOpen]);
+
   /* Desktop outside click for profile */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -182,7 +193,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             className={`text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partners/dashboard"
                 ? "jaatri-nav-active rounded-[7px]"
-                : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
+                : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
             {t("nav.dashboard", "Dashboard")}
@@ -193,7 +204,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             className={`relative text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partner/active-ride"
                 ? "jaatri-nav-active rounded-[7px]"
-                : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
+                : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
             {t("nav.activeRide", "Active Ride")}
@@ -209,7 +220,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             className={`relative text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partner/pending-requests"
                 ? "jaatri-nav-active rounded-[7px]"
-                : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
+                : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
             {t("nav.requests", "Requests")}
@@ -225,7 +236,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             className={`relative text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partner/bookings"
                 ? "jaatri-nav-active rounded-[7px]"
-                : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
+                : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
             {t("nav.bookings", "Bookings")}
@@ -241,7 +252,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             className={`text-[13px] xl:text-[14px] font-semibold px-3 py-2 transition ${
               pathname === "/partner/wallet"
                 ? "jaatri-nav-active rounded-[7px]"
-                : "text-[#10251C]/80 dark:text-[#F7F5ED]/80 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
+                : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
             {t("nav.wallet", "Wallet")}
@@ -259,10 +270,11 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             <Link
               key={item}
               href={href}
+              aria-current={active ? "page" : undefined}
               className={`text-base sm:text-[13px] xl:text-[14px] px-3.5 sm:px-4 py-1.5 sm:py-2 transition-all duration-150 active:scale-[0.97] ${
                 active
-                  ? "bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] font-extrabold shadow-2xs border border-[#DED7CA]/80 dark:border-[#24483D] rounded-[7px]"
-                  : "text-[#10251C]/85 dark:text-[#F7F5ED]/85 hover:text-[#10251C] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 font-semibold rounded-[8px]"
+                  ? "jaatri-nav-active rounded-lg"
+                  : "text-[#142238]/85 dark:text-[#f3f8f6]/85 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 font-semibold rounded-[8px]"
               }`}
             >
               {t(NAV_KEYS[item] || item, item)}
@@ -352,7 +364,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 <>
                   <button
                     onClick={() => setProfileOpen((p) => !p)}
-                    className="w-11 h-11 rounded-full bg-forest dark:bg-[#28664D] text-white font-black text-base flex items-center justify-center shadow-md active:scale-95 transition hover:bg-forest-hover dark:hover:bg-[#347858]"
+                    className="w-11 h-11 rounded-full bg-forest dark:bg-[#365671] text-white font-black text-base flex items-center justify-center shadow-md active:scale-95 transition hover:bg-forest-hover dark:hover:bg-[#406780]"
                     aria-label="Open User Profile Menu"
                   >
                     {currentUser.name?.charAt(0).toUpperCase() || "P"}
@@ -365,7 +377,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: -8, scale: 0.98 }}
                         transition={{ type: "spring", damping: 28, stiffness: 350 }}
-                        className="absolute top-14 right-0 w-[340px] bg-white dark:bg-[#0B2822] text-zinc-950 dark:text-[#F7F5ED] rounded-[14px] shadow-lg border border-zinc-200 dark:border-[#24483D] overflow-hidden z-50"
+                        className="absolute top-14 right-0 w-[340px] bg-white dark:bg-[#1a2d45] text-zinc-950 dark:text-[#f3f8f6] rounded-[14px] shadow-lg border border-zinc-200 dark:border-[#4e697f] overflow-hidden z-50"
                       >
                         <UberProfileDropdown
                           userData={currentUser}
@@ -379,11 +391,12 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   </AnimatePresence>
                 </>
               ) : status === "loading" || isVendorRoute ? (
-                <div className="w-11 h-11 rounded-[8px] bg-stone-200 dark:bg-[#10352C] animate-pulse border border-stone-300 dark:border-[#24483D]" />
+                <div className="w-11 h-11 rounded-[8px] bg-stone-200 dark:bg-[#263d54] animate-pulse border border-stone-300 dark:border-[#4e697f]" />
               ) : (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className="px-6 py-2.5 rounded-[8px] font-bold text-[15px] sm:text-[16px] transition shadow-xs active:scale-95 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white"
+                  data-shell-primary
+                  className="px-6 py-2.5 rounded-[8px] font-bold text-[15px] sm:text-[16px] transition shadow-xs active:scale-95 bg-[#213650] hover:bg-[#142238] dark:bg-[#354f68] dark:hover:bg-[#213650] text-white"
                 >
                   {t("nav.signIn", "Sign In")}
                 </button>
@@ -398,17 +411,18 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               {currentUser ? (
                 <button
                   onClick={() => setProfileOpen(true)}
-                  className="w-9 h-9 rounded-full bg-[#123D32] dark:bg-[#28664D] text-white font-black flex items-center justify-center text-xs shadow-sm active:scale-95 transition hover:bg-[#0D3027] dark:hover:bg-[#347858]"
+                  className="w-9 h-9 rounded-full bg-[#142238] dark:bg-[#365671] text-white font-black flex items-center justify-center text-xs shadow-sm active:scale-95 transition hover:bg-[#101c2f] dark:hover:bg-[#406780]"
                   aria-label="Open Profile Details"
                 >
                   {currentUser.name?.charAt(0).toUpperCase() || "P"}
                 </button>
               ) : status === "loading" || isVendorRoute ? (
-                <div className="w-9 h-9 rounded-[8px] bg-stone-200 dark:bg-[#10352C] animate-pulse border border-stone-300 dark:border-[#24483D]" />
+                <div className="w-9 h-9 rounded-[8px] bg-stone-200 dark:bg-[#263d54] animate-pulse border border-stone-300 dark:border-[#4e697f]" />
               ) : (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className="px-3.5 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white"
+                  data-shell-primary
+                  className="px-3.5 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition bg-[#213650] hover:bg-[#142238] dark:bg-[#354f68] dark:hover:bg-[#213650] text-white"
                 >
                   {t("nav.signIn", "Sign In")}
                 </button>
@@ -418,9 +432,11 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
               {(
                 <button
                   type="button"
+                  ref={menuButtonRef}
                   onClick={() => setMenuOpen((p) => !p)}
-                  className="p-1.5 rounded-[8px] active:scale-90 transition cursor-pointer text-[#10251C] dark:text-[#F7F5ED] hover:bg-black/5 dark:hover:bg-white/5"
+                  className="p-1.5 rounded-[8px] active:scale-90 transition cursor-pointer text-[#142238] dark:text-[#f3f8f6] hover:bg-black/5 dark:hover:bg-white/5"
                   aria-expanded={menuOpen}
+                  aria-controls={menuOpen ? "jaatri-menu-drawer" : undefined}
                   aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
                 >
                   {menuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -439,11 +455,24 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ type: "spring", damping: 30, stiffness: 350 }}
+            id="jaatri-menu-drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") setMenuOpen(false);
+              if (event.key !== "Tab") return;
+              const stops = [...event.currentTarget.querySelectorAll<HTMLElement>("button:not(:disabled), a[href], [tabindex=0]")].filter((item) => item.getClientRects().length);
+              const first = stops[0], last = stops.at(-1);
+              if (!first || !last) return;
+              if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+              if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+            }}
             className="fixed inset-0 top-0 left-0 w-full h-[100dvh] bg-[var(--background)] text-[var(--text-primary)] z-50 lg:hidden flex flex-col justify-between overflow-y-auto px-6 py-6"
           >
             {/* TOP BAR INSIDE DRAWER */}
             <div>
-              <div className="flex items-center justify-between pb-6 border-b border-[#DED7CA]/80 dark:border-[#24483D]">
+              <div className="flex items-center justify-between pb-6 border-b border-[#b3c8ca]/80 dark:border-[#4e697f]">
                 <Link
                   href="/" prefetch={true}
                   onClick={() => setMenuOpen(false)}
@@ -468,8 +497,9 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 <button
                   type="button"
                   onClick={() => setMenuOpen(false)}
-                  className="w-11 h-11 rounded-full bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-center active:scale-90 transition hover:bg-black/5 dark:hover:bg-white/5"
+                  className="w-11 h-11 rounded-full bg-white dark:bg-[#263d54] border border-[#b3c8ca] dark:border-[#4e697f] text-[#142238] dark:text-[#f3f8f6] flex items-center justify-center active:scale-90 transition hover:bg-black/5 dark:hover:bg-white/5"
                   aria-label="Close menu"
+                  autoFocus
                 >
                   <X size={24} />
                 </button>
@@ -500,7 +530,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       href="/partners/dashboard"
                       onClick={() => setMenuOpen(false)}
                       className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
-                        pathname === "/partners/dashboard" ? "text-[#123D32] dark:text-[#388463] font-semibold" : "text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        pathname === "/partners/dashboard" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
                       {t("nav.dashboard", "Dashboard")}
@@ -510,7 +540,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       href="/partner/active-ride"
                       onClick={() => setMenuOpen(false)}
                       className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 flex items-center justify-between ${
-                        pathname === "/partner/active-ride" ? "text-[#123D32] dark:text-[#388463] font-semibold" : "text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        pathname === "/partner/active-ride" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
                       <span>{t("nav.activeRide", "Active Ride")}</span>
@@ -525,7 +555,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       href="/partner/pending-requests"
                       onClick={() => setMenuOpen(false)}
                       className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 flex items-center justify-between ${
-                        pathname === "/partner/pending-requests" ? "text-[#123D32] dark:text-[#388463] font-semibold" : "text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        pathname === "/partner/pending-requests" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
                       <span>{t("nav.requests", "Requests")}</span>
@@ -540,7 +570,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       href="/partner/bookings"
                       onClick={() => setMenuOpen(false)}
                       className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 flex items-center justify-between ${
-                        pathname === "/partner/bookings" ? "text-[#123D32] dark:text-[#388463] font-semibold" : "text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        pathname === "/partner/bookings" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
                       <span>{t("nav.bookings", "Bookings")}</span>
@@ -555,7 +585,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       href="/partner/wallet"
                       onClick={() => setMenuOpen(false)}
                       className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
-                        pathname === "/partner/wallet" ? "text-[#123D32] dark:text-[#388463] font-semibold" : "text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        pathname === "/partner/wallet" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
                       {t("nav.walletEarnings", "Wallet & Earnings")}
@@ -566,7 +596,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/book"
                       onClick={() => setMenuOpen(false)}
-                      className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-[#10251C] dark:text-[#F7F5ED] hover:text-[#123D32] dark:hover:text-[#388463] transition active:scale-98"
+                      className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-[#142238] dark:text-[#f3f8f6] hover:text-[#142238] dark:hover:text-[#388463] transition active:scale-98"
                     >
                       {t("nav.ride", "Ride")}
                     </Link>
@@ -575,7 +605,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       href="/bookings"
                       onClick={() => setMenuOpen(false)}
                       className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
-                        pathname === "/bookings" ? "text-[#123D32] dark:text-[#388463] font-semibold" : "text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        pathname === "/bookings" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
                       {t("nav.bookings", "Bookings")}
@@ -584,7 +614,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     <Link
                       href="/partner/onboard/vehicle"
                       onClick={() => setMenuOpen(false)}
-                      className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition active:scale-98"
+                      className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8] transition active:scale-98"
                     >
                       {t("nav.drive", "Drive")}
                     </Link>
@@ -593,7 +623,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       href="/fleet"
                       onClick={() => setMenuOpen(false)}
                       className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
-                        pathname === "/fleet" ? "text-[#123D32] dark:text-[#388463] font-semibold" : "text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        pathname === "/fleet" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
                       {t("nav.fleet", "Fleet")}
@@ -603,7 +633,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       href="/faq"
                       onClick={() => setMenuOpen(false)}
                       className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
-                        pathname === "/faq" ? "text-[#123D32] dark:text-[#388463] font-semibold" : "text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        pathname === "/faq" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
                       {t("nav.help", "Help")}
@@ -613,7 +643,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       href="/contact"
                       onClick={() => setMenuOpen(false)}
                       className={`text-2xl sm:text-3xl font-normal tracking-tight py-2.5 transition active:scale-98 ${
-                        pathname === "/contact" ? "text-[#123D32] dark:text-[#388463] font-semibold" : "text-[#10251C]/75 dark:text-[#F7F5ED]/75 hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        pathname === "/contact" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
                       {t("nav.contact", "Contact")}
@@ -634,21 +664,21 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
             </div>
 
             {/* BOTTOM SECTION OF MOBILE DRAWER */}
-            <div className="pt-6 border-t border-[#DED7CA]/80 dark:border-[#24483D] space-y-4">
+            <div className="pt-6 border-t border-[#b3c8ca]/80 dark:border-[#4e697f] space-y-4">
               {currentUser ? (
-                <div className="bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] p-4 rounded-[12px] flex items-center justify-between shadow-2xs">
+                <div className="bg-white dark:bg-[#1a2d45] border border-[#b3c8ca] dark:border-[#4e697f] p-4 rounded-[12px] flex items-center justify-between shadow-2xs">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-[#123D32] dark:bg-[#28664D] text-white font-black text-lg flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-[#142238] dark:bg-[#365671] text-white font-black text-lg flex items-center justify-center">
                       {currentUser.name?.charAt(0).toUpperCase() || "P"}
                     </div>
                     <div>
-                      <p className="font-extrabold text-[#10251C] dark:text-[#F7F5ED] text-base truncate">{currentUser.name || "User"}</p>
+                      <p className="font-extrabold text-[#142238] dark:text-[#f3f8f6] text-base truncate">{currentUser.name || "User"}</p>
                       <div className="flex items-center gap-2 mt-0.5">
-                        <span className="text-xs uppercase font-extrabold px-2 py-0.5 rounded-full bg-[#E5EBDD] dark:bg-[#1D3428] text-[#123D32] dark:text-[#B9C8BF]">
+                        <span className="text-xs uppercase font-extrabold px-2 py-0.5 rounded-full bg-[#ddede8] dark:bg-[#1D3428] text-[#142238] dark:text-[#b3cbd1]">
                           {currentUser.role || "user"}
                         </span>
                         {currentUser.role !== "vendor" && (
-                          <span className="text-xs font-bold text-[#696B64] dark:text-[#B9C8BF]">
+                          <span className="text-xs font-bold text-[#4d6374] dark:text-[#b3cbd1]">
                             ₹{currentUser.walletBalance || 0}
                           </span>
                         )}
@@ -670,7 +700,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                     setMenuOpen(false);
                     setAuthOpen(true);
                   }}
-                  className="w-full py-3.5 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-base flex items-center justify-center gap-2 active:scale-98 transition shadow-xs hover:bg-[#0D3027] dark:hover:bg-[#347858]"
+                  className="w-full py-3.5 rounded-[8px] bg-[#213650] hover:bg-[#142238] dark:bg-[#354f68] dark:hover:bg-[#213650] text-white font-bold text-base flex items-center justify-center gap-2 active:scale-98 transition shadow-xs hover:bg-[#101c2f] dark:hover:bg-[#406780]"
                 >
                   <span>{t("nav.signIn", "Login or Sign Up")}</span>
                   <ArrowRight size={18} />
@@ -744,37 +774,37 @@ function UberProfileDropdown({
   return (
     <div className={mobile ? "p-6 pb-10" : "p-5"}>
       {/* 1. USER HEADER WITH STAR RATING & AVATAR */}
-      <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-[#1E3E34]">
+      <div className="flex items-center justify-between pb-4 border-b border-zinc-100 dark:border-[#425b73]">
         <div className="min-w-0 pr-3">
-          <p className="font-extrabold text-xl text-zinc-900 dark:text-[#F7F5ED] truncate">
+          <p className="font-extrabold text-xl text-zinc-900 dark:text-[#f3f8f6] truncate">
             {userData?.name || "RideNow Member"}
           </p>
           <div className="flex items-center gap-1.5 mt-1">
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-[#10352C] text-zinc-800 dark:text-[#F7F5ED] text-xs font-bold">
+            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-[#263d54] text-zinc-800 dark:text-[#f3f8f6] text-xs font-bold">
               <Star size={12} className="fill-amber-400 text-amber-400" />
               <span>{userData?.rating ? Number(userData.rating).toFixed(1) : "5.0"}</span>
             </div>
-            <span className="text-xs uppercase font-extrabold text-zinc-400 dark:text-[#B9C8BF] tracking-wider">
+            <span className="text-xs uppercase font-extrabold text-zinc-400 dark:text-[#b3cbd1] tracking-wider">
               {userData?.role === "vendor" ? "Partner" : "Rider"}
             </span>
           </div>
         </div>
 
-        <div className="w-12 h-12 rounded-full bg-zinc-900 dark:bg-[#28664D] text-white flex items-center justify-center font-black text-lg flex-shrink-0 shadow-sm">
+        <div className="w-12 h-12 rounded-full bg-zinc-900 dark:bg-[#365671] text-white flex items-center justify-center font-black text-lg flex-shrink-0 shadow-sm">
           {userData?.name?.charAt(0).toUpperCase() || "R"}
         </div>
       </div>
 
       {/* 2. THREE QUICK-ACTION TILES (HELP, WALLET, ACTIVITY) */}
-      <div className="grid grid-cols-3 gap-2 py-3.5 border-b border-zinc-100 dark:border-[#1E3E34]">
+      <div className="grid grid-cols-3 gap-2 py-3.5 border-b border-zinc-100 dark:border-[#425b73]">
         <button
           onClick={() => {
             onClose();
             router.push("/faq");
           }}
-          className="flex flex-col items-center justify-center p-3 rounded-2xl bg-zinc-100 dark:bg-[#10352C] hover:bg-zinc-200 dark:hover:bg-[#143D32] transition active:scale-95 text-zinc-800 dark:text-[#F7F5ED]"
+          className="flex flex-col items-center justify-center p-3 rounded-2xl bg-zinc-100 dark:bg-[#263d54] hover:bg-zinc-200 dark:hover:bg-[#2a425a] transition active:scale-95 text-zinc-800 dark:text-[#f3f8f6]"
         >
-          <HelpCircle size={22} className="text-zinc-700 dark:text-[#B9C8BF] mb-1" />
+          <HelpCircle size={22} className="text-zinc-700 dark:text-[#b3cbd1] mb-1" />
           <span className="text-xs font-bold">Help</span>
         </button>
 
@@ -783,9 +813,9 @@ function UberProfileDropdown({
             onClose();
             router.push(userData?.role === "vendor" ? "/partner/wallet" : "/wallet");
           }}
-          className="flex flex-col items-center justify-center p-3 rounded-2xl bg-zinc-100 dark:bg-[#10352C] hover:bg-zinc-200 dark:hover:bg-[#143D32] transition active:scale-95 text-zinc-800 dark:text-[#F7F5ED]"
+          className="flex flex-col items-center justify-center p-3 rounded-2xl bg-zinc-100 dark:bg-[#263d54] hover:bg-zinc-200 dark:hover:bg-[#2a425a] transition active:scale-95 text-zinc-800 dark:text-[#f3f8f6]"
         >
-          <Wallet size={22} className="text-zinc-700 dark:text-[#B9C8BF] mb-1" />
+          <Wallet size={22} className="text-zinc-700 dark:text-[#b3cbd1] mb-1" />
           <span className="text-xs font-bold">Wallet</span>
         </button>
 
@@ -794,9 +824,9 @@ function UberProfileDropdown({
             onClose();
             router.push(userData?.role === "vendor" ? "/partner/bookings" : "/bookings");
           }}
-          className="flex flex-col items-center justify-center p-3 rounded-2xl bg-zinc-100 dark:bg-[#10352C] hover:bg-zinc-200 dark:hover:bg-[#143D32] transition active:scale-95 text-zinc-800 dark:text-[#F7F5ED]"
+          className="flex flex-col items-center justify-center p-3 rounded-2xl bg-zinc-100 dark:bg-[#263d54] hover:bg-zinc-200 dark:hover:bg-[#2a425a] transition active:scale-95 text-zinc-800 dark:text-[#f3f8f6]"
         >
-          <FileText size={22} className="text-zinc-700 dark:text-[#B9C8BF] mb-1" />
+          <FileText size={22} className="text-zinc-700 dark:text-[#b3cbd1] mb-1" />
           <span className="text-xs font-bold">Activity</span>
         </button>
       </div>
@@ -807,25 +837,25 @@ function UberProfileDropdown({
           onClose();
           router.push(userData?.role === "vendor" ? "/partner/wallet" : "/wallet");
         }}
-        className="mt-3.5 p-3.5 rounded-2xl bg-zinc-50 dark:bg-[#10352C] border border-zinc-200/80 dark:border-[#24483D] flex items-center justify-between cursor-pointer hover:bg-zinc-100 dark:hover:bg-[#143D32] transition active:scale-98"
+        className="mt-3.5 p-3.5 rounded-2xl bg-zinc-50 dark:bg-[#263d54] border border-zinc-200/80 dark:border-[#4e697f] flex items-center justify-between cursor-pointer hover:bg-zinc-100 dark:hover:bg-[#2a425a] transition active:scale-98"
       >
         <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-[#B9C8BF]">RideNow Wallet</p>
-          <p className="text-sm font-semibold text-zinc-700 dark:text-[#B9C8BF] mt-0.5">Available Balance</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-[#b3cbd1]">RideNow Wallet</p>
+          <p className="text-sm font-semibold text-zinc-700 dark:text-[#b3cbd1] mt-0.5">Available Balance</p>
         </div>
-        <p className="text-2xl font-black text-zinc-950 dark:text-[#F7F5ED]">₹{userData?.walletBalance || 0}</p>
+        <p className="text-2xl font-black text-zinc-950 dark:text-[#f3f8f6]">₹{userData?.walletBalance || 0}</p>
       </div>
 
       {/* 4. STRUCTURED ACTION LINKS */}
-      <div className="py-2 divide-y divide-zinc-100 dark:divide-[#1E3E34] text-sm font-semibold text-zinc-800 dark:text-[#F7F5ED]">
+      <div className="py-2 divide-y divide-zinc-100 dark:divide-[#425b73] text-sm font-semibold text-zinc-800 dark:text-[#f3f8f6]">
         <button
           onClick={() => {
             onClose();
             router.push("/profile");
           }}
-          className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#10352C] rounded-xl transition text-left cursor-pointer"
+          className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#263d54] rounded-xl transition text-left cursor-pointer"
         >
-          <UserIcon size={18} className="text-zinc-600 dark:text-[#B9C8BF]" />
+          <UserIcon size={18} className="text-zinc-600 dark:text-[#b3cbd1]" />
           <span>Manage account</span>
           <ChevronRight size={16} className="ml-auto text-zinc-400 dark:text-zinc-600" />
         </button>
@@ -835,9 +865,9 @@ function UberProfileDropdown({
             onClose();
             router.push("/settings");
           }}
-          className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#10352C] rounded-xl transition text-left cursor-pointer"
+          className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#263d54] rounded-xl transition text-left cursor-pointer"
         >
-          <SettingsIcon size={18} className="text-zinc-600 dark:text-[#B9C8BF]" />
+          <SettingsIcon size={18} className="text-zinc-600 dark:text-[#b3cbd1]" />
           <span>Settings</span>
           <ChevronRight size={16} className="ml-auto text-zinc-400 dark:text-zinc-600" />
         </button>
@@ -848,9 +878,9 @@ function UberProfileDropdown({
               onClose();
               router.push("/partner/onboard/vehicle");
             }}
-            className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#10352C] rounded-xl transition text-left"
+            className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#263d54] rounded-xl transition text-left"
           >
-            <Car size={18} className="text-zinc-600 dark:text-[#B9C8BF]" />
+            <Car size={18} className="text-zinc-600 dark:text-[#b3cbd1]" />
             <span>Drive with RideNow</span>
             <ChevronRight size={16} className="ml-auto text-zinc-400 dark:text-zinc-600" />
           </button>
@@ -860,9 +890,9 @@ function UberProfileDropdown({
               onClose();
               router.push("/partners/dashboard");
             }}
-            className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#10352C] rounded-xl transition text-left"
+            className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#263d54] rounded-xl transition text-left"
           >
-            <ShieldCheck size={18} className="text-zinc-600 dark:text-[#B9C8BF]" />
+            <ShieldCheck size={18} className="text-zinc-600 dark:text-[#b3cbd1]" />
             <span>Partner Dashboard</span>
             <ChevronRight size={16} className="ml-auto text-zinc-400 dark:text-zinc-600" />
           </button>
@@ -874,7 +904,7 @@ function UberProfileDropdown({
               onClose();
               router.push("/admin/dashboard");
             }}
-            className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#10352C] rounded-xl transition text-left text-amber-600 dark:text-amber-400"
+            className="w-full flex items-center gap-3 py-3 px-2 hover:bg-zinc-100 dark:hover:bg-[#263d54] rounded-xl transition text-left text-amber-600 dark:text-amber-400"
           >
             <ShieldCheck size={18} />
             <span>Admin Control Panel</span>

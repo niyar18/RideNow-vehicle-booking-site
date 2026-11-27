@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ReviewIntro } from "@/features/admin/components/AdminChrome";
 import AdminDecisionDialog from "@/features/admin/components/AdminDecisionDialog";
 import ui from "@/features/admin/components/admin-ui.module.css";
@@ -134,31 +133,31 @@ export default function AdminVendorReviewPage() {
 
   if (loading)
     return (
-      <div className={ui.content} role="status">
+      <main id="admin-content" tabIndex={-1} className={ui.content}><p role="status">
         Loading vendor review…
-      </div>
+      </p></main>
     );
 
   if (!data) return (
-    <main className={ui.content}>
+    <main id="admin-content" tabIndex={-1} className={ui.content}>
       <ReviewIntro eyebrow="Vendor review" title="Review unavailable" />
       <p className={ui.secondary} role="alert">This vendor record couldn’t be loaded.</p>
     </main>
   );
 
   return (
-    <div>
+    <main id="admin-content" tabIndex={-1}>
       <ReviewIntro eyebrow="Vendor application" title={data.name || "Vendor review"} detail={data.email}
         status={<StatusBadge status={data.vendorStatus} />} />
 
       {/* ================= MAIN ================= */}
-      <main className={`${ui.reviewWrap} grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4 lg:gap-5`}>
+      <div className={`${ui.reviewWrap} grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4 lg:gap-5`}>
 
         {/* LEFT SIDE */}
         <div className="min-w-0 space-y-4">
 
           {/* WOMEN'S SAFETY DRIVER VERIFICATION ENGINE */}
-          <AnimatedCard title="Women's Safety Driver Verification" icon={<ShieldCheck size={18} className="text-emerald-600" />}>
+          <AnimatedCard title="Women's Safety Driver Verification" icon={<ShieldCheck size={18} aria-hidden="true" />}>
             <div className="space-y-3.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
@@ -167,16 +166,16 @@ export default function AdminVendorReviewPage() {
                     {data.safetyMatching?.driverCategory === "woman" ? "Female Driver (Woman)" : "Standard / Not Specified"}
                   </p>
                 </div>
-                <span className={`inline-block text-[10px] uppercase font-bold px-2.5 py-1 rounded-full ${
+                <span className={`inline-block text-xs capitalize font-semibold px-2 py-1 rounded-md border ${
                   data.safetyMatching?.driverVerificationStatus === "verified"
-                    ? "bg-green-100 text-green-700 border border-green-200"
+                    ? ui.tonePositive
                     : data.safetyMatching?.driverVerificationStatus === "pending"
-                    ? "bg-amber-100 text-amber-700 border border-amber-200"
+                    ? ui.toneWarning
                     : data.safetyMatching?.driverVerificationStatus === "rejected"
-                    ? "bg-red-100 text-red-700 border border-red-200"
+                    ? ui.toneDanger
                     : "bg-[var(--admin-subtle)] text-[var(--admin-muted)] border border-[var(--admin-rule)]"
                 }`}>
-                  {data.safetyMatching?.driverVerificationStatus || "not_submitted"}
+                  {(data.safetyMatching?.driverVerificationStatus || "Not submitted").replaceAll("_", " ")}
                 </span>
               </div>
 
@@ -226,7 +225,7 @@ export default function AdminVendorReviewPage() {
           </AnimatedCard>
 
           {/* VERIFICATION CHECKLIST */}
-          <AnimatedCard title="Verification checklist" icon={<ShieldCheck size={18} className="text-orange-600" />}>
+          <AnimatedCard title="Verification checklist" icon={<ShieldCheck size={18} aria-hidden="true" />}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { key: "identity", label: "1. Digital Identity (Aadhaar/PAN)" },
@@ -242,12 +241,12 @@ export default function AdminVendorReviewPage() {
                   <div key={p.key} className="p-3 bg-[var(--admin-subtle)] rounded-xl border border-[var(--admin-rule)]/80 flex flex-wrap items-center justify-between gap-2">
                     <div>
                       <p className="text-xs font-semibold text-[var(--text-primary)]">{p.label}</p>
-                      <span className={`inline-block text-[10px] uppercase font-bold px-2 py-0.5 rounded-full mt-1 ${
+                      <span className={`inline-block text-xs capitalize font-semibold px-2 py-0.5 rounded-md border mt-1 ${
                         currentStatus === "verified"
-                          ? "bg-green-100 text-green-700"
+                          ? ui.tonePositive
                           : currentStatus === "rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-amber-100 text-amber-700"
+                          ? ui.toneDanger
+                          : ui.toneWarning
                       }`}>
                         {currentStatus}
                       </span>
@@ -309,7 +308,7 @@ export default function AdminVendorReviewPage() {
           <AnimatedCard title="Driver Shift & Cooldown" icon={<AlertTriangle size={18} />}>
             <div className="space-y-4">
               {/* Cooldown Status Badge & Summary */}
-              <div className="flex items-center justify-between pb-3 border-b border-[var(--admin-rule)]">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--admin-rule)]">
                 <div>
                   <p className="text-[11px] font-bold text-[var(--admin-muted)] uppercase tracking-wider">
                     Dispatch Cooldown Status
@@ -319,13 +318,13 @@ export default function AdminVendorReviewPage() {
                   </p>
                 </div>
                 {data.shiftAnalytics?.isCooldownActive ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-black uppercase tracking-wider">
-                    <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-semibold ${ui.toneDanger}`}>
+                    <AlertTriangle size={15} aria-hidden="true" />
                     Cooldown Active
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black uppercase tracking-wider">
-                    <CheckCircle size={13} className="text-emerald-600" />
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-semibold ${ui.tonePositive}`}>
+                    <CheckCircle size={15} aria-hidden="true" />
                     Normal / Eligible
                   </span>
                 )}
@@ -333,14 +332,14 @@ export default function AdminVendorReviewPage() {
 
               {/* Cooldown Details when Active */}
               {data.shiftAnalytics?.isCooldownActive && (
-                <div className="p-3 bg-red-50/80 border border-red-200 rounded-2xl text-xs space-y-1.5 text-red-950">
+                <div className={`p-3 border rounded-lg text-sm space-y-1.5 ${ui.toneDanger}`}>
                   <div className="flex justify-between items-center font-bold">
                     <span>Remaining Timeout:</span>
-                    <span className="font-mono text-red-700 bg-red-100 px-2 py-0.5 rounded-lg">
+                    <span className="font-mono px-2 py-0.5 rounded-md border border-current">
                       {data.shiftAnalytics.cooldownRemainingMinutes} min
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-[11px] text-red-800">
+                  <div className="flex flex-wrap justify-between items-center gap-2 text-xs">
                     <span>Blocked Until:</span>
                     <span className="font-medium">
                       {new Date(data.shiftAnalytics.dispatchBlockedUntil).toLocaleTimeString([], {
@@ -350,7 +349,7 @@ export default function AdminVendorReviewPage() {
                     </span>
                   </div>
                   {data.shiftAnalytics.latestCancellationReason && (
-                    <div className="pt-1.5 border-t border-red-200/80 text-[11px] text-red-900">
+                    <div className="pt-1.5 border-t border-current text-xs">
                       <span className="font-bold">Reason: </span>
                       <span>{data.shiftAnalytics.latestCancellationReason}</span>
                     </div>
@@ -374,7 +373,7 @@ export default function AdminVendorReviewPage() {
                     Today's Cancellations
                   </span>
                   <span className={`text-sm font-black ${
-                    (data.shiftAnalytics?.dailyCancellations || 0) >= 3 ? "text-red-600" : "text-[var(--text-primary)]"
+                    (data.shiftAnalytics?.dailyCancellations || 0) >= 3 ? ui.dangerText : "text-[var(--text-primary)]"
                   }`}>
                     {data.shiftAnalytics?.dailyCancellations ?? 0}
                   </span>
@@ -394,7 +393,7 @@ export default function AdminVendorReviewPage() {
                     Driver Shift State
                   </span>
                   <span className={`text-sm font-black ${
-                    data.isOnline ? "text-emerald-600" : "text-[var(--admin-muted)]"
+                    data.isOnline ? ui.positiveText : "text-[var(--admin-muted)]"
                   }`}>
                     {data.isOnline ? "Online (On Shift)" : "Offline"}
                   </span>
@@ -416,26 +415,22 @@ export default function AdminVendorReviewPage() {
           </AnimatedCard>
 
           {data.vendorStatus === "rejected" && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className={ui.reviewCard}
             >
-              <div className="flex items-center gap-2 font-semibold text-red-600">
+              <div className={`flex items-center gap-2 font-semibold ${ui.dangerText}`}>
                 <XCircle size={18} />
                 Documents Rejected
               </div>
-              <p className="text-sm text-[var(--text-primary)] bg-red-50 p-4 rounded-2xl border border-red-100">
-                <span className="font-semibold block text-red-900 mb-1">Reason:</span>
+              <p className={`text-sm p-4 rounded-lg border ${ui.toneDanger}`}>
+                <span className="font-semibold block mb-1">Reason:</span>
                 {data.vendorRejectionReason || "Documents were rejected by admin."}
               </p>
-            </motion.div>
+            </div>
           )}
 
           {data.vendorStatus === "pending" && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className={ui.reviewCard}
             >
               <div className="flex items-center gap-2 font-semibold">
@@ -462,13 +457,11 @@ export default function AdminVendorReviewPage() {
                   Reject Vendor
                 </button>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {data.vendorStatus === "approved" && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
+            <div
               className={ui.reviewCard}
             >
               <div className="flex items-center gap-2 font-semibold">
@@ -478,7 +471,7 @@ export default function AdminVendorReviewPage() {
 
               {data.videoKycStatus === "approved" ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-200 px-4 py-3 rounded-2xl text-sm font-semibold">
+                  <div className={`flex items-center gap-2 border px-4 py-3 rounded-lg text-sm font-semibold ${ui.tonePositive}`}>
                     <CheckCircle size={18} />
                     Video KYC Approved
                   </div>
@@ -488,7 +481,7 @@ export default function AdminVendorReviewPage() {
                 </div>
               ) : data.videoKycStatus === "in_progress" ? (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-blue-700 bg-blue-50 border border-blue-200 px-4 py-3 rounded-2xl text-sm font-semibold">
+                  <div className={`flex items-center gap-2 border px-4 py-3 rounded-lg text-sm font-semibold ${ui.tonePositive}`}>
                     <Clock size={18} />
                     Call Currently In Progress
                   </div>
@@ -505,7 +498,7 @@ export default function AdminVendorReviewPage() {
                     Documents are verified. Initiate live video verification call with this vendor.
                   </p>
                   {data.videoKycStatus === "rejected" && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
+                    <div className={`p-3 border rounded-lg text-sm ${ui.toneDanger}`}>
                       <span className="font-bold">Last KYC Rejected:</span> {data.videoKycRejectionReason || "No reason given"}
                     </div>
                   )}
@@ -531,10 +524,10 @@ export default function AdminVendorReviewPage() {
                   </button>
                 </div>
               )}
-            </motion.div>
+            </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* APPROVE MODAL */}
       <ConfirmModal
@@ -556,7 +549,7 @@ export default function AdminVendorReviewPage() {
         onClose={() => setShowReject(false)}
         onConfirm={rejectVendor}
       />
-    </div>
+    </main>
   );
 }
 
@@ -596,7 +589,8 @@ function DocPreview({ label, url }: any) {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block text-center text-xs py-2 font-medium hover:bg-[var(--admin-subtle)] text-[var(--admin-accent)] transition"
+          className={ui.reviewDocumentLink}
+          aria-label={`Open ${label} in a new tab`}
         >
           Open full document
         </a>

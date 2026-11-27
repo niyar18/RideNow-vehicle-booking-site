@@ -28,22 +28,22 @@ export default function CancellationRefundPolicyPage() {
           </h2>
 
           <div className="grid sm:grid-cols-2 gap-4 text-xs">
-            <div className="p-4 rounded-[10px] bg-[var(--page-moss)] dark:bg-[#1D3428] border border-[#cdd6c3] dark:border-[#24483D] text-[var(--page-accent)]">
+            <div className="p-4 rounded-[10px] bg-[var(--page-tint)] dark:bg-[var(--surface-subtle)] border border-[var(--border-default)] dark:border-[var(--border-default)] text-[var(--page-accent)]">
               <div className="flex items-center gap-2 font-bold mb-1 text-[var(--page-accent)]">
                 <CheckCircle2 size={16} className="text-emerald-700 dark:text-emerald-400" />
                 <span>Free Cancellation Window</span>
               </div>
-              <p className="text-[var(--page-accent)]/90 dark:text-[#B9C8BF] leading-relaxed">
+              <p className="text-[var(--page-accent)]/90 dark:text-[var(--text-secondary)] leading-relaxed">
                 You can cancel your booking completely free of charge while the system is searching for a driver or within <strong>3 minutes</strong> of a driver accepting your request.
               </p>
             </div>
 
-            <div className="p-4 rounded-[10px] bg-[#faebe8] dark:bg-[#341814] border border-[#f0c8c1] text-[#782313] dark:text-[#E06A50]">
-              <div className="flex items-center gap-2 font-bold mb-1 text-[#782313] dark:text-[#E06A50]">
-                <XCircle size={16} className="text-[#E34222] dark:text-[#E06A50]" />
+            <div className="p-4 rounded-[10px] bg-[var(--policy-danger-bg)] border border-[var(--policy-danger-border)] text-[var(--policy-danger)]">
+              <div className="flex items-center gap-2 font-bold mb-1 text-[var(--policy-danger)]">
+                <XCircle size={16} className="text-[var(--policy-danger)]" />
                 <span>Late Cancellation Fee</span>
               </div>
-              <p className="text-[#782313]/90 dark:text-[#B9C8BF] leading-relaxed">
+              <p className="text-[var(--policy-danger)] dark:text-[var(--text-secondary)] leading-relaxed">
                 If cancelled after 3 minutes of acceptance, or after the driver has arrived at the pickup coordinate, a nominal compensation fee (₹25–₹50) is levied to compensate the driver partner for fuel and transit time.
               </p>
             </div>

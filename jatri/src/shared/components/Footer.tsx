@@ -29,7 +29,7 @@ export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="relative bg-[#163b2b] text-[#fcfaef]">
+    <footer className="relative bg-[#142238] text-[#fcfaef]">
       <GamosaBorder height={10} accentColor="#d58d74" />
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-5 gap-y-8 px-5 py-12 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr_1fr] md:gap-8 md:py-16">
         <div className="col-span-2 md:col-span-1">
@@ -38,13 +38,13 @@ export default function Footer() {
           </Link>
           <p className="my-3 text-[26px] leading-tight tracking-tight [font-family:var(--font-serif)]">{t("footer.tagline", "More than a ride.")}</p>
           <p className="max-w-68 text-sm leading-relaxed text-[#d8e4d8]">{t("footer.aboutText", "Assam's local mobility platform for everyday journeys, vehicle rentals and deliveries.")}</p>
-          <Link href="/partner/onboard/vehicle" className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-[#e8f4ad] hover:underline">
+          <Link href="/partner/onboard/vehicle" className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-[#aaf5da] hover:underline">
             {t("footer.becomePartner", "Become a partner")} <ArrowUpRight size={15} aria-hidden />
           </Link>
         </div>
         {sections.map(({ title, fallback, links }) => (
           <div key={title}>
-            <h2 className="mb-3 text-[11px] font-bold tracking-[.12em] text-[#e8f4ad] uppercase">{t(title, fallback)}</h2>
+            <h2 className="mb-3 text-[11px] font-bold tracking-[.12em] text-[#aaf5da] uppercase">{t(title, fallback)}</h2>
             <ul className="space-y-1.5">
               {links.map(([key, label, href]) => <li key={key}>
                 <Link href={href} className="inline-flex min-h-8 items-center text-sm leading-snug text-[#d8e4d8] hover:text-white hover:underline">{t(key, label)}</Link>
@@ -53,7 +53,7 @@ export default function Footer() {
           </div>
         ))}
       </div>
-      <div className="border-t border-[#6c8973] bg-[#102c20]">
+      <div className="border-t border-[#6c8973] bg-[#0d182b]">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-5 py-5 sm:px-8 md:flex-row md:items-center">
           <p className="text-xs text-[#d8e4d8]">© {new Date().getFullYear()} Jaatri by RideNow</p>
           <div className="flex flex-wrap items-center gap-3"><ThemeToggle variant="footer" /><LanguageSelector variant="footer" /></div>

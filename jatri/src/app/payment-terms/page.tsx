@@ -82,21 +82,21 @@ export default function PaymentTermsPage() {
           <p className="text-sm sm:text-base text-[var(--text-secondary)]">
             In compliance with the <strong>Motor Vehicle Aggregator Guidelines, 2025 (Clause 13)</strong>, Jaatri enforces fair driver remuneration:
           </p>
-          <div className="p-5 rounded-[12px] bg-[#123D32] text-white space-y-3">
+          <div className="p-5 rounded-[12px] bg-[var(--policy-inverse)] text-white space-y-3">
             <div className="flex items-center justify-between text-xs pb-3 border-b border-white/20">
-              <span className="font-bold uppercase tracking-wider text-[#F7F1E5]/80">Total Customer Fare</span>
-              <span className="font-mono text-emerald-300 font-bold text-sm">100% of Base + Distance + Time</span>
+              <span className="font-bold uppercase tracking-wider text-[var(--policy-inverse-text)]">Total Customer Fare</span>
+              <span className="font-mono text-[var(--accent-mint)] font-bold text-sm">100% of Base + Distance + Time</span>
             </div>
             <div className="grid grid-cols-2 gap-4 text-xs pt-1">
               <div>
-                <p className="text-[#F7F1E5]/75">Driver Partner Remuneration</p>
+                <p className="text-[var(--policy-inverse-text)]">Driver Partner Remuneration</p>
                 <p className="text-xl font-bold text-white mt-0.5">90% of Fare</p>
-                <p className="text-[11px] text-[#F7F1E5]/60 mt-1">Directly credited to Driver Earnings Wallet.</p>
+                <p className="text-[11px] text-[var(--policy-inverse-text)] mt-1">Directly credited to Driver Earnings Wallet.</p>
               </div>
               <div>
-                <p className="text-[#F7F1E5]/75">Platform Convenience Fee</p>
-                <p className="text-xl font-bold text-[#E5EBDD] mt-0.5">10% Commission</p>
-                <p className="text-[11px] text-[#F7F1E5]/60 mt-1">Covers cloud routing, 24×7 safety response, and gateway fees.</p>
+                <p className="text-[var(--policy-inverse-text)]">Platform Convenience Fee</p>
+                <p className="text-xl font-bold text-[var(--accent-mint)] mt-0.5">10% Commission</p>
+                <p className="text-[11px] text-[var(--policy-inverse-text)] mt-1">Covers cloud routing, 24×7 safety response, and gateway fees.</p>
               </div>
             </div>
           </div>

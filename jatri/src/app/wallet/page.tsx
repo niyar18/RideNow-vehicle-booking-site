@@ -228,7 +228,7 @@ export default function WalletPage() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="mb-5 sm:mb-6 p-3.5 sm:p-4 rounded-[12px] bg-[#046A38] text-white flex items-center justify-between shadow-xs"
+              className="mb-5 sm:mb-6 p-3.5 sm:p-4 rounded-[12px] bg-[#213650] text-white flex items-center justify-between shadow-xs"
             >
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 size={18} />
@@ -271,32 +271,32 @@ export default function WalletPage() {
         {/* HERO WALLET CARD & QUICK STATS */}
         <div className="grid md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Main Card */}
-          <div className="md:col-span-2 relative overflow-hidden rounded-[14px] bg-[#145338] text-[#f6f4eb] p-5 sm:p-8 border border-[#145338] dark:border-[#476458] flex flex-col justify-between min-h-[190px] sm:min-h-[220px]">
+          <div className="md:col-span-2 relative overflow-hidden rounded-[14px] bg-[#142238] text-[#f3f8f6] p-5 sm:p-8 border border-[#142238] dark:border-[#476458] flex flex-col justify-between min-h-[190px] sm:min-h-[220px]">
             <div className="relative z-10 flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-[#e3efde] mb-2">
                   {t("wallet.balance", "Available Balance")}
                 </p>
                 <div className="flex items-baseline gap-1 mt-1">
-                  <span className="text-4xl sm:text-5xl font-semibold tabular-nums text-[#f6f4eb] tracking-tight">
+                  <span className="text-4xl sm:text-5xl font-semibold tabular-nums text-[#f3f8f6] tracking-tight">
                     ₹{balance.toLocaleString("en-IN")}
                   </span>
-                  <span className="text-xs font-bold text-[#E5EBDD]/80">INR</span>
+                  <span className="text-xs font-bold text-[#ddede8]/80">INR</span>
                 </div>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[10px] bg-white/10 border border-white/10 flex items-center justify-center text-[#E5EBDD]">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-[10px] bg-white/10 border border-white/10 flex items-center justify-center text-[#ddede8]">
                 <Wallet size={20} className="sm:w-6 sm:h-6" />
               </div>
             </div>
 
-            <div className="relative z-10 pt-4 sm:pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-[#E5EBDD]/80">
+            <div className="relative z-10 pt-4 sm:pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-2.5 sm:gap-3 text-[11px] sm:text-xs text-[#ddede8]/80">
               <div className="flex items-center gap-1.5 font-medium">
-                <ShieldCheck size={14} className="text-[#E5EBDD] shrink-0" />
+                <ShieldCheck size={14} className="text-[#ddede8] shrink-0" />
                 <span>{t("wallet.protectedEncryption", "Payments processed securely through our payment provider")}</span>
               </div>
               <button
                 onClick={() => setShowTopupModal(true)}
-                className="text-white hover:text-[#E5EBDD] font-bold flex items-center gap-1 transition cursor-pointer"
+                className="text-white hover:text-[#ddede8] font-bold flex items-center gap-1 transition cursor-pointer"
               >
                 {t("wallet.quickRecharge", "Quick Recharge")} <ChevronRight size={14} />
               </button>
@@ -306,7 +306,7 @@ export default function WalletPage() {
           {/* Quick Metrics */}
           <div className="flex flex-col gap-4">
             <div className="bg-[var(--surface-raised)] rounded-[12px] p-5 border border-[var(--border-default)] flex items-center gap-4">
-              <div className="w-12 h-12 rounded-[8px] bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-[8px] bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] flex items-center justify-center flex-shrink-0">
                 <ArrowDownLeft size={22} />
               </div>
               <div>
@@ -351,7 +351,7 @@ export default function WalletPage() {
               </p>
             </div>
 
-            <div className="flex items-center gap-1 bg-white/80 dark:bg-[#10352C] border border-[var(--border-default)] p-1 rounded-[8px] self-start sm:self-auto">
+            <div className="flex items-center gap-1 bg-white/80 dark:bg-[#263d54] border border-[var(--border-default)] p-1 rounded-[8px] self-start sm:self-auto">
               {[
                 { id: "all", label: t("common.all", "All") },
                 { id: "credit", label: t("wallet.added", "Added") },
@@ -363,8 +363,8 @@ export default function WalletPage() {
                   onClick={() => setActiveFilter(tab.id as any)}
                   className={`px-3 py-1.5 rounded-[6px] text-xs font-bold transition cursor-pointer ${
                     activeFilter === tab.id
-                      ? "bg-[#123D32] dark:bg-[#28664D] text-white shadow-xs"
-                      : "text-[var(--text-secondary)] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                      ? "bg-[#142238] dark:bg-[#365671] text-white shadow-xs"
+                      : "text-[var(--text-secondary)] hover:text-[#142238] dark:hover:text-[#f3f8f6]"
                   }`}
                 >
                   {tab.label}
@@ -374,15 +374,15 @@ export default function WalletPage() {
           </div>
 
           {/* Transactions List */}
-          <div className="divide-y divide-[#DED7CA]/60 dark:divide-[#24483D]">
+          <div className="divide-y divide-[#b3c8ca]/60 dark:divide-[#4e697f]">
             {loading ? (
               <div className="py-16 text-center">
-                <Loader2 size={24} className="animate-spin text-[#123D32] dark:text-[#d9ea84] mx-auto mb-2" />
+                <Loader2 size={24} className="animate-spin text-[#142238] dark:text-[#91f2ce] mx-auto mb-2" />
                 <p className="text-xs text-[var(--text-secondary)] font-medium">{t("common.loading", "Loading ledger records…")}</p>
               </div>
             ) : filteredTransactions.length === 0 ? (
               <div className="py-16 text-center px-4">
-                <div className="w-12 h-12 rounded-[10px] bg-[var(--surface-raised)] border border-[var(--border-default)] text-[#123D32] dark:text-[#d9ea84] flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-[10px] bg-[var(--surface-raised)] border border-[var(--border-default)] text-[#142238] dark:text-[#91f2ce] flex items-center justify-center mx-auto mb-3">
                   <Wallet size={20} />
                 </div>
                 <p className="text-sm font-bold text-[var(--text-primary)]">{t("wallet.noTransactions", "No transactions recorded")}</p>
@@ -404,7 +404,7 @@ export default function WalletPage() {
                 return (
                   <div
                     key={tx._id}
-                    className="p-4 sm:p-5 flex items-center justify-between hover:bg-white/60 dark:hover:bg-[#10352C]/60 transition"
+                    className="p-4 sm:p-5 flex items-center justify-between hover:bg-white/60 dark:hover:bg-[#263d54]/60 transition"
                   >
                     <div className="flex items-center gap-3.5 min-w-0">
                       <div
@@ -412,7 +412,7 @@ export default function WalletPage() {
                           isRefund
                             ? "bg-[#faebe8] dark:bg-[#341814] text-[#E34222] dark:text-[#E06A50] border border-[#E34222]/30 dark:border-[#E06A50]/40"
                             : isCredit
-                            ? "bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] border border-[var(--border-default)]"
+                            ? "bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] border border-[var(--border-default)]"
                             : "bg-[var(--surface-raised)] text-[var(--text-primary)] border border-[var(--border-default)]"
                         }`}
                       >
@@ -435,7 +435,7 @@ export default function WalletPage() {
                               isRefund
                                 ? "bg-[#faebe8] dark:bg-[#341814] text-[#E34222] dark:text-[#E06A50] border-[#E34222]/30 dark:border-[#E06A50]/40"
                                 : isCredit
-                                ? "bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] border-[var(--border-default)]"
+                                ? "bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] border-[var(--border-default)]"
                                 : "bg-[var(--surface-raised)] text-[var(--text-secondary)] border-[var(--border-default)]"
                             }`}
                           >
@@ -457,7 +457,7 @@ export default function WalletPage() {
                     <div className="text-right flex-shrink-0 ml-4">
                       <p
                         className={`text-sm sm:text-base font-bold font-mono ${
-                          isCredit ? "text-[#123D32] dark:text-[#d9ea84]" : "text-[var(--text-primary)]"
+                          isCredit ? "text-[#142238] dark:text-[#91f2ce]" : "text-[var(--text-primary)]"
                         }`}
                       >
                         {isCredit ? "+" : "-"}₹{tx.amount.toLocaleString("en-IN")}
@@ -485,7 +485,7 @@ export default function WalletPage() {
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-[8px] bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] flex items-center justify-center font-bold">
+                    <div className="w-8 h-8 rounded-[8px] bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] flex items-center justify-center font-bold">
                       <Wallet size={16} />
                     </div>
                     <div>
@@ -498,7 +498,7 @@ export default function WalletPage() {
                       setShowTopupModal(false);
                       setTopupError(null);
                     }}
-                    className="w-7 h-7 rounded-[6px] bg-[var(--surface-raised)] border border-[var(--border-default)] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] flex items-center justify-center text-[var(--text-primary)] transition cursor-pointer"
+                    className="w-7 h-7 rounded-[6px] bg-[var(--surface-raised)] border border-[var(--border-default)] hover:bg-[#e8f2ef] dark:hover:bg-[#2a425a] flex items-center justify-center text-[var(--text-primary)] transition cursor-pointer"
                   >
                     ✕
                   </button>
@@ -516,7 +516,7 @@ export default function WalletPage() {
                   <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-1.5 block">
                     {t("wallet.selectAmount", "Enter Amount")}
                   </label>
-                  <div className="flex items-center gap-2 px-4 py-3 rounded-[8px] border-2 border-[var(--border-default)] bg-white dark:bg-[#061A16] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition">
+                  <div className="flex items-center gap-2 px-4 py-3 rounded-[8px] border-2 border-[var(--border-default)] bg-white dark:bg-[#142238] focus-within:border-[#142238] dark:focus-within:border-[#365671] transition">
                     <span className="text-lg font-bold text-[var(--text-secondary)]">₹</span>
                     <input
                       type="number"
@@ -543,8 +543,8 @@ export default function WalletPage() {
                         onClick={() => setCustomAmount(amt.toString())}
                         className={`py-2 rounded-[8px] text-xs font-bold border transition cursor-pointer ${
                           customAmount === amt.toString()
-                            ? "bg-[#123D32] text-white border-[#123D32] dark:bg-[#28664D] dark:border-[#28664D] shadow-xs"
-                            : "bg-[var(--surface-raised)] text-[var(--text-primary)] border-[var(--border-default)] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32]"
+                            ? "bg-[#142238] text-white border-[#142238] dark:bg-[#365671] dark:border-[#365671] shadow-xs"
+                            : "bg-[var(--surface-raised)] text-[var(--text-primary)] border-[var(--border-default)] hover:bg-[#e8f2ef] dark:hover:bg-[#2a425a]"
                         }`}
                       >
                         +₹{amt}
@@ -554,8 +554,8 @@ export default function WalletPage() {
                 </div>
 
                 {/* Security Note */}
-                <div className="p-3 bg-white/70 dark:bg-[#10352C]/70 rounded-[8px] border border-[var(--border-default)] mb-4 text-[11px] text-[var(--text-secondary)] flex items-center gap-2">
-                  <Zap size={14} className="text-[#123D32] dark:text-[#d9ea84] flex-shrink-0" />
+                <div className="p-3 bg-white/70 dark:bg-[#263d54]/70 rounded-[8px] border border-[var(--border-default)] mb-4 text-[11px] text-[var(--text-secondary)] flex items-center gap-2">
+                  <Zap size={14} className="text-[#142238] dark:text-[#91f2ce] flex-shrink-0" />
                   <span>{t("wallet.topupSecurityNote", "Money added is immediately available for 1-tap bookings & refunds.")}</span>
                 </div>
 
@@ -564,7 +564,7 @@ export default function WalletPage() {
                   <button
                     type="button"
                     onClick={() => setShowTopupModal(false)}
-                    className="flex-1 py-3 rounded-[8px] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] bg-[var(--surface-raised)] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] transition cursor-pointer"
+                    className="flex-1 py-3 rounded-[8px] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] bg-[var(--surface-raised)] hover:bg-[#f3f8f6] dark:hover:bg-[#2a425a] transition cursor-pointer"
                   >
                     {t("common.cancel", "Cancel")}
                   </button>

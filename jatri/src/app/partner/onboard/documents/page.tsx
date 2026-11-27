@@ -208,13 +208,13 @@ export default function PartnerDocumentsPage() {
           {completed && !editMode && (
             <div className="mt-4 p-3 bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] flex items-center justify-between ">
               <div className="flex items-center gap-2 text-[var(--text-primary)] text-xs font-semibold">
-                <CheckCircle size={15} className="text-[#123D32] dark:text-[#347858]" />
+                <CheckCircle size={15} className="text-[var(--accent-ink)]" />
                 <span>Verification documents on file</span>
               </div>
 
               <button
                 onClick={() => setEditMode(true)}
-                className="text-xs tabular-nums font-bold text-[#123D32] dark:text-[#347858] underline flex items-center gap-1 hover:text-[#0D3027] dark:hover:text-[#28664D] cursor-pointer"
+                className="text-xs tabular-nums font-bold text-[var(--accent-ink)] underline flex items-center gap-1 hover:text-[#0d192b] dark:hover:text-[#263b56] cursor-pointer"
               >
                 <Pencil size={12} />
                 Update Documents
@@ -227,14 +227,14 @@ export default function PartnerDocumentsPage() {
         <div className={`mb-6 p-4 border border-[var(--border-default)] rounded-[12px] bg-[var(--surface-raised)]  ${completed && !editMode ? "opacity-60 pointer-events-none" : ""}`}>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[4px] flex items-center justify-center tabular-nums text-[10px] font-bold">
+              <div className="w-5 h-5 bg-[var(--midnight)] dark:bg-[#263b56] text-white rounded-[4px] flex items-center justify-center tabular-nums text-[10px] font-bold">
                 01
               </div>
               <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] tracking-tight uppercase">
                 Mandatory Driver Profile Photo *
               </h2>
             </div>
-            <span className="text-[9px] tabular-nums font-bold px-2 py-0.5 rounded-[4px] bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] border border-[#123D32]/10 dark:border-[#28664D]/30">
+            <span className="text-[9px] tabular-nums font-bold px-2 py-0.5 rounded-[4px] bg-[var(--surface-subtle)] text-[var(--accent-ink)] border border-[var(--midnight)]/10 dark:border-[#263b56]/30">
               Strictly Required
             </span>
           </div>
@@ -275,7 +275,7 @@ export default function PartnerDocumentsPage() {
               <button
                 type="button"
                 onClick={() => profilePicInputRef.current?.click()}
-                className="w-full h-10 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white text-xs tabular-nums font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer "
+                className="w-full h-10 rounded-[8px] bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] text-xs tabular-nums font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer "
               >
                 <Camera size={14} />
                 <span>{profilePreview ? "Change Profile Photo" : "Take / Upload Profile Photo"}</span>
@@ -286,8 +286,8 @@ export default function PartnerDocumentsPage() {
               </p>
 
               {profilePreview && (
-                <div className="flex items-center gap-1.5 text-[11px] text-[#123D32] dark:text-[#347858] font-semibold">
-                  <CheckCircle size={13} className="text-[#123D32] dark:text-[#347858]" />
+                <div className="flex items-center gap-1.5 text-[11px] text-[var(--accent-ink)] font-semibold">
+                  <CheckCircle size={13} className="text-[var(--accent-ink)]" />
                   <span>Photo selected and staged for encryption</span>
                 </div>
               )}
@@ -303,7 +303,7 @@ export default function PartnerDocumentsPage() {
                 <span className="text-xs font-bold text-[var(--text-primary)] uppercase tracking-tight">
                   DigiLocker National Identity Gateway
                 </span>
-                <span className="text-[9px] tabular-nums font-bold bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] px-1.5 py-0.5 rounded-[4px]">
+                <span className="text-[9px] tabular-nums font-bold bg-[var(--surface-subtle)] text-[var(--accent-ink)] px-1.5 py-0.5 rounded-[4px]">
                   Fast Track
                 </span>
               </div>
@@ -313,7 +313,7 @@ export default function PartnerDocumentsPage() {
             </div>
 
             {(existingSummary?.isDigiLockerVerified || digiLockerSuccess) && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] text-[10px] tabular-nums font-bold rounded-[4px] shrink-0">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-[var(--surface-subtle)] text-[var(--accent-ink)] text-[10px] tabular-nums font-bold rounded-[4px] shrink-0">
                 <CheckCircle size={11} />
                 Verified
               </span>
@@ -328,7 +328,7 @@ export default function PartnerDocumentsPage() {
                   Ref: {existingSummary?.digiLockerDlRef || "DL-VERIFIED"} • {existingSummary?.digiLockerAadhaarRef || "AADHAAR-MKYC"}
                 </p>
               </div>
-              <span className="text-[10px] tabular-nums text-[#123D32] dark:text-[#347858] font-bold uppercase">Verified</span>
+              <span className="text-[10px] tabular-nums text-[var(--accent-ink)] font-bold uppercase">Verified</span>
             </div>
           ) : (
             <div className="pt-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -338,13 +338,13 @@ export default function PartnerDocumentsPage() {
                 maxLength={4}
                 value={aadhaarLast4Input}
                 onChange={(e) => setAadhaarLast4Input(e.target.value.replace(/\D/g, ""))}
-                className="h-9 px-3 text-xs rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] text-[var(--text-primary)] tabular-nums placeholder:text-[#696B64] dark:placeholder:text-[#B9C8BF] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] sm:w-56"
+                className="min-h-11 px-3 text-sm rounded-[8px] border border-[var(--border-interactive)] bg-[var(--surface-raised)] text-[var(--text-primary)] tabular-nums placeholder:text-[#475a65] dark:placeholder:text-[#c9d8df] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] focus:border-[var(--focus-ring)] sm:w-56"
               />
               <button
                 type="button"
                 disabled={digiLockerLoading}
                 onClick={handleDigiLockerVerify}
-                className="h-9 px-4 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] disabled:opacity-50 text-white font-bold text-xs tabular-nums flex items-center justify-center gap-1.5 transition-colors cursor-pointer "
+                className="h-9 px-4 rounded-[8px] bg-[var(--action-bg)] hover:opacity-90 disabled:opacity-50 text-[var(--action-fg)] font-bold text-xs tabular-nums flex items-center justify-center gap-1.5 transition-colors cursor-pointer "
               >
                 {digiLockerLoading ? "Verifying with Gateway..." : "Verify via DigiLocker"}
               </button>
@@ -355,7 +355,7 @@ export default function PartnerDocumentsPage() {
         {/* ================= SECTION 1: DRIVER IDENTITY ================= */}
         <div className={`space-y-4 ${completed && !editMode ? "opacity-60 pointer-events-none" : ""}`}>
           <div className="flex items-center gap-2 pb-2 border-b border-[var(--border-default)]">
-            <div className="w-5 h-5 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[4px] flex items-center justify-center tabular-nums text-[10px] font-bold">
+            <div className="w-5 h-5 bg-[var(--midnight)] dark:bg-[#263b56] text-white rounded-[4px] flex items-center justify-center tabular-nums text-[10px] font-bold">
               02
             </div>
             <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] font-sans">
@@ -391,13 +391,13 @@ export default function PartnerDocumentsPage() {
               placeholder="e.g. AS01 20210012345"
               value={metadata.licenseNumber}
               onChange={(e) => setMetadata({ ...metadata, licenseNumber: e.target.value.toUpperCase() })}
-              className="w-full min-h-11 px-3 text-base rounded-[8px] border border-[var(--border-default)] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] uppercase tabular-nums bg-[var(--surface-raised)] text-[var(--text-primary)]"
+              className="w-full min-h-11 px-3 text-base rounded-[8px] border border-[var(--border-interactive)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] focus:border-[var(--focus-ring)] uppercase tabular-nums bg-[var(--surface-raised)] text-[var(--text-primary)]"
             />
           </div>
 
           {/* ================= SECTION 2: VEHICLE COMPLIANCE ================= */}
           <div className="flex items-center gap-2 pt-4 pb-2 border-b border-[var(--border-default)]">
-            <div className="w-5 h-5 bg-[#123D32] dark:bg-[#28664D] text-white rounded-[4px] flex items-center justify-center tabular-nums text-[10px] font-bold">
+            <div className="w-5 h-5 bg-[var(--midnight)] dark:bg-[#263b56] text-white rounded-[4px] flex items-center justify-center tabular-nums text-[10px] font-bold">
               03
             </div>
             <h2 className="text-xs sm:text-sm font-bold text-[var(--text-primary)] font-sans">
@@ -450,7 +450,7 @@ export default function PartnerDocumentsPage() {
                 placeholder="e.g. AS01AB1234"
                 value={metadata.rcNumber}
                 onChange={(e) => setMetadata({ ...metadata, rcNumber: e.target.value.toUpperCase() })}
-                className="w-full min-h-11 px-3 text-base rounded-[8px] border border-[var(--border-default)] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] uppercase tabular-nums bg-[var(--surface-raised)] text-[var(--text-primary)]"
+                className="w-full min-h-11 px-3 text-base rounded-[8px] border border-[var(--border-interactive)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] focus:border-[var(--focus-ring)] uppercase tabular-nums bg-[var(--surface-raised)] text-[var(--text-primary)]"
               />
             </div>
 
@@ -463,14 +463,14 @@ export default function PartnerDocumentsPage() {
                 type="date"
                 value={metadata.insuranceExpiry}
                 onChange={(e) => setMetadata({ ...metadata, insuranceExpiry: e.target.value })}
-                className="w-full min-h-11 px-3 text-base rounded-[8px] border border-[var(--border-default)] focus:outline-none focus:border-[#123D32] dark:focus:border-[#28664D] bg-[var(--surface-raised)] text-[var(--text-primary)] tabular-nums"
+                className="w-full min-h-11 px-3 text-base rounded-[8px] border border-[var(--border-interactive)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] focus:border-[var(--focus-ring)] bg-[var(--surface-raised)] text-[var(--text-primary)] tabular-nums"
               />
             </div>
           </div>
         </div>
 
         {/* ================= WOMEN'S SAFETY MATCHING PROGRAM ================= */}
-        <div className="mt-6 p-4 rounded-[12px] border border-emerald-200 dark:border-[#28664D]/60 bg-emerald-50/60 dark:bg-[#1D3428]/30">
+        <div className="mt-6 p-4 rounded-[12px] border border-emerald-200 dark:border-[#263b56]/60 bg-emerald-50/60 dark:bg-[#203f41]/30">
           <label className="flex items-start gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -480,7 +480,7 @@ export default function PartnerDocumentsPage() {
             />
             <div className="space-y-1">
               <span className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-1.5">
-                <ShieldCheck size={16} className="text-emerald-600 dark:text-[#A3E635]" />
+                <ShieldCheck size={16} className="text-emerald-600 dark:text-[var(--accent-mint)]" />
                 Apply for Women&apos;s Safety Driver Matching (Female Drivers)
               </span>
               <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
@@ -492,7 +492,7 @@ export default function PartnerDocumentsPage() {
 
         {/* DPDP 2025 INFO */}
         <div className="mt-6 flex items-start gap-2.5 text-xs text-[var(--text-secondary)] bg-[var(--surface-raised)] p-3.5 rounded-[8px] border border-[var(--border-default)] ">
-          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-[#123D32] dark:text-[#347858]" />
+          <ShieldCheck size={16} className="mt-0.5 shrink-0 text-[var(--accent-ink)]" />
           <p className="leading-relaxed">
             <strong className="text-[var(--text-primary)] font-bold">DPDP Rules 2025 Compliance:</strong> All driver photographs and statutory credentials are encrypted (AES-256) and strictly maintained for safety dispatch verification.
           </p>
@@ -500,7 +500,7 @@ export default function PartnerDocumentsPage() {
 
         {/* ERROR */}
         {error && (
-          <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-[#E34222] dark:text-[#E06A50] bg-[#E34222]/10 dark:bg-red-950/30 p-3 rounded-[8px] border border-[#E34222] dark:border-red-900/50 tabular-nums">
+          <div role="alert" className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-[#992f22] dark:text-[#ffab9c] bg-[#992f22]/10 dark:bg-red-950/30 p-3 rounded-[8px] border border-[#992f22] dark:border-red-900/50 tabular-nums">
             <AlertCircle size={15} className="shrink-0" />
             <p>{error}</p>
           </div>
@@ -511,7 +511,7 @@ export default function PartnerDocumentsPage() {
           whileTap={{ scale: 0.99 }}
           disabled={loading}
           onClick={submitDocuments}
-          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer "
+          className="mt-8 w-full h-12 sm:h-13 rounded-[8px] bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50 cursor-pointer "
         >
           <span>
             {completed && !editMode
@@ -544,7 +544,7 @@ function DocUploadMinimal({
   onChange: (f: File | null) => void;
 }) {
   return (
-    <label className="flex items-center justify-between p-3.5 rounded-[10px] border border-[var(--border-default)] cursor-pointer hover:border-[#123D32]/50 dark:hover:border-[#28664D]/60 transition-colors bg-[var(--surface-raised)] ">
+    <label className="flex items-center justify-between p-3.5 rounded-[10px] border border-[var(--border-default)] cursor-pointer hover:border-[var(--midnight)]/50 dark:hover:border-[#263b56]/60 transition-colors bg-[var(--surface-raised)] ">
       <div className="min-w-0 pr-2">
         <p className="text-xs sm:text-sm font-bold truncate text-[var(--text-primary)]">
           {label}
@@ -556,11 +556,11 @@ function DocUploadMinimal({
 
       <div className="flex items-center gap-2 shrink-0">
         {file ? (
-          <span className="text-[10px] text-[#123D32] dark:text-[#347858] tabular-nums font-bold bg-[#E5EBDD] dark:bg-[#28664D]/20 px-2 py-0.5 rounded-[4px] border border-[#123D32]/10 dark:border-[#28664D]/30">
+          <span className="text-[10px] text-[var(--accent-ink)] tabular-nums font-bold bg-[var(--surface-subtle)] px-2 py-0.5 rounded-[4px] border border-[var(--midnight)]/10 dark:border-[#263b56]/30">
             Selected
           </span>
         ) : existing ? (
-          <span className="text-[10px] text-[#123D32] dark:text-[#347858] tabular-nums font-bold bg-[#E5EBDD] dark:bg-[#28664D]/20 px-2 py-0.5 rounded-[4px] border border-[#123D32]/10 dark:border-[#28664D]/30">
+          <span className="text-[10px] text-[var(--accent-ink)] tabular-nums font-bold bg-[var(--surface-subtle)] px-2 py-0.5 rounded-[4px] border border-[var(--midnight)]/10 dark:border-[#263b56]/30">
             Uploaded
           </span>
         ) : (
@@ -569,7 +569,7 @@ function DocUploadMinimal({
           </span>
         )}
 
-        <div className="w-7 h-7 rounded-[6px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center">
+        <div className="w-7 h-7 rounded-[6px] bg-[var(--midnight)] dark:bg-[#263b56] text-white flex items-center justify-center">
           <UploadCloud size={14} />
         </div>
       </div>

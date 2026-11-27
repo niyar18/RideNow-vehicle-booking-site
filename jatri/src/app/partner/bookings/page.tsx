@@ -148,7 +148,7 @@ export default function PartnerBookingsPage() {
             <select aria-label="Filter trips by status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[8px] min-h-11 px-3.5 text-sm text-[var(--text-primary)] focus:outline-none focus:ring-1 focus:ring-[#123D32] dark:focus:ring-[#28664D] focus:border-[#123D32] dark:focus:border-[#28664D] font-medium "
+              className="bg-[var(--surface-raised)] border border-[var(--border-interactive)] rounded-[8px] min-h-11 px-3.5 text-sm text-[var(--text-primary)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--focus-ring)] focus:ring-1 focus:ring-[var(--focus-ring)] focus:border-[var(--focus-ring)] font-medium "
             >
               <option>All</option>
               <option>Scheduled</option>
@@ -169,7 +169,7 @@ export default function PartnerBookingsPage() {
           {/* EMPTY STATE */}
           {!loading && filteredBookings.length === 0 && (
             <div className="bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] p-8 sm:p-12 text-center ">
-              <Car className="w-12 h-12 text-[#696B64]/40 dark:text-[#B9C8BF]/40 mx-auto mb-3" />
+              <Car className="w-12 h-12 text-[#475a65]/40 dark:text-[#c9d8df]/40 mx-auto mb-3" />
               <h3 className="text-base sm:text-lg font-sans font-bold text-[var(--text-primary)]">No bookings yet</h3>
               <p className="text-[var(--text-secondary)] text-xs sm:text-sm mt-1">Trips will appear here once they are assigned to you.</p>
             </div>
@@ -191,8 +191,8 @@ export default function PartnerBookingsPage() {
                     {/* CUSTOMER INFO - PARTNER SPECIFIC */}
                     <div className="flex items-start sm:items-center gap-3 p-3.5 sm:p-4 bg-[var(--surface-subtle)] border-b border-[var(--border-default)]">
                       {/* CUSTOMER AVATAR */}
-                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-[#123D32]/10 dark:bg-[#28664D]/20 flex-shrink-0 border-2 border-white dark:border-[#17211B] flex items-center justify-center">
-                        <User className="w-5 h-5 sm:w-6 sm:h-6 text-[#123D32] dark:text-[#347858]" />
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-[var(--surface-subtle)] flex-shrink-0 border-2 border-white dark:border-[var(--midnight)] flex items-center justify-center">
+                        <User className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--accent-ink)]" />
                       </div>
                       
                       {/* CUSTOMER DETAILS */}
@@ -223,7 +223,7 @@ export default function PartnerBookingsPage() {
                           </div>
                         )}
                         {booking.isScheduled && booking.scheduledPickupTime && (
-                          <div className="inline-flex items-center gap-1.5 bg-[var(--surface-subtle)] text-[#E34222] dark:text-[#E06A50] border border-[#E34222]/30 dark:border-[#E06A50]/30 text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-[6px] mt-1.5">
+                          <div className="inline-flex items-center gap-1.5 bg-[var(--surface-subtle)] text-[#992f22] dark:text-[#ffab9c] border border-[#992f22]/30 dark:border-[#ffab9c]/30 text-[11px] sm:text-xs font-bold px-2.5 py-0.5 sm:py-1 rounded-[6px] mt-1.5">
                             <span>⏰ Scheduled: {formatDate(booking.scheduledPickupTime)}</span>
                           </div>
                         )}
@@ -246,11 +246,11 @@ export default function PartnerBookingsPage() {
                     <div className="p-3.5 sm:p-4 space-y-2.5 sm:space-y-3">
                       {/* PICKUP */}
                       <div className="flex items-start gap-2.5 sm:gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-[#123D32]/10 dark:bg-[#28664D]/20 rounded-full flex items-center justify-center mt-0.5">
-                          <MapPin className="w-3.5 h-3.5 text-[#123D32] dark:text-[#347858]" />
+                        <div className="flex-shrink-0 w-6 h-6 bg-[var(--surface-subtle)] rounded-full flex items-center justify-center mt-0.5">
+                          <MapPin className="w-3.5 h-3.5 text-[var(--accent-ink)]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-[10px] sm:text-xs font-bold text-[#123D32] dark:text-[#347858] ">PICKUP</span>
+                          <span className="text-[10px] sm:text-xs font-bold text-[var(--accent-ink)] ">PICKUP</span>
                           <p className="text-xs sm:text-sm text-[var(--text-primary)] mt-0.5 leading-relaxed font-medium">
                             {booking.pickupAddress}
                           </p>
@@ -259,11 +259,11 @@ export default function PartnerBookingsPage() {
 
                       {/* DROP */}
                       <div className="flex items-start gap-2.5 sm:gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 bg-[#E34222]/10 dark:bg-[#E06A50]/20 rounded-full flex items-center justify-center mt-0.5">
-                          <MapPin className="w-3.5 h-3.5 text-[#E34222] dark:text-[#E06A50]" />
+                        <div className="flex-shrink-0 w-6 h-6 bg-[#992f22]/10 dark:bg-[#ffab9c]/20 rounded-full flex items-center justify-center mt-0.5">
+                          <MapPin className="w-3.5 h-3.5 text-[#992f22] dark:text-[#ffab9c]" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <span className="text-[10px] sm:text-xs font-bold text-[#E34222] dark:text-[#E06A50] ">DROP</span>
+                          <span className="text-[10px] sm:text-xs font-bold text-[#992f22] dark:text-[#ffab9c] ">DROP</span>
                           <p className="text-xs sm:text-sm text-[var(--text-primary)] mt-0.5 leading-relaxed font-medium">
                             {booking.dropAddress}
                           </p>
@@ -272,13 +272,13 @@ export default function PartnerBookingsPage() {
                     </div>
 
                     {/* DATE AND FARE */}
-                    <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 sm:py-3 bg-[#F7F1E5]/70 dark:bg-[#061A16]/70 border-t border-[var(--border-default)]">
+                    <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 sm:py-3 bg-[#e4eeeb]/70 dark:bg-[#0d192b]/70 border-t border-[var(--border-default)]">
                       <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-[var(--text-secondary)]">
                         <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--text-secondary)]" />
                         <span>{formatDate(booking.createdAt)}</span>
                       </div>
                       <div className="flex items-center gap-1 font-bold text-[var(--text-primary)] text-sm sm:text-base">
-                        <IndianRupee className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#123D32] dark:text-[#347858]" />
+                        <IndianRupee className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--accent-ink)]" />
                         <span>₹{booking.fare}</span>
                       </div>
                     </div>
@@ -289,7 +289,7 @@ export default function PartnerBookingsPage() {
                         <span className="text-[11px] sm:text-xs text-[var(--text-secondary)]">Payment:</span>
                         <span className={`text-[11px] sm:text-xs px-2.5 py-0.5 rounded-[6px] font-semibold border ${
                           booking.paymentStatus === 'paid' 
-                            ? 'bg-[#123D32]/10 dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] border-[#123D32]/30 dark:border-[#28664D]/40' 
+                            ? 'bg-[var(--surface-subtle)] text-[var(--accent-ink)] border-[var(--midnight)]/30 dark:border-[#263b56]/40'
                             : 'bg-amber-100 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 border-amber-300 dark:border-amber-800'
                         }`}>
                           {booking.paymentStatus || 'pending'}
@@ -309,7 +309,7 @@ export default function PartnerBookingsPage() {
                           >
                             <span
                               className={`w-1.5 h-1.5 rounded-full ${
-                                booking.settlementStatus === "failed" ? "bg-amber-500 animate-pulse" : "bg-emerald-600"
+                                booking.settlementStatus === "failed" ? "bg-amber-500 motion-safe:animate-pulse" : "bg-emerald-600"
                               }`}
                             />
                             {booking.settlementStatus === "failed" ? "Queued" : "Settled"}
@@ -326,7 +326,7 @@ export default function PartnerBookingsPage() {
                                 setSelectedBookingForInvoice(booking);
                                 setShowInvoiceModal(true);
                               }}
-                              className="flex items-center gap-1 text-xs font-semibold text-[var(--text-primary)] hover:text-[#123D32] dark:hover:text-[#347858] bg-[var(--surface-subtle)] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] px-2.5 sm:px-3 min-h-11 transition-colors border border-[var(--border-default)] rounded-[8px] cursor-pointer"
+                              className="flex items-center gap-1 text-xs font-semibold text-[var(--text-primary)] hover:text-[var(--midnight)] dark:hover:text-[var(--accent-mint)] bg-[var(--surface-subtle)] hover:bg-[#e4eeeb] dark:hover:bg-[#2b4160] px-2.5 sm:px-3 min-h-11 transition-colors border border-[var(--border-default)] rounded-[8px] cursor-pointer"
                               title="Download Official GST Tax Invoice"
                             >
                               <FileText size={13} />
@@ -338,7 +338,7 @@ export default function PartnerBookingsPage() {
                                 setSelectedBookingForDetails(booking);
                                 setShowDetailsModal(true);
                               }}
-                              className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#FAF7F0] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] px-3 sm:px-4 min-h-11 transition-colors cursor-pointer rounded-[8px]"
+                              className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[var(--action-fg)] bg-[var(--action-bg)] hover:opacity-90 px-3 sm:px-4 min-h-11 transition-colors cursor-pointer rounded-[8px]"
                             >
                               <span>Details</span>
                               <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
@@ -348,7 +348,7 @@ export default function PartnerBookingsPage() {
                           <button
                             type="button"
                             onClick={() => window.location.href = `/partner/active-ride`}
-                            className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[#FAF7F0] bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] px-3 sm:px-4 min-h-11 rounded-[8px] transition-colors"
+                            className="flex items-center gap-1 text-xs sm:text-sm font-semibold text-[var(--action-fg)] bg-[var(--action-bg)] hover:opacity-90 px-3 sm:px-4 min-h-11 rounded-[8px] transition-colors"
                           >
                             <span>Live Ride</span>
                             <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

@@ -130,7 +130,7 @@ export default function DriverWalletCard() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="p-4 rounded-[8px] bg-[#123D32] dark:bg-[#0D3027] text-[#FAF7F0] flex items-center justify-between border border-[#123D32] dark:border-[#1E3E34]"
+            className="p-4 rounded-[8px] bg-[var(--midnight)] dark:bg-[#0d192b] text-[var(--ice)] flex items-center justify-between border border-[var(--midnight)] dark:border-[#536779]"
           >
             <div className="flex items-center gap-2.5">
               <CheckCircle2 size={16} className="text-emerald-400" />
@@ -138,7 +138,7 @@ export default function DriverWalletCard() {
             </div>
             <button
               onClick={() => setWithdrawSuccess(null)}
-              className="text-[10px] tabular-nums font-bold px-2 py-1 bg-[#FAF7F0] text-[#10251C] dark:bg-[#10352C] dark:text-[#F7F5ED] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] rounded-[6px] cursor-pointer"
+              className="text-[10px] tabular-nums font-bold px-2 py-1 bg-[var(--ice)] text-[var(--midnight)] dark:bg-[#243751] dark:text-[var(--ice)] hover:bg-[#e4eeeb] dark:hover:bg-[#2b4160] rounded-[6px] cursor-pointer"
             >
               Dismiss
             </button>
@@ -149,22 +149,22 @@ export default function DriverWalletCard() {
       {/* DRIVER WALLET HERO & METRICS */}
       <div className="grid lg:grid-cols-3 gap-5">
         {/* Main Available Earnings Card */}
-        <div className="lg:col-span-2 rounded-[14px] bg-[#0D3027] dark:bg-[#091D17] text-[#FAF7F0] p-6 sm:p-7 border border-[#123D32] dark:border-[#28664D]/40 flex flex-col justify-between min-h-[220px] ">
+        <div className="lg:col-span-2 rounded-[14px] bg-[#0d192b] dark:bg-[#0d192b] text-[var(--ice)] p-6 sm:p-7 border border-[var(--midnight)] dark:border-[#263b56]/40 flex flex-col justify-between min-h-[220px] ">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
-                <p className="text-[10px] tabular-nums font-bold text-[#FAF7F0]/70">
+                <p className="text-[10px] tabular-nums font-bold text-[var(--ice)]/70">
                   {t("wallet.driverTitle", "Driver Earnings & Settlement")}
                 </p>
               </div>
               <div className="flex items-baseline gap-1 mt-1 tabular-nums">
-                <span className="text-3xl sm:text-4xl font-bold text-[#FAF7F0] tracking-tight tabular-nums">
+                <span className="text-3xl sm:text-4xl font-bold text-[var(--ice)] tracking-tight tabular-nums">
                   ₹{availableEarnings.toLocaleString("en-IN")}
                 </span>
-                <span className="text-xs font-bold text-[#FAF7F0]/60">INR</span>
+                <span className="text-xs font-bold text-[var(--ice)]/60">INR</span>
               </div>
-              <p className="text-xs text-[#FAF7F0]/80 mt-2 font-sans">
+              <p className="text-xs text-[var(--ice)]/80 mt-2 font-sans">
                 {t("wallet.driverEarningsDesc", "Net balance ready for instant automated bank disbursement.")}
               </p>
             </div>
@@ -176,19 +176,19 @@ export default function DriverWalletCard() {
                   setShowWithdrawModal(true);
                 }}
                 disabled={availableEarnings < 100}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-[8px] bg-[#FAF7F0] text-[#10251C] hover:bg-[#F7F1E5] disabled:opacity-40 text-xs font-semibold transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-[8px] bg-[var(--ice)] text-[var(--midnight)] hover:bg-[#e4eeeb] disabled:opacity-40 text-xs font-semibold transition-colors cursor-pointer"
               >
-                <Building2 size={14} className="text-[#123D32]" /> {t("wallet.withdraw", "Withdraw to Bank")}
+                <Building2 size={14} className="text-[var(--midnight)]" /> {t("wallet.withdraw", "Withdraw to Bank")}
               </button>
               {availableEarnings < 100 && (
-                <span className="text-[10px] tabular-nums text-[#FAF7F0]/60">Min payout threshold: ₹100</span>
+                <span className="text-[10px] tabular-nums text-[var(--ice)]/60">Min payout threshold: ₹100</span>
               )}
             </div>
           </div>
 
-          <div className="pt-4 mt-4 border-t border-[#123D32] dark:border-[#28664D]/30 flex flex-wrap items-center justify-between gap-3 text-xs text-[#FAF7F0]/80 font-sans">
+          <div className="pt-4 mt-4 border-t border-[var(--midnight)] dark:border-[#263b56]/30 flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--ice)]/80 font-sans">
             <div className="flex items-center gap-2">
-              <Building2 size={14} className="text-[#FAF7F0]/70" />
+              <Building2 size={14} className="text-[var(--ice)]/70" />
               {bankDetails ? (
                 <span>
                   Linked Account: <strong className="text-white">{bankDetails.maskedAccount}</strong> ({bankDetails.ifsc})
@@ -204,7 +204,7 @@ export default function DriverWalletCard() {
             </div>
             <Link
               href="/partner/wallet"
-              className="text-xs font-semibold text-[#FAF7F0] hover:underline flex items-center gap-1 "
+              className="text-xs font-semibold text-[var(--ice)] hover:underline flex items-center gap-1 "
             >
               Full Ledger Page <ChevronRight size={14} />
             </Link>
@@ -216,7 +216,7 @@ export default function DriverWalletCard() {
           {platformDues > 0 && (
             <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 border border-[var(--border-default)] flex items-center justify-between gap-3 ">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[8px] bg-red-100 dark:bg-red-950/30 text-[#E34222] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-[8px] bg-red-100 dark:bg-red-950/30 text-[#992f22] dark:text-[#ffab9c] flex items-center justify-center flex-shrink-0">
                   <AlertCircle size={16} />
                 </div>
                 <div>
@@ -234,7 +234,7 @@ export default function DriverWalletCard() {
                 </span>
                 <Link
                   href="/partner/wallet"
-                  className="text-[10px] font-bold text-[#E34222] dark:text-[#E06A50] underline hover:text-[#10251C] dark:hover:text-[#F3F1E8] "
+                  className="text-[10px] font-bold text-[#992f22] dark:text-[#ffab9c] underline hover:text-[var(--midnight)] dark:hover:text-[var(--ice)] "
                 >
                   Clear Online →
                 </Link>
@@ -243,7 +243,7 @@ export default function DriverWalletCard() {
           )}
 
           <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 border border-[var(--border-default)] flex items-center gap-3 ">
-            <div className="w-8 h-8 rounded-[8px] bg-[var(--background)] text-[#123D32] dark:text-[#347858] border border-[var(--border-default)] flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-[8px] bg-[var(--background)] text-[var(--accent-ink)] border border-[var(--border-default)] flex items-center justify-center flex-shrink-0">
               <TrendingUp size={16} />
             </div>
             <div>
@@ -257,7 +257,7 @@ export default function DriverWalletCard() {
           </div>
 
           <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 border border-[var(--border-default)] flex items-center gap-3 ">
-            <div className="w-8 h-8 rounded-[8px] bg-[var(--background)] text-[#123D32] dark:text-[#347858] border border-[var(--border-default)] flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-[8px] bg-[var(--background)] text-[var(--accent-ink)] border border-[var(--border-default)] flex items-center justify-center flex-shrink-0">
               <Percent size={16} />
             </div>
             <div>
@@ -271,7 +271,7 @@ export default function DriverWalletCard() {
           </div>
 
           <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 border border-[var(--border-default)] flex items-center gap-3 ">
-            <div className="w-8 h-8 rounded-[8px] bg-[var(--background)] text-[#123D32] dark:text-[#347858] border border-[var(--border-default)] flex items-center justify-center flex-shrink-0">
+            <div className="w-8 h-8 rounded-[8px] bg-[var(--background)] text-[var(--accent-ink)] border border-[var(--border-default)] flex items-center justify-center flex-shrink-0">
               <Building2 size={16} />
             </div>
             <div>
@@ -308,8 +308,8 @@ export default function DriverWalletCard() {
                 onClick={() => setActiveFilter(tab.id as any)}
                 className={`px-3 py-1 rounded-[6px] text-xs font-semibold transition-colors cursor-pointer ${
                   activeFilter === tab.id
-                    ? "bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0]"
-                    : "text-[var(--text-secondary)] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                    ? "bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--midnight)] dark:hover:text-[var(--ice)]"
                 }`}
               >
                 {tab.label}
@@ -319,7 +319,7 @@ export default function DriverWalletCard() {
         </div>
 
         {/* Transaction Rows */}
-        <div className="divide-y divide-[#DED7CA] dark:divide-[#1E3E34]">
+        <div className="divide-y divide-[#b8c7ca] dark:divide-[#536779]">
           {loading ? (
             <div className="p-8 text-center text-xs font-sans text-[var(--text-secondary)]">Loading ledger data...</div>
           ) : filteredTransactions.length === 0 ? (
@@ -330,9 +330,9 @@ export default function DriverWalletCard() {
             filteredTransactions.slice(0, 10).map((tx, idx) => {
               const isCredit = tx.type === "earning";
               return (
-                <div key={tx._id || idx} className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition-colors">
+                <div key={tx._id || idx} className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-[#e4eeeb] dark:hover:bg-[#0d192b] transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-[8px] border border-[var(--border-default)] bg-[var(--background)] text-[#123D32] dark:text-[#347858] flex items-center justify-center tabular-nums text-xs font-bold">
+                    <div className="w-8 h-8 rounded-[8px] border border-[var(--border-default)] bg-[var(--background)] text-[var(--accent-ink)] flex items-center justify-center tabular-nums text-xs font-bold">
                       {isCredit ? "+" : "-"}
                     </div>
                     <div>
@@ -346,7 +346,7 @@ export default function DriverWalletCard() {
                   </div>
 
                   <div className="text-right">
-                    <p className={`text-xs sm:text-sm font-bold tabular-nums tabular-nums ${isCredit ? "text-[#123D32] dark:text-[#347858]" : "text-[#E34222] dark:text-[#E06A50]"}`}>
+                    <p className={`text-xs sm:text-sm font-bold tabular-nums tabular-nums ${isCredit ? "text-[var(--accent-ink)]" : "text-[#992f22] dark:text-[#ffab9c]"}`}>
                       {isCredit ? "+" : "-"}₹{Number(tx.amount || 0).toLocaleString("en-IN")}
                     </p>
                     <span className="text-[9px] tabular-nums text-[var(--text-secondary)]">
@@ -372,7 +372,7 @@ export default function DriverWalletCard() {
             >
               <div className="flex items-center justify-between mb-4 border-b border-[var(--border-default)] pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] flex items-center justify-center font-bold">
+                  <div className="w-7 h-7 rounded-[8px] bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] flex items-center justify-center font-bold">
                     <Building2 size={14} />
                   </div>
                   <div>
@@ -383,14 +383,14 @@ export default function DriverWalletCard() {
                 <button
                   type="button"
                   onClick={() => setShowWithdrawModal(false)}
-                  className="w-6 h-6 rounded-[6px] border border-[var(--border-default)] hover:bg-[#F7F1E5] dark:hover:bg-[#101713] flex items-center justify-center text-[var(--text-secondary)] text-xs cursor-pointer"
+                  className="w-6 h-6 rounded-[6px] border border-[var(--border-default)] hover:bg-[#e4eeeb] dark:hover:bg-[#0d192b] flex items-center justify-center text-[var(--text-secondary)] text-xs cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
               {withdrawError && (
-                <div className="p-3 mb-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-xs text-[#E34222] dark:text-[#E06A50] flex items-center gap-2">
+                <div className="p-3 mb-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-xs text-[#992f22] dark:text-[#ffab9c] flex items-center gap-2">
                   <AlertCircle size={14} className="flex-shrink-0" />
                   <span>{withdrawError}</span>
                 </div>
@@ -418,7 +418,7 @@ export default function DriverWalletCard() {
                   </p>
                   <Link
                     href="/partner/onboard/bank"
-                    className="inline-block px-3 py-1 bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] rounded-[6px] text-[10px] font-semibold "
+                    className="inline-block px-3 py-1 bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] rounded-[6px] text-[10px] font-semibold "
                   >
                     Add Bank Details
                   </Link>
@@ -435,7 +435,7 @@ export default function DriverWalletCard() {
                       Available: ₹{availableEarnings.toLocaleString("en-IN")}
                     </span>
                   </div>
-                  <div className="flex items-center rounded-[8px] border border-[var(--border-default)] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition-colors px-3 py-2 bg-[var(--surface-raised)]">
+                  <div className="flex items-center rounded-[8px] border border-[var(--border-interactive)] focus-within:border-[var(--focus-ring)] transition-colors px-3 py-2 bg-[var(--surface-raised)]">
                     <span className="text-base font-bold text-[var(--text-secondary)] mr-1.5 tabular-nums">₹</span>
                     <input
                       type="number"
@@ -458,7 +458,7 @@ export default function DriverWalletCard() {
                         type="button"
                         onClick={() => setWithdrawAmount(amt.toString())}
                         disabled={amt > availableEarnings}
-                        className="py-1.5 rounded-[6px] text-xs font-semibold border border-[var(--border-default)] bg-[var(--background)] hover:bg-[#FAF7F0] dark:hover:bg-[#10352C] disabled:opacity-40 cursor-pointer text-[var(--text-primary)]"
+                        className="py-1.5 rounded-[6px] text-xs font-semibold border border-[var(--border-default)] bg-[var(--background)] hover:bg-[var(--ice)] dark:hover:bg-[#243751] disabled:opacity-40 cursor-pointer text-[var(--text-primary)]"
                       >
                         ₹{amt}
                       </button>
@@ -467,7 +467,7 @@ export default function DriverWalletCard() {
                       type="button"
                       onClick={() => setWithdrawAmount(availableEarnings.toString())}
                       disabled={availableEarnings <= 0}
-                      className="py-1.5 rounded-[6px] text-xs font-semibold border border-[#123D32] dark:border-[#28664D] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] hover:bg-[#0D3027] dark:hover:bg-[#347858] disabled:opacity-40 cursor-pointer"
+                      className="py-1.5 rounded-[6px] text-xs font-semibold border border-[var(--midnight)] dark:border-[#263b56] bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] hover:bg-[#0d192b] dark:hover:bg-[#354b66] disabled:opacity-40 cursor-pointer"
                     >
                       All
                     </button>
@@ -478,14 +478,14 @@ export default function DriverWalletCard() {
                   <button
                     type="button"
                     onClick={() => setShowWithdrawModal(false)}
-                    className="flex-1 py-2.5 rounded-[8px] border border-[var(--border-default)] text-xs uppercase font-semibold text-[var(--text-primary)] bg-[var(--surface-subtle)] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] transition-colors cursor-pointer"
+                    className="flex-1 py-2.5 rounded-[8px] border border-[var(--border-default)] text-xs uppercase font-semibold text-[var(--text-primary)] bg-[var(--surface-subtle)] hover:bg-[#e4eeeb] dark:hover:bg-[#2b4160] transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={processingWithdraw || !withdrawAmount || Number(withdrawAmount) < 100 || !bankDetails}
-                    className="flex-1 py-2.5 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] text-xs font-semibold hover:bg-[#0D3027] dark:hover:bg-[#347858] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer "
+                    className="flex-1 py-2.5 rounded-[8px] bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] text-xs font-semibold hover:bg-[#0d192b] dark:hover:bg-[#354b66] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer "
                   >
                     {processingWithdraw ? (
                       <Loader2 size={14} className="animate-spin" />

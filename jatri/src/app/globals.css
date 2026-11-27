@@ -9,125 +9,101 @@
   --font-serif: var(--font-serif), 'DM Serif Display', Georgia, Cambria, serif;
   --font-body: var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
 
-  /* Primary Brand Palette Tokens (Mandatory Green-Role Hierarchy) */
-  --color-brand: #046A38;
-  --color-brand-hover: #03532C;
-  --color-emerald-primary: #046A38;
-  --color-emerald-active: #1E6048;
-  --color-emerald-subtle: #DDEBE0;
-  --color-forest: #123D32;
-  --color-forest-hover: #0D3027;
-  --color-forest-dark: #0D3027;
-  --color-ink: #10251C;
-  --color-ivory: #F7F1E5;
-  --color-ivory-warm: #F9EBD7;
-  --color-ivory-light: #FAF7F0;
-  --color-sage: #E5EBDD;
+  /* Legacy utility aliases retained for product screens. */
+  --color-brand: #213650;
+  --color-brand-hover: #142238;
+  --color-emerald-primary: #213650;
+  --color-emerald-active: #2d4d63;
+  --color-emerald-subtle: #dceee8;
+  --color-forest: #142238;
+  --color-forest-hover: #101c2f;
+  --color-forest-dark: #101c2f;
+  --color-ink: #142238;
+  --color-ivory: #e8f2ef;
+  --color-ivory-warm: #e4f2ee;
+  --color-ivory-light: #f3f8f6;
+  --color-sage: #ddede8;
   --color-vermilion: #E34222;
-  --color-warm-border: #DED7CA;
-  --color-muted-text: #696B64;
+  --color-warm-border: #b3c8ca;
+  --color-muted-text: #4d6374;
 }
 
 :root {
-  /* Brand Color Design Tokens */
-  --color-brand: #046A38;
-  --color-brand-hover: #03532C;
-  --color-emerald-primary: #046A38;
-  --color-emerald-active: #1E6048;
-  --color-emerald-subtle: #DDEBE0;
-  --color-forest: #123D32;
-  --color-forest-hover: #0D3027;
-  --color-forest-dark: #0D3027;
-  --color-ink: #10251C;
-  --color-ivory: #F7F1E5;
-  --color-ivory-warm: #F9EBD7;
-  --color-ivory-light: #FAF7F0;
-  --color-sage: #E5EBDD;
-  --color-vermilion: #E34222;
-  --color-warm-border: #DED7CA;
-  --color-muted-text: #696B64;
-
-  /* Semantic Theme Tokens - Light Mode Default */
-  --background: #f6f4eb;
-  --surface: #f8f6ef;
-  --surface-raised: #FFFFFF;
-  --surface-subtle: #eeeee3;
-  --surface-warm: #F9EBD7;
-  --surface-inverse: #061A16;
-  --surface-active: #046A38;
-  --surface-emerald-light: #DDEBE0;
-
-  --text-primary: #17221a;
-  --text-secondary: #48574d;
-  --text-muted: #535d53;
-  --text-inverse: #F7F5ED;
-
-  /* Switched Green Roles: Emerald is primary interactive, Forest is structural */
-  --brand-primary: #145338;
-  --brand-strong: #16402e;
-  --brand-hover: #03532C;
-  --brand-structural: #123D32;
-  --brand-structural-dark: #061A16;
-  --brand-subtle: #DDEBE0;
-  --accent-vermilion: #E34222;
-  --accent-gold: #C28B38;
-
-  --border-default: #d9dacf;
-  --border-subtle: #e7e7dd;
-  --focus-ring: #046A38;
-  --overlay: rgba(16, 37, 28, 0.45);
-
-  --font-inter: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-serif: 'DM Serif Display', Georgia, Cambria, serif;
-  font-family: var(--font-inter);
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-
-  /* Corner-Radius Design Tokens */
+  color-scheme: light;
+  /* Jaatri: Midnight, Ice, Mint. State colors are separate from the brand. */
+  --midnight: #142238;
+  --ice: #f3f8f6;
+  --accent-mint: #91f2ce;
+  --background: var(--ice);
+  --surface: #edf5f2;
+  --surface-raised: #ffffff;
+  --surface-subtle: #e2efeb;
+  --surface-warm: var(--surface-subtle);
+  --surface-inverse: var(--midnight);
+  --surface-active: var(--midnight);
+  --surface-emerald-light: #dceee8;
+  --text-primary: var(--midnight);
+  --text-secondary: #3d5667;
+  --text-muted: #4d6374;
+  --text-inverse: var(--ice);
+  --brand-primary: var(--midnight);
+  --on-primary: var(--ice);
+  --brand-strong: #203b52;
+  --brand-hover: #203b52;
+  --brand-structural: var(--midnight);
+  --brand-structural-dark: #0d182b;
+  --brand-subtle: var(--surface-subtle);
+  --accent-ink: #245563;
+  --action-bg: var(--midnight);
+  --action-fg: var(--ice);
+  --accent-vermilion: #aa362c;
+  --accent-gold: #825719;
+  --border-default: #b4c8cd;
+  --border-subtle: #d5e3e3;
+  --border-interactive: #627d87;
+  --focus-ring: #315b72;
+  --overlay: rgba(20, 34, 56, .62);
   --radius-btn-sm: 8px;
-  --radius-tab-active: 7px;
+  --radius-tab-active: 8px;
   --radius-selector: 10px;
   --radius-panel: 12px;
   --radius-card: 14px;
   --radius-benefit: 8px;
   --radius-icon: 8px;
   --radius-badge: 9999px;
-
-  /* Apple-inspired physical response curves & spring parameters */
-  --ease-apple-spring: cubic-bezier(0.32, 0.72, 0, 1);
-  --ease-apple-snappy: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-apple-spring: cubic-bezier(.32,.72,0,1);
+  --ease-apple-snappy: cubic-bezier(.16,1,.3,1);
 }
-
 .dark, html.dark {
-  /* Semantic Theme Tokens - Nighttime Forest Green Counterpart */
-  --background: #121d17;
-  --surface: #1a2820;
-  --surface-raised: #202f25;
-  --surface-subtle: #29382e;
-  --surface-warm: #0E2F28;
-  --surface-inverse: #FAF7F0;
-  --surface-active: #046A38;
-  --surface-emerald-light: #123D32;
-
-  --text-primary: #F7F5ED;
-  --text-secondary: #D4DDD7;
-  --text-muted: #B9C8BF;
-  --text-inverse: #10251C;
-
-  /* Switched Green Roles: Emerald is primary interactive, Forest is structural */
-  --brand-primary: #145338;
-  --brand-strong: #16402e;
-  --brand-hover: #34D399;
-  --brand-structural: #123D32;
-  --brand-structural-dark: #061A16;
-  --brand-subtle: #0B2822;
-  --accent-vermilion: #E34222;
-  --accent-gold: #D7AC62;
-
-  --border-default: #435345;
-  --border-subtle: #39493b;
-  --focus-ring: #34D399;
-  --overlay: rgba(0, 0, 0, 0.75);
+  color-scheme: dark;
+  --background: #101c30;
+  --surface: #182940;
+  --surface-raised: #1e314a;
+  --surface-subtle: #254159;
+  --surface-warm: #223950;
+  --surface-inverse: var(--ice);
+  --surface-active: #304f66;
+  --surface-emerald-light: #294a5a;
+  --text-primary: var(--ice);
+  --text-secondary: #d2e1e5;
+  --text-muted: #b3cbd1;
+  --text-inverse: var(--midnight);
+  --brand-primary: #233d56;
+  --brand-strong: #314e67;
+  --brand-hover: #314e67;
+  --brand-structural: var(--midnight);
+  --brand-structural-dark: #0d182b;
+  --brand-subtle: #254159;
+  --accent-ink: var(--accent-mint);
+  --action-bg: var(--accent-mint);
+  --action-fg: var(--midnight);
+  --accent-vermilion: #ffaaa0;
+  --accent-gold: #f0ce8c;
+  --border-default: #537089;
+  --border-subtle: #3e5972;
+  --border-interactive: #83a5b2;
+  --focus-ring: var(--accent-mint);
+  --overlay: rgba(0, 0, 0, .72);
 }
 
 /* Accessibility & Zoom Optimization */
@@ -136,6 +112,7 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-behavior: smooth;
+  scroll-padding-block: 108px 80px;
   background-color: var(--background);
   color: var(--text-primary);
 }
@@ -259,7 +236,7 @@ a, button, select, option, [role="button"] {
 }
 
 .dark .maplibre-map-container {
-  background-color: #061A16;
+  background-color: #142238;
 }
 
 .dark .maplibre-map-container .maplibregl-canvas {
@@ -389,16 +366,16 @@ a, button, select, option, [role="button"] {
    JAATRI EDITORIAL & MOTIF UTILITIES
    ========================================================================= */
 
-/* Primary Interactive Emerald Button (Green-Role Switch: #046A38) */
+/* Primary Interactive Emerald Button (Green-Role Switch: #213650) */
 .jaatri-btn-primary {
-  background-color: #046A38;
+  background-color: #213650;
   color: #FFFFFF;
   border-radius: 8px;
   font-weight: 700;
   transition: background-color 150ms ease, transform 120ms ease;
 }
 .jaatri-btn-primary:hover {
-  background-color: #03532C;
+  background-color: #142238;
 }
 .jaatri-btn-primary:active {
   transform: scale(0.98);
@@ -406,45 +383,45 @@ a, button, select, option, [role="button"] {
 
 /* Structural Forest Green Button */
 .jaatri-btn-structural {
-  background-color: #123D32;
-  color: #F7F1E5;
+  background-color: #142238;
+  color: #e8f2ef;
   border-radius: 8px;
   font-weight: 700;
   transition: background-color 150ms ease, transform 120ms ease;
 }
 .jaatri-btn-structural:hover {
-  background-color: #0D3027;
+  background-color: #101c2f;
 }
 
 /* Neutral Border Button */
 .jaatri-btn-secondary {
-  border: 1px solid #DED7CA;
+  border: 1px solid #b3c8ca;
   background-color: #FFFFFF;
-  color: #10251C;
+  color: #142238;
   border-radius: 8px;
   font-weight: 700;
   transition: background-color 150ms ease, border-color 150ms ease;
 }
 :is(.dark, html.dark, .dark *) .jaatri-btn-secondary {
-  border-color: #24483D;
-  background-color: #0B2822;
-  color: #F7F5ED;
+  border-color: #4e697f;
+  background-color: #1a2d45;
+  color: #f3f8f6;
 }
 .jaatri-btn-secondary:hover {
-  background-color: #F7F1E5;
+  background-color: #e8f2ef;
 }
 :is(.dark, html.dark, .dark *) .jaatri-btn-secondary:hover {
-  background-color: #10352C;
+  background-color: #263d54;
 }
 
 /* Continuous-flow Editorial Dividers */
 .editorial-rule {
   height: 1px;
-  background-color: #DED7CA;
+  background-color: #b3c8ca;
   width: 100%;
 }
 :is(.dark, html.dark, .dark *) .editorial-rule {
-  background-color: #24483D;
+  background-color: #4e697f;
 }
 
 
@@ -466,7 +443,7 @@ a, button, select, option, [role="button"] {
   padding: 12px 18px;
   border-radius: 6px;
   color: white;
-  background: #145338;
+  background: var(--midnight);
   transform: translateY(calc(-100% - 12px));
 }
 .jaatri-skip-link:focus { transform: translateY(0); }
@@ -475,6 +452,17 @@ a, button, select, option, [role="button"] {
   outline-offset: 3px;
 }
 #main-content:focus { outline: 0; }
+@media (forced-colors: active) {
+  :where(a,button,input,textarea,select,[tabindex]):focus-visible {
+    outline-color: Highlight;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }
+
+.jaatri-nav-active { box-shadow: inset 0 -2px currentColor; }
+.jaatri-shell-header button[aria-label] { min-block-size: 40px; min-inline-size: 40px; }
+.jaatri-shell-header [data-shell-primary] { background: var(--action-bg); color: var(--action-fg); min-height: 44px; }
+.jaatri-shell-header [data-shell-primary]:hover { filter: brightness(.92); }

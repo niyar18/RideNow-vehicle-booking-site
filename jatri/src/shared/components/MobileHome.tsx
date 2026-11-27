@@ -19,21 +19,21 @@ const destinations = [
   { id: "majuli", name: "Majuli", detail: "Life on the river island", lat: 26.9602, lng: 94.1973 },
 ];
 const services = [
-  { key: "local", title: "Car rides", detail: "For everyday journeys", image: "/fleet/car-mini.webp?v=photo-1", link: "/book?category=cars&fresh=true" },
-  { key: "outstation", title: "Outstation", detail: "Go beyond the city", image: "/fleet/suv.webp?v=photo-1", link: "/book?category=cars&service=outstation&fresh=true" },
-  { key: "goods", title: "Parcel & cargo", detail: "Send something across town", image: "/fleet/express-mini.webp?v=photo-1", link: "/book?category=trucks&serviceMode=logistics&fresh=true" },
-  { key: "schedule", title: "Scheduled rides", detail: "Choose your pickup time", image: "/fleet/premier.webp?v=photo-1", link: "/book?reserve=true&fresh=true" },
+  { key: "local", title: "Car rides", detail: "For everyday journeys", image: "/vehicle-art/mini.webp", link: "/book?category=cars&fresh=true" },
+  { key: "outstation", title: "Outstation", detail: "Go beyond the city", image: "/vehicle-art/priority.webp", link: "/book?category=cars&service=outstation&fresh=true" },
+  { key: "goods", title: "Parcel & cargo", detail: "Send something across town", image: "/vehicle-art/loading.webp", link: "/book?category=trucks&serviceMode=logistics&fresh=true" },
+  { key: "schedule", title: "Scheduled rides", detail: "Choose your pickup time", image: "/vehicle-art/car.webp", link: "/book?reserve=true&fresh=true" },
 ];
 const fleet = [
-  { id: "scooty", key: "scooty", title: "Scooty", asset: "scooty" },
-  { id: "bike", key: "bike", title: "Moto", asset: "moto" },
-  { id: "auto", key: "auto", title: "Auto", asset: "auto" },
-  { id: "e-rickshaw", key: "eRickshaw", title: "Toto", asset: "e-rickshaw" },
-  { id: "mini", key: "mini", title: "Mini", asset: "car-mini" },
-  { id: "car", key: "car", title: "Premier", asset: "premier" },
-  { id: "priority", key: "priority", title: "XL Priority", asset: "suv" },
-  { id: "loading", key: "loading", title: "Express Mini", asset: "express-mini" },
-  { id: "truck", key: "truck", title: "Freight", asset: "freight" },
+  { id: "scooty", key: "scooty", title: "Scooty" },
+  { id: "bike", key: "bike", title: "Moto" },
+  { id: "auto", key: "auto", title: "Auto" },
+  { id: "e-rickshaw", key: "eRickshaw", title: "Toto" },
+  { id: "mini", key: "mini", title: "Mini" },
+  { id: "car", key: "car", title: "Premier" },
+  { id: "priority", key: "priority", title: "XL Priority" },
+  { id: "loading", key: "loading", title: "Express Mini" },
+  { id: "truck", key: "truck", title: "Freight" },
 ];
 
 const subscribe = () => () => {};
@@ -113,7 +113,7 @@ export default function MobileHome() {
         <div className={styles.serviceGrid}>
           {services.map(({ key, title, detail, image, link }) => (
             <Link className={styles.serviceCard} href={link} key={key}>
-              <div className={styles.serviceImage}><Image src={image} alt="" fill sizes="(max-width: 520px) 48vw, 245px" className={styles.cover} /></div>
+              <div className={styles.serviceImage}><Image src={image} alt="" fill sizes="(max-width: 520px) 48vw, 245px" className={styles.vehicleArt} /></div>
               <div className={styles.serviceText}>
                 <div><h3>{t(`landing.${key}Title`, title)}</h3><p>{t(`landing.${key}Detail`, detail)}</p></div>
                 <ArrowUpRight size={16} aria-hidden />
@@ -149,14 +149,14 @@ export default function MobileHome() {
           <Link href="/fleet">{t("landing.mobileSeeAll", "See all")} <ArrowRight size={15} aria-hidden /></Link>
         </div>
         <div className={styles.track}>
-          {fleet.map(({ id, key, title, asset }) => (
+          {fleet.map(({ id, key, title }) => (
             <Link key={id} className={styles.vehicle} href={`/book?vehicle=${id}&fresh=true`}>
-              <div className={styles.vehicleImage}><Image src={`/fleet/${asset}.webp?v=photo-1`} alt="" fill sizes="133px" className={styles.cover} /></div>
+              <div className={styles.vehicleImage}><Image src={`/vehicle-art/${id}.webp`} alt="" fill sizes="133px" className={styles.vehicleArt} /></div>
               <span>{t(`fleet.${key}`, title)}<ArrowUpRight size={13} aria-hidden /></span>
             </Link>
           ))}
         </div>
-        <p className={styles.representative}>{t("landing.photoExamples", "Photos show example vehicles.")}</p>
+        <p className={styles.representative}>{t("landing.vehicleIllustrations", "Illustrations show vehicle types, not exact models.")}</p>
       </section>
       <div className={styles.partner}>
         <div><strong>{t("landing.driverTitle", "Drive on roads you know.")}</strong><p>{t("landing.driverLabel", "For drivers")}</p></div>

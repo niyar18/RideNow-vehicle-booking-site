@@ -128,7 +128,7 @@ export default function PrivacyPolicyPage() {
             </div>
             <div className="p-4 bg-[var(--surface-raised)] rounded-[10px] border border-[var(--border-default)]">
               <p className="font-bold text-[var(--text-primary)] mb-1">Account Erasure Requests</p>
-              <p className="text-[var(--text-secondary)] leading-relaxed">Directly processed via <code className="bg-[var(--page-moss)] dark:bg-[#1D3428] text-[var(--page-accent)] px-1 py-0.5 rounded text-[11px]">/api/user/delete-account</code>; personal IDs permanently anonymized.</p>
+              <p className="text-[var(--text-secondary)] leading-relaxed">Directly processed via <code className="bg-[var(--page-tint)] dark:bg-[var(--surface-subtle)] text-[var(--page-accent)] px-1 py-0.5 rounded text-[11px]">/api/user/delete-account</code>; personal IDs permanently anonymized.</p>
             </div>
           </div>
         </section>
@@ -148,14 +148,14 @@ export default function PrivacyPolicyPage() {
         </section>
 
         {/* 6. Grievance Officer */}
-        <section className="text-[var(--page-accent)] dark:text-[#F7F5ED] ">
-          <h2 className="font-serif text-xl sm:text-2xl font-bold mb-2 flex items-center gap-2 text-[var(--page-accent)] dark:text-[#F7F5ED]">
-            <HelpCircle size={20} className="text-[#E34222] dark:text-[#E06A50]" /> 6. Grievance Officer & Statutory Disclosures
+        <section className="text-[var(--page-accent)] dark:text-[var(--text-primary)] ">
+          <h2 className="font-serif text-xl sm:text-2xl font-bold mb-2 flex items-center gap-2 text-[var(--page-accent)] dark:text-[var(--text-primary)]">
+            <HelpCircle size={20} className="text-[var(--policy-danger)]" /> 6. Grievance Officer & Statutory Disclosures
           </h2>
-          <p className="text-xs mb-4 text-[var(--page-accent)]/85 dark:text-[#B9C8BF] leading-relaxed">
+          <p className="text-xs mb-4 text-[var(--page-accent)]/85 dark:text-[var(--text-secondary)] leading-relaxed">
             In compliance with the Digital Personal Data Protection Act, 2023, Consumer Protection (E-Commerce) Rules, 2020, and the Motor Vehicle Aggregator Guidelines 2025:
           </p>
-          <div className="bg-[var(--surface-raised)] p-4 rounded-[10px] border border-[#cdd6c3] dark:border-[#24483D] text-xs text-[var(--text-primary)] space-y-1.5">
+          <div className="bg-[var(--surface-raised)] p-4 rounded-[10px] border border-[var(--border-default)] dark:border-[var(--border-default)] text-xs text-[var(--text-primary)] space-y-1.5">
             <p><strong>Designated Grievance Officer:</strong> Legal & Compliance Officer</p>
             <p><strong>Entity Name:</strong> Jaatri Mobility Technologies Private Limited</p>
             <p><strong>Email:</strong> <a href="mailto:grievance@ridenow.in" className="text-[var(--page-accent)] font-bold underline">grievance@ridenow.in</a></p>

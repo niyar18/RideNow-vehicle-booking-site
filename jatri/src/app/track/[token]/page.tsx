@@ -229,7 +229,7 @@ export default function PublicTrackPage() {
             <h2 className="mb-3 text-sm font-semibold">Route</h2>
             <dl className="space-y-3">
               <div className="flex gap-2.5">
-                <span className="mt-1.5 size-2.5 shrink-0 rounded-full border-2 border-[var(--brand-primary)] dark:border-[#d9ea84]" aria-hidden="true" />
+                <span className="mt-1.5 size-2.5 shrink-0 rounded-full border-2 border-[var(--brand-primary)] dark:border-[#91f2ce]" aria-hidden="true" />
                 <div className="min-w-0">
                   <dt className="text-xs text-[var(--text-secondary)]">Pickup</dt>
                   <dd className="break-words text-sm font-medium">{booking.pickupAddress || "Not available"}</dd>

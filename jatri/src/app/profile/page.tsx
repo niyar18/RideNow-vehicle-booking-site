@@ -385,7 +385,7 @@ export default function ProfilePage() {
 
         {!userData && !session?.user && sessionStatus === "unauthenticated" ? (
           <div className="bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] p-8 text-center shadow-xs">
-            <div className="w-16 h-16 rounded-[12px] bg-[var(--surface-subtle)] text-[#046A38] dark:text-[#A8E0C0] flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 rounded-[12px] bg-[var(--surface-subtle)] text-[#213650] dark:text-[#A8E0C0] flex items-center justify-center mx-auto mb-4">
               <User size={30} />
             </div>
             <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
@@ -397,7 +397,7 @@ export default function ProfilePage() {
             <button
               type="button"
               onClick={() => setShowAuthModal(true)}
-              className="px-6 py-3 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] text-white font-bold text-sm transition cursor-pointer"
+              className="px-6 py-3 rounded-[8px] bg-[#213650] hover:bg-[#142238] text-white font-bold text-sm transition cursor-pointer"
             >
               Sign In with Mobile
             </button>
@@ -414,18 +414,18 @@ export default function ProfilePage() {
               <form onSubmit={handleSave} className="p-4 sm:p-8 space-y-5 sm:space-y-6">
             
             {/* Header Avatar info */}
-            <div className="flex items-center gap-3.5 sm:gap-4 pb-5 sm:pb-6 border-b border-[#DED7CA]/60 dark:border-[#24483D]">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[10px] bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0">
+            <div className="flex items-center gap-3.5 sm:gap-4 pb-5 sm:pb-6 border-b border-[#b3c8ca]/60 dark:border-[#4e697f]">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-[10px] bg-[#142238] dark:bg-[#365671] text-white flex items-center justify-center font-bold text-xl sm:text-2xl shrink-0">
                 {userData?.name?.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">
                 <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] leading-tight truncate">{userData?.name}</h2>
                 <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center mt-1">
-                  <span className="inline-flex items-center gap-1 bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[4px] border border-[var(--border-default)]">
+                  <span className="inline-flex items-center gap-1 bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[4px] border border-[var(--border-default)]">
                     {userData?.role}
                   </span>
                   {userData?.role === "vendor" && (
-                    <span className="inline-flex items-center gap-1 bg-[var(--surface-raised)] text-[#123D32] dark:text-[#d9ea84] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[4px] border border-[var(--border-default)]">
+                    <span className="inline-flex items-center gap-1 bg-[var(--surface-raised)] text-[#142238] dark:text-[#91f2ce] text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[4px] border border-[var(--border-default)]">
                       {userData?.vendorStatus}
                     </span>
                   )}
@@ -438,7 +438,7 @@ export default function ProfilePage() {
               {/* Name field */}
               <div>
                 <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest block mb-2">Display Name</label>
-                <div className="flex items-center gap-3 bg-white dark:bg-[#061A16] border border-[var(--border-default)] rounded-[8px] px-4 py-3 focus-within:border-[#123D32] dark:focus-within:border-[#28664D] focus-within:ring-2 focus-within:ring-[#123D32]/10 transition-all">
+                <div className="flex items-center gap-3 bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-4 py-3 focus-within:border-[#142238] dark:focus-within:border-[#365671] focus-within:ring-2 focus-within:ring-[#142238]/10 transition-all">
                   <User size={16} className="text-[var(--text-secondary)] shrink-0" />
                   <input
                     type="text"
@@ -446,7 +446,7 @@ export default function ProfilePage() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Enter your name"
-                    className="flex-1 bg-transparent text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 outline-none"
+                    className="flex-1 bg-transparent text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 outline-none"
                   />
                 </div>
               </div>
@@ -454,7 +454,7 @@ export default function ProfilePage() {
               {/* Mobile field */}
               <div>
                 <label className="text-xs font-bold text-[var(--text-secondary)] uppercase tracking-widest block mb-2">Mobile Number</label>
-                <div className="flex items-center gap-3 bg-white dark:bg-[#061A16] border border-[var(--border-default)] rounded-[8px] px-4 py-3 focus-within:border-[#123D32] dark:focus-within:border-[#28664D] focus-within:ring-2 focus-within:ring-[#123D32]/10 transition-all">
+                <div className="flex items-center gap-3 bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-4 py-3 focus-within:border-[#142238] dark:focus-within:border-[#365671] focus-within:ring-2 focus-within:ring-[#142238]/10 transition-all">
                   <Phone size={16} className="text-[var(--text-secondary)] shrink-0" />
                   <input
                     type="tel"
@@ -462,14 +462,14 @@ export default function ProfilePage() {
                     onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ""))}
                     placeholder="Enter your phone number"
                     inputMode="numeric"
-                    className="flex-1 bg-transparent text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 outline-none"
+                    className="flex-1 bg-transparent text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 outline-none"
                   />
                 </div>
               </div>
             </div>
 
             {/* Read-Only Meta Information */}
-            <div className="bg-white/70 dark:bg-[#10352C]/70 border border-[var(--border-default)] rounded-[10px] p-4 sm:p-5 space-y-3">
+            <div className="bg-white/70 dark:bg-[#263d54]/70 border border-[var(--border-default)] rounded-[10px] p-4 sm:p-5 space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-semibold text-[var(--text-secondary)] gap-0.5 sm:gap-2">
                 <span className="flex items-center gap-2 shrink-0">
                   <Mail size={14} className="text-[var(--text-secondary)] shrink-0" /> Email Address
@@ -506,7 +506,7 @@ export default function ProfilePage() {
                     initial={{ opacity: 0, x: 8 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0 }}
-                    className="text-xs font-bold text-[#123D32] dark:text-[#d9ea84] flex items-center justify-center gap-1.5"
+                    className="text-xs font-bold text-[#142238] dark:text-[#91f2ce] flex items-center justify-center gap-1.5"
                   >
                     <Check size={14} /> Changes saved
                   </motion.span>
@@ -517,7 +517,7 @@ export default function ProfilePage() {
                 type="submit"
                 whileTap={{ scale: 0.97 }}
                 disabled={saving || !name.trim()}
-                className="w-full sm:w-auto bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-40 text-white font-bold text-sm px-6 py-3 rounded-[8px] flex items-center justify-center gap-2 transition-all cursor-pointer"
+                className="w-full sm:w-auto bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] disabled:opacity-40 text-white font-bold text-sm px-6 py-3 rounded-[8px] flex items-center justify-center gap-2 transition-all cursor-pointer"
               >
                 {saving ? (
                   <>
@@ -544,9 +544,9 @@ export default function ProfilePage() {
           className="mt-6 sm:mt-8 bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] overflow-hidden"
         >
           <div className="p-4 sm:p-8 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#DED7CA]/60 dark:border-[#24483D]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#b3c8ca]/60 dark:border-[#4e697f]">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-[10px] bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] flex items-center justify-center font-bold shrink-0">
+                <div className="w-12 h-12 rounded-[10px] bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] flex items-center justify-center font-bold shrink-0">
                   <GraduationCap size={24} />
                 </div>
                 <div>
@@ -554,7 +554,7 @@ export default function ProfilePage() {
                     <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] leading-tight">
                       {t("student.programTitle", "Jaatri Student Benefits")}
                     </h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] border border-[var(--border-default)] px-2 py-0.5 rounded-[4px]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] border border-[var(--border-default)] px-2 py-0.5 rounded-[4px]">
                       10% OFF
                     </span>
                   </div>
@@ -567,8 +567,8 @@ export default function ProfilePage() {
               {/* Status Badge */}
               <div className="flex items-center gap-2">
                 {studentData?.status === "verified" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[#123D32] dark:text-[#d9ea84] text-xs font-bold">
-                    <Check size={14} className="text-[#123D32] dark:text-[#d9ea84]" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[var(--surface-subtle)] border border-[var(--border-default)] text-[#142238] dark:text-[#91f2ce] text-xs font-bold">
+                    <Check size={14} className="text-[#142238] dark:text-[#91f2ce]" />
                     {t("student.verified", "Status: Verified")}
                   </span>
                 ) : studentData?.status === "pending" ? (
@@ -597,13 +597,13 @@ export default function ProfilePage() {
             {/* Verified Active State */}
             {studentData?.status === "verified" ? (
               <div className="space-y-4">
-                <div className="p-4 bg-white/70 dark:bg-[#10352C]/70 border border-[var(--border-default)] rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="p-4 bg-white/70 dark:bg-[#263d54]/70 border border-[var(--border-default)] rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <div className="flex items-center gap-2 text-[#123D32] dark:text-[#d9ea84] font-bold text-sm">
-                      <Sparkles size={16} className="text-[#123D32] dark:text-[#d9ea84]" />
+                    <div className="flex items-center gap-2 text-[#142238] dark:text-[#91f2ce] font-bold text-sm">
+                      <Sparkles size={16} className="text-[#142238] dark:text-[#91f2ce]" />
                       10% Student Concession Active
                     </div>
-                    <p className="text-xs text-[#123D32] dark:text-[#B9C8BF] mt-1">
+                    <p className="text-xs text-[#142238] dark:text-[#b3cbd1] mt-1">
                       {t("student.validUntil", "Verified until")}{" "}
                       <span className="font-bold underline text-[var(--text-primary)]">
                         {studentData.verification?.expiresAt
@@ -617,7 +617,7 @@ export default function ProfilePage() {
                       ({studentData.daysRemaining} {t("student.days", "days")} remaining)
                     </p>
                     {studentData.verification?.institutionName && (
-                      <p className="text-[11px] text-[#123D32] dark:text-[#347858] font-semibold mt-0.5">
+                      <p className="text-[11px] text-[#142238] dark:text-[#406780] font-semibold mt-0.5">
                         🏛️ {studentData.verification.institutionName}
                       </p>
                     )}
@@ -630,7 +630,7 @@ export default function ProfilePage() {
                         setStudentStep(1);
                         setShowStudentModal(true);
                       }}
-                      className="shrink-0 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold px-4 py-2.5 rounded-[8px] transition cursor-pointer"
+                      className="shrink-0 bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] text-white text-xs font-bold px-4 py-2.5 rounded-[8px] transition cursor-pointer"
                     >
                       {t("student.reverify", "Re-verify Student Status")}
                     </button>
@@ -680,7 +680,7 @@ export default function ProfilePage() {
                     setStudentOtp("");
                     setShowStudentModal(true);
                   }}
-                  className="shrink-0 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold px-4 py-2.5 rounded-[8px] transition cursor-pointer"
+                  className="shrink-0 bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] text-white text-xs font-bold px-4 py-2.5 rounded-[8px] transition cursor-pointer"
                 >
                   Re-apply
                 </button>
@@ -708,7 +708,7 @@ export default function ProfilePage() {
                 </button>
               </div>
             ) : (
-              <div className="p-4 sm:p-5 bg-white/70 dark:bg-[#10352C]/70 border border-[var(--border-default)] rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="p-4 sm:p-5 bg-white/70 dark:bg-[#263d54]/70 border border-[var(--border-default)] rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <p className="text-xs text-[var(--text-primary)] font-medium">
                     Verified university and college students receive an automatic <b>10% discount</b> (capped at ₹50) on every regular ride for 1 full year.
@@ -723,7 +723,7 @@ export default function ProfilePage() {
                     setStudentStep(1);
                     setShowStudentModal(true);
                   }}
-                  className="shrink-0 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold px-5 py-3 rounded-[8px] transition flex items-center justify-center gap-2 cursor-pointer"
+                  className="shrink-0 bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] text-white text-xs font-bold px-5 py-3 rounded-[8px] transition flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <GraduationCap size={16} />
                   {t("student.applyNow", "Apply for Student Discount")}
@@ -751,9 +751,9 @@ export default function ProfilePage() {
           className="mt-6 sm:mt-8 bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] overflow-hidden"
         >
           <div className="p-4 sm:p-8 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#DED7CA]/60 dark:border-[#24483D]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-[#b3c8ca]/60 dark:border-[#4e697f]">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-[10px] bg-emerald-50 dark:bg-[#1D3428] text-[#046A38] dark:text-[#d9ea84] flex items-center justify-center font-bold shrink-0">
+                <div className="w-12 h-12 rounded-[10px] bg-emerald-50 dark:bg-[#263d54] text-[#213650] dark:text-[#91f2ce] flex items-center justify-center font-bold shrink-0">
                   <ShieldCheck size={24} />
                 </div>
                 <div>
@@ -761,7 +761,7 @@ export default function ProfilePage() {
                     <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] leading-tight">
                       Women&apos;s Safety Matching
                     </h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-[#1D3428] text-[#046A38] dark:text-[#d9ea84] border border-emerald-200 dark:border-[#28664D] px-2 py-0.5 rounded-[4px]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 dark:bg-[#263d54] text-[#213650] dark:text-[#91f2ce] border border-emerald-200 dark:border-[#365671] px-2 py-0.5 rounded-[4px]">
                       Zero Silent Fallback
                     </span>
                   </div>
@@ -774,7 +774,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-2">
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] text-xs font-bold ${
                   safetyProfile?.womenOnlyEligible
-                    ? "bg-emerald-50 dark:bg-[#1D3428] text-[#046A38] dark:text-[#d9ea84] border border-emerald-200 dark:border-[#28664D]"
+                    ? "bg-emerald-50 dark:bg-[#263d54] text-[#213650] dark:text-[#91f2ce] border border-emerald-200 dark:border-[#365671]"
                     : "bg-[var(--surface-raised)] text-[var(--text-secondary)] border border-[var(--border-default)]"
                 }`}>
                   {safetyProfile?.womenOnlyEligible ? "Enrolled for Women-Only Rides" : "Standard Preference"}
@@ -782,7 +782,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="p-4 sm:p-5 bg-white/70 dark:bg-[#10352C]/70 border border-[var(--border-default)] rounded-[10px] space-y-4">
+            <div className="p-4 sm:p-5 bg-white/70 dark:bg-[#263d54]/70 border border-[var(--border-default)] rounded-[10px] space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <p className="text-xs text-[var(--text-primary)] font-bold">
@@ -829,9 +829,9 @@ export default function ProfilePage() {
           className="mt-6 sm:mt-8 bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] overflow-hidden"
         >
           <div className="p-4 sm:p-8 space-y-5 sm:space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-[#DED7CA]/60 dark:border-[#24483D]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 sm:pb-6 border-b border-[#b3c8ca]/60 dark:border-[#4e697f]">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-[10px] bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] flex items-center justify-center font-bold shrink-0">
+                <div className="w-12 h-12 rounded-[10px] bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] flex items-center justify-center font-bold shrink-0">
                   <Users size={22} />
                 </div>
                 <div className="min-w-0">
@@ -839,7 +839,7 @@ export default function ProfilePage() {
                     <h3 className="text-base sm:text-lg font-bold text-[var(--text-primary)] leading-tight">
                       {family?.familyName || "Family Account"}
                     </h3>
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] border border-[var(--border-default)] px-2 py-0.5 rounded-[4px]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] border border-[var(--border-default)] px-2 py-0.5 rounded-[4px]">
                       {family?.members?.length || 0}/5 Members
                     </span>
                   </div>
@@ -852,16 +852,16 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={() => setShowAddMember(!showAddMember)}
-                className="min-h-[44px] inline-flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] px-4 py-2.5 rounded-[8px] transition w-full sm:w-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+                className="min-h-[44px] inline-flex items-center justify-center gap-1.5 text-xs font-bold text-white bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] px-4 py-2.5 rounded-[8px] transition w-full sm:w-auto cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#213650] focus-visible:ring-offset-2"
               >
                 <UserPlus size={14} /> {showAddMember ? "Cancel" : "Add Member"}
               </button>
             </div>
 
             {/* Central Shared Billing Toggle */}
-            <div className="flex items-center justify-between p-4 bg-white/70 dark:bg-[#10352C]/70 border border-[var(--border-default)] rounded-[10px]">
+            <div className="flex items-center justify-between p-4 bg-white/70 dark:bg-[#263d54]/70 border border-[var(--border-default)] rounded-[10px]">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[6px] bg-[var(--surface-raised)] border border-[var(--border-default)] text-[#123D32] dark:text-[#d9ea84] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-[6px] bg-[var(--surface-raised)] border border-[var(--border-default)] text-[#142238] dark:text-[#91f2ce] flex items-center justify-center">
                   <ShieldCheck size={16} />
                 </div>
                 <div>
@@ -872,7 +872,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={handleToggleCentralBilling}
-                className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${family?.sharedPaymentEnabled ? "bg-[#123D32] dark:bg-[#28664D] justify-end" : "bg-[#DED7CA] dark:bg-[#34443A] justify-start"}`}
+                className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${family?.sharedPaymentEnabled ? "bg-[#142238] dark:bg-[#365671] justify-end" : "bg-[#b3c8ca] dark:bg-[#435e76] justify-start"}`}
               >
                 <div className="w-5 h-5 rounded-full bg-white shadow-md" />
               </button>
@@ -886,7 +886,7 @@ export default function ProfilePage() {
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
                   onSubmit={handleAddMember}
-                  className="bg-white/90 dark:bg-[#10352C] border border-[var(--border-default)] rounded-[10px] p-5 space-y-3 overflow-hidden"
+                  className="bg-white/90 dark:bg-[#263d54] border border-[var(--border-default)] rounded-[10px] p-5 space-y-3 overflow-hidden"
                 >
                   <p className="text-xs font-bold uppercase text-[var(--text-primary)] tracking-wider">Add Family Member</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -896,46 +896,46 @@ export default function ProfilePage() {
                       placeholder="Full Name *"
                       value={memberName}
                       onChange={e => setMemberName(e.target.value)}
-                      className="w-full bg-white dark:bg-[#061A16] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
+                      className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 outline-none focus:border-[#142238] dark:focus:border-[#365671]"
                     />
                     <select
                       value={memberRelation}
                       onChange={e => setMemberRelation(e.target.value)}
-                      className="w-full bg-white dark:bg-[#061A16] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--text-primary)] outline-none focus:border-[#123D32] dark:focus:border-[#28664D] font-medium"
+                      className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--text-primary)] outline-none focus:border-[#142238] dark:focus:border-[#365671] font-medium"
                     >
-                      <option value="Spouse" className="dark:bg-[#061A16]">Spouse</option>
-                      <option value="Child" className="dark:bg-[#061A16]">Child</option>
-                      <option value="Parent" className="dark:bg-[#061A16]">Parent</option>
-                      <option value="Sibling" className="dark:bg-[#061A16]">Sibling</option>
-                      <option value="Other" className="dark:bg-[#061A16]">Other</option>
+                      <option value="Spouse" className="dark:bg-[#142238]">Spouse</option>
+                      <option value="Child" className="dark:bg-[#142238]">Child</option>
+                      <option value="Parent" className="dark:bg-[#142238]">Parent</option>
+                      <option value="Sibling" className="dark:bg-[#142238]">Sibling</option>
+                      <option value="Other" className="dark:bg-[#142238]">Other</option>
                     </select>
                     <input
                       type="tel"
                       placeholder="Mobile Number (Optional)"
                       value={memberPhone}
                       onChange={e => setMemberPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                      className="w-full bg-white dark:bg-[#061A16] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
+                      className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 outline-none focus:border-[#142238] dark:focus:border-[#365671]"
                     />
                     <input
                       type="email"
                       placeholder="Email Address (Optional)"
                       value={memberEmail}
                       onChange={e => setMemberEmail(e.target.value)}
-                      className="w-full bg-white dark:bg-[#061A16] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 outline-none focus:border-[#123D32] dark:focus:border-[#28664D]"
+                      className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-xs text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 outline-none focus:border-[#142238] dark:focus:border-[#365671]"
                     />
                   </div>
                   <div className="flex justify-end gap-2 pt-1">
                     <button
                       type="button"
                       onClick={() => setShowAddMember(false)}
-                      className="min-h-[44px] text-xs font-bold text-[var(--text-secondary)] hover:text-[#10251C] dark:hover:text-[#F3F1E8] px-4 py-2 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                      className="min-h-[44px] text-xs font-bold text-[var(--text-secondary)] hover:text-[#142238] dark:hover:text-[#f3f8f6] px-4 py-2 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#213650]"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={addingMember || !memberName.trim()}
-                      className="min-h-[44px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-50 text-white font-bold text-xs px-5 py-2 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+                      className="min-h-[44px] bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] disabled:opacity-50 text-white font-bold text-xs px-5 py-2 rounded-[8px] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#213650] focus-visible:ring-offset-2"
                     >
                       {addingMember ? "Adding..." : "Add to Family"}
                     </button>
@@ -950,17 +950,17 @@ export default function ProfilePage() {
                 Active Family Members
               </p>
               {family?.members && family.members.length > 0 ? (
-                <div className="divide-y divide-[#DED7CA]/60 dark:divide-[#24483D] border border-[var(--border-default)] rounded-[10px] overflow-hidden bg-white/70 dark:bg-[#10352C]/70">
+                <div className="divide-y divide-[#b3c8ca]/60 dark:divide-[#4e697f] border border-[var(--border-default)] rounded-[10px] overflow-hidden bg-white/70 dark:bg-[#263d54]/70">
                   {family.members.map((m: any) => (
-                    <div key={m._id} className="p-4 flex items-center justify-between hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] transition">
+                    <div key={m._id} className="p-4 flex items-center justify-between hover:bg-[#f3f8f6] dark:hover:bg-[#2a425a] transition">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-[#123D32] dark:bg-[#28664D] text-white flex items-center justify-center font-bold text-xs">
+                        <div className="w-9 h-9 rounded-full bg-[#142238] dark:bg-[#365671] text-white flex items-center justify-center font-bold text-xs">
                           {m.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="text-sm font-bold text-[var(--text-primary)]">{m.name}</p>
-                            <span className="text-[9px] font-bold uppercase tracking-wider bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] border border-[var(--border-default)] px-2 py-0.5 rounded-[4px]">
+                            <span className="text-[9px] font-bold uppercase tracking-wider bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] border border-[var(--border-default)] px-2 py-0.5 rounded-[4px]">
                               {m.relation}
                             </span>
                           </div>
@@ -981,8 +981,8 @@ export default function ProfilePage() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-8 border border-dashed border-[var(--border-default)] rounded-[10px] bg-white/50 dark:bg-[#10352C]/50">
-                  <Users size={28} className="text-[#696B64]/50 dark:text-[#B9C8BF]/40 mx-auto mb-2" />
+                <div className="text-center py-8 border border-dashed border-[var(--border-default)] rounded-[10px] bg-white/50 dark:bg-[#263d54]/50">
+                  <Users size={28} className="text-[#4d6374]/50 dark:text-[#b3cbd1]/40 mx-auto mb-2" />
                   <p className="text-xs font-bold text-[var(--text-primary)]">No family members added yet</p>
                   <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">Add your children, spouse, or parents to share rides</p>
                 </div>
@@ -999,7 +999,7 @@ export default function ProfilePage() {
           className="mt-6 sm:mt-8 bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] overflow-hidden"
         >
           <div className="p-4 sm:p-8 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#DED7CA]/60 dark:border-[#24483D]">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#b3c8ca]/60 dark:border-[#4e697f]">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-[10px] bg-[var(--surface-raised)] border border-[var(--border-default)] text-[var(--text-primary)] flex items-center justify-center font-bold shrink-0">
                   <ShieldCheck size={22} />
@@ -1028,11 +1028,11 @@ export default function ProfilePage() {
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3 text-xs text-[var(--text-secondary)]">
-              <div className="p-3 bg-white/70 dark:bg-[#10352C]/70 rounded-[8px] border border-[var(--border-default)]">
+              <div className="p-3 bg-white/70 dark:bg-[#263d54]/70 rounded-[8px] border border-[var(--border-default)]">
                 <span className="font-bold text-[var(--text-primary)] block mb-0.5">Instant Identity Scrubbing:</span>
                 Your name, phone number, login credentials, and saved addresses are immediately anonymized.
               </div>
-              <div className="p-3 bg-white/70 dark:bg-[#10352C]/70 rounded-[8px] border border-[var(--border-default)]">
+              <div className="p-3 bg-white/70 dark:bg-[#263d54]/70 rounded-[8px] border border-[var(--border-default)]">
                 <span className="font-bold text-[var(--text-primary)] block mb-0.5">Statutory Retention:</span>
                 Past trip logs and tax receipts are archived in anonymized form for statutory audit periods under Motor Vehicle Guidelines.
               </div>
@@ -1088,7 +1088,7 @@ export default function ProfilePage() {
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 className="bg-[var(--surface-raised)] rounded-[16px] p-6 sm:p-7 w-full max-w-md shadow-2xl border border-[var(--border-default)] relative overflow-hidden"
               >
-                <div className="flex items-center justify-between pb-4 border-b border-[#DED7CA]/60 dark:border-[#24483D] mb-4">
+                <div className="flex items-center justify-between pb-4 border-b border-[#b3c8ca]/60 dark:border-[#4e697f] mb-4">
                   <div className="flex items-center gap-2.5">
                     <div className="w-9 h-9 rounded-[8px] bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 flex items-center justify-center">
                       <Trash2 size={20} />
@@ -1106,7 +1106,7 @@ export default function ProfilePage() {
                     type="button"
                     aria-label="Close delete account dialog"
                     onClick={() => setShowDeleteModal(false)}
-                    className="min-w-[44px] min-h-[44px] rounded-[6px] bg-[var(--surface-raised)] text-[var(--text-primary)] border border-[var(--border-default)] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] flex items-center justify-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                    className="min-w-[44px] min-h-[44px] rounded-[6px] bg-[var(--surface-raised)] text-[var(--text-primary)] border border-[var(--border-default)] hover:bg-[#e8f2ef] dark:hover:bg-[#2a425a] flex items-center justify-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#213650]"
                   >
                     <X size={16} />
                   </button>
@@ -1149,7 +1149,7 @@ export default function ProfilePage() {
                       <button
                         type="button"
                         onClick={() => setShowDeleteModal(false)}
-                        className="px-4 py-3 rounded-[8px] border border-[var(--border-default)] text-[var(--text-primary)] text-xs font-bold bg-[var(--surface-raised)] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] transition cursor-pointer"
+                        className="px-4 py-3 rounded-[8px] border border-[var(--border-default)] text-[var(--text-primary)] text-xs font-bold bg-[var(--surface-raised)] hover:bg-[#f3f8f6] dark:hover:bg-[#2a425a] transition cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -1190,9 +1190,9 @@ export default function ProfilePage() {
                 className="bg-[var(--surface-raised)] rounded-[16px] p-6 sm:p-7 w-full max-w-md shadow-2xl border border-[var(--border-default)] relative overflow-hidden"
               >
                 {/* Header */}
-                <div className="flex items-center justify-between pb-4 border-b border-[#DED7CA]/60 dark:border-[#24483D] mb-4">
+                <div className="flex items-center justify-between pb-4 border-b border-[#b3c8ca]/60 dark:border-[#4e697f] mb-4">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-[8px] bg-[var(--surface-subtle)] text-[#123D32] dark:text-[#d9ea84] flex items-center justify-center font-bold">
+                    <div className="w-9 h-9 rounded-[8px] bg-[var(--surface-subtle)] text-[#142238] dark:text-[#91f2ce] flex items-center justify-center font-bold">
                       <GraduationCap size={20} />
                     </div>
                     <div>
@@ -1212,7 +1212,7 @@ export default function ProfilePage() {
                     type="button"
                     aria-label="Close student verification dialog"
                     onClick={() => setShowStudentModal(false)}
-                    className="min-w-[44px] min-h-[44px] rounded-[6px] bg-[var(--surface-raised)] text-[var(--text-primary)] border border-[var(--border-default)] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] flex items-center justify-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+                    className="min-w-[44px] min-h-[44px] rounded-[6px] bg-[var(--surface-raised)] text-[var(--text-primary)] border border-[var(--border-default)] hover:bg-[#e8f2ef] dark:hover:bg-[#2a425a] flex items-center justify-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#213650]"
                   >
                     <X size={16} />
                   </button>
@@ -1238,7 +1238,7 @@ export default function ProfilePage() {
                         value={institutionName}
                         onChange={(e) => setInstitutionName(e.target.value)}
                         placeholder="e.g. Gauhati University, IIT Guwahati, Cotton University"
-                        className="w-full px-4 py-3 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 focus:border-[#123D32] dark:focus:border-[#28664D] outline-none"
+                        className="w-full px-4 py-3 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#142238] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 focus:border-[#142238] dark:focus:border-[#365671] outline-none"
                       />
                     </div>
 
@@ -1269,8 +1269,8 @@ export default function ProfilePage() {
                             onClick={() => setVerifyMethod(m.id as any)}
                             className={`flex items-start gap-3 p-3.5 rounded-[10px] border cursor-pointer transition ${
                               verifyMethod === m.id
-                                ? "border-[#123D32] dark:border-[#28664D] bg-[#E5EBDD]/50 dark:bg-[#1D3428]/50"
-                                : "border-[var(--border-default)] hover:bg-white dark:hover:bg-[#10352C]"
+                                ? "border-[#142238] dark:border-[#365671] bg-[#ddede8]/50 dark:bg-[#263d54]/50"
+                                : "border-[var(--border-default)] hover:bg-white dark:hover:bg-[#263d54]"
                             }`}
                           >
                             <input
@@ -1278,7 +1278,7 @@ export default function ProfilePage() {
                               name="verifyMethod"
                               checked={verifyMethod === m.id}
                               onChange={() => {}}
-                              className="mt-1 text-[#123D32] focus:ring-[#123D32]"
+                              className="mt-1 text-[#142238] focus:ring-[#142238]"
                             />
                             <div>
                               <p className="text-xs font-bold text-[var(--text-primary)]">{m.label}</p>
@@ -1296,7 +1296,7 @@ export default function ProfilePage() {
                         setStudentError(null);
                         setStudentStep(2);
                       }}
-                      className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-40 text-white font-bold text-xs py-3.5 rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
+                      className="w-full bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] disabled:opacity-40 text-white font-bold text-xs py-3.5 rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
                     >
                       {t("common.continue", "Continue")}
                       <ChevronRight size={14} />
@@ -1320,7 +1320,7 @@ export default function ProfilePage() {
                             value={eduEmail}
                             onChange={(e) => setEduEmail(e.target.value)}
                             placeholder="e.g. yourname@university.edu or .ac.in"
-                            className="w-full px-4 py-3 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 focus:border-[#123D32] dark:focus:border-[#28664D] outline-none disabled:opacity-60"
+                            className="w-full px-4 py-3 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#142238] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 focus:border-[#142238] dark:focus:border-[#365671] outline-none disabled:opacity-60"
                           />
                           <p className="text-[10px] text-[var(--text-secondary)] mt-1">
                             Must be an accredited institutional email (.edu, .ac.in, .edu.in, .ac.uk, etc.)
@@ -1329,7 +1329,7 @@ export default function ProfilePage() {
 
                         {studentRequiresOtp && (
                           <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-[10px] space-y-2">
-                            <label className="text-[11px] font-bold uppercase tracking-wider text-[#123D32] dark:text-emerald-300 block">
+                            <label className="text-[11px] font-bold uppercase tracking-wider text-[#142238] dark:text-emerald-300 block">
                               Enter 6-Digit Email Code *
                             </label>
                             <input
@@ -1340,7 +1340,7 @@ export default function ProfilePage() {
                               placeholder="· · · · · ·"
                               value={studentOtp}
                               onChange={(e) => setStudentOtp(e.target.value.replace(/\D/g, ""))}
-                              className="w-full px-4 py-3 text-center text-xl tracking-[0.4em] font-mono font-bold rounded-[8px] border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-[#061A16] text-[var(--text-primary)] outline-none"
+                              className="w-full px-4 py-3 text-center text-xl tracking-[0.4em] font-mono font-bold rounded-[8px] border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-[#142238] text-[var(--text-primary)] outline-none"
                               autoFocus
                               required
                             />
@@ -1359,7 +1359,7 @@ export default function ProfilePage() {
                                 type="button"
                                 disabled={studentResendCooldown > 0}
                                 onClick={handleVerifyStudent}
-                                className="text-[#046A38] dark:text-emerald-400 font-bold hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
+                                className="text-[#213650] dark:text-emerald-400 font-bold hover:underline disabled:opacity-50 disabled:no-underline cursor-pointer"
                               >
                                 {studentResendCooldown > 0 ? `Resend in ${studentResendCooldown}s` : "Resend Code"}
                               </button>
@@ -1379,7 +1379,7 @@ export default function ProfilePage() {
                             value={studentFullName}
                             onChange={(e) => setStudentFullName(e.target.value)}
                             placeholder="Full name as printed on ID"
-                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 focus:border-[#123D32] dark:focus:border-[#28664D] outline-none"
+                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#142238] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 focus:border-[#142238] dark:focus:border-[#365671] outline-none"
                           />
                         </div>
                         <div>
@@ -1392,7 +1392,7 @@ export default function ProfilePage() {
                             value={studentIdNumber}
                             onChange={(e) => setStudentIdNumber(e.target.value)}
                             placeholder="e.g. 2024CS1092"
-                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 focus:border-[#123D32] dark:focus:border-[#28664D] outline-none"
+                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#142238] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 focus:border-[#142238] dark:focus:border-[#365671] outline-none"
                           />
                         </div>
                         <div>
@@ -1403,7 +1403,7 @@ export default function ProfilePage() {
                             type="text"
                             value={academicYear}
                             onChange={(e) => setAcademicYear(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] text-sm font-semibold text-[var(--text-primary)] focus:border-[#123D32] dark:focus:border-[#28664D] outline-none"
+                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#142238] text-sm font-semibold text-[var(--text-primary)] focus:border-[#142238] dark:focus:border-[#365671] outline-none"
                           />
                         </div>
                       </div>
@@ -1419,7 +1419,7 @@ export default function ProfilePage() {
                             value={studentFullName}
                             onChange={(e) => setStudentFullName(e.target.value)}
                             placeholder="Full name as per official records"
-                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#696B64]/60 dark:placeholder:text-[#B9C8BF]/40 focus:border-[#123D32] dark:focus:border-[#28664D] outline-none"
+                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#142238] text-sm font-semibold text-[var(--text-primary)] placeholder:text-[#4d6374]/60 dark:placeholder:text-[#b3cbd1]/40 focus:border-[#142238] dark:focus:border-[#365671] outline-none"
                           />
                         </div>
                         <div>
@@ -1429,11 +1429,11 @@ export default function ProfilePage() {
                           <select
                             value={documentType}
                             onChange={(e) => setDocumentType(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] text-sm font-semibold text-[var(--text-primary)] focus:border-[#123D32] dark:focus:border-[#28664D] outline-none"
+                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#142238] text-sm font-semibold text-[var(--text-primary)] focus:border-[#142238] dark:focus:border-[#365671] outline-none"
                           >
-                            <option value="Bonafide Certificate" className="dark:bg-[#061A16]">Bonafide Certificate</option>
-                            <option value="Admission Letter" className="dark:bg-[#061A16]">Admission / Enrollment Letter</option>
-                            <option value="Current Academic Status" className="dark:bg-[#061A16]">Current Academic Status Letter</option>
+                            <option value="Bonafide Certificate" className="dark:bg-[#142238]">Bonafide Certificate</option>
+                            <option value="Admission Letter" className="dark:bg-[#142238]">Admission / Enrollment Letter</option>
+                            <option value="Current Academic Status" className="dark:bg-[#142238]">Current Academic Status Letter</option>
                           </select>
                         </div>
                         <div>
@@ -1444,13 +1444,13 @@ export default function ProfilePage() {
                             type="text"
                             value={academicYear}
                             onChange={(e) => setAcademicYear(e.target.value)}
-                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] text-sm font-semibold text-[var(--text-primary)] focus:border-[#123D32] dark:focus:border-[#28664D] outline-none"
+                            className="w-full px-4 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#142238] text-sm font-semibold text-[var(--text-primary)] focus:border-[#142238] dark:focus:border-[#365671] outline-none"
                           />
                         </div>
                       </div>
                     )}
 
-                    <div className="p-3 bg-white/70 dark:bg-[#10352C]/70 border border-[var(--border-default)] rounded-[8px] text-[10px] text-[var(--text-secondary)] leading-snug">
+                    <div className="p-3 bg-white/70 dark:bg-[#263d54]/70 border border-[var(--border-default)] rounded-[8px] text-[10px] text-[var(--text-secondary)] leading-snug">
                       🔒 <b>DPDP Act Privacy Notice:</b> Your academic data is collected solely to authenticate student discount eligibility and will not be shared with advertisers or third parties.
                     </div>
 
@@ -1458,14 +1458,14 @@ export default function ProfilePage() {
                       <button
                         type="button"
                         onClick={() => setStudentStep(1)}
-                        className="px-4 py-3 rounded-[8px] border border-[var(--border-default)] text-[var(--text-primary)] text-xs font-bold bg-[var(--surface-raised)] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] transition cursor-pointer"
+                        className="px-4 py-3 rounded-[8px] border border-[var(--border-default)] text-[var(--text-primary)] text-xs font-bold bg-[var(--surface-raised)] hover:bg-[#f3f8f6] dark:hover:bg-[#2a425a] transition cursor-pointer"
                       >
                         {t("common.back", "Back")}
                       </button>
                       <button
                         type="submit"
                         disabled={submittingStudent}
-                        className="flex-1 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] disabled:opacity-50 text-white font-bold text-xs py-3 rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
+                        className="flex-1 bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] disabled:opacity-50 text-white font-bold text-xs py-3 rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer"
                       >
                         {submittingStudent ? (
                           <>
@@ -1502,17 +1502,17 @@ export default function ProfilePage() {
                       </p>
                     </div>
 
-                    <div className="p-4 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[12px] text-left space-y-1.5 text-xs text-[#123D32] dark:text-[#d9ea84]">
+                    <div className="p-4 bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[12px] text-left space-y-1.5 text-xs text-[#142238] dark:text-[#91f2ce]">
                       <div className="flex justify-between">
-                        <span className="text-[#123D32]/80 dark:text-[#B9C8BF]">Institution:</span>
+                        <span className="text-[#142238]/80 dark:text-[#b3cbd1]">Institution:</span>
                         <span className="font-bold">{institutionName}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-[#123D32]/80 dark:text-[#B9C8BF]">Annual Validity:</span>
+                        <span className="text-[#142238]/80 dark:text-[#b3cbd1]">Annual Validity:</span>
                         <span className="font-bold">12 Months (365 Days)</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-[#123D32]/80 dark:text-[#B9C8BF]">Max Discount:</span>
+                        <span className="text-[#142238]/80 dark:text-[#b3cbd1]">Max Discount:</span>
                         <span className="font-bold">₹50 per ride</span>
                       </div>
                     </div>
@@ -1523,7 +1523,7 @@ export default function ProfilePage() {
                         setShowStudentModal(false);
                         setStudentStep(1);
                       }}
-                      className="w-full bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold py-3.5 rounded-[8px] transition cursor-pointer"
+                      className="w-full bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] text-white text-xs font-bold py-3.5 rounded-[8px] transition cursor-pointer"
                     >
                       {t("common.done", "Done")}
                     </button>

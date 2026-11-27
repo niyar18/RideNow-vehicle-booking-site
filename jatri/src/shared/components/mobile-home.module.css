@@ -92,3 +92,36 @@
 .partner a { display: grid; width: 44px; height: 44px; place-items: center; border-radius: 50%; background: #d9ea84; color: #123d32; flex: 0 0 auto; }
 @media (min-width: 640px) { .home { padding-top: 80px; } }
 @media (max-width: 370px) { .heroInner, .section { padding-inline: 13px; } .shortcuts a, .shortcuts button { gap: 3px; font-size: 10px; } }
+
+.home {
+  --home-cream: var(--background);
+  --home-green: var(--accent-ink);
+  --home-ink: var(--text-primary);
+  --home-muted: var(--text-secondary);
+  --home-card: var(--surface-raised);
+  --home-border: var(--border-default);
+}
+:global(.dark) .home {
+  --home-cream: var(--background);
+  --home-green: var(--accent-ink);
+  --home-ink: var(--text-primary);
+  --home-muted: var(--text-secondary);
+  --home-card: var(--surface-raised);
+  --home-border: var(--border-default);
+}
+.photo::after { background: linear-gradient(180deg,#142238 0%,#142238e8 34%,#14223853 66%,#142238c4 100%); }
+.greeting { color: var(--ice); }
+.greeting em { color: var(--accent-mint); }
+.greeting h1, .sectionTitle h2, .partner strong { font-family: var(--font-outfit), var(--font-inter), system-ui, sans-serif; font-weight: 620; }
+.weave { border-color: var(--accent-mint); background: repeating-linear-gradient(135deg,transparent 0 4px,var(--accent-mint) 4px 5px,transparent 5px 9px); }
+.search { background: var(--ice); color: var(--midnight); border-color: var(--border-interactive); }
+.search:focus-visible { outline-color: var(--accent-mint); }
+.searchArrow { background: var(--midnight); color: var(--accent-mint); }
+.shortcuts a, .shortcuts button { min-height: 46px; border-color: var(--border-interactive); }
+.sectionTitle a { min-height: 44px; }
+.serviceImage, .vehicleImage { background: var(--surface-subtle); }
+.vehicleArt { object-fit: contain; padding: 4px 9px; }
+.vehicleImage .vehicleArt { padding: 5px 9px; }
+.partner { background: var(--midnight); color: var(--ice); }
+.partner p { color: #b3cbd1; }
+.partner a { background: var(--accent-mint); color: var(--midnight); }
