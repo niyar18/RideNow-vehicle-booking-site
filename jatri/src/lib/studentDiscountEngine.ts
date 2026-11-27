@@ -37,7 +37,8 @@ export interface StudentMonthlyStatus {
  * Automatically synchronizes month roll-overs if a new calendar month has started.
  */
 export async function getStudentMonthlyStatus(
-  userId: string | Types.ObjectId
+  userId: string | Types.ObjectId,
+  { readOnly = false }: { readOnly?: boolean } = {},
 ): Promise<StudentMonthlyStatus> {
   const currentMonth = getIstMonthKey();
   const user = await User.findById(userId)
@@ -70,7 +71,7 @@ export async function getStudentMonthlyStatus(
 
   if (isDifferentMonth) {
     // Reset month counters atomically for the new calendar month
-    await User.updateOne(
+    if (!readOnly) await User.updateOne(
       { _id: user._id, "studentMonthlyUsage.monthKey": { $ne: currentMonth } },
       {
         $set: {
@@ -128,6 +129,22 @@ export async function getStudentMonthlyStatus(
  * Guarantees that simultaneous ride bookings cannot exceed either the ₹200 allowance
  * or the 10-ride limit, including partial discount capping.
  */
+/** Undo a reservation that was never attached to a persisted booking. */
+export async function undoUnattachedStudentDiscount(userId: string, discountAmount: number) {
+  if (discountAmount <= 0) return;
+  await User.updateOne({
+    _id: userId,
+    "studentMonthlyUsage.monthKey": getIstMonthKey(),
+    "studentMonthlyUsage.discountReserved": { $gte: discountAmount },
+    "studentMonthlyUsage.reservedRidesCount": { $gte: 1 },
+  }, {
+    $inc: {
+      "studentMonthlyUsage.discountReserved": -discountAmount,
+      "studentMonthlyUsage.reservedRidesCount": -1,
+    },
+  });
+}
+
 export async function reserveStudentDiscount(
   userId: string | Types.ObjectId,
   requestedDiscount: number

@@ -12,6 +12,7 @@ import {
 import VehicleBookingCard from "@/features/booking/components/VehicleBookingCard";
 
 const RouteMap = dynamic(() => import("@/features/maps/components/RouteMap"), { ssr: false });
+import { pricingVehicleForChoice, type FareRateTable } from "@/lib/farePolicy";
 import { VEHICLE_OPTIONS } from "@/lib/vehicleConfig";
 
 const VEHICLE_META: Record<string, { label: string; Icon: typeof Bike }> = {
@@ -34,6 +35,7 @@ export default function SearchPageContent() {
   const [km,       setKm]       = useState<number | null>(null);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading,  setLoading]  = useState(false);
+  const [rates, setRates] = useState<FareRateTable | null>(null);
 
   const vehicle      = params.get("vehicle") || "";
   const mobileNumber = params.get("mobileNumber") || "";
@@ -79,6 +81,15 @@ export default function SearchPageContent() {
 
     return () => clearInterval(interval);
   }, [pickupLat, pickupLng, vehicle]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/vehicles/pricing", { cache: "no-store", signal: controller.signal })
+      .then((response) => response.json())
+      .then((data) => { if (data.success && !controller.signal.aborted) setRates(data.rates); })
+      .catch(() => { /* Default rates are fallback estimates only. */ });
+    return () => controller.abort();
+  }, []);
 
   return (
     <div className="min-h-dvh bg-[var(--background)] text-[var(--text-primary)]">
@@ -250,16 +261,15 @@ export default function SearchPageContent() {
                 <VehicleBookingCard
                   vehicle={v}
                   distanceKm={km ?? undefined}
+                  rates={rates}
                   isRecommended={i === 0}
                   onBook={() => {
-                    const estFare = Math.round(v.baseFare + (km ?? 0) * v.pricePerKm);
                     const draft = {
                       pickup,
                       drop,
-                      vehicle:    v.type,
+                      vehicle:    pricingVehicleForChoice(v.type, km ?? 0),
                       driverId:   v.owner,
                       vehicleId:  v._id,
-                      fare:       estFare,
                       pickupLat:  Number(pickupLat),
                       pickupLng:  Number(pickupLng),
                       dropLat:    params.get("dropLat") ? Number(params.get("dropLat")) : null,

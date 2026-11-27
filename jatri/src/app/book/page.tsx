@@ -26,7 +26,8 @@ import { RootState } from "@/redux/store";
 import useGetMe from "@/shared/hooks/useGetMe";
 import AuthModal from "@/features/auth/components/AuthModal";
 import { calculateFareBreakdown } from "@/lib/fareEngine";
-import { haversineKm as getHaversineDistance, DEFAULT_ROAD_TORTUOSITY_FACTOR } from "@/lib/routeUtils";
+import { fareDistanceLimits, isFareDistanceEligible, pricingVehicleForChoice, type FareRateTable } from "@/lib/farePolicy";
+import { estimateMultiStopRoadDistanceKm, haversineKm as getHaversineDistance, DEFAULT_ROAD_TORTUOSITY_FACTOR } from "@/lib/routeUtils";
 import { validateServiceArea, getRecentDestinations, saveRecentDestination, RecentLocation } from "@/lib/serviceArea";
 import { useTranslation } from "@/context/LanguageContext";
 import FamilyRiderSelector from "@/features/booking/components/FamilyRiderSelector";
@@ -91,16 +92,6 @@ const getCategoryBadgeStyle = (category?: string, name?: string) => {
   if (c.includes("hotel") || n.includes("hotel")) return "bg-teal-50 text-teal-700 border-teal-200/80";
   if (c.includes("restaurant") || n.includes("restaurant")) return "bg-orange-50 text-orange-700 border-orange-200/80";
   return "bg-[var(--surface-subtle)] text-[var(--text-secondary)] border-[var(--border-default)]";
-};
-
-/** Single source of truth for per-vehicle distance bounds (km). */
-const VEHICLE_DISTANCE_LIMITS: Record<string, { minDistance: number; maxDistance: number }> = {
-  "e-rickshaw": { minDistance: 0, maxDistance: 20 },
-  bike:    { minDistance: 0, maxDistance: 15 },
-  auto:    { minDistance: 0, maxDistance: 30 },
-  car:     { minDistance: 0, maxDistance: 500 }, // intercity up to 500 km
-  loading: { minDistance: 0, maxDistance: 250 },
-  truck:   { minDistance: 0, maxDistance: 500 },
 };
 
 export default function BookPage() {
@@ -182,7 +173,7 @@ export default function BookPage() {
     }, 120);
   };
 
-  const [rates, setRates] = useState<any>(null);
+  const [rates, setRates] = useState<FareRateTable | null>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null);
   const [activeExistingRide, setActiveExistingRide] = useState<any | null>(null);
 
@@ -302,7 +293,7 @@ export default function BookPage() {
   useEffect(() => {
     const fetchRates = async () => {
       try {
-        const res = await fetch(`/api/vehicles/pricing?t=${Date.now()}`, { cache: "no-store" });
+        const res = await fetch("/api/vehicles/pricing", { cache: "no-store" });
         const data = await res.json();
         if (data.success && data.rates) {
           setRates(data.rates);
@@ -315,15 +306,19 @@ export default function BookPage() {
   }, []);
 
   const estimateFare = (type: string, distanceKm: number) => {
-    const bd = calculateFareBreakdown(type, distanceKm, rates, undefined, 0, isStudent);
+    const bd = estimateBreakdown(type, distanceKm);
     return bd.totalFare;
   };
 
-  const checkLimit = (type: string, dist: number) => {
-    const cfg = (rates?.[type.toLowerCase()] ?? VEHICLE_DISTANCE_LIMITS[type.toLowerCase()]) ?? VEHICLE_DISTANCE_LIMITS.car;
-    const min = cfg.minDistance ?? 0;
-    const max = type.toLowerCase() === "car" ? 500 : (cfg.maxDistance ?? 9999);
-    return dist >= min && dist <= max;
+  const checkLimit = (type: string, distanceKm: number) =>
+    isFareDistanceEligible(pricingVehicleForChoice(type, distanceKm), distanceKm, rates);
+
+  const estimateBreakdown = (type: string, distanceKm: number) => {
+    const monthly = (userData as (typeof userData & { studentMonthlyStatus?: { remainingAllowance: number; remainingRides: number } }))?.studentMonthlyStatus;
+    return calculateFareBreakdown(pricingVehicleForChoice(type, distanceKm), distanceKm, rates, undefined, 0, isStudent, undefined, monthly ? {
+      remainingMonthlyAllowance: monthly.remainingAllowance,
+      remainingMonthlyRides: monthly.remainingRides,
+    } : undefined);
   };
 
   const [pickupResults, setPickupResults] = useState<Place[]>([]);
@@ -642,45 +637,22 @@ export default function BookPage() {
         message: "No rides available (no road connection found)"
       };
     }
-    const dist = (routeDistance !== null && routeDistance >= 0)
-      ? routeDistance
-      : ((pickupLat && pickupLng && dropLat && dropLng) ? getHaversineDistance(pickupLat, pickupLng, dropLat, dropLng) : null);
-
-    if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle || dist === null) return { valid: true };
-
-    if (dist > 500) {
-      return {
-        valid: false,
-        isServiceUnavailable: true,
-        message: "Route exceeds maximum 500 km intercity coverage area. Please adjust your destination."
-      };
-    }
-
-    // For Bike / Auto: If distance > 100 km, prompt switch to RideNow Intercity Car
-    if (dist > 100 && (vehicle === "bike" || vehicle === "auto" || vehicle === "e-rickshaw")) {
-      return {
-        valid: false,
-        isIntercityPrompt: true,
-        message: "Distance exceeds 100 km. Please select RideNow Intercity (Car/SUV) for outstation travel."
-      };
-    }
-
-    const cfg = (rates?.[vehicle.toLowerCase()] ?? VEHICLE_DISTANCE_LIMITS[vehicle.toLowerCase()]) ?? VEHICLE_DISTANCE_LIMITS.car;
-    const min = cfg.minDistance ?? 0;
-    const max = vehicle === "car" ? 500 : (cfg.maxDistance ?? 9999);
-    
-    if (dist < min) {
-      return { valid: false, message: `${VEHICLE_OPTIONS[vehicle]?.label || "Vehicle"} requires min ${min} km (Current: ${dist.toFixed(1)} km)` };
-    }
-    if (dist > max) {
-      return {
-        valid: false,
-        isServiceUnavailable: dist > 100,
-        message: dist > 100
-          ? "Service not available for this vehicle type for long distance. Please select RideNow Intercity."
-          : `${VEHICLE_OPTIONS[vehicle]?.label || "Vehicle"} is limited to max ${max} km`
-      };
-    }
+    if (!pickupLat || !pickupLng || !dropLat || !dropLng) return { valid: true };
+    const dist = routeDistance && routeDistance > 0 ? routeDistance : estimateMultiStopRoadDistanceKm([
+      [pickupLat, pickupLng],
+      ...stops.filter((stop) => stop.lat !== null && stop.lng !== null).map((stop) => [stop.lat!, stop.lng!] as [number, number]),
+      [dropLat, dropLng],
+    ]);
+    const key = pricingVehicleForChoice(vehicle, dist);
+    const limits = fareDistanceLimits(key, rates);
+    const label = key === "intercity" ? "Jaatri Intercity" : VEHICLE_OPTIONS[vehicle].label;
+    if (!limits || dist <= 0) return { valid: false, message: "Choose a different destination or add a stop." };
+    if (dist < limits.min) return { valid: false, message: `${label} requires at least ${limits.min} km.` };
+    if (dist > limits.max) return {
+      valid: false,
+      isServiceUnavailable: true,
+      message: `${label} serves routes up to ${limits.max} km. Choose another vehicle.`,
+    };
     return { valid: true };
   };
 
@@ -1054,7 +1026,8 @@ export default function BookPage() {
       const urlDrop = urlParams.get("drop");
       const p = urlPickup || (draft?.pickup !== "Pickup Location" ? draft?.pickup : null);
       const d = urlDrop || (draft?.drop !== "Drop Location" ? draft?.drop : null);
-      const rawVehicle = urlParams.get("vehicle") || draft?.vehicle;
+      const draftVehicle = urlParams.get("vehicle") || draft?.vehicle;
+      const rawVehicle = draftVehicle === "intercity" ? "car" : draftVehicle;
       const v = typeof rawVehicle === "string" && Object.hasOwn(VEHICLE_OPTIONS, rawVehicle) ? rawVehicle as VehicleType : null;
       const m = urlParams.get("mobileNumber") || draft?.mobileNumber || draft?.mobile;
       const readCoordinate = (key: "pickupLat" | "pickupLng" | "dropLat" | "dropLng", explicitStop: string | null) => {
@@ -1291,10 +1264,10 @@ export default function BookPage() {
       : null);
   const effectiveDistance = useMemo(() => {
     if (routeDistance !== null && routeDistance > 0) {
-      return Number(routeDistance.toFixed(1));
+      return routeDistance;
     }
     if (haversineDist !== null && haversineDist > 0) {
-      return Number((haversineDist * DEFAULT_ROAD_TORTUOSITY_FACTOR).toFixed(1));
+      return Number((haversineDist * DEFAULT_ROAD_TORTUOSITY_FACTOR).toFixed(2));
     }
     return 0;
   }, [routeDistance, haversineDist]);
@@ -1304,7 +1277,7 @@ export default function BookPage() {
     setRouteDistance(null);
   }, [pickupLat, pickupLng, dropLat, dropLng, stops.length]);
 
-  const currentBreakdown = calculateFareBreakdown(vehicle, effectiveDistance, rates, undefined, 0, isStudent);
+  const currentBreakdown = estimateBreakdown(vehicle, effectiveDistance);
 
   const handleConfirmRide = () => {
     if (!pickupLat || !pickupLng || !dropLat || !dropLng || !vehicle) return;
@@ -1317,10 +1290,6 @@ export default function BookPage() {
             "No rides available for this route or distance exceeds active coverage area. Try adjusting your pickup or destination."
         );
         setShowServiceUnavailableModal(true);
-        return;
-      }
-      if (validity.isIntercityPrompt) {
-        setVehicle("car");
         return;
       }
       setLocationError(validity.message || "Please select a valid route");
@@ -1353,7 +1322,7 @@ export default function BookPage() {
     const draftData = {
       pickup,
       drop,
-      vehicle,
+      vehicle: currentBreakdown.vehicleType,
       fare: estFare,
       fareBreakdown: currentBreakdown,
       mobileNumber: mobile,
@@ -2197,7 +2166,7 @@ export default function BookPage() {
               <span className="text-xs sm:text-sm font-bold uppercase tracking-wide text-[var(--text-primary)] block leading-tight">
                 Fare Breakdown
               </span>
-              <span className="text-[11px] text-[var(--text-secondary)] font-medium">Upfront guaranteed pricing</span>
+              <span className="text-[11px] text-[var(--text-secondary)] font-medium">Estimate only · final quote at checkout</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 text-[var(--text-primary)] text-base sm:text-lg font-black tabular-nums">
@@ -2222,10 +2191,10 @@ export default function BookPage() {
                 <span>Distance Fare ({currentBreakdown.distanceKm} km × ₹{currentBreakdown.pricePerKm}/km)</span>
                 <span className="font-bold text-[var(--text-primary)]">₹{currentBreakdown.distanceFare}</span>
               </div>
-              {currentBreakdown.surgeAmount > 0 && (
+              {currentBreakdown.surgeAmount !== 0 && (
                 <div className="flex justify-between text-[11px] text-[var(--accent-gold)] font-bold">
-                  <span>High Demand Surge ({currentBreakdown.surgeMultiplier}x)</span>
-                  <span>+₹{currentBreakdown.surgeAmount}</span>
+                  <span>Rate adjustment ({currentBreakdown.surgeMultiplier}×)</span>
+                  <span>{currentBreakdown.surgeAmount < 0 ? "−" : "+"}₹{Math.abs(currentBreakdown.surgeAmount)}</span>
                 </div>
               )}
               <div className="flex justify-between text-[11px]">
@@ -2233,13 +2202,19 @@ export default function BookPage() {
                 <span className="font-bold text-[var(--text-primary)]">₹{currentBreakdown.platformFee}</span>
               </div>
               <div className="flex justify-between text-[11px]">
-                <span>Govt GST / Taxes (5%)</span>
+                <span>GST ({new Intl.NumberFormat("en-IN", { style: "percent", maximumFractionDigits: 2 }).format(currentBreakdown.taxRate)})</span>
                 <span className="font-bold text-[var(--text-primary)]">₹{currentBreakdown.taxes}</span>
               </div>
               {currentBreakdown.isStudentDiscountApplied && (
                 <div className="flex justify-between text-[11px] text-[var(--text-primary)] font-bold pt-1 border-t border-[var(--border-default)] dark:border-[var(--border-interactive)]/50">
                   <span>🎓 Student Pass Discount (-10%)</span>
                   <span>-₹{currentBreakdown.studentDiscount}</span>
+                </div>
+              )}
+              {!!currentBreakdown.roundingAdjustment && (
+                <div className="flex justify-between">
+                  <span>Rounding</span>
+                  <span>{currentBreakdown.roundingAdjustment < 0 ? "−" : "+"}₹{Math.abs(currentBreakdown.roundingAdjustment)}</span>
                 </div>
               )}
               <div className="pt-2 border-t border-dashed border-[var(--border-default)] flex flex-col gap-1 text-[10px] text-[var(--text-secondary)] sm:flex-row sm:items-center sm:justify-between">
@@ -2316,7 +2291,7 @@ export default function BookPage() {
   );
 
   const renderTripAction = () => {
-    const selectedLabel = t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride");
+    const selectedLabel = currentBreakdown.vehicleType === "intercity" ? "Jaatri Intercity" : t(`fleet.${vehicle}.title`, VEHICLE_OPTIONS[vehicle]?.label || "Ride");
     const blockReason = activeExistingRide
       ? "Complete or cancel your active trip first."
       : !drop

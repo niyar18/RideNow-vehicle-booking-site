@@ -4,6 +4,7 @@ import { useId } from "react";
 import Image from "next/image";
 import { VEHICLE_ART_SRC } from "@/lib/vehiclePhotos";
 import { Check, Clock, Package, Snowflake, User, Zap } from "lucide-react";
+import { pricingVehicleForChoice } from "@/lib/farePolicy";
 import { getEstimatedArrivalInfo } from "@/lib/tripTiming";
 import {
   LOGISTICS_VEHICLES,
@@ -61,8 +62,10 @@ export default function TripVehicleChooser({
               const available = isAvailable(v.id);
               const checked = selected === v.id;
               const optionId = `${groupId}-${v.id}`;
+              const pricingVehicle = pricingVehicleForChoice(v.id, distance);
+              const intercity = pricingVehicle === "intercity";
               const timing = getEstimatedArrivalInfo({
-                vehicleType: v.id,
+                vehicleType: pricingVehicle,
                 distanceKm: distance,
                 etaText: v.etaText,
                 isScheduled: schedule,
@@ -73,7 +76,7 @@ export default function TripVehicleChooser({
               const capacity = v.passengerCapacity
                 ? `${v.passengerCapacity} ${v.passengerCapacity === 1 ? "passenger" : "passengers"}`
                 : `Up to ${v.maxWeightKg?.toLocaleString("en-IN")} kilograms`;
-              const tag = recommended === v.id ? "Recommended" : v.id === "car" && distance > 100 ? "Intercity" : undefined;
+              const tag = recommended === v.id ? "Recommended" : intercity ? "Outstation" : undefined;
               return (
                 <label
                   key={v.id}
@@ -114,7 +117,7 @@ export default function TripVehicleChooser({
                   </span>
                   <span className="block min-w-0">
                     <span id={`${optionId}-name`} className="block text-sm font-semibold leading-snug tracking-tight text-[var(--text-primary)] sm:text-[15px]">
-                      {v.label}
+                      {intercity ? "Jaatri Intercity" : v.label}
                     </span>
                     <span id={`${optionId}-details`} className="mt-0.5 grid gap-0.5 text-xs leading-snug text-[var(--text-secondary)]">
                       <span className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
@@ -136,7 +139,7 @@ export default function TripVehicleChooser({
                       </span>
                       {available ? (
                         <>
-                          <span>{v.tagline}</span>
+                          <span>{intercity ? "Outstation car service" : v.tagline}</span>
                           {timing.arrivalTimeText && <span className="sr-only">Estimated arrival: {timing.arrivalTimeText}</span>}
                           {tag && <span className="font-semibold text-[var(--text-primary)]">{tag}</span>}
                         </>

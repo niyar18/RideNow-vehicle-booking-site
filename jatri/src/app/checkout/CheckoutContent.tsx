@@ -19,8 +19,8 @@ import { RootState } from "@/redux/store";
 import useGetMe from "@/shared/hooks/useGetMe";
 import AuthModal from "@/features/auth/components/AuthModal";
 import { getSocket, joinBookingRoom, leaveBookingRoom } from "@/lib/socket";
-import { calculateFareBreakdown } from "@/lib/fareEngine";
-import { DEFAULT_ROAD_TORTUOSITY_FACTOR } from "@/lib/routeUtils";
+import type { IFareBreakdown } from "@/lib/fareEngine";
+import type { BookingFareQuote } from "@/lib/farePolicy";
 import GroupRideCard from "@/features/booking/components/GroupRideCard";
 import DriverSearchRadar from "@/features/booking/components/DriverSearchRadar";
 import PaymentMethodSelector from "@/features/booking/components/PaymentMethodSelector";
@@ -58,7 +58,6 @@ export default function CheckoutContent() {
   const dropParam      = params.get("drop")      || "";
   const vehicleParam   = params.get("vehicle")   || "";
   const vehicleIdParam = params.get("vehicleId") || undefined;
-  const fareParam      = params.get("fare") ? Number(params.get("fare")) : 0;
   const mobileParam    = params.get("mobileNumber") || "";
   const driverIdParam  = params.get("driverId")  || undefined;
   const pickupLatParam = params.get("pickupLat") ? Number(params.get("pickupLat")) : null;
@@ -77,7 +76,7 @@ export default function CheckoutContent() {
   const [drop,         setDrop]         = useState(dropParam || "Drop Location");
   const [vehicle,      setVehicle]      = useState(vehicleParam || "car");
   const [vehicleId,    setVehicleId]    = useState<string | undefined>(vehicleIdParam);
-  const [fare,         setFare]         = useState(fareParam);
+  const [fare,         setFare]         = useState(0);
   const [mobileNumber, setMobileNumber] = useState(mobileParam);
   const [driverId,     setDriverId]     = useState<string | undefined>(driverIdParam);
   const [pickupLat,    setPickupLat]    = useState<number | null>(pickupLatParam);
@@ -117,104 +116,50 @@ export default function CheckoutContent() {
   const [useWallet,     setUseWallet]     = useState<boolean>(false);
   const [walletBalance, setWalletBalance] = useState<number | null>(null);
   const [countdown,     setCountdown]     = useState(60);
-  const [rates,         setRates]         = useState<any>(null);
-  const [bookingBreakdown, setBookingBreakdown] = useState<any>(null);
+  const [bookingBreakdown, setBookingBreakdown] = useState<IFareBreakdown | null>(null);
   const [distanceKm,    setDistanceKm]    = useState<number | null>(null);
 
-  const userOutstandingAmount = Number((userData as any)?.outstandingAmount || 0);
-  const studentVer = (userData as any)?.studentVerification;
-  const isStudentExpired = Boolean(
-    studentVer?.expiresAt && new Date(studentVer.expiresAt).getTime() < Date.now()
-  );
-  const isStudentUser = Boolean(userData?.isStudent) && !isStudentExpired;
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [quotedFare, setQuotedFare] = useState<{ routeKey: string; quote: BookingFareQuote } | null>(null);
+  const [quoteError, setQuoteError] = useState("");
+  const [canQuoteIntercity, setCanQuoteIntercity] = useState(false);
+  const [quoteRefresh, setQuoteRefresh] = useState(0);
+  const quoteRouteKey = useMemo(() => JSON.stringify({
+    vehicle, pickupLat, pickupLng, dropLat, dropLng, stops, serviceMode,
+  }), [vehicle, pickupLat, pickupLng, dropLat, dropLng, stops, serviceMode]);
 
-  const computedBreakdown = useMemo(() => {
-    const userOutstanding = userOutstandingAmount;
-
-    if (bookingBreakdown && (!vehicle || bookingBreakdown.vehicleType?.toLowerCase() === vehicle?.toLowerCase())) {
-      if (userOutstanding > 0 && (!bookingBreakdown.cancellationDues || bookingBreakdown.cancellationDues !== userOutstanding)) {
-        return {
-          ...bookingBreakdown,
-          cancellationDues: userOutstanding,
-          totalFare: (bookingBreakdown.totalFare - (bookingBreakdown.cancellationDues || 0)) + userOutstanding,
-        };
-      }
-      return bookingBreakdown;
-    }
-    if (!pickupLat || !pickupLng || !dropLat || !dropLng) return null;
-    
-    const allPoints: [number, number][] = [
-      [pickupLat, pickupLng],
-      ...stops.filter((s) => typeof s.lat === "number" && typeof s.lng === "number").map((s) => [s.lat, s.lng] as [number, number]),
-      [dropLat, dropLng],
-    ];
-    let calculatedRoadDist = 0;
-    for (let i = 0; i < allPoints.length - 1; i++) {
-      const lat1 = allPoints[i][0];
-      const lon1 = allPoints[i][1];
-      const lat2 = allPoints[i + 1][0];
-      const lon2 = allPoints[i + 1][1];
-      const dLat = ((lat2 - lat1) * Math.PI) / 180;
-      const dLon = ((lon2 - lon1) * Math.PI) / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos((lat1 * Math.PI) / 180) *
-          Math.cos((lat2 * Math.PI) / 180) *
-          Math.sin(dLon / 2) *
-          Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      calculatedRoadDist += 6371 * c;
-    }
-    const roadDistWithTortuosity = +(calculatedRoadDist * DEFAULT_ROAD_TORTUOSITY_FACTOR).toFixed(1);
-
-    // Safeguard: use distanceKm only if consistent with current waypoints, otherwise recompute
-    let distKm: number;
-    if (
-      distanceKm &&
-      distanceKm > 0 &&
-      roadDistWithTortuosity > 0 &&
-      Math.abs(distanceKm - roadDistWithTortuosity) < Math.max(2, roadDistWithTortuosity * 0.5)
-    ) {
-      distKm = distanceKm;
-    } else {
-      distKm = roadDistWithTortuosity;
-    }
-
-    return calculateFareBreakdown(
-      vehicle,
-      distKm,
-      rates,
-      undefined,
-      0,
-      isStudentUser,
-      undefined,
-      undefined,
-      userOutstanding
-    );
-  }, [
-    bookingBreakdown,
-    distanceKm,
-    pickupLat,
-    pickupLng,
-    dropLat,
-    dropLng,
-    stops,
-    vehicle,
-    rates,
-    isStudentUser,
-    userOutstandingAmount,
-  ]);
-
-  const effectiveFare = computedBreakdown?.totalFare ?? fare;
+  const activeQuote = quotedFare?.routeKey === quoteRouteKey ? quotedFare.quote : null;
+  const computedBreakdown = bookingId ? bookingBreakdown : activeQuote?.breakdown;
+  const effectiveFare = computedBreakdown?.totalFare ?? (bookingId ? fare : 0);
 
   useEffect(() => {
-    if (computedBreakdown?.totalFare && !bookingId) {
-      setFare(computedBreakdown.totalFare);
-    }
-  }, [computedBreakdown?.totalFare, bookingId]);
+    if (!isHydrated || bookingId || !pickupLat || !pickupLng || !dropLat || !dropLng) return;
+    const controller = new AbortController();
+    setQuoteError("");
+    setCanQuoteIntercity(false);
+    fetch("/api/booking/quote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: quoteRouteKey,
+      signal: controller.signal,
+      cache: "no-store",
+    }).then(async (response) => {
+      const data = await response.json();
+      if (!response.ok || !data.success || !data.quote) {
+        if (!controller.signal.aborted) setCanQuoteIntercity(data.alternateVehicle === "intercity");
+        throw new Error(data.message || "We couldn’t calculate your fare.");
+      }
+      if (!controller.signal.aborted) setQuotedFare({ routeKey: quoteRouteKey, quote: data.quote });
+    }).catch((error) => {
+      if (!controller.signal.aborted) setQuoteError(error instanceof Error ? error.message : "We couldn’t calculate your fare.");
+    });
+    return () => controller.abort();
+  }, [quoteRouteKey, quoteRefresh, isHydrated, bookingId, pickupLat, pickupLng, dropLat, dropLng]);
 
-  // 1️⃣ Client-side Draft Hydration from sessionStorage / localStorage
-  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => {
+    if (activeQuote && !bookingId) setFare(activeQuote.breakdown.totalFare);
+  }, [activeQuote, bookingId]);
+
 
   useEffect(() => {
     try {
@@ -226,8 +171,6 @@ export default function CheckoutContent() {
           if (draft.drop && draft.drop !== "Drop Location") setDrop(draft.drop);
           if (draft.vehicle) setVehicle(draft.vehicle);
           if (draft.vehicleId) setVehicleId(draft.vehicleId);
-          if (draft.fare) setFare(Number(draft.fare));
-          if (draft.fareBreakdown) setBookingBreakdown(draft.fareBreakdown);
           if (draft.mobileNumber) setMobileNumber(draft.mobileNumber);
           if (draft.driverId) setDriverId(draft.driverId);
           if (typeof draft.pickupLat === "number") setPickupLat(draft.pickupLat);
@@ -279,7 +222,7 @@ export default function CheckoutContent() {
         if (data.success) {
           setWalletBalance(data.balance ?? 0);
           // If wallet has sufficient balance, default to wallet payment
-          if (data.balance >= fare) {
+          if (fare > 0 && data.balance >= fare) {
             setPaymentMethod("wallet");
           }
         }
@@ -289,21 +232,6 @@ export default function CheckoutContent() {
     };
     fetchWallet();
   }, [fare]);
-
-  useEffect(() => {
-    const fetchRates = async () => {
-      try {
-        const res = await fetch(`/api/vehicles/pricing?t=${Date.now()}`, { cache: "no-store" });
-        const data = await res.json();
-        if (data.success) {
-          setRates(data.rates);
-        }
-      } catch (err) {
-        console.error("Failed to fetch pricing rates in checkout:", err);
-      }
-    };
-    fetchRates();
-  }, []);
 
   /* Group Ride & Split Fare State */
   const [isGroupRide, setIsGroupRide] = useState(false);
@@ -396,6 +324,8 @@ export default function CheckoutContent() {
       return;
     }
 
+    if (!activeQuote) return;
+
     try {
       setLoading(true);
       const res = await fetch("/api/booking/create", {
@@ -406,8 +336,7 @@ export default function CheckoutContent() {
           drop,
           vehicle,
           vehicleId,
-          fare: effectiveFare,
-          cancellationDues: Number((userData as any)?.outstandingAmount || 0),
+          expectedFare: activeQuote.breakdown.totalFare,
           mobileNumber: mobileNumber || userData?.mobileNumber || "",
           driverId,
           pickupLat,
@@ -433,7 +362,6 @@ export default function CheckoutContent() {
             formattedAddress: drop,
             coordinates: [dropLat, dropLng],
           } : undefined),
-          distanceKm: computedBreakdown?.distanceKm || distanceKm || undefined,
           driverPreference: activePreference,
           searchRadiusKm: activeRadius,
         }),
@@ -450,6 +378,23 @@ export default function CheckoutContent() {
       if (res.status === 403 && data.requiresPhoneVerification) {
         setBookingError(data.message || "Please verify your WhatsApp mobile number to proceed.");
         window.dispatchEvent(new CustomEvent("open-phone-link-modal"));
+        return;
+      }
+
+      if (res.status === 409 && data.code === "FARE_CHANGED") {
+        if (data.quote) setQuotedFare({ routeKey: quoteRouteKey, quote: data.quote });
+        else {
+          setQuotedFare(null);
+          setQuoteRefresh((value) => value + 1);
+        }
+        setBookingError(data.message || "Your fare changed. Review the updated total before requesting the ride.");
+        return;
+      }
+
+      if (res.status === 400 && data.isServiceUnavailable) {
+        setQuotedFare(null);
+        setQuoteError(data.message || "This vehicle is not available for the road distance.");
+        setCanQuoteIntercity(data.alternateVehicle === "intercity");
         return;
       }
 
@@ -798,8 +743,8 @@ export default function CheckoutContent() {
   }, [status, bookingId]);
 
   /* ── label & link ── */
-  const opt = VEHICLE_OPTIONS[vehicle.toLowerCase() as keyof typeof VEHICLE_OPTIONS];
-  const vehicleLabel = opt?.label || (vehicle.charAt(0).toUpperCase() + vehicle.slice(1));
+  const opt = vehicle === "intercity" ? VEHICLE_OPTIONS.car : VEHICLE_OPTIONS[vehicle.toLowerCase() as keyof typeof VEHICLE_OPTIONS];
+  const vehicleLabel = vehicle === "intercity" ? "Jaatri Intercity" : opt?.label || (vehicle.charAt(0).toUpperCase() + vehicle.slice(1));
 
   const editBookUrl = "/book?edit=true";
 
@@ -924,7 +869,7 @@ export default function CheckoutContent() {
               <div className="min-w-0">
                 <h2 className="text-base font-semibold leading-snug tracking-tight sm:text-xl">{vehicleLabel}</h2>
                 <p className="mt-0.5 text-xs leading-snug text-[var(--text-secondary)]">
-                  {opt?.tagline || "Upfront pricing"}
+                  {vehicle === "intercity" ? "Outstation car service" : opt?.tagline || "Upfront pricing"}
                 </p>
               </div>
             </div>
@@ -932,7 +877,7 @@ export default function CheckoutContent() {
             <div className="shrink-0 text-right">
               <p className="text-xs font-medium text-[var(--text-secondary)]">Upfront total</p>
               <div className="text-lg font-semibold tabular-nums tracking-tight text-[var(--text-primary)] sm:text-3xl">
-                ₹{effectiveFare}
+                {computedBreakdown || bookingId ? `₹${effectiveFare.toLocaleString("en-IN")}` : "—"}
               </div>
             </div>
           </div>
@@ -995,8 +940,8 @@ export default function CheckoutContent() {
 
               {/* Distance and Estimated Travel Time Stats */}
               <div className="pt-2 border-t border-[var(--border-default)]/60 flex items-center justify-between text-[11px] font-mono text-[var(--text-secondary)]">
-                <span>Distance: <strong className="text-[var(--text-primary)]">{computedBreakdown?.distanceKm || distanceKm || "—"} km</strong></span>
-                <span>Est. Time: <strong className="text-[var(--text-primary)]">{computedBreakdown?.distanceKm ? `${Math.max(4, Math.round(computedBreakdown.distanceKm * 2.5))} mins` : "10-15 mins"}</strong></span>
+                <span>Distance: <strong className="text-[var(--text-primary)]">{computedBreakdown?.distanceKm ?? "—"} km</strong></span>
+                <span>Est. Time: <strong className="text-[var(--text-primary)]">{activeQuote ? `${activeQuote.durationMinutes} min` : computedBreakdown?.timeMinutes ? `${computedBreakdown.timeMinutes} min` : "—"}</strong></span>
               </div>
             </div>
 
@@ -1075,11 +1020,29 @@ export default function CheckoutContent() {
             )}
 
             {/* ══ 3. ITEMIZED FARE RECEIPT ══ */}
+            {!bookingId && isHydrated && pickupLat && dropLat && !activeQuote && (
+              <div className="rounded-[10px] border border-[var(--border-default)] bg-[var(--surface-subtle)] p-3 text-sm">
+                <p role={quoteError ? "alert" : "status"}>{quoteError || "Calculating your fare…"}</p>
+                {quoteError && canQuoteIntercity ? (
+                  <button type="button" onClick={() => {
+                    setQuoteError("");
+                    setCanQuoteIntercity(false);
+                    setVehicle("intercity");
+                  }} className="min-h-11 rounded-[8px] px-2 font-semibold underline underline-offset-4">
+                    Get an intercity quote
+                  </button>
+                ) : quoteError ? (
+                  <button type="button" onClick={() => setQuoteRefresh((value) => value + 1)} className="min-h-11 rounded-[8px] px-2 font-semibold underline underline-offset-4">
+                    Retry fare quote
+                  </button>
+                ) : null}
+              </div>
+            )}
             {computedBreakdown && (
               <div className="border border-[var(--border-default)] rounded-[12px] bg-[var(--surface-subtle)]/80 dark:bg-[var(--surface-subtle)]/70 p-3.5 sm:p-4">
                 <p className="text-[10px] font-black uppercase tracking-wider text-[var(--text-primary)] pb-2 border-b border-[var(--border-default)] flex items-center justify-between">
-                  <span>Guaranteed Upfront Pricing</span>
-                  <span className="font-mono text-[var(--text-secondary)]">No Hidden Costs</span>
+                  <span>Fare breakdown</span>
+                  {activeQuote?.estimatedRoute && !bookingId && <span className="text-[var(--text-secondary)]">Estimated route distance</span>}
                 </p>
                 <div className="space-y-1.5 text-xs text-[var(--text-secondary)] font-medium pt-2">
                   <div className="flex justify-between">
@@ -1090,10 +1053,10 @@ export default function CheckoutContent() {
                     <span>Distance Charge ({computedBreakdown.distanceKm} km × ₹{computedBreakdown.pricePerKm}/km)</span>
                     <span className="font-bold text-[var(--text-primary)]">₹{computedBreakdown.distanceFare}</span>
                   </div>
-                  {computedBreakdown.surgeAmount > 0 && (
+                  {computedBreakdown.surgeAmount !== 0 && (
                     <div className="flex justify-between text-[11px] text-[var(--accent-vermilion)] font-bold">
-                      <span>High Demand Surge ({computedBreakdown.surgeMultiplier}x)</span>
-                      <span>+₹{computedBreakdown.surgeAmount}</span>
+                      <span>Rate adjustment ({computedBreakdown.surgeMultiplier}×)</span>
+                      <span>{computedBreakdown.surgeAmount < 0 ? "−" : "+"}₹{Math.abs(computedBreakdown.surgeAmount)}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-[11px]">
@@ -1101,19 +1064,37 @@ export default function CheckoutContent() {
                     <span className="font-bold text-[var(--text-primary)]">₹{computedBreakdown.platformFee}</span>
                   </div>
                   <div className="flex justify-between text-[11px]">
-                    <span>Govt GST / Taxes (5%)</span>
+                    <span>GST{Number.isFinite(computedBreakdown.taxRate) ? ` (${new Intl.NumberFormat("en-IN", { style: "percent", maximumFractionDigits: 2 }).format(computedBreakdown.taxRate)})` : ""}</span>
                     <span className="font-bold text-[var(--text-primary)]">₹{computedBreakdown.taxes}</span>
                   </div>
                   {computedBreakdown.isStudentDiscountApplied && (
                     <div className="flex justify-between text-[11px] text-emerald-700 dark:text-emerald-400 font-extrabold pt-1 border-t border-[var(--border-default)]">
-                      <span>🎓 Student Pass Discount (10% OFF)</span>
+                      <span>Student Pass discount</span>
                       <span>-₹{computedBreakdown.studentDiscount}</span>
                     </div>
                   )}
-                  {(computedBreakdown.cancellationDues ? computedBreakdown.cancellationDues > 0 : Number((userData as any)?.outstandingAmount || 0) > 0) && (
+                  {!!computedBreakdown.referralDiscount && (
+                    <div className="flex justify-between text-xs">
+                      <span>Referral discount</span>
+                      <span>−₹{computedBreakdown.referralDiscount}</span>
+                    </div>
+                  )}
+                  {!!computedBreakdown.promoDiscount && (
+                    <div className="flex justify-between text-xs">
+                      <span>Promotion</span>
+                      <span>−₹{computedBreakdown.promoDiscount}</span>
+                    </div>
+                  )}
+                  {!!computedBreakdown.roundingAdjustment && (
+                    <div className="flex justify-between text-xs">
+                      <span>Rounding</span>
+                      <span>{computedBreakdown.roundingAdjustment < 0 ? "−" : "+"}₹{Math.abs(computedBreakdown.roundingAdjustment)}</span>
+                    </div>
+                  )}
+                  {Boolean(computedBreakdown.cancellationDues) && (
                     <div className="flex justify-between text-[11px] text-[var(--accent-vermilion)] font-bold pt-1 border-t border-[var(--border-default)]">
                       <span>Unsettled Cancellation Dues</span>
-                      <span>+₹{computedBreakdown.cancellationDues || Number((userData as any)?.outstandingAmount || 0)}</span>
+                      <span>+₹{computedBreakdown.cancellationDues}</span>
                     </div>
                   )}
                   <div className="flex justify-between text-sm font-black text-[var(--text-primary)] pt-2 border-t border-[var(--border-default)]">
@@ -1125,7 +1106,7 @@ export default function CheckoutContent() {
             )}
 
             {/* ══ 4. GROUP RIDE & SPLIT FARE ══ */}
-            <GroupRideCard
+            {(activeQuote || bookingId) && <GroupRideCard
               isGroupRide={isGroupRide}
               effectiveFare={effectiveFare}
               fare={fare}
@@ -1139,7 +1120,7 @@ export default function CheckoutContent() {
               onNameChange={setInviteName}
               onEmailChange={setInviteEmail}
               onSendInvite={handleSendInvite}
-            />
+            />}
 
             {/* ══ 5. DYNAMIC STATUS & ACTIONS (RADAR, PAYMENT, OR SUBMISSION) ══ */}
             <div className="pt-2">
@@ -1160,7 +1141,7 @@ export default function CheckoutContent() {
                       <div className="p-3.5 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] flex items-start gap-3 text-left">
                         <AlertCircle size={16} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
-                          <p className="text-xs font-bold text-red-900 dark:text-red-200">{bookingError}</p>
+                          <p role="alert" className="text-xs font-bold text-red-900 dark:text-red-200">{bookingError}</p>
                           {bookingError.toLowerCase().includes("sign in") && (
                             <button
                               type="button"
@@ -1189,7 +1170,7 @@ export default function CheckoutContent() {
                     <button
                       type="button"
                       onClick={() => handleCreateBooking()}
-                      disabled={loading || !pickupLat || !dropLat}
+                      disabled={loading || !activeQuote || !pickupLat || !dropLat}
                       className="w-full h-13 py-3.5 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] disabled:opacity-40 text-white font-bold text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition cursor-pointer min-h-[50px] active:scale-[0.99]"
                     >
                       {loading ? (
@@ -1199,7 +1180,7 @@ export default function CheckoutContent() {
                         </>
                       ) : (
                         <>
-                          <span>Request {vehicleLabel} • ₹{effectiveFare}</span>
+                          <span>{activeQuote ? `Request ${vehicleLabel} · ₹${effectiveFare.toLocaleString("en-IN")}` : "Waiting for fare quote"}</span>
                           <ArrowRight size={18} />
                         </>
                       )}

@@ -29,6 +29,7 @@ export interface IFareBreakdown {
   totalFare: number;
   cancellationFee: number;
   cancellationDues?: number;
+  roundingAdjustment?: number;
 }
 
 export interface VehicleRateConfig {
@@ -238,6 +239,11 @@ export const DEFAULT_STUDENT_CONFIG: Required<StudentProgramEconomics> = {
   remainingMonthlyRides: 10,
 };
 
+const toPaise = (amount: number): number =>
+  Number.isFinite(amount) && amount >= 0 ? Math.round((amount + Number.EPSILON) * 100) : 0;
+const fromPaise = (paise: number): number => paise / 100;
+const roundWholeRupees = (paise: number): number => Math.round(paise / 100) * 100;
+
 /**
  * Calculates authoritative upfront or final fare breakdown.
  */
@@ -261,14 +267,14 @@ export function calculateFareBreakdown(
     ...(customRate || {}),
   };
 
-  const baseFare = cfg.baseFare;
-  const pricePerKm = cfg.pricePerKm;
-  const platformFee = cfg.platformFee !== undefined ? cfg.platformFee : 15;
-  const taxRate = cfg.taxRate !== undefined ? cfg.taxRate : 0.05;
-  const cancellationFee = cfg.cancellationFee !== undefined ? cfg.cancellationFee : 50;
-
-  const distKm = Math.max(0, Number(distanceKm.toFixed(1)));
-  const distanceFare = Math.round(distKm * pricePerKm);
+  const baseFarePaise = toPaise(cfg.baseFare);
+  const pricePerKmPaise = toPaise(cfg.pricePerKm);
+  const platformFeePaise = toPaise(cfg.platformFee ?? 15);
+  const taxRate = cfg.taxRate ?? 0.05;
+  const cancellationFee = fromPaise(toPaise(cfg.cancellationFee ?? 50));
+  const tenthsKm = Number.isFinite(distanceKm) ? Math.max(0, Math.round(distanceKm * 10)) : 0;
+  const distKm = tenthsKm / 10;
+  const distanceFarePaise = roundWholeRupees((tenthsKm * pricePerKmPaise) / 10);
 
   // Time estimate: Informational ETA only, NEVER factored into fare calculation
   const timeMinutes = Math.max(3, Math.round((distKm / 25) * 60));
@@ -280,90 +286,70 @@ export function calculateFareBreakdown(
     const waitResult = calculateWaitingFee(
       waitingDetails.arrivedAt,
       waitingDetails.startedAt,
-      cfg.waitingChargePerMinute || 2.5,
-      cfg.freeWaitingMinutes || 3
+      cfg.waitingChargePerMinute ?? 2.5,
+      cfg.freeWaitingMinutes ?? 3
     );
     waitingMinutes = waitResult.waitingMinutes;
     waitingCharge = waitResult.waitingCharge;
   }
 
-  const surgeMultiplier = overrideSurge || cfg.multiplier || 1.0;
+  const surgeMultiplier = overrideSurge ?? cfg.multiplier ?? 1;
+  const rawSubtotal = baseFarePaise + distanceFarePaise;
+  const surgeAmountPaise = roundWholeRupees(rawSubtotal * (surgeMultiplier - 1));
+  const subtotalWithSurge = Math.max(0, rawSubtotal + surgeAmountPaise + toPaise(waitingCharge));
+  const taxesPaise = roundWholeRupees((subtotalWithSurge + platformFeePaise) * taxRate);
+  const totalBeforeDiscount = subtotalWithSurge + platformFeePaise + taxesPaise;
 
-  // Raw Subtotal = Base Fare + Distance Fare (strictly distance-based)
-  const rawSubtotal = baseFare + distanceFare;
-  const surgeAmount = Math.round(rawSubtotal * (surgeMultiplier - 1));
-
-  const subtotalWithSurge = rawSubtotal + surgeAmount + waitingCharge;
-  const taxes = Math.round((subtotalWithSurge + platformFee) * taxRate); // 5% GST
-
-  // Student Program Economics (10% capped at ₹50, min fare ₹100, regular rides only)
   const stuCfg = { ...DEFAULT_STUDENT_CONFIG, ...studentSettings };
-  const isVehicleEligible = stuCfg.eligibleVehicleTypes.map((t) => t.toLowerCase()).includes(vType);
+  const isVehicleEligible = stuCfg.eligibleVehicleTypes.some((type) => type.toLowerCase() === vType);
+  const promoAllowed = Math.min(totalBeforeDiscount, toPaise(discountAmount));
+  const studentAllowed = isStudent && isVehicleEligible && subtotalWithSurge >= toPaise(stuCfg.minFare) &&
+    stuCfg.remainingMonthlyRides > 0 && stuCfg.remainingMonthlyAllowance > 0
+    ? Math.min(
+        roundWholeRupees(subtotalWithSurge * stuCfg.discountPercentage / 100),
+        toPaise(stuCfg.maxDiscountCap),
+        toPaise(stuCfg.remainingMonthlyAllowance),
+        totalBeforeDiscount,
+      )
+    : 0;
 
-  let calculatedStudentDiscount = 0;
-  const ridesLeft = stuCfg.remainingMonthlyRides !== undefined ? stuCfg.remainingMonthlyRides : 10;
-  const budgetLeft = stuCfg.remainingMonthlyAllowance !== undefined ? stuCfg.remainingMonthlyAllowance : 200;
-
-  if (isStudent && isVehicleEligible && subtotalWithSurge >= stuCfg.minFare && ridesLeft > 0 && budgetLeft > 0) {
-    const rawDiscount = Math.round(subtotalWithSurge * (stuCfg.discountPercentage / 100));
-    const cappedPerRide = Math.min(rawDiscount, stuCfg.maxDiscountCap);
-    calculatedStudentDiscount = Math.min(cappedPerRide, budgetLeft);
+  // Give the rider the better discount unless the configured promotion explicitly permits stacking.
+  let promoDiscountPaise = 0;
+  let studentDiscountPaise = 0;
+  if (stuCfg.allowStackingWithPromo || promoAllowed >= studentAllowed) promoDiscountPaise = promoAllowed;
+  if (stuCfg.allowStackingWithPromo || studentAllowed > promoAllowed) {
+    studentDiscountPaise = Math.min(studentAllowed, totalBeforeDiscount - promoDiscountPaise);
   }
 
-  // Anti-Stacking Architecture: Student discount OR Promo discount (never stacked additively)
-  let effectiveDiscount = 0;
-  let promoDiscountApplied = 0;
-  let studentDiscountApplied = 0;
-
-  if (stuCfg.allowStackingWithPromo) {
-    effectiveDiscount = discountAmount + calculatedStudentDiscount;
-    promoDiscountApplied = discountAmount;
-    studentDiscountApplied = calculatedStudentDiscount;
-  } else {
-    if (discountAmount > 0) {
-      if (discountAmount >= calculatedStudentDiscount) {
-        effectiveDiscount = discountAmount;
-        promoDiscountApplied = discountAmount;
-        studentDiscountApplied = 0;
-      } else {
-        effectiveDiscount = calculatedStudentDiscount;
-        promoDiscountApplied = 0;
-        studentDiscountApplied = calculatedStudentDiscount;
-      }
-    } else {
-      effectiveDiscount = calculatedStudentDiscount;
-      studentDiscountApplied = calculatedStudentDiscount;
-      promoDiscountApplied = 0;
-    }
-  }
-
-  const dues = cancellationDues ? Math.max(0, Math.round(cancellationDues)) : 0;
-  const totalBeforeDiscount = subtotalWithSurge + platformFee + taxes;
-  const totalFare = Math.max(0, Math.round(totalBeforeDiscount - effectiveDiscount)) + dues;
+  const discountPaise = promoDiscountPaise + studentDiscountPaise;
+  const rideFarePaise = totalBeforeDiscount - discountPaise;
+  const roundedRideFarePaise = roundWholeRupees(rideFarePaise);
+  const duesPaise = roundWholeRupees(toPaise(cancellationDues));
 
   return {
     vehicleType: vType,
-    baseFare,
+    baseFare: fromPaise(baseFarePaise),
     distanceKm: distKm,
-    pricePerKm,
-    distanceFare,
+    pricePerKm: fromPaise(pricePerKmPaise),
+    distanceFare: fromPaise(distanceFarePaise),
     timeMinutes,
     pricePerMinute: 0,
     timeFare: 0,
     waitingMinutes,
     waitingCharge,
-    platformFee,
+    platformFee: fromPaise(platformFeePaise),
     surgeMultiplier,
-    surgeAmount,
-    taxes,
+    surgeAmount: fromPaise(surgeAmountPaise),
+    taxes: fromPaise(taxesPaise),
     taxRate,
-    discount: effectiveDiscount,
-    promoDiscount: promoDiscountApplied,
-    isStudentDiscountApplied: studentDiscountApplied > 0,
-    studentDiscount: studentDiscountApplied,
-    totalFare,
+    discount: fromPaise(discountPaise),
+    promoDiscount: fromPaise(promoDiscountPaise),
+    isStudentDiscountApplied: studentDiscountPaise > 0,
+    studentDiscount: fromPaise(studentDiscountPaise),
+    totalFare: fromPaise(roundedRideFarePaise + duesPaise),
+    roundingAdjustment: fromPaise(roundedRideFarePaise - rideFarePaise),
     cancellationFee,
-    cancellationDues: dues,
+    cancellationDues: fromPaise(duesPaise),
   };
 }
 
