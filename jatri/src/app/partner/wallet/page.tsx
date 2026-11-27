@@ -2,6 +2,7 @@
 
 
 
+import { PartnerPageTitle, partnerAction, partnerSecondaryAction } from "@/features/partner/components/PartnerWorkspace";
 import { useEffect, useState, useCallback } from "react";
 import {
   Wallet,
@@ -15,13 +16,13 @@ import {
   ShieldCheck,
   IndianRupee,
   ChevronRight,
-  ArrowLeft,
   Percent,
 } from "lucide-react";
 import Link from "next/link";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
 import { loadRazorpayScript } from "@/lib/loadRazorpay";
+import { usePartnerDialogFocus } from "@/features/partner/components/usePartnerDialogFocus";
 
 export default function PartnerWalletPage() {
   const [loading, setLoading] = useState(true);
@@ -53,6 +54,10 @@ export default function PartnerWalletPage() {
   const [processingWithdraw, setProcessingWithdraw] = useState(false);
   const [withdrawError, setWithdrawError] = useState<string | null>(null);
   const [withdrawSuccess, setWithdrawSuccess] = useState<string | null>(null);
+  const withdrawDialog = usePartnerDialogFocus(showWithdrawModal, () => {
+    setShowWithdrawModal(false);
+    setWithdrawError(null);
+  });
 
   const fetchDriverWallet = useCallback(async () => {
     try {
@@ -204,7 +209,7 @@ export default function PartnerWalletPage() {
           },
         },
         theme: {
-          color: "#059669",
+          color: "#142238",
         },
       };
 
@@ -234,52 +239,33 @@ export default function PartnerWalletPage() {
   });
 
   return (
-    <div className="min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] flex flex-col justify-between">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col justify-between">
       <div>
         <Nav />
 
-        <main className="max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-24 sm:pt-32 pb-12 sm:pb-16">
-          {/* BREADCRUMB / TOP HEADER */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
-            <div>
-              <div className="flex items-center gap-2 text-xs font-semibold text-[#696B64] dark:text-[#B9C8BF] mb-1">
-                <Link
-                  href="/partners/dashboard"
-                  className="hover:text-[#10251C] dark:hover:text-[#F3F1E8] transition flex items-center gap-1"
+        <main className="max-w-6xl mx-auto px-3.5 sm:px-6 lg:px-8 pt-20 sm:pt-28 pb-12 sm:pb-16">
+          <PartnerPageTitle
+            label="Driver workspace"
+            title="Wallet & earnings"
+            description="Track ride earnings, platform dues and payouts to your bank."
+            actions={
+              <>
+                <button type="button" onClick={fetchDriverWallet} className={partnerSecondaryAction}>Refresh</button>
+                <button
+                  type="button"
+                  onClick={() => setShowWithdrawModal(true)}
+                  disabled={availableEarnings < 100 || !bankDetails}
+                  className={partnerAction}
                 >
-                  <ArrowLeft size={13} /> Driver Dashboard
-                </Link>
-                <span>/</span>
-                <span className="text-[#10251C] dark:text-[#F7F5ED] font-bold">Wallet & Earnings</span>
-              </div>
-              <h1 className="text-xl sm:text-3xl font-serif font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">
-                Driver Wallet & Earnings
-              </h1>
-              <p className="text-xs sm:text-sm text-[#696B64] dark:text-[#B9C8BF] mt-0.5">
-                Transparent ride payout breakdown (85% Driver share, 15% Platform commission).
-              </p>
-            </div>
-
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <button
-                onClick={() => fetchDriverWallet()}
-                className="px-3.5 py-2 rounded-[8px] bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] hover:bg-[#FAF7F0] dark:hover:bg-[#10352C] transition shadow-xs active:scale-95 shrink-0 cursor-pointer"
-              >
-                Refresh
-              </button>
-              <button
-                onClick={() => setShowWithdrawModal(true)}
-                disabled={availableEarnings < 100 || !bankDetails}
-                className="flex-1 sm:flex-initial justify-center px-4 py-2 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] disabled:opacity-40 text-white text-xs font-bold transition shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
-              >
-                <ArrowUpRight size={14} /> Withdraw Earnings
-              </button>
-            </div>
-          </div>
+                  Withdraw <ArrowUpRight size={16} aria-hidden="true" />
+                </button>
+              </>
+            }
+          />
 
           {/* SUCCESS NOTIFICATION */}
           {withdrawSuccess && (
-            <div className="mb-6 p-4 rounded-[12px] bg-[#123D32] dark:bg-[#0D3027] text-white flex items-center justify-between shadow-sm border border-[#123D32] dark:border-[#1E3E34]">
+            <div className="mb-6 p-4 rounded-[12px] bg-[var(--midnight)] dark:bg-[#0d192b] text-white flex items-center justify-between border border-[var(--midnight)] dark:border-[#536779]">
               <div className="flex items-center gap-2.5">
                 <CheckCircle2 size={18} className="text-emerald-400" />
                 <span className="text-sm font-bold">{withdrawSuccess}</span>
@@ -294,32 +280,32 @@ export default function PartnerWalletPage() {
           )}
 
           {/* OVERVIEW CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-[1.15fr_1fr_1fr] gap-3 sm:gap-4 mb-8">
             {/* 1. AVAILABLE EARNINGS */}
-            <div className="rounded-[14px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] p-6 shadow-xs flex flex-col justify-between">
+            <div className="rounded-[14px] bg-[var(--surface-raised)] border border-[var(--border-default)] p-6 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+                  <span className="text-xs font-bold text-[var(--text-secondary)]">
                     Available to Withdraw
                   </span>
-                  <div className="w-8 h-8 rounded-[8px] bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] flex items-center justify-center font-bold">
+                  <div className="w-8 h-8 rounded-[8px] bg-[var(--surface-subtle)] text-[var(--accent-ink)] flex items-center justify-center font-bold">
                     <IndianRupee size={16} />
                   </div>
                 </div>
-                <div className="text-3xl font-black text-[#123D32] dark:text-[#347858] font-mono tracking-tight">
+                <div className="text-4xl font-semibold tabular-nums text-[var(--accent-ink)] tabular-nums tracking-tight">
                   ₹{availableEarnings.toLocaleString("en-IN")}
                 </div>
-                <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-1">
-                  Settled earnings ready for instant bank/UPI transfer.
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
+                  Earnings ready to transfer to your bank.
                 </p>
               </div>
 
-              <div className="pt-5 mt-5 border-t border-[#DED7CA]/70 dark:border-[#1E3E34] flex items-center justify-between">
-                <span className="text-xs text-[#696B64] dark:text-[#B9C8BF]">Min. payout: ₹100</span>
+              <div className="pt-5 mt-5 border-t border-[var(--border-default)] flex items-center justify-between">
+                <span className="text-xs text-[var(--text-secondary)]">Min. payout: ₹100</span>
                 <button
                   onClick={() => setShowWithdrawModal(true)}
                   disabled={availableEarnings < 100 || !bankDetails}
-                  className="text-xs font-bold text-[#123D32] dark:text-[#347858] hover:text-[#0D3027] dark:hover:text-[#28664D] flex items-center gap-1 disabled:opacity-40 cursor-pointer"
+                  className="text-xs font-bold text-[var(--accent-ink)] hover:text-[#0d192b] dark:hover:text-[#263b56] flex items-center gap-1 disabled:opacity-40 cursor-pointer"
                 >
                   Withdraw now <ChevronRight size={14} />
                 </button>
@@ -327,61 +313,61 @@ export default function PartnerWalletPage() {
             </div>
 
             {/* 2. PENDING EARNINGS */}
-            <div className="rounded-[14px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] p-6 shadow-xs flex flex-col justify-between">
+            <div className="rounded-[14px] bg-[var(--surface-raised)] border border-[var(--border-default)] p-6 flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
-                    In-Flight / Pending
+                  <span className="text-xs font-bold text-[var(--text-secondary)]">
+                    Pending earnings
                   </span>
                   <div className="w-8 h-8 rounded-[8px] bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-center font-bold">
                     <Clock size={16} />
                   </div>
                 </div>
-                <div className="text-3xl font-black text-[#10251C] dark:text-[#F7F5ED] font-mono tracking-tight">
+                <div className="text-4xl font-semibold tabular-nums text-[var(--text-primary)] tabular-nums tracking-tight">
                   ₹{pendingEarnings.toLocaleString("en-IN")}
                 </div>
-                <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-1">
-                  Ongoing rides currently underway. Settled on ride completion.
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
+                  From rides that haven’t settled yet.
                 </p>
               </div>
 
-              <div className="pt-5 mt-5 border-t border-[#DED7CA]/70 dark:border-[#1E3E34] flex items-center justify-between">
-                <span className="text-xs text-[#696B64] dark:text-[#B9C8BF]">Ride completion</span>
+              <div className="pt-5 mt-5 border-t border-[var(--border-default)] flex items-center justify-between">
+                <span className="text-xs text-[var(--text-secondary)]">Ride completion</span>
                 <span className="text-xs font-bold text-amber-800 dark:text-amber-300">Auto-credit</span>
               </div>
             </div>
 
             {/* 3. PLATFORM DUES */}
             <div
-              className={`rounded-[14px] border p-6 shadow-xs flex flex-col justify-between ${
+              className={`rounded-[14px] border p-6 flex flex-col justify-between ${
                 platformDues > 0
                   ? "border-amber-300 dark:border-amber-800 bg-amber-50/40 dark:bg-amber-950/20"
-                  : "bg-[#FAF7F0] dark:bg-[#0B2822] border-[#DED7CA] dark:border-[#1E3E34]"
+                  : "bg-[var(--surface-raised)] border-[var(--border-default)]"
               }`}
             >
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+                  <span className="text-xs font-bold text-[var(--text-secondary)]">
                     Platform Dues
                   </span>
                   <div
                     className={`w-8 h-8 rounded-[8px] flex items-center justify-center font-bold ${
                       platformDues > 0
                         ? "bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300"
-                        : "bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858]"
+                        : "bg-[var(--surface-subtle)] text-[var(--accent-ink)]"
                     }`}
                   >
                     <AlertCircle size={16} />
                   </div>
                 </div>
                 <div
-                  className={`text-3xl font-black font-mono tracking-tight ${
-                    platformDues > 0 ? "text-amber-800 dark:text-amber-400" : "text-[#10251C] dark:text-[#F7F5ED]"
+                  className={`text-4xl font-semibold tabular-nums tabular-nums tracking-tight ${
+                    platformDues > 0 ? "text-amber-800 dark:text-amber-400" : "text-[var(--text-primary)]"
                   }`}
                 >
                   ₹{platformDues.toLocaleString("en-IN")}
                 </div>
-                <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-1">
+                <p className="text-xs text-[var(--text-secondary)] mt-1">
                   {platformDues > 0
                     ? "Commission owed from cash rides. Auto-settled from future online rides or clear instantly online."
                     : "No outstanding platform commission dues."}
@@ -393,7 +379,7 @@ export default function PartnerWalletPage() {
                       type="button"
                       disabled={clearingDues}
                       onClick={() => handlePayPlatformDues()}
-                      className="w-full bg-[#E34222] dark:bg-[#E06A50] hover:bg-[#a0321e] dark:hover:bg-[#E34222] text-white font-bold text-xs py-2 px-3 rounded-[8px] flex items-center justify-center gap-1.5 transition disabled:opacity-50 shadow-xs cursor-pointer"
+                      className="w-full bg-[#992f22] dark:bg-[#ffab9c] hover:bg-[#a0321e] dark:hover:bg-[#992f22] text-white font-bold text-xs py-2 px-3 rounded-[8px] flex items-center justify-center gap-1.5 transition disabled:opacity-50 cursor-pointer"
                     >
                       {clearingDues ? (
                         <Loader2 size={13} className="animate-spin" />
@@ -413,15 +399,15 @@ export default function PartnerWalletPage() {
                 )}
               </div>
 
-              <div className="pt-5 mt-5 border-t border-[#DED7CA]/70 dark:border-[#1E3E34] flex items-center justify-between">
-                <span className="text-xs text-[#696B64] dark:text-[#B9C8BF]">
+              <div className="pt-5 mt-5 border-t border-[var(--border-default)] flex items-center justify-between">
+                <span className="text-xs text-[var(--text-secondary)]">
                   {platformDues > 0 ? "Auto-settling" : "Status"}
                 </span>
                 <span
                   className={`text-xs font-bold px-2 py-0.5 rounded-[4px] ${
                     platformDues > 0
                       ? "text-amber-800 dark:text-amber-300 bg-amber-100 dark:bg-amber-950/40"
-                      : "text-[#123D32] dark:text-[#347858] bg-[#E5EBDD] dark:bg-[#28664D]/20"
+                      : "text-[var(--accent-ink)] bg-[var(--surface-subtle)]"
                   }`}
                 >
                   {platformDues > 0 ? "Outstanding" : "All cleared"}
@@ -432,57 +418,57 @@ export default function PartnerWalletPage() {
 
           {/* DRIVER EARNINGS SUMMARY STRIP (TODAY & THIS WEEK) */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-            <div className="rounded-[10px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider">
+            <div className="rounded-[10px] bg-[var(--surface-raised)] border border-[var(--border-default)] p-4 ">
+              <span className="text-[11px] font-bold text-[var(--text-secondary)] ">
                 Today&apos;s Earnings
               </span>
-              <div className="text-xl font-black font-mono text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
+              <div className="text-xl font-semibold tabular-nums text-[var(--text-primary)] mt-0.5">
                 ₹{todayEarnings.toLocaleString("en-IN")}
               </div>
             </div>
 
-            <div className="rounded-[10px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider">
+            <div className="rounded-[10px] bg-[var(--surface-raised)] border border-[var(--border-default)] p-4 ">
+              <span className="text-[11px] font-bold text-[var(--text-secondary)] ">
                 This Week
               </span>
-              <div className="text-xl font-black font-mono text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
+              <div className="text-xl font-semibold tabular-nums text-[var(--text-primary)] mt-0.5">
                 ₹{weekEarnings.toLocaleString("en-IN")}
               </div>
             </div>
 
-            <div className="rounded-[10px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider">
+            <div className="rounded-[10px] bg-[var(--surface-raised)] border border-[var(--border-default)] p-4 ">
+              <span className="text-[11px] font-bold text-[var(--text-secondary)] ">
                 Total Withdrawn
               </span>
-              <div className="text-xl font-black font-mono text-[#123D32] dark:text-[#347858] mt-0.5">
+              <div className="text-xl font-semibold tabular-nums text-[var(--accent-ink)] mt-0.5">
                 ₹{metrics.totalWithdrawn.toLocaleString("en-IN")}
               </div>
             </div>
 
-            <div className="rounded-[10px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] p-4 shadow-xs">
-              <span className="text-[11px] font-bold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider">
+            <div className="rounded-[10px] bg-[var(--surface-raised)] border border-[var(--border-default)] p-4 ">
+              <span className="text-[11px] font-bold text-[var(--text-secondary)] ">
                 Lifetime Earnings
               </span>
-              <div className="text-xl font-black font-mono text-[#10251C] dark:text-[#F7F5ED] mt-0.5">
+              <div className="text-xl font-semibold tabular-nums text-[var(--text-primary)] mt-0.5">
                 ₹{metrics.totalEarnings.toLocaleString("en-IN")}
               </div>
             </div>
           </div>
 
           {/* LINKED BANK ACCOUNT CARD */}
-          <div className="rounded-[14px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] p-6 mb-8 shadow-xs">
+          <div className="rounded-[14px] bg-[var(--surface-raised)] border border-[var(--border-default)] p-6 mb-8 ">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="w-11 h-11 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] flex items-center justify-center flex-shrink-0">
+                <div className="w-11 h-11 rounded-[8px] bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] flex items-center justify-center flex-shrink-0">
                   <Building2 size={20} />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base font-serif font-bold text-[#10251C] dark:text-[#F7F5ED]">
+                    <h2 className="text-base font-sans font-bold text-[var(--text-primary)]">
                       Payout Destination
                     </h2>
                     {bankDetails?.status === "verified" ? (
-                      <span className="px-2 py-0.5 rounded-[4px] bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858] text-[10px] font-bold border border-[#123D32]/20 dark:border-[#28664D]/30">
+                      <span className="px-2 py-0.5 rounded-[4px] bg-[var(--surface-subtle)] text-[var(--accent-ink)] text-[10px] font-bold border border-[var(--border-default)]">
                         Verified
                       </span>
                     ) : (
@@ -492,22 +478,22 @@ export default function PartnerWalletPage() {
                     )}
                   </div>
                   {bankDetails ? (
-                    <div className="mt-1 text-xs text-[#696B64] dark:text-[#B9C8BF] flex flex-wrap items-center gap-x-4 gap-y-1">
+                    <div className="mt-1 text-xs text-[var(--text-secondary)] flex flex-wrap items-center gap-x-4 gap-y-1">
                       <span>
-                        <strong className="text-[#10251C] dark:text-[#F7F5ED]">Beneficiary:</strong>{" "}
+                        <strong className="text-[var(--text-primary)]">Beneficiary:</strong>{" "}
                         {bankDetails.accountHolderName}
                       </span>
                       <span>
-                        <strong className="text-[#10251C] dark:text-[#F7F5ED]">Account:</strong>{" "}
+                        <strong className="text-[var(--text-primary)]">Account:</strong>{" "}
                         {bankDetails.maskedAccount}
                       </span>
                       <span>
-                        <strong className="text-[#10251C] dark:text-[#F7F5ED]">IFSC:</strong>{" "}
+                        <strong className="text-[var(--text-primary)]">IFSC:</strong>{" "}
                         {bankDetails.ifsc}
                       </span>
                       {bankDetails.upi && (
                         <span>
-                          <strong className="text-[#10251C] dark:text-[#F7F5ED]">UPI:</strong>{" "}
+                          <strong className="text-[var(--text-primary)]">UPI:</strong>{" "}
                           {bankDetails.upi}
                         </span>
                       )}
@@ -522,7 +508,7 @@ export default function PartnerWalletPage() {
 
               <Link
                 href="/partner/onboard/bank"
-                className="px-3.5 py-2 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] transition self-start sm:self-center shadow-xs cursor-pointer"
+                className="px-3.5 py-2 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#243751] hover:bg-[var(--ice)] dark:hover:bg-[#2b4160] text-xs font-bold text-[var(--text-primary)] transition self-start sm:self-center cursor-pointer"
               >
                 {bankDetails ? "Update Bank" : "Add Bank Account"}
               </Link>
@@ -530,19 +516,19 @@ export default function PartnerWalletPage() {
           </div>
 
           {/* TRANSACTIONS SECTION */}
-          <div className="rounded-[14px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] overflow-hidden shadow-xs">
+          <div className="rounded-[14px] bg-[var(--surface-raised)] border border-[var(--border-default)] overflow-hidden ">
             {/* Header & Filter Tabs */}
-            <div className="p-5 border-b border-[#DED7CA]/70 dark:border-[#1E3E34] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="p-5 border-b border-[var(--border-default)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <h2 className="text-base font-serif font-bold text-[#10251C] dark:text-[#F7F5ED]">
+                <h2 className="text-base font-sans font-bold text-[var(--text-primary)]">
                   Transaction History
                 </h2>
-                <p className="text-xs text-[#696B64] dark:text-[#B9C8BF]">
+                <p className="text-xs text-[var(--text-secondary)]">
                   Direct ledger of ride credits, commission deductions, and payouts.
                 </p>
               </div>
 
-              <div className="flex items-center gap-1.5 p-1 bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] overflow-x-auto max-w-full scrollbar-none shrink-0">
+              <div className="flex min-w-0 max-w-full flex-wrap items-center gap-1.5 rounded-lg border border-[var(--border-interactive)] bg-[var(--surface-raised)] p-1">
                 {(
                   [
                     { id: "all", label: "All" },
@@ -554,11 +540,12 @@ export default function PartnerWalletPage() {
                 ).map((tab) => (
                   <button
                     key={tab.id}
+                    aria-pressed={activeFilter === tab.id}
                     onClick={() => setActiveFilter(tab.id)}
-                    className={`px-3 py-1.5 rounded-[6px] text-xs font-bold transition whitespace-nowrap shrink-0 cursor-pointer ${
+                    className={`min-h-11 px-3 rounded-[6px] text-xs font-bold transition cursor-pointer ${
                       activeFilter === tab.id
-                        ? "bg-[#123D32] dark:bg-[#28664D] text-white shadow-xs"
-                        : "text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                        ? "bg-[var(--midnight)] dark:bg-[#263b56] text-white "
+                        : "text-[var(--text-secondary)] hover:text-[var(--midnight)] dark:hover:text-[var(--ice)]"
                     }`}
                   >
                     {tab.label}
@@ -569,20 +556,20 @@ export default function PartnerWalletPage() {
 
             {/* List / Table */}
             {loading ? (
-              <div className="p-12 text-center text-[#696B64] dark:text-[#B9C8BF]">
-                <Loader2 size={24} className="animate-spin mx-auto mb-2 text-[#123D32] dark:text-[#347858]" />
+              <div className="p-12 text-center text-[var(--text-secondary)]">
+                <Loader2 size={24} className="animate-spin mx-auto mb-2 text-[var(--accent-ink)]" />
                 <span className="text-xs font-semibold">Loading ledger…</span>
               </div>
             ) : filteredTransactions.length === 0 ? (
-              <div className="p-12 text-center text-[#696B64] dark:text-[#B9C8BF]">
-                <Wallet size={32} className="mx-auto mb-2 opacity-50 text-[#123D32] dark:text-[#347858]" />
-                <p className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED]">No transactions recorded</p>
-                <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5">
+              <div className="p-12 text-center text-[var(--text-secondary)]">
+                <Wallet size={32} className="mx-auto mb-2 opacity-50 text-[var(--accent-ink)]" />
+                <p className="text-sm font-bold text-[var(--text-primary)]">No transactions recorded</p>
+                <p className="text-xs text-[var(--text-secondary)] mt-0.5">
                   Complete rides to see your earnings and settlements here.
                 </p>
               </div>
             ) : (
-              <div className="divide-y divide-[#DED7CA]/50 dark:divide-[#1E3E34]">
+              <div className="divide-y divide-[#b8c7ca]/50 dark:divide-[#536779]">
                 {filteredTransactions.map((tx) => {
                   const isEarning =
                     tx.transactionType === "EARNING" ||
@@ -603,13 +590,13 @@ export default function PartnerWalletPage() {
                   return (
                     <div
                       key={tx._id}
-                      className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition"
+                      className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-[#e4eeeb] dark:hover:bg-[#0d192b] transition"
                     >
                       <div className="flex items-center gap-3.5">
                         <div
                           className={`w-9 h-9 rounded-[8px] flex items-center justify-center flex-shrink-0 font-bold ${
                             isEarning
-                              ? "bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858]"
+                              ? "bg-[var(--surface-subtle)] text-[var(--accent-ink)]"
                               : isWithdrawal
                               ? "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300"
                               : isDues
@@ -628,7 +615,7 @@ export default function PartnerWalletPage() {
 
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED]">
+                            <span className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">
                               {isEarning
                                 ? "Ride Earning"
                                 : isWithdrawal
@@ -640,9 +627,9 @@ export default function PartnerWalletPage() {
                                 : "Platform Commission"}
                             </span>
                             <span
-                              className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-[4px] ${
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-[4px] ${
                                 isEarning
-                                  ? "bg-[#E5EBDD] dark:bg-[#28664D]/20 text-[#123D32] dark:text-[#347858]"
+                                  ? "bg-[var(--surface-subtle)] text-[var(--accent-ink)]"
                                   : isWithdrawal
                                   ? "bg-blue-100 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300"
                                   : isDues
@@ -655,10 +642,10 @@ export default function PartnerWalletPage() {
                               {tx.transactionType || tx.category}
                             </span>
                           </div>
-                          <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5 line-clamp-1">
+                          <p className="text-xs text-[var(--text-secondary)] mt-0.5 line-clamp-1">
                             {tx.description}
                           </p>
-                          <span className="text-[11px] text-[#696B64]/70 dark:text-[#B9C8BF]/70">
+                          <span className="text-[11px] text-[#475a65]/70 dark:text-[#c9d8df]/70">
                             {new Date(tx.createdAt).toLocaleString("en-IN", {
                               dateStyle: "medium",
                               timeStyle: "short",
@@ -669,13 +656,13 @@ export default function PartnerWalletPage() {
 
                       <div className="text-right flex-shrink-0">
                         <div
-                          className={`text-sm sm:text-base font-black font-mono ${
-                            isEarning || isCash ? "text-[#123D32] dark:text-[#347858]" : "text-[#10251C] dark:text-[#F7F5ED]"
+                          className={`text-sm sm:text-base font-semibold tabular-nums ${
+                            isEarning || isCash ? "text-[var(--accent-ink)]" : "text-[var(--text-primary)]"
                           }`}
                         >
                           {isEarning || isCash ? "+" : "-"}₹{tx.amount.toLocaleString("en-IN")}
                         </div>
-                        <span className="text-[10px] font-semibold text-[#696B64] dark:text-[#B9C8BF] capitalize">
+                        <span className="text-[10px] font-semibold text-[var(--text-secondary)] capitalize">
                           {tx.status}
                         </span>
                       </div>
@@ -692,17 +679,17 @@ export default function PartnerWalletPage() {
 
       {/* WITHDRAWAL MODAL */}
       {showWithdrawModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="relative w-full max-w-md rounded-[16px] bg-[#FAF7F0] dark:bg-[#0B2822] p-6 shadow-2xl border border-[#DED7CA] dark:border-[#1E3E34]">
-            <h3 className="text-lg font-serif font-bold text-[#10251C] dark:text-[#F7F5ED]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 ">
+          <div ref={withdrawDialog} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="driver-withdraw-title" className="relative max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-[14px] border border-[var(--border-default)] bg-[var(--surface-raised)] p-4 sm:p-6">
+            <h3 id="driver-withdraw-title" className="text-lg font-semibold text-[var(--text-primary)]">
               Withdraw Available Earnings
             </h3>
-            <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-1">
+            <p className="text-xs text-[var(--text-secondary)] mt-1">
               Funds will be disbursed directly to your registered bank account.
             </p>
 
             {withdrawError && (
-              <div className="mt-3 p-3 rounded-[8px] bg-[#E34222]/10 dark:bg-red-950/30 text-[#E34222] dark:text-[#E06A50] text-xs font-semibold flex items-center gap-2 border border-[#E34222] dark:border-[#E34222]/40">
+              <div role="alert" className="mt-3 p-3 rounded-[8px] bg-[#992f22]/10 dark:bg-red-950/30 text-[#992f22] dark:text-[#ffab9c] text-xs font-semibold flex items-center gap-2 border border-[#992f22] dark:border-[#992f22]/40">
                 <AlertCircle size={15} />
                 <span>{withdrawError}</span>
               </div>
@@ -710,14 +697,14 @@ export default function PartnerWalletPage() {
 
             {/* Destination Preview */}
             {bankDetails && (
-              <div className="mt-4 p-3.5 bg-white dark:bg-[#061A16] rounded-[10px] border border-[#DED7CA] dark:border-[#1E3E34] text-xs space-y-1 shadow-xs">
-                <div className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+              <div className="mt-4 p-3.5 bg-[var(--surface-raised)] rounded-[10px] border border-[var(--border-default)] text-xs space-y-1 ">
+                <div className="text-[10px] font-bold text-[var(--text-secondary)]">
                   Payout To
                 </div>
-                <div className="font-bold text-[#10251C] dark:text-[#F7F5ED]">
+                <div className="font-bold text-[var(--text-primary)]">
                   {bankDetails.accountHolderName}
                 </div>
-                <div className="text-[#696B64] dark:text-[#B9C8BF]">
+                <div className="text-[var(--text-secondary)]">
                   Account: {bankDetails.maskedAccount} (IFSC: {bankDetails.ifsc})
                 </div>
               </div>
@@ -725,11 +712,11 @@ export default function PartnerWalletPage() {
 
             <form onSubmit={handleWithdraw} className="mt-4 space-y-4">
               <div>
-                <label className="block text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] mb-1">
+                <label className="block text-xs font-bold text-[var(--text-primary)] mb-1">
                   Withdrawal Amount (₹)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#696B64] dark:text-[#B9C8BF]">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--text-secondary)]">
                     ₹
                   </span>
                   <input
@@ -741,7 +728,7 @@ export default function PartnerWalletPage() {
                     placeholder="Enter amount (min ₹100)"
                     value={withdrawAmount}
                     onChange={(e) => setWithdrawAmount(e.target.value)}
-                    className="w-full pl-8 pr-4 py-2.5 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] font-bold text-[#10251C] dark:text-[#F7F5ED] text-sm focus:border-[#123D32] dark:focus:border-[#28664D] outline-none bg-white dark:bg-[#061A16] font-mono"
+                    className="w-full pl-8 pr-4 py-2.5 rounded-[8px] border border-[var(--border-interactive)] font-bold text-[var(--text-primary)] text-sm focus:border-[var(--focus-ring)] outline-none bg-[var(--surface-raised)] tabular-nums"
                   />
                 </div>
               </div>
@@ -754,7 +741,7 @@ export default function PartnerWalletPage() {
                     type="button"
                     onClick={() => setWithdrawAmount(String(amt))}
                     disabled={availableEarnings < amt}
-                    className="flex-1 py-1.5 rounded-[6px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#061A16] text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] hover:bg-[#FAF7F0] dark:hover:bg-[#10352C] disabled:opacity-40 cursor-pointer shadow-xs"
+                    className="flex-1 py-1.5 rounded-[6px] border border-[var(--border-default)] bg-[var(--surface-raised)] text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--ice)] dark:hover:bg-[#243751] disabled:opacity-40 cursor-pointer "
                   >
                     ₹{amt}
                   </button>
@@ -763,7 +750,7 @@ export default function PartnerWalletPage() {
                   type="button"
                   onClick={() => setWithdrawAmount(String(availableEarnings))}
                   disabled={availableEarnings < 100}
-                  className="flex-1 py-1.5 rounded-[6px] bg-[#E5EBDD] dark:bg-[#28664D]/20 text-xs font-bold text-[#123D32] dark:text-[#347858] hover:bg-[#123D32] dark:hover:bg-[#28664D] hover:text-white transition disabled:opacity-40 cursor-pointer"
+                  className="flex-1 py-1.5 rounded-[6px] bg-[var(--surface-subtle)] text-xs font-bold text-[var(--accent-ink)] hover:bg-[var(--midnight)] dark:hover:bg-[#263b56] hover:text-white transition disabled:opacity-40 cursor-pointer"
                 >
                   Max (₹{availableEarnings})
                 </button>
@@ -776,14 +763,14 @@ export default function PartnerWalletPage() {
                     setShowWithdrawModal(false);
                     setWithdrawError(null);
                   }}
-                  className="flex-1 py-2.5 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#10352C] text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] cursor-pointer"
+                  className="flex-1 min-h-11 py-2.5 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#243751] text-xs font-bold text-[var(--text-primary)] hover:bg-[var(--ice)] dark:hover:bg-[#2b4160] cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={processingWithdraw || !withdrawAmount}
-                  className="flex-1 py-2.5 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] hover:bg-[#0D3027] dark:hover:bg-[#347858] disabled:opacity-40 text-white text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                  className="flex-1 min-h-11 py-2.5 rounded-[8px] bg-[var(--action-bg)] hover:opacity-90 disabled:opacity-40 text-[var(--action-fg)] text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer "
                 >
                   {processingWithdraw ? (
                     <>

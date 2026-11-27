@@ -72,10 +72,10 @@ export default function FareCollectionModal({
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.94, y: 16 }}
           transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-          className="w-full max-w-md bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[16px] shadow-2xl overflow-hidden my-auto select-none"
+          className="w-full max-w-md bg-[#f3f8f6] dark:bg-[#1a2d45] border border-[#b3c8ca] dark:border-[#4e697f] rounded-[16px] shadow-2xl overflow-hidden my-auto select-none"
         >
           {/* Top Header Strip */}
-          <div className="bg-[#123D32] dark:bg-[#0D3027] px-5 py-3.5 flex items-center justify-between text-white">
+          <div className="bg-[#142238] dark:bg-[#101c2f] px-5 py-3.5 flex items-center justify-between text-white">
             <div className="flex items-center gap-2">
               <span
                 className={`w-2.5 h-2.5 rounded-full ${
@@ -99,8 +99,8 @@ export default function FareCollectionModal({
 
           <div className="p-4 sm:p-6 space-y-4">
             {/* Focal Big Fare Callout Box */}
-            <div className="bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[12px] p-4 text-center space-y-1 relative shadow-2xs">
-              <span className="text-[10.5px] font-bold uppercase tracking-widest text-[#696B64] dark:text-[#B9C8BF] block">
+            <div className="bg-white dark:bg-[#263d54] border border-[#b3c8ca] dark:border-[#4e697f] rounded-[12px] p-4 text-center space-y-1 relative shadow-2xs">
+              <span className="text-[10.5px] font-bold uppercase tracking-widest text-[#4d6374] dark:text-[#b3cbd1] block">
                 {isCash && cashAmountDue > 0
                   ? perspective === "vendor"
                     ? "Cash Amount to Collect"
@@ -108,12 +108,12 @@ export default function FareCollectionModal({
                   : "Total Paid Digitally"}
               </span>
 
-              <div className="flex items-center justify-center text-3xl sm:text-4xl font-extrabold text-[#10251C] dark:text-[#F7F5ED] font-mono tracking-tight">
+              <div className="flex items-center justify-center text-3xl sm:text-4xl font-extrabold text-[#142238] dark:text-[#f3f8f6] font-mono tracking-tight">
                 <IndianRupee size={28} className="stroke-[2.5] mr-0.5" />
                 <span>{isCash && cashAmountDue > 0 ? cashAmountDue : grossFare}</span>
               </div>
 
-              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium">
+              <p className="text-[11px] text-[#4d6374] dark:text-[#b3cbd1] font-medium">
                 {walletPaid > 0 && cashAmountDue > 0
                   ? `Total Trip Fare: ₹${grossFare} (₹${walletPaid} paid via Wallet)`
                   : "Gross Trip Fare (Inclusive of GST & Platform fees)"}
@@ -164,12 +164,12 @@ export default function FareCollectionModal({
 
             {/* Reconciliation Breakdown */}
             {perspective === "vendor" ? (
-              <div className="bg-[#F7F1E5] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] p-3.5 space-y-1.5 text-xs">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+              <div className="bg-[#e8f2ef] dark:bg-[#263d54] border border-[#b3c8ca] dark:border-[#4e697f] rounded-[10px] p-3.5 space-y-1.5 text-xs">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-[#4d6374] dark:text-[#b3cbd1]">
                   Driver Earnings Breakdown
                 </p>
-                <div className="flex justify-between text-[#10251C] dark:text-[#F7F5ED]">
-                  <span className="text-[#696B64] dark:text-[#B9C8BF]">Customer Gross Fare:</span>
+                <div className="flex justify-between text-[#142238] dark:text-[#f3f8f6]">
+                  <span className="text-[#4d6374] dark:text-[#b3cbd1]">Customer Gross Fare:</span>
                   <span className="font-mono font-bold">₹{grossFare}</span>
                 </div>
                 {walletPaid > 0 && (
@@ -182,19 +182,19 @@ export default function FareCollectionModal({
                   <span>Platform Commission (15%):</span>
                   <span className="font-mono font-bold">-₹{adminCommission}</span>
                 </div>
-                <div className="pt-2 border-t border-[#DED7CA] dark:border-[#24483D] flex justify-between text-[#046A38] dark:text-[#90C8A8] font-extrabold text-sm">
+                <div className="pt-2 border-t border-[#b3c8ca] dark:border-[#4e697f] flex justify-between text-[#213650] dark:text-[#91f2ce] font-extrabold text-sm">
                   <span>Net Driver Earnings:</span>
                   <span className="font-mono text-sm">₹{netPartnerPayout}</span>
                 </div>
               </div>
             ) : (
-              <div className="bg-[#F7F1E5] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[10px] p-3.5 space-y-1.5 text-xs text-[#10251C] dark:text-[#F7F5ED]">
+              <div className="bg-[#e8f2ef] dark:bg-[#263d54] border border-[#b3c8ca] dark:border-[#4e697f] rounded-[10px] p-3.5 space-y-1.5 text-xs text-[#142238] dark:text-[#f3f8f6]">
                 <div className="flex items-center justify-between">
-                  <span className="text-[#696B64] dark:text-[#B9C8BF]">Driver Partner:</span>
+                  <span className="text-[#4d6374] dark:text-[#b3cbd1]">Driver Partner:</span>
                   <span className="font-bold">{driverName}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[#696B64] dark:text-[#B9C8BF]">Payment Method:</span>
+                  <span className="text-[#4d6374] dark:text-[#b3cbd1]">Payment Method:</span>
                   <span className="font-mono font-bold uppercase text-xs">
                     {walletPaid > 0 && cashAmountDue > 0
                       ? "Wallet + Cash"
@@ -209,7 +209,7 @@ export default function FareCollectionModal({
             {/* Confirmation CTA Button */}
             <button
               onClick={onClose}
-              className="w-full py-3 sm:py-3.5 bg-[#046A38] hover:bg-[#03532C] dark:bg-[#058A48] dark:hover:bg-[#046A38] text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition active:scale-[0.98] cursor-pointer shadow-xs"
+              className="w-full py-3 sm:py-3.5 bg-[#213650] hover:bg-[#142238] dark:bg-[#354f68] dark:hover:bg-[#213650] text-white font-bold text-xs sm:text-sm uppercase tracking-wider rounded-[8px] flex items-center justify-center gap-2 transition active:scale-[0.98] cursor-pointer shadow-xs"
             >
               <span>{perspective === "vendor" ? "Confirm & Continue" : "Acknowledge & Rate Ride"}</span>
               <ArrowRight size={15} />

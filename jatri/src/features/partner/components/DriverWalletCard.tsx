@@ -130,15 +130,15 @@ export default function DriverWalletCard() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="p-4 rounded-[8px] bg-[#123D32] dark:bg-[#0D3027] text-[#FAF7F0] flex items-center justify-between border border-[#123D32] dark:border-[#1E3E34]"
+            className="p-4 rounded-[8px] bg-[var(--midnight)] dark:bg-[#0d192b] text-[var(--ice)] flex items-center justify-between border border-[var(--midnight)] dark:border-[#536779]"
           >
             <div className="flex items-center gap-2.5">
               <CheckCircle2 size={16} className="text-emerald-400" />
-              <span className="text-xs font-mono font-bold">{withdrawSuccess}</span>
+              <span className="text-xs tabular-nums font-bold">{withdrawSuccess}</span>
             </div>
             <button
               onClick={() => setWithdrawSuccess(null)}
-              className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-1 bg-[#FAF7F0] text-[#10251C] dark:bg-[#10352C] dark:text-[#F7F5ED] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] rounded-[6px] cursor-pointer"
+              className="text-[10px] tabular-nums font-bold px-2 py-1 bg-[var(--ice)] text-[var(--midnight)] dark:bg-[#243751] dark:text-[var(--ice)] hover:bg-[#e4eeeb] dark:hover:bg-[#2b4160] rounded-[6px] cursor-pointer"
             >
               Dismiss
             </button>
@@ -149,22 +149,22 @@ export default function DriverWalletCard() {
       {/* DRIVER WALLET HERO & METRICS */}
       <div className="grid lg:grid-cols-3 gap-5">
         {/* Main Available Earnings Card */}
-        <div className="lg:col-span-2 rounded-[16px] bg-[#0D3027] dark:bg-[#091D17] text-[#FAF7F0] p-6 sm:p-7 border border-[#123D32] dark:border-[#28664D]/40 flex flex-col justify-between min-h-[220px] shadow-sm">
+        <div className="lg:col-span-2 rounded-[14px] bg-[#0d192b] dark:bg-[#0d192b] text-[var(--ice)] p-6 sm:p-7 border border-[var(--midnight)] dark:border-[#263b56]/40 flex flex-col justify-between min-h-[220px] ">
           <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" />
-                <p className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#FAF7F0]/70">
+                <p className="text-[10px] tabular-nums font-bold text-[var(--ice)]/70">
                   {t("wallet.driverTitle", "Driver Earnings & Settlement")}
                 </p>
               </div>
-              <div className="flex items-baseline gap-1 mt-1 font-mono">
-                <span className="text-3xl sm:text-4xl font-bold text-[#FAF7F0] tracking-tight tabular-nums">
+              <div className="flex items-baseline gap-1 mt-1 tabular-nums">
+                <span className="text-3xl sm:text-4xl font-bold text-[var(--ice)] tracking-tight tabular-nums">
                   ₹{availableEarnings.toLocaleString("en-IN")}
                 </span>
-                <span className="text-xs font-bold text-[#FAF7F0]/60">INR</span>
+                <span className="text-xs font-bold text-[var(--ice)]/60">INR</span>
               </div>
-              <p className="text-xs text-[#FAF7F0]/80 mt-2 font-sans">
+              <p className="text-xs text-[var(--ice)]/80 mt-2 font-sans">
                 {t("wallet.driverEarningsDesc", "Net balance ready for instant automated bank disbursement.")}
               </p>
             </div>
@@ -176,19 +176,19 @@ export default function DriverWalletCard() {
                   setShowWithdrawModal(true);
                 }}
                 disabled={availableEarnings < 100}
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-[8px] bg-[#FAF7F0] text-[#10251C] hover:bg-[#F7F1E5] disabled:opacity-40 text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-[8px] bg-[var(--ice)] text-[var(--midnight)] hover:bg-[#e4eeeb] disabled:opacity-40 text-xs font-semibold transition-colors cursor-pointer"
               >
-                <Building2 size={14} className="text-[#123D32]" /> {t("wallet.withdraw", "Withdraw to Bank")}
+                <Building2 size={14} className="text-[var(--midnight)]" /> {t("wallet.withdraw", "Withdraw to Bank")}
               </button>
               {availableEarnings < 100 && (
-                <span className="text-[10px] font-mono text-[#FAF7F0]/60">Min payout threshold: ₹100</span>
+                <span className="text-[10px] tabular-nums text-[var(--ice)]/60">Min payout threshold: ₹100</span>
               )}
             </div>
           </div>
 
-          <div className="pt-4 mt-4 border-t border-[#123D32] dark:border-[#28664D]/30 flex flex-wrap items-center justify-between gap-3 text-xs text-[#FAF7F0]/80 font-sans">
+          <div className="pt-4 mt-4 border-t border-[var(--midnight)] dark:border-[#263b56]/30 flex flex-wrap items-center justify-between gap-3 text-xs text-[var(--ice)]/80 font-sans">
             <div className="flex items-center gap-2">
-              <Building2 size={14} className="text-[#FAF7F0]/70" />
+              <Building2 size={14} className="text-[var(--ice)]/70" />
               {bankDetails ? (
                 <span>
                   Linked Account: <strong className="text-white">{bankDetails.maskedAccount}</strong> ({bankDetails.ifsc})
@@ -196,7 +196,7 @@ export default function DriverWalletCard() {
               ) : (
                 <Link
                   href="/partner/onboard/bank"
-                  className="text-white font-bold underline flex items-center gap-1 uppercase tracking-wider text-[11px]"
+                  className="text-white font-bold underline flex items-center gap-1 text-[11px]"
                 >
                   Link Bank Account for Payouts <ChevronRight size={13} />
                 </Link>
@@ -204,7 +204,7 @@ export default function DriverWalletCard() {
             </div>
             <Link
               href="/partner/wallet"
-              className="text-xs font-semibold text-[#FAF7F0] hover:underline flex items-center gap-1 uppercase tracking-wider"
+              className="text-xs font-semibold text-[var(--ice)] hover:underline flex items-center gap-1 "
             >
               Full Ledger Page <ChevronRight size={14} />
             </Link>
@@ -214,27 +214,27 @@ export default function DriverWalletCard() {
         {/* Breakdown Metrics */}
         <div className="flex flex-col gap-3">
           {platformDues > 0 && (
-            <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#1E3E34] flex items-center justify-between gap-3 shadow-sm">
+            <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 border border-[var(--border-default)] flex items-center justify-between gap-3 ">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-[8px] bg-red-100 dark:bg-red-950/30 text-[#E34222] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-[8px] bg-red-100 dark:bg-red-950/30 text-[#992f22] dark:text-[#ffab9c] flex items-center justify-center flex-shrink-0">
                   <AlertCircle size={16} />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+                  <p className="text-[10px] font-bold text-[var(--text-secondary)]">
                     {t("wallet.platformDues", "Platform Dues")}
                   </p>
-                  <p className="text-base font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono tabular-nums mt-0.5">
+                  <p className="text-base font-bold text-[var(--text-primary)] tabular-nums tabular-nums mt-0.5">
                     ₹{platformDues.toLocaleString("en-IN")}
                   </p>
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] bg-[#FAF7F0] dark:bg-[#061A16] px-1.5 py-0.5 rounded-[4px]">
+                <span className="text-[9px] tabular-nums font-bold text-[var(--text-secondary)] bg-[var(--background)] px-1.5 py-0.5 rounded-[4px]">
                   Auto-settling
                 </span>
                 <Link
                   href="/partner/wallet"
-                  className="text-[10px] font-bold text-[#E34222] dark:text-[#E06A50] underline hover:text-[#10251C] dark:hover:text-[#F3F1E8] uppercase tracking-wider"
+                  className="text-[10px] font-bold text-[#992f22] dark:text-[#ffab9c] underline hover:text-[var(--midnight)] dark:hover:text-[var(--ice)] "
                 >
                   Clear Online →
                 </Link>
@@ -242,43 +242,43 @@ export default function DriverWalletCard() {
             </div>
           )}
 
-          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#1E3E34] flex items-center gap-3 shadow-sm">
-            <div className="w-8 h-8 rounded-[8px] bg-[#FAF7F0] dark:bg-[#061A16] text-[#123D32] dark:text-[#347858] border border-[#DED7CA] dark:border-[#1E3E34] flex items-center justify-center flex-shrink-0">
+          <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 border border-[var(--border-default)] flex items-center gap-3 ">
+            <div className="w-8 h-8 rounded-[8px] bg-[var(--background)] text-[var(--accent-ink)] border border-[var(--border-default)] flex items-center justify-center flex-shrink-0">
               <TrendingUp size={16} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+              <p className="text-[10px] font-bold text-[var(--text-secondary)]">
                 {t("wallet.lifetimeEarnings", "Lifetime Earnings")}
               </p>
-              <p className="text-base font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono tabular-nums mt-0.5">
+              <p className="text-base font-bold text-[var(--text-primary)] tabular-nums tabular-nums mt-0.5">
                 ₹{metrics.totalEarnings.toLocaleString("en-IN")}
               </p>
             </div>
           </div>
 
-          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#1E3E34] flex items-center gap-3 shadow-sm">
-            <div className="w-8 h-8 rounded-[8px] bg-[#FAF7F0] dark:bg-[#061A16] text-[#123D32] dark:text-[#347858] border border-[#DED7CA] dark:border-[#1E3E34] flex items-center justify-center flex-shrink-0">
+          <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 border border-[var(--border-default)] flex items-center gap-3 ">
+            <div className="w-8 h-8 rounded-[8px] bg-[var(--background)] text-[var(--accent-ink)] border border-[var(--border-default)] flex items-center justify-center flex-shrink-0">
               <Percent size={16} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+              <p className="text-[10px] font-bold text-[var(--text-secondary)]">
                 {t("wallet.platformCommission", "Platform Commission")}
               </p>
-              <p className="text-base font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono tabular-nums mt-0.5">
+              <p className="text-base font-bold text-[var(--text-primary)] tabular-nums tabular-nums mt-0.5">
                 ₹{metrics.totalCommission.toLocaleString("en-IN")}
               </p>
             </div>
           </div>
 
-          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[12px] p-4 border border-[#DED7CA] dark:border-[#1E3E34] flex items-center gap-3 shadow-sm">
-            <div className="w-8 h-8 rounded-[8px] bg-[#FAF7F0] dark:bg-[#061A16] text-[#123D32] dark:text-[#347858] border border-[#DED7CA] dark:border-[#1E3E34] flex items-center justify-center flex-shrink-0">
+          <div className="bg-[var(--surface-raised)] rounded-[12px] p-4 border border-[var(--border-default)] flex items-center gap-3 ">
+            <div className="w-8 h-8 rounded-[8px] bg-[var(--background)] text-[var(--accent-ink)] border border-[var(--border-default)] flex items-center justify-center flex-shrink-0">
               <Building2 size={16} />
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+              <p className="text-[10px] font-bold text-[var(--text-secondary)]">
                 Total Withdrawn
               </p>
-              <p className="text-base font-bold text-[#10251C] dark:text-[#F7F5ED] font-mono tabular-nums mt-0.5">
+              <p className="text-base font-bold text-[var(--text-primary)] tabular-nums tabular-nums mt-0.5">
                 ₹{metrics.totalWithdrawn.toLocaleString("en-IN")}
               </p>
             </div>
@@ -287,16 +287,16 @@ export default function DriverWalletCard() {
       </div>
 
       {/* DRIVER PASSBOOK & LEDGER */}
-      <div className="bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] border border-[#DED7CA] dark:border-[#1E3E34] shadow-sm overflow-hidden">
-        <div className="p-5 sm:p-6 border-b border-[#DED7CA] dark:border-[#1E3E34] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="bg-[var(--surface-raised)] rounded-[14px] border border-[var(--border-default)] overflow-hidden">
+        <div className="p-5 sm:p-6 border-b border-[var(--border-default)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h3 className="text-sm sm:text-base font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">Driver Ledger &amp; Payout History</h3>
-            <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mt-0.5 font-sans">
+            <h3 className="text-sm sm:text-base font-bold text-[var(--text-primary)] tracking-tight">Driver Ledger &amp; Payout History</h3>
+            <p className="text-xs text-[var(--text-secondary)] mt-0.5 font-sans">
               Transparent log of ride fare earnings, commission allocations, and bank payouts.
             </p>
           </div>
 
-          <div className="flex items-center gap-1 border border-[#DED7CA] dark:border-[#1E3E34] p-0.5 bg-[#FAF7F0] dark:bg-[#061A16] rounded-[8px] self-start sm:self-auto">
+          <div className="flex items-center gap-1 border border-[var(--border-default)] p-0.5 bg-[var(--background)] rounded-[8px] self-start sm:self-auto">
             {[
               { id: "all", label: "All" },
               { id: "earning", label: "Earnings" },
@@ -306,10 +306,10 @@ export default function DriverWalletCard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveFilter(tab.id as any)}
-                className={`px-3 py-1 rounded-[6px] text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-[6px] text-xs font-semibold transition-colors cursor-pointer ${
                   activeFilter === tab.id
-                    ? "bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0]"
-                    : "text-[#696B64] dark:text-[#B9C8BF] hover:text-[#10251C] dark:hover:text-[#F3F1E8]"
+                    ? "bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)]"
+                    : "text-[var(--text-secondary)] hover:text-[var(--midnight)] dark:hover:text-[var(--ice)]"
                 }`}
               >
                 {tab.label}
@@ -319,37 +319,37 @@ export default function DriverWalletCard() {
         </div>
 
         {/* Transaction Rows */}
-        <div className="divide-y divide-[#DED7CA] dark:divide-[#1E3E34]">
+        <div className="divide-y divide-[#b8c7ca] dark:divide-[#536779]">
           {loading ? (
-            <div className="p-8 text-center text-xs font-sans text-[#696B64] dark:text-[#B9C8BF]">Loading ledger data...</div>
+            <div className="p-8 text-center text-xs font-sans text-[var(--text-secondary)]">Loading ledger data...</div>
           ) : filteredTransactions.length === 0 ? (
-            <div className="p-8 text-center text-xs font-sans text-[#696B64] dark:text-[#B9C8BF]">
+            <div className="p-8 text-center text-xs font-sans text-[var(--text-secondary)]">
               No ledger records found for this category.
             </div>
           ) : (
             filteredTransactions.slice(0, 10).map((tx, idx) => {
               const isCredit = tx.type === "earning";
               return (
-                <div key={tx._id || idx} className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-[#F7F1E5] dark:hover:bg-[#101713] transition-colors">
+                <div key={tx._id || idx} className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-[#e4eeeb] dark:hover:bg-[#0d192b] transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] bg-[#FAF7F0] dark:bg-[#061A16] text-[#123D32] dark:text-[#347858] flex items-center justify-center font-mono text-xs font-bold">
+                    <div className="w-8 h-8 rounded-[8px] border border-[var(--border-default)] bg-[var(--background)] text-[var(--accent-ink)] flex items-center justify-center tabular-nums text-xs font-bold">
                       {isCredit ? "+" : "-"}
                     </div>
                     <div>
-                      <p className="text-xs sm:text-sm font-semibold text-[#10251C] dark:text-[#F7F5ED]">
+                      <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)]">
                         {tx.description || (isCredit ? "Ride Fare Credited" : "Commission/Payout Deducted")}
                       </p>
-                      <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5">
+                      <p className="text-[10px] text-[var(--text-secondary)] mt-0.5">
                         {new Date(tx.createdAt).toLocaleDateString()} · {new Date(tx.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <p className={`text-xs sm:text-sm font-bold font-mono tabular-nums ${isCredit ? "text-[#123D32] dark:text-[#347858]" : "text-[#E34222] dark:text-[#E06A50]"}`}>
+                    <p className={`text-xs sm:text-sm font-bold tabular-nums tabular-nums ${isCredit ? "text-[var(--accent-ink)]" : "text-[#992f22] dark:text-[#ffab9c]"}`}>
                       {isCredit ? "+" : "-"}₹{Number(tx.amount || 0).toLocaleString("en-IN")}
                     </p>
-                    <span className="text-[9px] font-mono uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+                    <span className="text-[9px] tabular-nums text-[var(--text-secondary)]">
                       {tx.type}
                     </span>
                   </div>
@@ -363,34 +363,34 @@ export default function DriverWalletCard() {
       {/* WITHDRAWAL MODAL */}
       <AnimatePresence>
         {showWithdrawModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 ">
             <motion.div
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.98 }}
-              className="w-full max-w-sm bg-[#FAF7F0] dark:bg-[#0B2822] rounded-[16px] p-6 border border-[#DED7CA] dark:border-[#1E3E34] shadow-2xl"
+              className="w-full max-w-sm bg-[var(--surface-raised)] rounded-[14px] p-6 border border-[var(--border-default)] "
             >
-              <div className="flex items-center justify-between mb-4 border-b border-[#DED7CA] dark:border-[#1E3E34] pb-3">
+              <div className="flex items-center justify-between mb-4 border-b border-[var(--border-default)] pb-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] flex items-center justify-center font-bold">
+                  <div className="w-7 h-7 rounded-[8px] bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] flex items-center justify-center font-bold">
                     <Building2 size={14} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight">Withdraw Earnings</h3>
-                    <p className="text-[10px] text-[#696B64] dark:text-[#B9C8BF]">Automated Direct Bank Payout</p>
+                    <h3 className="text-sm font-bold text-[var(--text-primary)] tracking-tight">Withdraw Earnings</h3>
+                    <p className="text-[10px] text-[var(--text-secondary)]">Automated Direct Bank Payout</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowWithdrawModal(false)}
-                  className="w-6 h-6 rounded-[6px] border border-[#DED7CA] dark:border-[#1E3E34] hover:bg-[#F7F1E5] dark:hover:bg-[#101713] flex items-center justify-center text-[#696B64] dark:text-[#B9C8BF] text-xs cursor-pointer"
+                  className="w-6 h-6 rounded-[6px] border border-[var(--border-default)] hover:bg-[#e4eeeb] dark:hover:bg-[#0d192b] flex items-center justify-center text-[var(--text-secondary)] text-xs cursor-pointer"
                 >
                   ✕
                 </button>
               </div>
 
               {withdrawError && (
-                <div className="p-3 mb-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-xs text-[#E34222] dark:text-[#E06A50] flex items-center gap-2">
+                <div className="p-3 mb-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 rounded-[8px] text-xs text-[#992f22] dark:text-[#ffab9c] flex items-center gap-2">
                   <AlertCircle size={14} className="flex-shrink-0" />
                   <span>{withdrawError}</span>
                 </div>
@@ -398,27 +398,27 @@ export default function DriverWalletCard() {
 
               {/* Linked Bank Info Card */}
               {bankDetails ? (
-                <div className="p-3 bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] mb-4 text-xs font-sans">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF] mb-1">
+                <div className="p-3 bg-[var(--background)] border border-[var(--border-default)] rounded-[8px] mb-4 text-xs font-sans">
+                  <p className="text-[9px] font-bold text-[var(--text-secondary)] mb-1">
                     Beneficiary Account
                   </p>
-                  <p className="font-bold text-[#10251C] dark:text-[#F7F5ED]">{bankDetails.accountHolderName}</p>
-                  <p className="text-[#696B64] dark:text-[#B9C8BF] text-[11px] mt-0.5">
+                  <p className="font-bold text-[var(--text-primary)]">{bankDetails.accountHolderName}</p>
+                  <p className="text-[var(--text-secondary)] text-[11px] mt-0.5">
                     Account: {bankDetails.maskedAccount} · IFSC: {bankDetails.ifsc}
                   </p>
                   {bankDetails.upi && (
-                    <p className="text-[#696B64] dark:text-[#B9C8BF] text-[10px] mt-0.5">UPI ID: {bankDetails.upi}</p>
+                    <p className="text-[var(--text-secondary)] text-[10px] mt-0.5">UPI ID: {bankDetails.upi}</p>
                   )}
                 </div>
               ) : (
-                <div className="p-3 bg-[#FAF7F0] dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[8px] mb-4 text-xs font-sans">
-                  <p className="font-bold mb-1 text-[#10251C] dark:text-[#F7F5ED]">No Bank Account Linked</p>
-                  <p className="text-[11px] mb-2 text-[#696B64] dark:text-[#B9C8BF]">
+                <div className="p-3 bg-[var(--background)] border border-[var(--border-default)] rounded-[8px] mb-4 text-xs font-sans">
+                  <p className="font-bold mb-1 text-[var(--text-primary)]">No Bank Account Linked</p>
+                  <p className="text-[11px] mb-2 text-[var(--text-secondary)]">
                     Link bank details to receive automated disbursements.
                   </p>
                   <Link
                     href="/partner/onboard/bank"
-                    className="inline-block px-3 py-1 bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] rounded-[6px] text-[10px] font-semibold uppercase tracking-wider"
+                    className="inline-block px-3 py-1 bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] rounded-[6px] text-[10px] font-semibold "
                   >
                     Add Bank Details
                   </Link>
@@ -428,15 +428,15 @@ export default function DriverWalletCard() {
               <form onSubmit={handleWithdraw}>
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[10px] font-bold uppercase tracking-wider text-[#696B64] dark:text-[#B9C8BF]">
+                    <label className="text-[10px] font-bold text-[var(--text-secondary)]">
                       Amount to Withdraw
                     </label>
-                    <span className="text-[10px] text-[#696B64] dark:text-[#B9C8BF]">
+                    <span className="text-[10px] text-[var(--text-secondary)]">
                       Available: ₹{availableEarnings.toLocaleString("en-IN")}
                     </span>
                   </div>
-                  <div className="flex items-center rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] focus-within:border-[#123D32] dark:focus-within:border-[#28664D] transition-colors px-3 py-2 bg-white dark:bg-[#061A16]">
-                    <span className="text-base font-bold text-[#696B64] dark:text-[#B9C8BF] mr-1.5 font-mono">₹</span>
+                  <div className="flex items-center rounded-[8px] border border-[var(--border-interactive)] focus-within:border-[var(--focus-ring)] transition-colors px-3 py-2 bg-[var(--surface-raised)]">
+                    <span className="text-base font-bold text-[var(--text-secondary)] mr-1.5 tabular-nums">₹</span>
                     <input
                       type="number"
                       min={100}
@@ -444,7 +444,7 @@ export default function DriverWalletCard() {
                       value={withdrawAmount}
                       onChange={(e) => setWithdrawAmount(e.target.value)}
                       placeholder="1000"
-                      className="w-full text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] outline-none bg-transparent font-mono"
+                      className="w-full text-lg font-bold text-[var(--text-primary)] outline-none bg-transparent tabular-nums"
                     />
                   </div>
                 </div>
@@ -458,7 +458,7 @@ export default function DriverWalletCard() {
                         type="button"
                         onClick={() => setWithdrawAmount(amt.toString())}
                         disabled={amt > availableEarnings}
-                        className="py-1.5 rounded-[6px] text-xs font-semibold border border-[#DED7CA] dark:border-[#1E3E34] bg-[#FAF7F0] dark:bg-[#061A16] hover:bg-[#FAF7F0] dark:hover:bg-[#10352C] disabled:opacity-40 cursor-pointer text-[#10251C] dark:text-[#F7F5ED]"
+                        className="py-1.5 rounded-[6px] text-xs font-semibold border border-[var(--border-default)] bg-[var(--background)] hover:bg-[var(--ice)] dark:hover:bg-[#243751] disabled:opacity-40 cursor-pointer text-[var(--text-primary)]"
                       >
                         ₹{amt}
                       </button>
@@ -467,7 +467,7 @@ export default function DriverWalletCard() {
                       type="button"
                       onClick={() => setWithdrawAmount(availableEarnings.toString())}
                       disabled={availableEarnings <= 0}
-                      className="py-1.5 rounded-[6px] text-xs font-semibold border border-[#123D32] dark:border-[#28664D] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] hover:bg-[#0D3027] dark:hover:bg-[#347858] disabled:opacity-40 cursor-pointer"
+                      className="py-1.5 rounded-[6px] text-xs font-semibold border border-[var(--midnight)] dark:border-[#263b56] bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] hover:bg-[#0d192b] dark:hover:bg-[#354b66] disabled:opacity-40 cursor-pointer"
                     >
                       All
                     </button>
@@ -478,14 +478,14 @@ export default function DriverWalletCard() {
                   <button
                     type="button"
                     onClick={() => setShowWithdrawModal(false)}
-                    className="flex-1 py-2.5 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] text-xs uppercase font-semibold text-[#10251C] dark:text-[#F7F5ED] bg-[#FAF7F0] dark:bg-[#10352C] hover:bg-[#F7F1E5] dark:hover:bg-[#143D32] transition-colors cursor-pointer"
+                    className="flex-1 py-2.5 rounded-[8px] border border-[var(--border-default)] text-xs uppercase font-semibold text-[var(--text-primary)] bg-[var(--surface-subtle)] hover:bg-[#e4eeeb] dark:hover:bg-[#2b4160] transition-colors cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={processingWithdraw || !withdrawAmount || Number(withdrawAmount) < 100 || !bankDetails}
-                    className="flex-1 py-2.5 rounded-[8px] bg-[#123D32] dark:bg-[#28664D] text-[#FAF7F0] text-xs uppercase tracking-wider font-semibold hover:bg-[#0D3027] dark:hover:bg-[#347858] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-sm"
+                    className="flex-1 py-2.5 rounded-[8px] bg-[var(--midnight)] dark:bg-[#263b56] text-[var(--ice)] text-xs font-semibold hover:bg-[#0d192b] dark:hover:bg-[#354b66] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer "
                   >
                     {processingWithdraw ? (
                       <Loader2 size={14} className="animate-spin" />

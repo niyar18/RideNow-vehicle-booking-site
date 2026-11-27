@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useTranslation } from "@/context/LanguageContext";
 import { VehicleType } from "@/lib/vehicleConfig";
 import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
@@ -33,7 +34,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Comfortable and eco-friendly rides",
     Icon: VEHICLE_SVG_ICONS.scooty,
     TagIcon: Leaf,
-    image: "/fleet/scooty.webp",
+    image: "/fleet/scooty.webp?v=photo-1",
     tagKey: "eco",
     tag: "ECO",
     tagBg: "bg-[#E5EBDD] text-[#123D32] border-[#cdd6c3]",
@@ -46,7 +47,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Fast, affordable, everyday rides",
     Icon: VEHICLE_SVG_ICONS.bike,
     TagIcon: Flame,
-    image: "/fleet/moto.webp",
+    image: "/fleet/moto.webp?v=photo-1",
     tagKey: "popular",
     tag: "POPULAR",
     tagBg: "bg-[#faebe8] text-[#E34222] border-[#f0c8c1]",
@@ -59,11 +60,24 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Quick and economical for short trips",
     Icon: VEHICLE_SVG_ICONS.auto,
     TagIcon: Users,
-    image: "/fleet/auto.webp",
+    image: "/fleet/auto.webp?v=photo-1",
     tagKey: "budget",
     tag: "BUDGET",
     tagBg: "bg-[#eaf3e7] text-[#1e5a28] border-[#c8e3c3]",
     rate: "11.5/km",
+  },
+  {
+    id: "e-rickshaw",
+    key: "e-rickshaw",
+    title: "Jaatri Toto",
+    desc: "Quiet electric rides for short trips",
+    Icon: VEHICLE_SVG_ICONS["e-rickshaw"],
+    TagIcon: Leaf,
+    image: "/fleet/e-rickshaw.webp?v=photo-1",
+    tagKey: "eco",
+    tag: "ECO",
+    tagBg: "bg-[#E5EBDD] text-[#123D32] border-[#cdd6c3]",
+    rate: "8/km",
   },
   {
     id: "mini",
@@ -72,7 +86,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Affordable and comfortable for city rides",
     Icon: VEHICLE_SVG_ICONS.mini,
     TagIcon: Car,
-    image: "/fleet/car-mini.webp",
+    image: "/fleet/car-mini.webp?v=photo-1",
     tagKey: "mini",
     tag: "MINI",
     tagBg: "bg-[#e7eff8] text-[#1e4d7d] border-[#c8dcf1]",
@@ -85,7 +99,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Spacious and premium sedan for a better experience",
     Icon: VEHICLE_SVG_ICONS.car,
     TagIcon: Crown,
-    image: "/fleet/premier.webp",
+    image: "/fleet/premier.webp?v=photo-1",
     tagKey: "premier",
     tag: "PREMIER",
     tagBg: "bg-[#fdf3e5] text-[#8a520e] border-[#f5ddbb]",
@@ -98,7 +112,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "More space for families and groups",
     Icon: VEHICLE_SVG_ICONS.priority,
     TagIcon: Users,
-    image: "/fleet/suv.webp",
+    image: "/fleet/suv.webp?v=photo-1",
     tagKey: "xl_priority",
     tag: "XL / PRIORITY",
     tagBg: "bg-[#eee9f8] text-[#51358a] border-[#d8ccf0]",
@@ -111,7 +125,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Small cargo, big convenience",
     Icon: VEHICLE_SVG_ICONS.loading,
     TagIcon: Truck,
-    image: "/fleet/express-mini.webp",
+    image: "/fleet/express-mini.webp?v=photo-1",
     tagKey: "express_mini",
     tag: "EXPRESS MINI",
     tagBg: "bg-[#e5f0fb] text-[#1b589b] border-[#c8e2f8]",
@@ -124,7 +138,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Reliable truck service for larger shipments",
     Icon: VEHICLE_SVG_ICONS.truck,
     TagIcon: Package,
-    image: "/fleet/freight.webp",
+    image: "/fleet/freight.webp?v=photo-1",
     tagKey: "freight",
     tag: "FREIGHT",
     tagBg: "bg-[#fcf0e4] text-[#9a4f0f] border-[#f4d5b6]",
@@ -175,7 +189,7 @@ export default function VehicleCategoriesSlider() {
   return (
     <section
       ref={sectionRef}
-      className="w-full bg-[#FAF7F0] dark:bg-[#061A16] border-t border-[#DED7CA]/80 dark:border-[#1E3E34] pt-10 sm:pt-14 lg:pt-16 pb-8 sm:pb-10 px-4 sm:px-6 lg:px-8 overflow-hidden"
+      className="w-full bg-[var(--background)] border-t border-[#DED7CA]/80 dark:border-[#1E3E34] pt-10 sm:pt-14 lg:pt-16 pb-8 sm:pb-10 px-4 sm:px-6 lg:px-8 overflow-hidden"
       aria-label="Jaatri Vehicle Categories"
     >
       <div className="max-w-7xl mx-auto">
@@ -198,12 +212,12 @@ export default function VehicleCategoriesSlider() {
             {/* Main Editorial Heading: DM Serif Display, 22-34px */}
             <h2
               style={{ fontFamily: "var(--font-serif), 'DM Serif Display', Georgia, serif" }}
-              className="text-2xl sm:text-3xl lg:text-[34px] font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED] leading-[1.12]"
+              className="text-2xl sm:text-3xl lg:text-[34px] font-bold tracking-tight text-[var(--text-primary)] leading-[1.12]"
             >
               {t("fleet.title", "Choose Your Ride")}
             </h2>
             {/* Subtitle: 13-15px */}
-            <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-[14px] mt-1 font-normal leading-normal">
+            <p className="text-[var(--text-secondary)] text-xs sm:text-[14px] mt-1 font-normal leading-normal">
               {t("fleet.subtitle", "Find the right vehicle for your journey.")}
             </p>
           </div>
@@ -215,7 +229,7 @@ export default function VehicleCategoriesSlider() {
               onClick={() => scroll("left")}
               disabled={!canLeft}
               aria-label="Scroll left"
-              className="w-9 h-9 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#0B2822] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#046A38] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] dark:text-[#F7F5ED] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="w-9 h-9 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#0B2822] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#046A38] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[var(--text-primary)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <ChevronLeft size={16} strokeWidth={2.4} />
             </motion.button>
@@ -224,7 +238,7 @@ export default function VehicleCategoriesSlider() {
               onClick={() => scroll("right")}
               disabled={!canRight}
               aria-label="Scroll right"
-              className="w-9 h-9 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#0B2822] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#046A38] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[#10251C] dark:text-[#F7F5ED] shadow-2xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
+              className="w-9 h-9 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#0B2822] flex items-center justify-center hover:bg-[#046A38] dark:hover:bg-[#046A38] hover:border-[#046A38] hover:text-white disabled:opacity-25 disabled:pointer-events-none transition-all duration-150 text-[var(--text-primary)] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38]"
             >
               <ChevronRight size={16} strokeWidth={2.4} />
             </motion.button>
@@ -280,17 +294,19 @@ export default function VehicleCategoriesSlider() {
                 {/* Card Container: Refined surface matching mobile theme tokens (#0B2822 in dark) */}
                 <div className="relative rounded-[14px] border border-[#DED7CA]/85 dark:border-[#24483D] bg-white dark:bg-[#0B2822] p-3.5 sm:p-4 overflow-hidden h-full flex flex-col justify-between shadow-[0_2px_8px_rgba(18,61,50,0.04)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.4)] group-hover:shadow-[0_8px_20px_rgba(18,61,50,0.08)] dark:group-hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] group-hover:border-[#046A38]/50 dark:group-hover:border-[#34D399]/50 transition-all duration-200">
                   <div>
-                    {/* CARD TOP MEDIA: Hero vehicle artwork with mobile-native proportions */}
-                    <div className="-mx-3.5 -mt-3.5 sm:-mx-4 sm:-mt-4 mb-3 relative overflow-hidden select-none h-38 sm:h-46 rounded-t-[13px] bg-[#FAF7F0] dark:bg-[#061A16]">
-                      <img
+                    {/* Vehicle photography with mobile-native proportions */}
+                    <div className="-mx-3.5 -mt-3.5 sm:-mx-4 sm:-mt-4 mb-3 relative overflow-hidden select-none h-38 sm:h-46 rounded-t-[13px] bg-[var(--background)]">
+                      <Image
                         src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                        alt=""
+                        fill
+                        sizes="(max-width: 373px) 75vw, 280px"
+                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                       />
 
                       {/* Unified category badge in upper-left */}
                       <div className="absolute top-2.5 left-2.5 sm:top-3 sm:left-3 z-10 pointer-events-none">
-                        <span className="inline-flex items-center gap-1 border border-[#DED7CA]/90 dark:border-[#24483D] bg-[#FAF7F0]/95 dark:bg-[#10352C]/95 text-[#046A38] dark:text-[#34D399] text-[9.5px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full shadow-2xs backdrop-blur-xs">
+                        <span className="inline-flex items-center gap-1 border border-[#DED7CA]/90 dark:border-[#24483D] bg-[#FAF7F0]/95 dark:bg-[#10352C]/95 text-[#046A38] dark:text-[#34D399] text-[9.5px] font-bold uppercase tracking-[0.12em] px-2 py-0.5 rounded-full backdrop-blur-xs">
                           {item.TagIcon ? (
                             <item.TagIcon size={10} className="stroke-[2.2]" />
                           ) : (
@@ -307,12 +323,12 @@ export default function VehicleCategoriesSlider() {
                     </div>
 
                     {/* Title: 16-17px, bold, high contrast */}
-                    <h3 className="text-[16px] sm:text-[17px] font-bold text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-snug mb-1">
+                    <h3 className="text-[16px] sm:text-[17px] font-bold text-[var(--text-primary)] tracking-tight leading-snug mb-1">
                       {item.title}
                     </h3>
 
                     {/* Description: 12-13px, clamped */}
-                    <p className="text-[12px] sm:text-[12.5px] text-[#696B64] dark:text-[#B9C8BF] font-normal leading-relaxed line-clamp-2 min-h-[34px]">
+                    <p className="text-[12px] sm:text-[12.5px] text-[var(--text-secondary)] font-normal leading-relaxed line-clamp-2 min-h-[34px]">
                       {item.desc}
                     </p>
                   </div>
@@ -320,13 +336,13 @@ export default function VehicleCategoriesSlider() {
                   {/* Bottom Pricing & Action Row */}
                   <div className="mt-3 pt-2.5 border-t border-[#DED7CA]/70 dark:border-[#24483D] flex items-center justify-between">
                     {/* Price Badge with emerald styling */}
-                    <div className="inline-flex items-baseline gap-1 bg-[#FAF7F0] dark:bg-[#061A16] text-[#046A38] dark:text-[#34D399] border border-[#DED7CA]/80 dark:border-[#24483D] px-2.5 py-1 rounded-[8px]">
-                      <span className="text-[9.5px] font-semibold text-[#696B64] dark:text-[#B9C8BF] uppercase tracking-wider">From</span>
+                    <div className="inline-flex items-baseline gap-1 bg-[var(--background)] text-[#046A38] dark:text-[#34D399] border border-[#DED7CA]/80 dark:border-[#24483D] px-2.5 py-1 rounded-[8px]">
+                      <span className="text-[9.5px] font-semibold text-[var(--text-secondary)] uppercase tracking-wider">From</span>
                       <span className="text-[13px] sm:text-[14px] font-extrabold tracking-tight">₹{item.rate}</span>
                     </div>
 
                     {/* Refined Arrow Affordance with 8px radius */}
-                    <div className="w-8 h-8 rounded-[8px] border border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#061A16] group-hover:border-[#046A38] dark:group-hover:border-[#046A38] group-hover:bg-[#046A38] dark:group-hover:bg-[#046A38] text-[#10251C] dark:text-[#F7F5ED] group-hover:text-white transition-all duration-200 flex items-center justify-center shadow-2xs">
+                    <div className="w-8 h-8 rounded-[8px] border border-[var(--border-default)] bg-white dark:bg-[#061A16] group-hover:border-[#046A38] dark:group-hover:border-[#046A38] group-hover:bg-[#046A38] dark:group-hover:bg-[#046A38] text-[var(--text-primary)] group-hover:text-white transition-all duration-200 flex items-center justify-center shadow-2xs">
                       <ArrowRight size={13} strokeWidth={2.4} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-white" />
                     </div>
                   </div>
@@ -352,7 +368,7 @@ export default function VehicleCategoriesSlider() {
               <p className="text-[#046A38] dark:text-[#34D399] text-lg sm:text-xl font-extrabold tracking-tight tabular-nums leading-none">
                 {s.num}
               </p>
-              <p className="text-[#696B64] dark:text-[#B9C8BF] text-xs sm:text-[12.5px] font-medium leading-tight">
+              <p className="text-[var(--text-secondary)] text-xs sm:text-[12.5px] font-medium leading-tight">
                 {s.label}
               </p>
               {i < 2 && <div className="hidden sm:block w-px h-3.5 bg-[#DED7CA] dark:bg-[#24483D] ml-3 sm:ml-4" />}

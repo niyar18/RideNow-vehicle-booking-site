@@ -32,19 +32,19 @@ export default function FareBreakdownCard({
   const vehicleLabel = vehicle.charAt(0).toUpperCase() + vehicle.slice(1);
 
   return (
-    <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] p-5 sm:p-6 shadow-sm mb-6 transition-colors">
-      <div className="flex items-center justify-between pb-4 border-b border-[#DED7CA] dark:border-[#24483D]">
+    <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[14px] p-5 sm:p-6 mb-6 transition-colors">
+      <div className="flex items-center justify-between pb-4 border-b border-[var(--border-default)]">
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#696B64] dark:text-[#B9C8BF]">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)]">
             Selected Vehicle
           </span>
-          <h3 className="text-xl font-serif text-[#10251C] dark:text-[#F7F5ED]">{vehicleLabel}</h3>
+          <h3 className="text-xl text-[var(--text-primary)]">{vehicleLabel}</h3>
         </div>
         <div className="text-right">
-          <span className="text-[10px] font-bold uppercase tracking-widest text-[#696B64] dark:text-[#B9C8BF]">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--text-secondary)]">
             Estimated Fare
           </span>
-          <p className="text-2xl font-bold text-[#10251C] dark:text-[#F7F5ED] flex items-center justify-end">
+          <p className="text-2xl font-bold text-[var(--text-primary)] flex items-center justify-end">
             <IndianRupee size={20} className="stroke-[2.5]" />
             {breakdown?.totalFare || fare}
           </p>
@@ -52,22 +52,22 @@ export default function FareBreakdownCard({
       </div>
 
       {/* Itemized charges */}
-      <div className="py-4 space-y-2.5 text-xs border-b border-[#DED7CA] dark:border-[#24483D]">
-        <div className="flex justify-between text-[#696B64] dark:text-[#B9C8BF]">
+      <div className="py-4 space-y-2.5 text-xs border-b border-[var(--border-default)]">
+        <div className="flex justify-between text-[var(--text-secondary)]">
           <span>Base Fare</span>
-          <span className="font-semibold text-[#10251C] dark:text-[#F7F5ED]">₹{breakdown?.baseFare ?? 50}</span>
+          <span className="font-semibold text-[var(--text-primary)]">₹{breakdown?.baseFare ?? 50}</span>
         </div>
 
         {breakdown?.distanceKm !== undefined && (
-          <div className="flex justify-between text-[#696B64] dark:text-[#B9C8BF]">
+          <div className="flex justify-between text-[var(--text-secondary)]">
             <span>Distance Fare ({breakdown.distanceKm.toFixed(1)} km)</span>
-            <span className="font-semibold text-[#10251C] dark:text-[#F7F5ED]">₹{breakdown.distanceFare}</span>
+            <span className="font-semibold text-[var(--text-primary)]">₹{breakdown.distanceFare}</span>
           </div>
         )}
 
-        <div className="flex justify-between text-[#696B64] dark:text-[#B9C8BF]">
+        <div className="flex justify-between text-[var(--text-secondary)]">
           <span>Platform & Safety Fee</span>
-          <span className="font-semibold text-[#10251C] dark:text-[#F7F5ED]">₹{breakdown?.platformFee ?? 15}</span>
+          <span className="font-semibold text-[var(--text-primary)]">₹{breakdown?.platformFee ?? 15}</span>
         </div>
 
         {breakdown && breakdown.surgeAmount !== undefined && breakdown.surgeAmount > 0 && (
@@ -77,9 +77,9 @@ export default function FareBreakdownCard({
           </div>
         )}
 
-        <div className="flex justify-between text-[#696B64] dark:text-[#B9C8BF]">
+        <div className="flex justify-between text-[var(--text-secondary)]">
           <span>Applicable GST (5%)</span>
-          <span className="font-semibold text-[#10251C] dark:text-[#F7F5ED]">₹{breakdown?.taxes ?? Math.round(fare * 0.05)}</span>
+          <span className="font-semibold text-[var(--text-primary)]">₹{breakdown?.taxes ?? Math.round(fare * 0.05)}</span>
         </div>
 
         {breakdown && breakdown.isStudentDiscountApplied && breakdown.studentDiscount !== undefined && breakdown.studentDiscount > 0 && (
@@ -101,7 +101,7 @@ export default function FareBreakdownCard({
         )}
       </div>
 
-      <div className="pt-3 flex items-center justify-between text-xs text-[#696B64] dark:text-[#B9C8BF] font-medium">
+      <div className="pt-3 flex items-center justify-between text-xs text-[var(--text-secondary)] font-medium">
         <div className="flex items-center gap-1.5 text-[#123D32] dark:text-[#90C8A8] font-semibold">
           <ShieldCheck size={14} />
           <span>Upfront Distance-Based Guarantee</span>

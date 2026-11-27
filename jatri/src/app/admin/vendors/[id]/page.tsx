@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { ReviewIntro } from "@/features/admin/components/AdminChrome";
+import AdminDecisionDialog from "@/features/admin/components/AdminDecisionDialog";
+import ui from "@/features/admin/components/admin-ui.module.css";
 import {
-  ArrowLeft,
   CheckCircle,
   Clock,
   XCircle,
@@ -34,9 +35,14 @@ export default function AdminVendorReviewPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await axios.get(`/api/admin/vendors/${id}`);
-      setData(res.data.vendor);
-      setLoading(false);
+      try {
+        const res = await axios.get(`/api/admin/vendors/${id}`);
+        setData(res.data.vendor);
+      } catch {
+        setData(null);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, [id]);
@@ -127,83 +133,70 @@ export default function AdminVendorReviewPage() {
 
   if (loading)
     return (
-      <div className="min-h-screen grid place-items-center text-gray-500">
+      <main id="admin-content" tabIndex={-1} className={ui.content}><p role="status">
         Loading vendor review…
-      </div>
+      </p></main>
     );
 
-  if (!data) return null;
+  if (!data) return (
+    <main id="admin-content" tabIndex={-1} className={ui.content}>
+      <ReviewIntro eyebrow="Vendor review" title="Review unavailable" />
+      <p className={ui.secondary} role="alert">This vendor record couldn’t be loaded.</p>
+    </main>
+  );
 
   return (
-    <div className="min-h-screen bg-[#F7F1E5]">
-
-      {/* ================= HEADER ================= */}
-      <header className="sticky top-0 z-40 backdrop-blur-md bg-[#FAF7F0]/90 border-b border-[#DED7CA]">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 h-14 sm:h-16 flex items-center gap-2.5 sm:gap-4">
-          <button
-            onClick={() => router.back()}
-            aria-label="Back"
-            className="w-8 h-8 sm:w-10 sm:h-10 rounded-[8px] border border-[#DED7CA] flex items-center justify-center bg-[#FAF7F0] hover:bg-[#F7F1E5] text-[#10251C] transition active:scale-95 shrink-0"
-          >
-            <ArrowLeft size={16} className="sm:w-[18px] sm:h-[18px]" />
-          </button>
-
-          <div className="flex-1 min-w-0">
-            <p className="font-serif font-bold text-sm sm:text-lg truncate text-[#10251C]">{data.name}</p>
-            <p className="text-[11px] sm:text-xs text-[#696B64] truncate">{data.email}</p>
-          </div>
-
-          <StatusBadge status={data.vendorStatus} />
-        </div>
-      </header>
+    <main id="admin-content" tabIndex={-1}>
+      <ReviewIntro eyebrow="Vendor application" title={data.name || "Vendor review"} detail={data.email}
+        status={<StatusBadge status={data.vendorStatus} />} />
 
       {/* ================= MAIN ================= */}
-      <main className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-10 grid lg:grid-cols-3 gap-5 sm:gap-8">
+      <div className={`${ui.reviewWrap} grid lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-4 lg:gap-5`}>
 
         {/* LEFT SIDE */}
-        <div className="lg:col-span-2 space-y-5 sm:space-y-8">
+        <div className="min-w-0 space-y-4">
 
           {/* WOMEN'S SAFETY DRIVER VERIFICATION ENGINE */}
-          <AnimatedCard title="Women's Safety Driver Verification" icon={<ShieldCheck size={18} className="text-emerald-600" />}>
+          <AnimatedCard title="Women's Safety Driver Verification" icon={<ShieldCheck size={18} aria-hidden="true" />}>
             <div className="space-y-3.5">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
-                  <p className="text-xs font-semibold text-gray-800">Declared Driver Category</p>
-                  <p className="text-[11px] text-gray-500 capitalize">
+                  <p className="text-xs font-semibold text-[var(--text-primary)]">Declared Driver Category</p>
+                  <p className="text-[11px] text-[var(--admin-muted)] capitalize">
                     {data.safetyMatching?.driverCategory === "woman" ? "Female Driver (Woman)" : "Standard / Not Specified"}
                   </p>
                 </div>
-                <span className={`inline-block text-[10px] uppercase font-bold px-2.5 py-1 rounded-full ${
+                <span className={`inline-block text-xs capitalize font-semibold px-2 py-1 rounded-md border ${
                   data.safetyMatching?.driverVerificationStatus === "verified"
-                    ? "bg-green-100 text-green-700 border border-green-200"
+                    ? ui.tonePositive
                     : data.safetyMatching?.driverVerificationStatus === "pending"
-                    ? "bg-amber-100 text-amber-700 border border-amber-200"
+                    ? ui.toneWarning
                     : data.safetyMatching?.driverVerificationStatus === "rejected"
-                    ? "bg-red-100 text-red-700 border border-red-200"
-                    : "bg-gray-100 text-gray-600 border border-gray-200"
+                    ? ui.toneDanger
+                    : "bg-[var(--admin-subtle)] text-[var(--admin-muted)] border border-[var(--admin-rule)]"
                 }`}>
-                  {data.safetyMatching?.driverVerificationStatus || "not_submitted"}
+                  {(data.safetyMatching?.driverVerificationStatus || "Not submitted").replaceAll("_", " ")}
                 </span>
               </div>
 
               {data.safetyMatching?.verifiedAt && (
-                <p className="text-[11px] text-gray-500">
+                <p className="text-[11px] text-[var(--admin-muted)]">
                   Verified On: {new Date(data.safetyMatching.verifiedAt).toLocaleDateString()}
                 </p>
               )}
               {data.safetyMatching?.verificationNotes && (
-                <p className="text-[11px] text-gray-500 italic bg-gray-50 p-2 rounded-lg border border-gray-100">
+                <p className="text-[11px] text-[var(--admin-muted)] italic bg-[var(--admin-subtle)] p-2 rounded-lg border border-[var(--admin-rule)]">
                   Notes: {data.safetyMatching.verificationNotes}
                 </p>
               )}
 
-              <div className="pt-2 border-t border-gray-100 flex items-center gap-2">
+              <div className="pt-2 border-t border-[var(--admin-rule)] flex flex-wrap items-center gap-2">
                 {data.safetyMatching?.driverVerificationStatus !== "verified" ? (
                   <button
                     type="button"
                     onClick={() => handleVerifyWoman("approve", "Approved after document & video KYC review")}
                     disabled={actionLoading}
-                    className="flex-1 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition disabled:opacity-40 cursor-pointer shadow-xs"
+                    className={`flex-1 ${ui.primary}`}
                   >
                     Approve as Verified Woman Driver
                   </button>
@@ -212,7 +205,7 @@ export default function AdminVendorReviewPage() {
                     type="button"
                     onClick={() => handleVerifyWoman("revoke", "Revoked by admin")}
                     disabled={actionLoading}
-                    className="flex-1 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition disabled:opacity-40 cursor-pointer shadow-xs"
+                    className={`flex-1 ${ui.button}`}
                   >
                     Revoke Woman Driver Status
                   </button>
@@ -222,7 +215,7 @@ export default function AdminVendorReviewPage() {
                     type="button"
                     onClick={() => handleVerifyWoman("reject", "Application rejected by admin")}
                     disabled={actionLoading}
-                    className="py-2 px-3 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold uppercase tracking-wider transition disabled:opacity-40 cursor-pointer shadow-xs"
+                    className={ui.danger}
                   >
                     Reject
                   </button>
@@ -231,8 +224,8 @@ export default function AdminVendorReviewPage() {
             </div>
           </AnimatedCard>
 
-          {/* 7-PILLAR VERIFICATION STATUS ENGINE */}
-          <AnimatedCard title="Driver Verification Status Engine (7 Pillars)" icon={<ShieldCheck size={18} className="text-orange-600" />}>
+          {/* VERIFICATION CHECKLIST */}
+          <AnimatedCard title="Verification checklist" icon={<ShieldCheck size={18} aria-hidden="true" />}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {[
                 { key: "identity", label: "1. Digital Identity (Aadhaar/PAN)" },
@@ -245,15 +238,15 @@ export default function AdminVendorReviewPage() {
               ].map((p) => {
                 const currentStatus = data.driverVerificationStatus?.[p.key] || "pending";
                 return (
-                  <div key={p.key} className="p-3 bg-gray-50 rounded-xl border border-gray-200/80 flex items-center justify-between">
+                  <div key={p.key} className="p-3 bg-[var(--admin-subtle)] rounded-xl border border-[var(--admin-rule)]/80 flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <p className="text-xs font-semibold text-gray-800">{p.label}</p>
-                      <span className={`inline-block text-[10px] uppercase font-bold px-2 py-0.5 rounded-full mt-1 ${
+                      <p className="text-xs font-semibold text-[var(--text-primary)]">{p.label}</p>
+                      <span className={`inline-block text-xs capitalize font-semibold px-2 py-0.5 rounded-md border mt-1 ${
                         currentStatus === "verified"
-                          ? "bg-green-100 text-green-700"
+                          ? ui.tonePositive
                           : currentStatus === "rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-amber-100 text-amber-700"
+                          ? ui.toneDanger
+                          : ui.toneWarning
                       }`}>
                         {currentStatus}
                       </span>
@@ -263,14 +256,14 @@ export default function AdminVendorReviewPage() {
                       <button
                         onClick={() => updatePillarStatus(p.key, "verified")}
                         disabled={actionLoading || currentStatus === "verified"}
-                        className="px-2 py-1 text-[11px] font-semibold bg-green-600 hover:bg-green-700 text-white rounded-lg transition disabled:opacity-40"
+                        className={ui.primary}
                       >
                         Verify
                       </button>
                       <button
                         onClick={() => updatePillarStatus(p.key, "rejected")}
                         disabled={actionLoading || currentStatus === "rejected"}
-                        className="px-2 py-1 text-[11px] font-semibold bg-red-600 hover:bg-red-700 text-white rounded-lg transition disabled:opacity-40"
+                        className={ui.danger}
                       >
                         Reject
                       </button>
@@ -281,7 +274,7 @@ export default function AdminVendorReviewPage() {
             </div>
           </AnimatedCard>
 
-          <AnimatedCard title="Vehicle & Statutory Compliance Details" icon={<Car size={18} />}>
+          <AnimatedCard title="Vehicle compliance" icon={<Car size={18} />}>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <InfoRow label="Vehicle Type" value={data.vehicle?.type} />
               <InfoRow label="Model" value={data.vehicle?.model} />
@@ -309,29 +302,29 @@ export default function AdminVendorReviewPage() {
         </div>
 
         {/* RIGHT SIDE */}
-        <div className="space-y-5 sm:space-y-8">
+        <div className="min-w-0 space-y-4">
 
           {/* DRIVER SHIFT & COOLDOWN CARD */}
           <AnimatedCard title="Driver Shift & Cooldown" icon={<AlertTriangle size={18} />}>
             <div className="space-y-4">
               {/* Cooldown Status Badge & Summary */}
-              <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-[var(--admin-rule)]">
                 <div>
-                  <p className="text-[11px] font-bold text-gray-500 uppercase tracking-wider">
+                  <p className="text-[11px] font-bold text-[var(--admin-muted)] uppercase tracking-wider">
                     Dispatch Cooldown Status
                   </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
+                  <p className="text-xs text-[var(--admin-muted)] mt-0.5">
                     Triggered after 3+ cancellations in a single shift
                   </p>
                 </div>
                 {data.shiftAnalytics?.isCooldownActive ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-black uppercase tracking-wider">
-                    <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-semibold ${ui.toneDanger}`}>
+                    <AlertTriangle size={15} aria-hidden="true" />
                     Cooldown Active
                   </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black uppercase tracking-wider">
-                    <CheckCircle size={13} className="text-emerald-600" />
+                  <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs font-semibold ${ui.tonePositive}`}>
+                    <CheckCircle size={15} aria-hidden="true" />
                     Normal / Eligible
                   </span>
                 )}
@@ -339,14 +332,14 @@ export default function AdminVendorReviewPage() {
 
               {/* Cooldown Details when Active */}
               {data.shiftAnalytics?.isCooldownActive && (
-                <div className="p-3 bg-red-50/80 border border-red-200 rounded-2xl text-xs space-y-1.5 text-red-950">
+                <div className={`p-3 border rounded-lg text-sm space-y-1.5 ${ui.toneDanger}`}>
                   <div className="flex justify-between items-center font-bold">
                     <span>Remaining Timeout:</span>
-                    <span className="font-mono text-red-700 bg-red-100 px-2 py-0.5 rounded-lg">
+                    <span className="font-mono px-2 py-0.5 rounded-md border border-current">
                       {data.shiftAnalytics.cooldownRemainingMinutes} min
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-[11px] text-red-800">
+                  <div className="flex flex-wrap justify-between items-center gap-2 text-xs">
                     <span>Blocked Until:</span>
                     <span className="font-medium">
                       {new Date(data.shiftAnalytics.dispatchBlockedUntil).toLocaleTimeString([], {
@@ -356,7 +349,7 @@ export default function AdminVendorReviewPage() {
                     </span>
                   </div>
                   {data.shiftAnalytics.latestCancellationReason && (
-                    <div className="pt-1.5 border-t border-red-200/80 text-[11px] text-red-900">
+                    <div className="pt-1.5 border-t border-current text-xs">
                       <span className="font-bold">Reason: </span>
                       <span>{data.shiftAnalytics.latestCancellationReason}</span>
                     </div>
@@ -366,41 +359,41 @@ export default function AdminVendorReviewPage() {
 
               {/* Shift Metrics Grid */}
               <div className="grid grid-cols-2 gap-3 pt-1">
-                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <div className="p-3 bg-[var(--admin-subtle)] rounded-2xl border border-[var(--admin-rule)]">
+                  <span className="block text-[10px] font-bold text-[var(--admin-muted)] uppercase tracking-wider">
                     Current Shift Date
                   </span>
-                  <span className="text-sm font-black text-gray-900">
+                  <span className="text-sm font-black text-[var(--text-primary)]">
                     {data.shiftAnalytics?.shiftDate || new Date().toISOString().split("T")[0]}
                   </span>
                 </div>
 
-                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <div className="p-3 bg-[var(--admin-subtle)] rounded-2xl border border-[var(--admin-rule)]">
+                  <span className="block text-[10px] font-bold text-[var(--admin-muted)] uppercase tracking-wider">
                     Today's Cancellations
                   </span>
                   <span className={`text-sm font-black ${
-                    (data.shiftAnalytics?.dailyCancellations || 0) >= 3 ? "text-red-600" : "text-gray-900"
+                    (data.shiftAnalytics?.dailyCancellations || 0) >= 3 ? ui.dangerText : "text-[var(--text-primary)]"
                   }`}>
                     {data.shiftAnalytics?.dailyCancellations ?? 0}
                   </span>
                 </div>
 
-                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <div className="p-3 bg-[var(--admin-subtle)] rounded-2xl border border-[var(--admin-rule)]">
+                  <span className="block text-[10px] font-bold text-[var(--admin-muted)] uppercase tracking-wider">
                     Total All-Time Driver Cancelled
                   </span>
-                  <span className="text-sm font-black text-gray-900">
+                  <span className="text-sm font-black text-[var(--text-primary)]">
                     {data.shiftAnalytics?.totalDriverCancellations ?? 0}
                   </span>
                 </div>
 
-                <div className="p-3 bg-gray-50 rounded-2xl border border-gray-100">
-                  <span className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                <div className="p-3 bg-[var(--admin-subtle)] rounded-2xl border border-[var(--admin-rule)]">
+                  <span className="block text-[10px] font-bold text-[var(--admin-muted)] uppercase tracking-wider">
                     Driver Shift State
                   </span>
                   <span className={`text-sm font-black ${
-                    data.isOnline ? "text-emerald-600" : "text-gray-500"
+                    data.isOnline ? ui.positiveText : "text-[var(--admin-muted)]"
                   }`}>
                     {data.isOnline ? "Online (On Shift)" : "Offline"}
                   </span>
@@ -408,7 +401,7 @@ export default function AdminVendorReviewPage() {
               </div>
 
               {data.shiftAnalytics?.lastCancellationDate && (
-                <p className="text-[10px] text-gray-400 font-medium italic pt-1">
+                <p className="text-[10px] text-[var(--admin-muted)] font-medium italic pt-1">
                   Last cancellation logged: {new Date(data.shiftAnalytics.lastCancellationDate).toLocaleString()}
                 </p>
               )}
@@ -422,60 +415,54 @@ export default function AdminVendorReviewPage() {
           </AnimatedCard>
 
           {data.vendorStatus === "rejected" && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-[32px] p-8 shadow-xl space-y-4 border border-red-200"
+            <div
+              className={ui.reviewCard}
             >
-              <div className="flex items-center gap-2 font-semibold text-red-600">
+              <div className={`flex items-center gap-2 font-semibold ${ui.dangerText}`}>
                 <XCircle size={18} />
                 Documents Rejected
               </div>
-              <p className="text-sm text-gray-700 bg-red-50 p-4 rounded-2xl border border-red-100">
-                <span className="font-semibold block text-red-900 mb-1">Reason:</span>
+              <p className={`text-sm p-4 rounded-lg border ${ui.toneDanger}`}>
+                <span className="font-semibold block mb-1">Reason:</span>
                 {data.vendorRejectionReason || "Documents were rejected by admin."}
               </p>
-            </motion.div>
+            </div>
           )}
 
           {data.vendorStatus === "pending" && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-[32px] p-8 shadow-xl space-y-6"
+            <div
+              className={ui.reviewCard}
             >
               <div className="flex items-center gap-2 font-semibold">
                 <ShieldCheck size={18} />
                 Admin Decision
               </div>
 
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-[var(--admin-muted)]">
                 Verify documents carefully before approving.
               </p>
 
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
                 <button
                   onClick={() => setShowApprove(true)}
-                  className="py-3 rounded-2xl bg-gradient-to-r from-black to-gray-800 text-white font-semibold hover:opacity-90 transition"
+                  className={ui.primary}
                 >
                   Approve Vendor
                 </button>
 
                 <button
                   onClick={() => setShowReject(true)}
-                  className="py-3 rounded-2xl border font-semibold hover:bg-gray-100 transition"
+                  className={ui.button}
                 >
                   Reject Vendor
                 </button>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {data.vendorStatus === "approved" && (
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-[32px] p-8 shadow-xl space-y-6"
+            <div
+              className={ui.reviewCard}
             >
               <div className="flex items-center gap-2 font-semibold">
                 <Video size={18} />
@@ -484,34 +471,34 @@ export default function AdminVendorReviewPage() {
 
               {data.videoKycStatus === "approved" ? (
                 <div className="space-y-3">
-                  <div className="flex items-center gap-2 text-green-700 bg-green-50 border border-green-200 px-4 py-3 rounded-2xl text-sm font-semibold">
+                  <div className={`flex items-center gap-2 border px-4 py-3 rounded-lg text-sm font-semibold ${ui.tonePositive}`}>
                     <CheckCircle size={18} />
                     Video KYC Approved
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-[var(--admin-muted)]">
                     Vendor identity confirmed. Vendor is eligible to upload vehicle photo and submit fares.
                   </p>
                 </div>
               ) : data.videoKycStatus === "in_progress" ? (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-blue-700 bg-blue-50 border border-blue-200 px-4 py-3 rounded-2xl text-sm font-semibold">
+                  <div className={`flex items-center gap-2 border px-4 py-3 rounded-lg text-sm font-semibold ${ui.tonePositive}`}>
                     <Clock size={18} />
                     Call Currently In Progress
                   </div>
                   <button
                     onClick={() => router.push(`/video-kyc/${data.videoKycRoomId}`)}
-                    className="w-full py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center justify-center gap-2 transition shadow-lg shadow-blue-500/20"
+                    className={`w-full ${ui.primary}`}
                   >
                     <Video size={16} /> Join Ongoing Call
                   </button>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-[var(--admin-muted)]">
                     Documents are verified. Initiate live video verification call with this vendor.
                   </p>
                   {data.videoKycStatus === "rejected" && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700">
+                    <div className={`p-3 border rounded-lg text-sm ${ui.toneDanger}`}>
                       <span className="font-bold">Last KYC Rejected:</span> {data.videoKycRejectionReason || "No reason given"}
                     </div>
                   )}
@@ -530,17 +517,17 @@ export default function AdminVendorReviewPage() {
                       }
                     }}
                     disabled={actionLoading}
-                    className="w-full py-3 rounded-2xl bg-black hover:bg-zinc-800 text-white font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50"
+                    className={`w-full ${ui.primary}`}
                   >
                     {actionLoading ? <Loader2 className="animate-spin" size={16} /> : <Video size={16} />}
                     Start Video KYC
                   </button>
                 </div>
               )}
-            </motion.div>
+            </div>
           )}
         </div>
-      </main>
+      </div>
 
       {/* APPROVE MODAL */}
       <ConfirmModal
@@ -562,24 +549,18 @@ export default function AdminVendorReviewPage() {
         onClose={() => setShowReject(false)}
         onConfirm={rejectVendor}
       />
-    </div>
+    </main>
   );
 }
 
 /* ================= REUSABLE UI ================= */
 
-function AnimatedCard({ title, icon, children }: any) {
+function AnimatedCard({ title, icon, children }: { title: string; icon: React.ReactNode; children: React.ReactNode }) {
   return (
-    <motion.div
-      whileHover={{ y: -2 }}
-      className="bg-white rounded-2xl sm:rounded-[32px] p-4 sm:p-8 shadow-md sm:shadow-xl space-y-4 sm:space-y-6 border border-gray-100/80"
-    >
-      <div className="flex items-center gap-2 font-semibold text-sm sm:text-base">
-        {icon}
-        {title}
-      </div>
+    <section className={ui.reviewCard}>
+      <h2 className={ui.reviewCardTitle}>{icon}{title}</h2>
       {children}
-    </motion.div>
+    </section>
   );
 }
 
@@ -588,16 +569,16 @@ function DocPreview({ label, url }: any) {
   const isPdf = url?.endsWith(".pdf");
 
   return (
-    <div className="bg-gray-50 rounded-xl sm:rounded-2xl border overflow-hidden shadow-sm">
+    <div className={ui.documentPreview}>
       <div className="px-3.5 py-2 border-b text-xs sm:text-sm font-semibold truncate">
         {label}
       </div>
 
-      <div className="h-44 sm:h-52 flex items-center justify-center bg-white overflow-hidden">
-        {!url && <span className="text-xs text-gray-400">Not uploaded</span>}
+      <div className="h-44 sm:h-52 flex items-center justify-center bg-[var(--admin-subtle)] overflow-hidden">
+        {!url && <span className="text-xs text-[var(--admin-muted)]">Not uploaded</span>}
 
         {isImage && (
-          <img src={url} alt={label} className="w-full h-full object-cover" />
+          <img src={url} alt={label} className="w-full h-full object-contain" />
         )}
 
         {isPdf && <iframe src={url} title={label} className="w-full h-full" />}
@@ -608,7 +589,8 @@ function DocPreview({ label, url }: any) {
           href={url}
           target="_blank"
           rel="noopener noreferrer"
-          className="block text-center text-xs py-2 font-medium hover:bg-gray-100 text-blue-600 transition"
+          className={ui.reviewDocumentLink}
+          aria-label={`Open ${label} in a new tab`}
         >
           Open full document
         </a>
@@ -617,91 +599,38 @@ function DocPreview({ label, url }: any) {
   );
 }
 
-function ConfirmModal({ open, title, description, confirmText, loading, onClose, onConfirm }: any) {
+function ConfirmModal({ open, title, description, confirmText, loading, onClose, onConfirm }: {
+  open: boolean; title: string; description?: React.ReactNode; confirmText: string; loading: boolean;
+  onClose: () => void; onConfirm: () => void;
+}) {
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        >
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-6 w-full max-w-sm shadow-2xl"
-          >
-            <h2 className="text-base sm:text-lg font-bold">{title}</h2>
-            <div className="text-xs sm:text-sm text-gray-500 mt-2">{description}</div>
-
-            <div className="flex gap-2.5 sm:gap-3 mt-5 sm:mt-6">
-              <button
-                onClick={onClose}
-                className="flex-1 py-2 sm:py-2.5 rounded-xl border text-xs sm:text-sm font-semibold hover:bg-gray-50 active:scale-95 transition"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={onConfirm}
-                disabled={loading}
-                className="flex-1 py-2 sm:py-2.5 rounded-xl bg-black text-white text-xs sm:text-sm font-semibold hover:bg-zinc-800 disabled:opacity-50 active:scale-95 transition"
-              >
-                {loading ? "Processing..." : confirmText}
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <AdminDecisionDialog open={open} title={title} confirmLabel={confirmText} loading={loading} onClose={onClose} onConfirm={onConfirm}>
+      <div className={ui.secondary}>{description}</div>
+    </AdminDecisionDialog>
   );
 }
 
-function RejectModal({ open, reason, setReason, loading, onClose, onConfirm }: any) {
+function RejectModal({ open, reason, setReason, loading, onClose, onConfirm }: {
+  open: boolean; reason: string; setReason: (reason: string) => void; loading: boolean;
+  onClose: () => void; onConfirm: () => void;
+}) {
   return (
-    <ConfirmModal
-      open={open}
-      title="Reject Vendor"
-      description={
-        <textarea
-          placeholder="Enter rejection reason (required)"
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-          className="w-full mt-3 border rounded-xl p-2.5 text-xs sm:text-sm focus:outline-none focus:border-black"
-          rows={3}
-        />
-      }
-      confirmText="Reject"
-      loading={loading}
-      onClose={onClose}
-      onConfirm={onConfirm}
-    />
+    <AdminDecisionDialog open={open} title="Reject vendor" confirmLabel="Reject" loading={loading} destructive
+      confirmDisabled={!reason.trim()} onClose={onClose} onConfirm={onConfirm}>
+      <label className={ui.secondary}>
+        Rejection reason
+        <textarea value={reason} onChange={(e) => setReason(e.currentTarget.value)} className={ui.field} rows={3} />
+      </label>
+    </AdminDecisionDialog>
   );
 }
 
-function InfoRow({ label, value }: any) {
-  return (
-    <div className="flex justify-between items-center text-xs sm:text-sm gap-2">
-      <span className="text-gray-500 shrink-0">{label}</span>
-      <span className="font-semibold text-right truncate">{value || "—"}</span>
-    </div>
-  );
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return <div className={ui.reviewRow}><span className={ui.secondary}>{label}</span><span>{value ?? "—"}</span></div>;
 }
 
-function StatusBadge({ status }: any) {
-  if (status === "approved")
-    return <Badge text="Approved" icon={<CheckCircle size={13} className="sm:w-3.5 sm:h-3.5" />} className="bg-green-100 text-green-700" />;
-  if (status === "rejected")
-    return <Badge text="Rejected" icon={<XCircle size={13} className="sm:w-3.5 sm:h-3.5" />} className="bg-red-100 text-red-700" />;
-  return <Badge text="Pending" icon={<Clock size={13} className="sm:w-3.5 sm:h-3.5" />} className="bg-yellow-100 text-yellow-700" />;
-}
-
-function Badge({ text, icon, className }: any) {
-  return (
-    <span className={`px-2.5 py-1 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-xs font-semibold inline-flex items-center gap-1.5 shrink-0 ${className}`}>
-      {icon}
-      {text}
-    </span>
-  );
+function StatusBadge({ status }: { status?: string }) {
+  const tone = status === "approved" || status === "rejected" ? status : "pending";
+  const Icon = tone === "approved" ? CheckCircle : tone === "rejected" ? XCircle : Clock;
+  return <span className={ui.statusDetail} data-tone={tone}><Icon size={14} aria-hidden="true" /><span className="capitalize">{tone}</span></span>;
 }

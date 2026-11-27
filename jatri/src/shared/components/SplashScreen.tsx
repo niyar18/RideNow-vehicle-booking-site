@@ -19,7 +19,7 @@ export default function SplashScreen() {
 
     let unmountTimer: ReturnType<typeof setTimeout> | undefined;
 
-    // Minimum display time for brand impact (650ms), then smoothly fade out
+    // Brief handoff after hydration without holding navigation.
     const fadeTimer = setTimeout(() => {
       setFading(true);
       try {
@@ -30,8 +30,8 @@ export default function SplashScreen() {
       unmountTimer = setTimeout(() => {
         setVisible(false);
         document.documentElement.classList.add("splash-hidden");
-      }, 350);
-    }, 650);
+      }, 200);
+    }, 120);
 
     return () => {
       clearTimeout(fadeTimer);
@@ -44,7 +44,7 @@ export default function SplashScreen() {
   return (
     <div
       id="jaatri-splash-screen"
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center select-none bg-[#FAF7F0] dark:bg-[#061A16] transition-all duration-350 ease-out ${
+      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-center select-none bg-[var(--background)] transition-opacity duration-200 ease-out ${
         fading ? "opacity-0 scale-[1.02] pointer-events-none" : "opacity-100 scale-100 pointer-events-auto"
       }`}
       aria-hidden="true"
@@ -75,13 +75,13 @@ export default function SplashScreen() {
         </div>
 
         {/* Minimalist Subtitle */}
-        <p className="mt-4 text-[11px] sm:text-[12px] font-bold tracking-[0.24em] uppercase text-[#696B64] dark:text-[#B9C8BF]">
+        <p className="mt-4 text-[11px] sm:text-[12px] font-bold tracking-[0.24em] uppercase text-[#4d6374] dark:text-[#b3cbd1]">
           MORE THAN A RIDE
         </p>
 
         {/* Refined Emerald Loading Bar */}
-        <div className="w-28 sm:w-32 h-[3px] bg-[#E8E2D8] dark:bg-[#1E3E34] rounded-full overflow-hidden mt-6 relative">
-          <div className="absolute inset-0 w-full h-full bg-[#046A38] dark:bg-[#34D399] rounded-full animate-pulse" />
+        <div className="w-28 sm:w-32 h-[3px] bg-[#d5e3e2] dark:bg-[#425b73] rounded-full overflow-hidden mt-6 relative">
+          <div className="absolute inset-0 w-full h-full bg-[#213650] dark:bg-[#91f2ce] rounded-full animate-pulse" />
         </div>
       </div>
     </div>

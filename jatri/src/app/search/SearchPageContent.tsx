@@ -81,19 +81,25 @@ export default function SearchPageContent() {
   }, [pickupLat, pickupLng, vehicle]);
 
   return (
-    <div className="min-h-screen bg-[#F7F1E5] text-[#10251C] overflow-x-hidden">
-      <div className="absolute top-5 left-5 z-50">
-        <motion.button
-          whileTap={{ scale: 0.88 }}
-          onClick={() => router.back()}
-          className="w-10 h-10 rounded-[8px] bg-[#FAF7F0] border border-[#DED7CA] shadow-sm flex items-center justify-center hover:bg-white text-[#10251C] transition-colors"
-          aria-label="Go back"
-        >
-          <ArrowLeft size={16} />
-        </motion.button>
-      </div>
-
-      <div className="relative w-full h-[52vh] z-0">
+    <div className="min-h-dvh bg-[var(--background)] text-[var(--text-primary)]">
+      <header className="border-b border-[var(--border-default)] bg-[var(--surface-raised)]">
+        <div className="mx-auto flex max-w-[86rem] items-center gap-3 px-4 py-4 sm:px-7">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="grid size-11 shrink-0 place-items-center rounded-[8px] border border-[var(--border-default)] hover:bg-[var(--surface-subtle)]"
+            aria-label="Go back"
+          >
+            <ArrowLeft size={17} aria-hidden="true" />
+          </button>
+          <div>
+            <p className="text-xs font-medium text-[var(--text-secondary)]">Plan your trip</p>
+            <h1 className="text-xl font-semibold leading-tight tracking-tight sm:text-2xl">Available rides</h1>
+          </div>
+        </div>
+      </header>
+      <div className="mx-auto grid max-w-[86rem] gap-4 px-4 py-4 sm:gap-6 sm:px-7 sm:py-6 lg:grid-cols-[minmax(0,1fr)_minmax(24rem,32rem)] lg:items-start">
+      <section aria-label="Route map" className="relative isolate h-[30dvh] min-h-48 overflow-hidden rounded-[12px] border border-[var(--border-default)] lg:sticky lg:top-6 lg:h-[min(74dvh,52rem)]">
         <RouteMap
           pickup={pickup}
           drop={drop}
@@ -102,61 +108,58 @@ export default function SearchPageContent() {
           onDistance={handleDistance}
           onChange={handleMapChange}
           vehicles={vehicles}
-          bottomPadding={260}
+          bottomPadding={40}
         />
-
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#F7F1E5] to-transparent pointer-events-none z-10" />
 
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="absolute top-5 left-1/2 -translate-x-1/2 flex items-center gap-2 z-[999]"
+          className="absolute top-3 left-3 flex items-center gap-2 z-10"
         >
-          <div className="flex items-center gap-2 bg-[#FAF7F0]/95 backdrop-blur-sm border border-[#DED7CA] shadow-2xs px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#10251C]">
-            <Route size={12} className="text-[#123D32]" />
+          <div className="flex items-center gap-2 bg-[var(--surface-raised)] border border-[var(--border-default)] px-3 py-1.5 rounded-[8px] text-xs font-semibold text-[var(--text-primary)]">
+            <Route size={12} className="text-[var(--text-primary)]" />
             <span>{km ? `${km} km` : "Calculating…"}</span>
           </div>
-          <div className="flex items-center gap-2 bg-[#FAF7F0]/95 backdrop-blur-sm border border-[#DED7CA] shadow-2xs px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#10251C]">
-            <Clock size={12} className="text-[#123D32]" />
+          <div className="flex items-center gap-2 bg-[var(--surface-raised)] border border-[var(--border-default)] px-3 py-1.5 rounded-[8px] text-xs font-semibold text-[var(--text-primary)]">
+            <Clock size={12} className="text-[var(--text-primary)]" />
             <span>{eta ? `${eta} min` : "—"}</span>
           </div>
         </motion.div>
-      </div>
+      </section>
 
-      <motion.div
-        initial={{ y: 60, opacity: 0 }}
+      <motion.section
+        aria-label="Ride options"
+        initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 160, damping: 22 }}
-        className="relative z-20 -mt-8 bg-[#FAF7F0] rounded-t-[20px] border-t border-[#DED7CA] shadow-[0_-8px_30px_rgba(18,61,50,0.06)] pt-4 pb-20 min-h-[52vh]"
+        className="min-w-0 pb-8"
       >
-        <div className="w-10 h-1 bg-[#DED7CA] rounded-full mx-auto mb-4" />
-
-        <div className="px-5 lg:px-8 max-w-6xl mx-auto">
+        <div>
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.12 }}
-            className="bg-white border border-[#DED7CA] rounded-[12px] overflow-hidden mb-5 shadow-2xs"
+            className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[12px] overflow-hidden mb-5 shadow-2xs"
           >
-            <div className="flex gap-3 px-4 py-3 border-b border-[#DED7CA]/60">
+            <div className="flex gap-3 px-4 py-3 border-b border-[var(--border-default)]/60">
               <div className="flex flex-col items-center pt-1.5 flex-shrink-0">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#123D32]" />
-                <div className="w-px flex-1 bg-[#DED7CA] my-1" style={{ minHeight: 14 }} />
+                <div className="w-2.5 h-2.5 rounded-full bg-[#142238]" />
+                <div className="w-px flex-1 bg-[#b3c8ca] my-1" style={{ minHeight: 14 }} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] text-[#696B64] uppercase tracking-wider font-bold mb-0.5">Pickup</p>
-                <p className="text-sm text-[#10251C] font-semibold leading-snug truncate">{pickup || "—"}</p>
+                <p className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider font-bold mb-0.5">Pickup</p>
+                <p className="text-sm text-[var(--text-primary)] font-semibold leading-snug truncate">{pickup || "—"}</p>
               </div>
-              <MapPin size={14} className="text-[#123D32] flex-shrink-0 mt-1.5" />
+              <MapPin size={14} className="text-[var(--text-primary)] flex-shrink-0 mt-1.5" />
             </div>
             <div className="flex gap-3 px-4 py-3">
               <div className="flex-shrink-0 pt-1.5">
                 <div className="w-2.5 h-2.5 rounded-full bg-[#E34222]" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[10px] text-[#696B64] uppercase tracking-wider font-bold mb-0.5">Drop</p>
-                <p className="text-sm text-[#10251C] font-semibold leading-snug truncate">{drop || "—"}</p>
+                <p className="text-[10px] text-[var(--text-secondary)] uppercase tracking-wider font-bold mb-0.5">Drop</p>
+                <p className="text-sm text-[var(--text-primary)] font-semibold leading-snug truncate">{drop || "—"}</p>
               </div>
               <Navigation size={14} className="text-[#E34222] flex-shrink-0 mt-1.5" />
             </div>
@@ -169,7 +172,7 @@ export default function SearchPageContent() {
             className="flex items-center justify-between mb-4"
           >
             <div>
-              <h2 className="text-[#10251C] text-lg font-bold tracking-tight">
+              <h2 className="text-[var(--text-primary)] text-lg font-bold tracking-tight">
                 {loading
                   ? "Finding vehicles…"
                   : vehicles.length > 0
@@ -177,7 +180,7 @@ export default function SearchPageContent() {
                   : "No vehicles nearby"}
               </h2>
               {meta && (
-                <p className="text-[#696B64] text-xs mt-0.5">
+                <p className="text-[var(--text-secondary)] text-xs mt-0.5">
                   {meta.label} rides near your pickup
                 </p>
               )}
@@ -190,20 +193,20 @@ export default function SearchPageContent() {
                   initial={{ opacity: 0, scale: 0.85 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.85 }}
-                  className="flex items-center gap-2 bg-[#E5EBDD] border border-[#cdd6c3] px-3 py-1.5 rounded-full"
+                  className="flex items-center gap-2 bg-[var(--surface-subtle)] border border-[var(--border-default)] px-3 py-1.5 rounded-full"
                 >
-                  <div className="w-3.5 h-3.5 rounded-full border-2 border-[#123D32]/30 border-t-[#123D32] animate-spin" />
-                  <span className="text-[#123D32] text-xs font-semibold">Searching</span>
+                  <div className="w-3.5 h-3.5 rounded-full border-2 border-[#142238]/30 border-t-[#142238] animate-spin" />
+                  <span className="text-[var(--text-primary)] text-xs font-semibold">Searching</span>
                 </motion.div>
               ) : vehicles.length > 0 ? (
                 <motion.div
                   key="live"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="flex items-center gap-1.5 bg-[#E5EBDD] border border-[#cdd6c3] px-3 py-1.5 rounded-full"
+                  className="flex items-center gap-1.5 bg-[var(--surface-subtle)] border border-[var(--border-default)] px-3 py-1.5 rounded-full"
                 >
-                  <Zap size={11} className="text-[#123D32] fill-[#123D32]" />
-                  <span className="text-[#123D32] text-xs font-bold">Live</span>
+                  <Zap size={11} className="text-[var(--text-primary)] fill-[#142238]" />
+                  <span className="text-[var(--text-primary)] text-xs font-bold">Live</span>
                 </motion.div>
               ) : null}
             </AnimatePresence>
@@ -217,17 +220,17 @@ export default function SearchPageContent() {
                 exit={{ opacity: 0 }}
                 className="flex flex-col items-center justify-center py-14 text-center"
               >
-                <div className="w-16 h-16 rounded-[12px] bg-[#E5EBDD] border border-[#cdd6c3] flex items-center justify-center mb-3 text-[#123D32]">
+                <div className="w-16 h-16 rounded-[12px] bg-[var(--surface-subtle)] border border-[var(--border-default)] flex items-center justify-center mb-3 text-[var(--text-primary)]">
                   <Search size={24} />
                 </div>
-                <p className="text-[#10251C] font-bold text-base mb-1">No vehicles found</p>
-                <p className="text-[#696B64] text-sm max-w-xs leading-relaxed">
+                <p className="text-[var(--text-primary)] font-bold text-base mb-1">No vehicles found</p>
+                <p className="text-[var(--text-secondary)] text-sm max-w-xs leading-relaxed">
                   No {meta?.label || "vehicle"} drivers are available near your pickup right now.
                 </p>
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={() => fetchNearbyVehicles(pickupLat, pickupLng)}
-                  className="mt-4 flex items-center gap-2 bg-[#123D32] hover:bg-[#0D3027] text-white text-xs font-bold px-5 py-2.5 rounded-[8px] transition shadow-xs cursor-pointer"
+                  className="mt-4 flex items-center gap-2 bg-[#142238] hover:bg-[#101c2f] text-white text-xs font-bold px-5 py-2.5 rounded-[8px] transition cursor-pointer"
                 >
                   <RefreshCw size={13} />
                   <span>Retry Search</span>
@@ -236,7 +239,7 @@ export default function SearchPageContent() {
             )}
           </AnimatePresence>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-1">
             {vehicles.map((v, i) => (
               <motion.div
                 key={v._id}
@@ -280,7 +283,8 @@ export default function SearchPageContent() {
             ))}
           </div>
         </div>
-      </motion.div>
+      </motion.section>
+      </div>
     </div>
   );
 }

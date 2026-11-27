@@ -66,6 +66,13 @@ const nextConfig: NextConfig = {
   /* config options here */
   poweredByHeader: false,
   images: {
+    // Bust stale cached artwork without permitting arbitrary image query strings.
+    localPatterns: [
+      { pathname: "/**", search: "" },
+      { pathname: "/fleet/**", search: "?v=photo-1" },
+      { pathname: "/mobile-home/**", search: "?v=photo-1" },
+      { pathname: "/explore/**", search: "?v=photo-1" },
+    ],
     formats: ["image/avif", "image/webp"],
     qualities: [50, 75, 80, 85, 90, 94, 95, 100],
     minimumCacheTTL: 60 * 60 * 24 * 30,

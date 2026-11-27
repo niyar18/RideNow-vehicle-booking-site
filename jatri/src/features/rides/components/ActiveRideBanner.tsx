@@ -112,7 +112,7 @@ export default function ActiveRideBanner({
 
   if (variant === "inline") {
     return (
-      <div className="bg-[#FAF7F0] dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] rounded-[14px] p-4 shadow-xs">
+      <div className="bg-[#f3f8f6] dark:bg-[#263d54] border border-[#b3c8ca] dark:border-[#4e697f] rounded-[14px] p-4 shadow-xs">
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <span className="relative flex h-3 w-3">
@@ -120,17 +120,17 @@ export default function ActiveRideBanner({
               <span className={`relative inline-flex rounded-full h-3 w-3 ${pulseColor}`} />
             </span>
             <div>
-              <p className="text-xs font-black text-[#10251C] dark:text-[#F7F5ED] uppercase tracking-wider">
+              <p className="text-xs font-black text-[#142238] dark:text-[#f3f8f6] uppercase tracking-wider">
                 {statusLabel}
               </p>
-              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] font-medium truncate max-w-[220px] sm:max-w-md mt-0.5">
+              <p className="text-[11px] text-[#4d6374] dark:text-[#b3cbd1] font-medium truncate max-w-[220px] sm:max-w-md mt-0.5">
                 To: {activeBooking.dropAddress || "Destination"}
               </p>
             </div>
           </div>
           <Link
             href={targetUrl}
-            className="min-h-[44px] flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white text-xs font-bold transition shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+            className="min-h-[44px] flex-shrink-0 inline-flex items-center gap-1.5 px-3.5 py-2 rounded-[8px] bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] text-white text-xs font-bold transition shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#213650] focus-visible:ring-offset-2"
           >
             <span>Resume Ride</span>
             <ArrowRight size={13} />
@@ -149,29 +149,29 @@ export default function ActiveRideBanner({
         exit={{ opacity: 0, y: 30 }}
         className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] sm:bottom-5 right-3 left-3 sm:right-5 sm:left-auto sm:w-96 z-50"
       >
-        <div className="bg-[#FAF7F0]/95 dark:bg-[#0B2822]/95 text-[#10251C] dark:text-[#F7F5ED] border border-[#DED7CA] dark:border-[#24483D] rounded-[16px] p-4 shadow-2xl backdrop-blur-md">
+        <div className="bg-[#f3f8f6]/95 dark:bg-[#1a2d45]/95 text-[#142238] dark:text-[#f3f8f6] border border-[#b3c8ca] dark:border-[#4e697f] rounded-[16px] p-4 shadow-2xl backdrop-blur-md">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2.5 w-2.5">
                 <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${pulseColor}`} />
                 <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${pulseColor}`} />
               </span>
-              <span className="text-[11px] font-black uppercase tracking-wider text-[#10251C] dark:text-[#F7F5ED]">
+              <span className="text-[11px] font-black uppercase tracking-wider text-[#142238] dark:text-[#f3f8f6]">
                 {statusLabel}
               </span>
             </div>
-            <span className="text-[10px] text-[#696B64] dark:text-[#B9C8BF] font-bold">
+            <span className="text-[10px] text-[#4d6374] dark:text-[#b3cbd1] font-bold">
               Ride #{activeBooking._id.slice(-5)}
             </span>
           </div>
 
-          <div className="text-xs text-[#10251C] dark:text-[#F7F5ED] mb-3 space-y-1">
+          <div className="text-xs text-[#142238] dark:text-[#f3f8f6] mb-3 space-y-1">
             <p className="truncate font-semibold">
               📍 {activeBooking.pickupAddress?.split(",")[0]} → {activeBooking.dropAddress?.split(",")[0]}
             </p>
             {activeBooking.driver?.name && (
-              <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF]">
-                Driver: <span className="text-[#10251C] dark:text-[#F7F5ED] font-bold">{activeBooking.driver.name}</span>
+              <p className="text-[11px] text-[#4d6374] dark:text-[#b3cbd1]">
+                Driver: <span className="text-[#142238] dark:text-[#f3f8f6] font-bold">{activeBooking.driver.name}</span>
                 {activeBooking.vehicle?.number && ` (${activeBooking.vehicle.number})`}
               </p>
             )}
@@ -179,7 +179,7 @@ export default function ActiveRideBanner({
 
           <Link
             href={targetUrl}
-            className="w-full min-h-[44px] flex items-center justify-center gap-2 py-2.5 bg-[#123D32] hover:bg-[#0D3027] dark:bg-[#28664D] dark:hover:bg-[#347858] text-white rounded-[8px] font-bold text-xs transition shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#046A38] focus-visible:ring-offset-2"
+            className="w-full min-h-[44px] flex items-center justify-center gap-2 py-2.5 bg-[#142238] hover:bg-[#101c2f] dark:bg-[#365671] dark:hover:bg-[#406780] text-white rounded-[8px] font-bold text-xs transition shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#213650] focus-visible:ring-offset-2"
           >
             <span>Track Live Ride</span>
             <ArrowRight size={14} />

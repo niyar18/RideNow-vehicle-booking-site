@@ -41,3 +41,7 @@ Desktop responsiveness is a progressive enhancement of a robust, touch-optimized
 - Contrast: Verified high contrast on both Warm Ivory light mode (`#FAF7F0`) and Forest Night dark mode (`#17211B`).
 - Screen Readers: Descriptive `aria-label` tags for all icon-only buttons, route milestones, and live status banners (`role="status"`).
 - Keyboard Navigation: Every touch interaction is also navigable via tab index and visible focus rings.
+
+### Booking vehicle chooser
+
+The booking panel shows the route, passenger/cargo switch, and a single native radio group for vehicle type. Every choice combines an illustration from `VEHICLE_ART_SRC`, estimated fare, pickup timing, and capacity or payload. The chosen row uses a checkmark and border as well as its checked state; out-of-range vehicles remain visible but cannot be chosen. The route summary, sheet controls, and vehicle-dependent action sit outside the scroll region on mobile, so they do not cover keyboard focus. Drivers' uploaded photos still take precedence on search results; generated cutouts are illustrative fallbacks, not images of the reserved vehicle.

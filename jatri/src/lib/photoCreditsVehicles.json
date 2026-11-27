@@ -1,0 +1,83 @@
+[
+  {
+    "file": "/fleet/scooty.webp",
+    "title": "Honda Activa scooter",
+    "author": "Aash Gates",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Gold_Metallic_Honda_Activa.jpg",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "description": "Cropped, resized and encoded as WebP."
+  },
+  {
+    "file": "/fleet/moto.webp",
+    "title": "Hero Honda Splendor motorcycle",
+    "author": "Larry Tomlinson",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Hero_Honda_Splendor_2007.jpg",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "description": "Cropped, resized and encoded as WebP. Identifiable details blurred."
+  },
+  {
+    "file": "/fleet/auto.webp",
+    "title": "Auto-rickshaw in Guwahati, Assam",
+    "author": "PJeganathan",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Auto-rickshaw_in_Assam_Guwahati_IMG_3858.jpg",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "description": "Cropped, resized and encoded as WebP. Identifiable details blurred."
+  },
+  {
+    "file": "/fleet/e-rickshaw.webp",
+    "title": "E-rickshaw stand in Dhemaji, Assam",
+    "author": "Ishanjyotibora",
+    "license": "CC BY 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:An_e-rickshaw_stand_at_Jamuguri_Panchali,_Dhemaji.jpg",
+    "licenseUrl": "https://creativecommons.org/licenses/by/4.0",
+    "description": "Cropped, resized and encoded as WebP."
+  },
+  {
+    "file": "/fleet/car-mini.webp",
+    "title": "Toyota Glanza hatchback",
+    "author": "Agratsa",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Toyota_Glanza_(front).jpg",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "description": "Cropped, resized and encoded as WebP. Identifiable details blurred."
+  },
+  {
+    "file": "/fleet/premier.webp",
+    "title": "Toyota Camry sedan",
+    "author": "CarTrade.com",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:White_Toyota_Camry.JPG",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "description": "Cropped, resized and encoded as WebP."
+  },
+  {
+    "file": "/fleet/suv.webp",
+    "title": "Toyota Innova Crysta people carrier",
+    "author": "Premnath Kudva",
+    "license": "CC BY-SA 4.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Toyota_Innova_Crysta_2.4_Z_front_right.jpg",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+    "description": "Cropped, resized and encoded as WebP. Identifiable details blurred."
+  },
+  {
+    "file": "/fleet/express-mini.webp",
+    "title": "Ashok Leyland Dost mini truck in Chennai",
+    "author": "Ask27",
+    "license": "CC BY-SA 3.0",
+    "source": "https://commons.wikimedia.org/wiki/File:Ashok_Leyland_Dost_(1).JPG",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0",
+    "description": "Cropped, resized and encoded as WebP. Identifiable details blurred."
+  },
+  {
+    "file": "/fleet/freight.webp",
+    "title": "Indian tea-freight lorry",
+    "author": "shankar s. from Dubai, united arab emirates",
+    "license": "CC BY 2.0",
+    "source": "https://commons.wikimedia.org/wiki/File:A_typical_Indian_lorry_waits_for_it%27s_load_of_CTC_tea_(28145808723).jpg",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+    "description": "Cropped, resized and encoded as WebP. Identifiable details blurred."
+  }
+]

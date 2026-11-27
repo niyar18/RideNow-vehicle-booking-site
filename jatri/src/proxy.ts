@@ -15,6 +15,7 @@ const PUBLIC_ROUTES = [
   "/settings",
   "/explore",
   "/privacy",
+  "/photo-credits",
   "/terms",
   "/payment-terms",
   "/cancellation-refund",

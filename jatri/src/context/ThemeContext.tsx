@@ -41,12 +41,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       root.classList.add("dark");
       root.classList.remove("light");
       root.style.colorScheme = 'dark';
-      root.style.backgroundColor = '#061A16';
+      root.style.backgroundColor = '#101c30';
     } else {
       root.classList.add("light");
       root.classList.remove("dark");
       root.style.colorScheme = 'light';
-      root.style.backgroundColor = '#FAF7F0';
+      root.style.backgroundColor = '#f3f8f6';
     }
   };
 

@@ -8,7 +8,6 @@ import { RootState } from "@/redux/store";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft,
   User as UserIcon,
   Briefcase,
   Star,
@@ -32,6 +31,7 @@ import {
   Bell,
   CheckCircle2,
 } from "lucide-react";
+import RiderPageHead from "@/features/rider/components/RiderPageHead";
 import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
 import AuthModal from "@/features/auth/components/AuthModal";
@@ -264,36 +264,14 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#FAF7F0] dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED] flex flex-col justify-between font-sans transition-colors duration-200">
+    <div className="w-full min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col justify-between font-sans transition-colors duration-200">
       <Nav />
 
-      {/* Subtle Background dot pattern */}
-      <div
-        className="fixed inset-0 pointer-events-none dark:opacity-20"
-        style={{
-          backgroundImage: "radial-gradient(circle, #DED7CA 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-          opacity: 0.5,
-        }}
-      />
-
-      <main className="relative max-w-xl mx-auto w-full px-3.5 sm:px-4 pt-24 sm:pt-28 pb-20 z-10 flex-1">
-        {/* Top Header Bar */}
-        <div className="flex items-center gap-3 sm:gap-4 mb-5 sm:mb-6">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => router.back()}
-            className="w-10 h-10 rounded-[8px] bg-white dark:bg-[#10352C] border border-[#DED7CA] dark:border-[#24483D] shadow-2xs flex items-center justify-center hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] transition-colors shrink-0 cursor-pointer"
-            aria-label="Go back"
-          >
-            <ArrowLeft size={18} className="text-[#10251C] dark:text-[#F7F5ED]" />
-          </motion.button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#10251C] dark:text-[#F7F5ED] tracking-tight leading-none">
-              Settings
-            </h1>
-          </div>
-        </div>
+      <div className="relative z-10 mx-auto w-full max-w-[56rem] flex-1 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
+        <RiderPageHead current="/settings"
+          title="Settings"
+          description="Manage how Jaatri looks, sends notifications, and uses your account preferences."
+        />
 
         {/* ── PROFILE HERO TILE (Matching Screenshot) ── */}
         <div className="mb-6">
@@ -301,43 +279,43 @@ export default function SettingsPage() {
             <motion.div
               whileTap={{ scale: 0.98 }}
               onClick={() => router.push("/profile")}
-              className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[14px] p-4 sm:p-5 flex items-center justify-between gap-3 shadow-2xs cursor-pointer hover:border-[#123D32]/40 dark:hover:border-[#34443A] transition-all"
+              className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[14px] p-4 sm:p-5 flex items-center justify-between gap-3 cursor-pointer hover:border-[#142238]/40 dark:hover:border-[#435e76] transition-all"
             >
               <div className="flex items-center gap-3.5 min-w-0">
                 <div className="w-14 h-14 rounded-full bg-stone-300 dark:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 flex items-center justify-center font-bold text-xl shrink-0">
                   {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : <UserIcon size={24} />}
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-base sm:text-lg font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">
+                  <h2 className="text-base sm:text-lg font-bold text-[var(--text-primary)] truncate">
                     {currentUser.name || "Jaatri Member"}
                   </h2>
-                  <p className="text-xs sm:text-[13px] text-[#696B64] dark:text-[#B9C8BF] truncate">
+                  <p className="text-xs sm:text-[13px] text-[var(--text-secondary)] truncate">
                     {(currentUser as any).mobileNumber
                       ? `+91 ${(currentUser as any).mobileNumber}`
                       : (currentUser as any).phone || "No phone added"}
                   </p>
-                  <p className="text-xs sm:text-[13px] text-[#696B64] dark:text-[#B9C8BF] truncate">
+                  <p className="text-xs sm:text-[13px] text-[var(--text-secondary)] truncate">
                     {currentUser.email || "No email linked"}
                   </p>
                 </div>
               </div>
-              <ChevronRight size={20} className="text-[#696B64] dark:text-[#B9C8BF] shrink-0" />
+              <ChevronRight size={20} className="text-[var(--text-secondary)] shrink-0" />
             </motion.div>
           ) : (
-            <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[14px] p-5 shadow-2xs flex items-center justify-between gap-3">
+            <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[14px] p-5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="w-12 h-12 rounded-full bg-stone-300 dark:bg-zinc-700/80 text-zinc-700 dark:text-zinc-200 flex items-center justify-center font-bold shrink-0">
                   <UserIcon size={22} />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="text-base font-bold text-[#10251C] dark:text-[#F7F5ED]">Sign in to Jaatri</h2>
-                  <p className="text-xs text-[#696B64] dark:text-[#B9C8BF]">Sync saved places and preferences</p>
+                  <h2 className="text-base font-bold text-[var(--text-primary)]">Sign in to Jaatri</h2>
+                  <p className="text-xs text-[var(--text-secondary)]">Sync saved places and preferences</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAuthModal(true)}
-                className="px-4 py-2 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] text-white text-xs font-bold transition cursor-pointer shrink-0"
+                className="px-4 py-2 rounded-[8px] bg-[#213650] hover:bg-[#142238] text-white text-xs font-bold transition cursor-pointer shrink-0"
               >
                 Sign In
               </button>
@@ -347,11 +325,11 @@ export default function SettingsPage() {
 
         {/* ── GROUP 1: APP SETTINGS ── */}
         <div className="mb-7">
-          <h3 className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] mb-2 px-1">
+          <h3 className="text-sm font-bold text-[var(--text-primary)] mb-2 px-1">
             App settings
           </h3>
 
-          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[14px] overflow-hidden divide-y divide-[#DED7CA]/70 dark:divide-[#1E3E34] shadow-2xs">
+          <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[14px] overflow-hidden divide-y divide-[#b3c8ca]/70 dark:divide-[#425b73] shadow-2xs">
             {/* Home */}
             <SettingRow
               icon={HomeIcon}
@@ -428,11 +406,11 @@ export default function SettingsPage() {
 
         {/* ── GROUP 2: TRIP PREFERENCES ── */}
         <div className="mb-7">
-          <h3 className="text-sm font-bold text-[#10251C] dark:text-[#F7F5ED] mb-2 px-1">
+          <h3 className="text-sm font-bold text-[var(--text-primary)] mb-2 px-1">
             Trip preferences
           </h3>
 
-          <div className="bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[14px] overflow-hidden divide-y divide-[#DED7CA]/70 dark:divide-[#1E3E34] shadow-2xs">
+          <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[14px] overflow-hidden divide-y divide-[#b3c8ca]/70 dark:divide-[#425b73] shadow-2xs">
             {/* Tip automatically */}
             <SettingRow
               icon={HeartHandshake}
@@ -472,7 +450,7 @@ export default function SettingsPage() {
               type="button"
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="w-full py-3.5 px-4 rounded-[12px] bg-[#FAF7F0] dark:bg-[#0B2822] border border-red-200 dark:border-red-950/60 text-red-600 dark:text-[#E06A50] font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-950/20 active:scale-98 transition cursor-pointer shadow-2xs disabled:opacity-50"
+              className="w-full py-3.5 px-4 rounded-[12px] bg-[var(--surface-raised)] border border-red-200 dark:border-red-950/60 text-red-600 dark:text-[#E06A50] font-bold text-sm flex items-center justify-center gap-2 hover:bg-red-50 dark:hover:bg-red-950/20 active:scale-98 transition cursor-pointer disabled:opacity-50"
             >
               {isSigningOut ? (
                 <>
@@ -494,13 +472,13 @@ export default function SettingsPage() {
                 setDeleteSuccess(false);
                 setActiveModal("deleteAccount");
               }}
-              className="w-full py-2.5 text-xs font-semibold text-[#696B64] dark:text-[#B9C8BF] hover:text-red-500 transition text-center"
+              className="w-full py-2.5 text-xs font-semibold text-[var(--text-secondary)] hover:text-red-500 transition text-center"
             >
               Request Account Erasure (DPDP Act, 2023)
             </button>
           </div>
         )}
-      </main>
+      </div>
 
       <Footer />
 
@@ -513,7 +491,7 @@ export default function SettingsPage() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "spring", damping: 28, stiffness: 350 }}
-              className="w-full max-w-lg bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-t-[20px] sm:rounded-[16px] shadow-2xl p-5 sm:p-6 pb-[max(20px,env(safe-area-inset-bottom))] overflow-hidden max-h-[85vh] flex flex-col"
+              className="w-full max-w-lg bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-t-[20px] sm:rounded-[16px] shadow-2xl p-5 sm:p-6 pb-[max(20px,env(safe-area-inset-bottom))] overflow-hidden max-h-[85vh] flex flex-col"
             >
               {/* Modal Drag Bar for mobile */}
               <div className="w-12 h-1 bg-stone-300 dark:bg-zinc-700 rounded-full mx-auto mb-4 sm:hidden" />
@@ -522,7 +500,7 @@ export default function SettingsPage() {
               {activeModal === "home" && (
                 <div>
                   <ModalHeader title="Set Home Address" onClose={() => setActiveModal(null)} />
-                  <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mb-3">
+                  <p className="text-xs text-[var(--text-secondary)] mb-3">
                     Your home address is saved locally on your device for one-tap pickup or destination selection.
                   </p>
                   <input
@@ -530,13 +508,13 @@ export default function SettingsPage() {
                     defaultValue={homeAddress}
                     id="home-input"
                     placeholder="e.g. Ramani Kanta Bhawan, Dispur, Guwahati"
-                    className="w-full bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3.5 py-2.5 text-sm font-medium text-[#10251C] dark:text-[#F7F5ED] mb-4 outline-none focus:border-[#046A38]"
+                    className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-sm font-medium text-[var(--text-primary)] mb-4 outline-none focus:border-[#213650]"
                   />
                   <div className="flex gap-2 justify-end">
                     <button
                       type="button"
                       onClick={() => setActiveModal(null)}
-                      className="px-4 py-2 rounded-[8px] text-xs font-semibold text-[#696B64] hover:bg-black/5"
+                      className="px-4 py-2 rounded-[8px] text-xs font-semibold text-[#4d6374] hover:bg-black/5"
                     >
                       Cancel
                     </button>
@@ -546,7 +524,7 @@ export default function SettingsPage() {
                         const val = (document.getElementById("home-input") as HTMLInputElement)?.value || "";
                         saveHome(val);
                       }}
-                      className="px-5 py-2 rounded-[8px] bg-[#046A38] text-white text-xs font-bold hover:bg-[#03532C]"
+                      className="px-5 py-2 rounded-[8px] bg-[#213650] text-white text-xs font-bold hover:bg-[#142238]"
                     >
                       Save Home
                     </button>
@@ -558,7 +536,7 @@ export default function SettingsPage() {
               {activeModal === "work" && (
                 <div>
                   <ModalHeader title="Set Work Address" onClose={() => setActiveModal(null)} />
-                  <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mb-3">
+                  <p className="text-xs text-[var(--text-secondary)] mb-3">
                     Your workplace address enables rapid daily commute booking.
                   </p>
                   <input
@@ -566,13 +544,13 @@ export default function SettingsPage() {
                     defaultValue={workAddress}
                     id="work-input"
                     placeholder="e.g. Tech Park, VIP Road, Guwahati"
-                    className="w-full bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3.5 py-2.5 text-sm font-medium text-[#10251C] dark:text-[#F7F5ED] mb-4 outline-none focus:border-[#046A38]"
+                    className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3.5 py-2.5 text-sm font-medium text-[var(--text-primary)] mb-4 outline-none focus:border-[#213650]"
                   />
                   <div className="flex gap-2 justify-end">
                     <button
                       type="button"
                       onClick={() => setActiveModal(null)}
-                      className="px-4 py-2 rounded-[8px] text-xs font-semibold text-[#696B64] hover:bg-black/5"
+                      className="px-4 py-2 rounded-[8px] text-xs font-semibold text-[#4d6374] hover:bg-black/5"
                     >
                       Cancel
                     </button>
@@ -582,7 +560,7 @@ export default function SettingsPage() {
                         const val = (document.getElementById("work-input") as HTMLInputElement)?.value || "";
                         saveWork(val);
                       }}
-                      className="px-5 py-2 rounded-[8px] bg-[#046A38] text-white text-xs font-bold hover:bg-[#03532C]"
+                      className="px-5 py-2 rounded-[8px] bg-[#213650] text-white text-xs font-bold hover:bg-[#142238]"
                     >
                       Save Work
                     </button>
@@ -596,18 +574,18 @@ export default function SettingsPage() {
                   <ModalHeader title="Saved Places" onClose={() => setActiveModal(null)} />
                   <div className="space-y-2 mb-4">
                     {savedPlaces.length === 0 ? (
-                      <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] py-2 text-center">
+                      <p className="text-xs text-[var(--text-secondary)] py-2 text-center">
                         No custom places added yet. Add your favorite gym, airport, or family residence below.
                       </p>
                     ) : (
                       savedPlaces.map((p) => (
                         <div
                           key={p.id}
-                          className="flex items-center justify-between p-3 rounded-[8px] bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D]"
+                          className="flex items-center justify-between p-3 rounded-[8px] bg-white dark:bg-[#142238] border border-[var(--border-default)]"
                         >
                           <div className="min-w-0 pr-2">
-                            <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] truncate">{p.label}</p>
-                            <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] truncate">{p.address}</p>
+                            <p className="text-xs font-bold text-[var(--text-primary)] truncate">{p.label}</p>
+                            <p className="text-[11px] text-[var(--text-secondary)] truncate">{p.address}</p>
                           </div>
                           <button
                             type="button"
@@ -621,27 +599,27 @@ export default function SettingsPage() {
                     )}
                   </div>
 
-                  <div className="pt-3 border-t border-[#DED7CA] dark:border-[#1E3E34] space-y-2">
-                    <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED]">Add new custom place</p>
+                  <div className="pt-3 border-t border-[var(--border-default)] space-y-2">
+                    <p className="text-xs font-bold text-[var(--text-primary)]">Add new custom place</p>
                     <input
                       type="text"
                       value={newPlaceLabel}
                       onChange={(e) => setNewPlaceLabel(e.target.value)}
                       placeholder="Label (e.g. Gym, Airport, Parents)"
-                      className="w-full bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3 py-2 text-xs text-[#10251C] dark:text-[#F7F5ED] outline-none"
+                      className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] outline-none"
                     />
                     <input
                       type="text"
                       value={newPlaceAddress}
                       onChange={(e) => setNewPlaceAddress(e.target.value)}
                       placeholder="Full Address / Landmark"
-                      className="w-full bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3 py-2 text-xs text-[#10251C] dark:text-[#F7F5ED] outline-none"
+                      className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] outline-none"
                     />
                     <button
                       type="button"
                       onClick={addCustomPlace}
                       disabled={!newPlaceLabel.trim() || !newPlaceAddress.trim()}
-                      className="w-full py-2 bg-[#046A38] text-white rounded-[8px] text-xs font-bold disabled:opacity-40"
+                      className="w-full py-2 bg-[#213650] text-white rounded-[8px] text-xs font-bold disabled:opacity-40"
                     >
                       Add Place
                     </button>
@@ -668,15 +646,15 @@ export default function SettingsPage() {
                         }}
                         className={`w-full p-3.5 rounded-[10px] border flex items-center justify-between text-left transition ${
                           theme === opt.key
-                            ? "border-[#046A38] bg-[#E5EBDD] dark:bg-[#1D3428]"
-                            : "border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#061A16]"
+                            ? "border-[#213650] bg-[var(--surface-subtle)]"
+                            : "border-[var(--border-default)] bg-white dark:bg-[#142238]"
                         }`}
                       >
                         <div>
-                          <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED]">{opt.label}</p>
-                          <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF]">{opt.desc}</p>
+                          <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">{opt.label}</p>
+                          <p className="text-[11px] text-[var(--text-secondary)]">{opt.desc}</p>
                         </div>
-                        {theme === opt.key && <Check size={18} className="text-[#046A38] dark:text-[#A8E0C0]" />}
+                        {theme === opt.key && <Check size={18} className="text-[#213650] dark:text-[#A8E0C0]" />}
                       </button>
                     ))}
                   </div>
@@ -687,38 +665,38 @@ export default function SettingsPage() {
               {activeModal === "invoice" && (
                 <div>
                   <ModalHeader title="Tax Invoice Information" onClose={() => setActiveModal(null)} />
-                  <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mb-3">
+                  <p className="text-xs text-[var(--text-secondary)] mb-3">
                     These credentials will appear on all your downloaded GST Tax Invoices.
                   </p>
                   <div className="space-y-2.5 mb-4">
                     <div>
-                      <label className="text-[11px] font-bold text-[#696B64] uppercase block mb-1">GSTIN Number</label>
+                      <label className="text-[11px] font-bold text-[#4d6374] uppercase block mb-1">GSTIN Number</label>
                       <input
                         type="text"
                         value={gstin}
                         onChange={(e) => setGstin(e.target.value)}
                         placeholder="e.g. 18AABCR1234F1Z5"
-                        className="w-full bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3 py-2 text-xs text-[#10251C] dark:text-[#F7F5ED] uppercase outline-none"
+                        className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] uppercase outline-none"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-[#696B64] uppercase block mb-1">Company / Legal Name</label>
+                      <label className="text-[11px] font-bold text-[#4d6374] uppercase block mb-1">Company / Legal Name</label>
                       <input
                         type="text"
                         value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
                         placeholder="e.g. Acme Tech Solutions Pvt Ltd"
-                        className="w-full bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3 py-2 text-xs text-[#10251C] dark:text-[#F7F5ED] outline-none"
+                        className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] outline-none"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-[#696B64] uppercase block mb-1">Billing Address</label>
+                      <label className="text-[11px] font-bold text-[#4d6374] uppercase block mb-1">Billing Address</label>
                       <input
                         type="text"
                         value={billingAddress}
                         onChange={(e) => setBillingAddress(e.target.value)}
                         placeholder="e.g. GS Road, Christian Basti, Guwahati"
-                        className="w-full bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] rounded-[8px] px-3 py-2 text-xs text-[#10251C] dark:text-[#F7F5ED] outline-none"
+                        className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] outline-none"
                       />
                     </div>
                   </div>
@@ -726,14 +704,14 @@ export default function SettingsPage() {
                     <button
                       type="button"
                       onClick={() => setActiveModal(null)}
-                      className="px-4 py-2 rounded-[8px] text-xs font-semibold text-[#696B64]"
+                      className="px-4 py-2 rounded-[8px] text-xs font-semibold text-[#4d6374]"
                     >
                       Cancel
                     </button>
                     <button
                       type="button"
                       onClick={saveInvoiceInfo}
-                      className="px-5 py-2 rounded-[8px] bg-[#046A38] text-white text-xs font-bold"
+                      className="px-5 py-2 rounded-[8px] bg-[#213650] text-white text-xs font-bold"
                     >
                       Save Invoice Info
                     </button>
@@ -825,18 +803,18 @@ export default function SettingsPage() {
                         }}
                         className={`w-full p-3.5 rounded-[10px] border flex items-center justify-between text-left transition ${
                           language === lang.code
-                            ? "border-[#046A38] bg-[#E5EBDD] dark:bg-[#1D3428]"
-                            : "border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#061A16]"
+                            ? "border-[#213650] bg-[var(--surface-subtle)]"
+                            : "border-[var(--border-default)] bg-white dark:bg-[#142238]"
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
                           <span className="text-lg">{lang.flag}</span>
                           <div>
-                            <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED]">{lang.nativeName}</p>
-                            <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF]">{lang.name}</p>
+                            <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">{lang.nativeName}</p>
+                            <p className="text-[11px] text-[var(--text-secondary)]">{lang.name}</p>
                           </div>
                         </div>
-                        {language === lang.code && <Check size={18} className="text-[#046A38] dark:text-[#A8E0C0]" />}
+                        {language === lang.code && <Check size={18} className="text-[#213650] dark:text-[#A8E0C0]" />}
                       </button>
                     ))}
                   </div>
@@ -847,7 +825,7 @@ export default function SettingsPage() {
               {activeModal === "tip" && (
                 <div>
                   <ModalHeader title="Default Tip Amount" onClose={() => setActiveModal(null)} />
-                  <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mb-3">
+                  <p className="text-xs text-[var(--text-secondary)] mb-3">
                     Automatically adds a tip to thank your driver partner upon safe trip completion.
                   </p>
                   <div className="grid grid-cols-2 gap-2 mb-4">
@@ -863,8 +841,8 @@ export default function SettingsPage() {
                         onClick={() => selectTip(opt.val)}
                         className={`p-3 rounded-[8px] border text-center font-bold text-xs transition ${
                           defaultTip === opt.val
-                            ? "border-[#046A38] bg-[#E5EBDD] dark:bg-[#1D3428] text-[#046A38] dark:text-[#A8E0C0]"
-                            : "border-[#DED7CA] dark:border-[#24483D] bg-white dark:bg-[#061A16] text-[#10251C] dark:text-[#F7F5ED]"
+                            ? "border-[#213650] bg-[var(--surface-subtle)] text-[#213650] dark:text-[#A8E0C0]"
+                            : "border-[var(--border-default)] bg-white dark:bg-[#142238] text-[var(--text-primary)]"
                         }`}
                       >
                         {opt.label}
@@ -890,15 +868,15 @@ export default function SettingsPage() {
                         onClick={() => selectPayment(opt.key)}
                         className={`w-full p-3.5 rounded-[10px] border flex items-center justify-between text-left transition ${
                           defaultPayment === opt.key
-                            ? "border-[#046A38] bg-[#E5EBDD] dark:bg-[#1D3428]"
-                            : "border-[#DED7CA] dark:border-[#1E3E34] bg-white dark:bg-[#061A16]"
+                            ? "border-[#213650] bg-[var(--surface-subtle)]"
+                            : "border-[var(--border-default)] bg-white dark:bg-[#142238]"
                         }`}
                       >
                         <div>
-                          <p className="text-xs sm:text-sm font-bold text-[#10251C] dark:text-[#F7F5ED]">{opt.label}</p>
-                          <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF]">{opt.desc}</p>
+                          <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">{opt.label}</p>
+                          <p className="text-[11px] text-[var(--text-secondary)]">{opt.desc}</p>
                         </div>
-                        {defaultPayment === opt.key && <Check size={18} className="text-[#046A38] dark:text-[#A8E0C0]" />}
+                        {defaultPayment === opt.key && <Check size={18} className="text-[#213650] dark:text-[#A8E0C0]" />}
                       </button>
                     ))}
                   </div>
@@ -909,7 +887,7 @@ export default function SettingsPage() {
               {activeModal === "privacy" && (
                 <div>
                   <ModalHeader title="Privacy & Data Protection" onClose={() => setActiveModal(null)} />
-                  <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mb-3">
+                  <p className="text-xs text-[var(--text-secondary)] mb-3">
                     Your personal information is governed under Section 12 of India&apos;s Digital Personal Data Protection (DPDP) Act, 2023.
                   </p>
                   <div className="space-y-3 mb-4">
@@ -938,7 +916,7 @@ export default function SettingsPage() {
                       setActiveModal(null);
                       router.push("/privacy");
                     }}
-                    className="w-full py-2.5 rounded-[8px] bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D] text-xs font-bold text-[#10251C] dark:text-[#F7F5ED] hover:bg-black/5"
+                    className="w-full py-2.5 rounded-[8px] bg-white dark:bg-[#142238] border border-[var(--border-default)] text-xs font-bold text-[var(--text-primary)] hover:bg-black/5"
                   >
                     Read Full Privacy Policy
                   </button>
@@ -960,18 +938,18 @@ export default function SettingsPage() {
                     <div className="text-center py-4 space-y-2">
                       <CheckCircle2 size={32} className="text-emerald-500 mx-auto" />
                       <h4 className="text-sm font-bold">Account Erased Successfully</h4>
-                      <p className="text-xs text-[#696B64]">Redirecting you to home...</p>
+                      <p className="text-xs text-[#4d6374]">Redirecting you to home...</p>
                     </div>
                   ) : (
                     <div>
-                      <p className="text-xs text-[#696B64] dark:text-[#B9C8BF] mb-3">
+                      <p className="text-xs text-[var(--text-secondary)] mb-3">
                         Are you sure you want to permanently delete your Jaatri account? Your name, mobile number, and saved locations will be scrubbed immediately.
                       </p>
                       <div className="flex gap-2 justify-end">
                         <button
                           type="button"
                           onClick={() => setActiveModal(null)}
-                          className="px-4 py-2 rounded-[8px] text-xs font-semibold text-[#696B64]"
+                          className="px-4 py-2 rounded-[8px] text-xs font-semibold text-[#4d6374]"
                         >
                           Cancel
                         </button>
@@ -1020,31 +998,31 @@ function SettingRow({
       className="w-full min-h-[58px] p-3.5 sm:p-4 flex items-center justify-between text-left hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition cursor-pointer"
     >
       <div className="flex items-center gap-3.5 min-w-0 pr-2">
-        <div className="w-8 h-8 rounded-full bg-stone-200/80 dark:bg-[#10352C] text-[#123D32] dark:text-[#A8E0C0] flex items-center justify-center shrink-0">
+        <div className="w-8 h-8 rounded-full bg-stone-200/80 dark:bg-[#263d54] text-[#142238] dark:text-[#A8E0C0] flex items-center justify-center shrink-0">
           <Icon size={17} />
         </div>
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#10251C] dark:text-[#F7F5ED] leading-tight">
+          <p className="text-sm font-semibold text-[var(--text-primary)] leading-tight">
             {title}
           </p>
-          <p className="text-[12px] text-[#696B64] dark:text-[#B9C8BF] truncate mt-0.5 leading-tight">
+          <p className="text-[12px] text-[var(--text-secondary)] truncate mt-0.5 leading-tight">
             {subtitle}
           </p>
         </div>
       </div>
-      <ChevronRight size={17} className="text-[#696B64]/60 dark:text-[#B9C8BF]/60 shrink-0" />
+      <ChevronRight size={17} className="text-[#4d6374]/60 dark:text-[#b3cbd1]/60 shrink-0" />
     </motion.button>
   );
 }
 
 function ModalHeader({ title, onClose }: { title: string; onClose: () => void }) {
   return (
-    <div className="flex items-center justify-between pb-3 border-b border-[#DED7CA]/70 dark:border-[#1E3E34] mb-3">
-      <h3 className="text-base font-bold font-serif text-[#10251C] dark:text-[#F7F5ED]">{title}</h3>
+    <div className="flex items-center justify-between pb-3 border-b border-[#b3c8ca]/70 dark:border-[#425b73] mb-3">
+      <h3 className="text-base font-bold text-[var(--text-primary)]">{title}</h3>
       <button
         type="button"
         onClick={onClose}
-        className="p-1 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/5 text-[#696B64] dark:text-[#B9C8BF]"
+        className="p-1 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/5 text-[var(--text-secondary)]"
       >
         <X size={18} />
       </button>
@@ -1064,16 +1042,16 @@ function ToggleOption({
   onChange: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between p-3 rounded-[10px] bg-white dark:bg-[#061A16] border border-[#DED7CA] dark:border-[#24483D]">
+    <div className="flex items-center justify-between p-3 rounded-[10px] bg-white dark:bg-[#142238] border border-[var(--border-default)]">
       <div className="min-w-0 pr-3">
-        <p className="text-xs font-bold text-[#10251C] dark:text-[#F7F5ED]">{title}</p>
-        <p className="text-[11px] text-[#696B64] dark:text-[#B9C8BF] mt-0.5">{description}</p>
+        <p className="text-xs font-bold text-[var(--text-primary)]">{title}</p>
+        <p className="text-[11px] text-[var(--text-secondary)] mt-0.5">{description}</p>
       </div>
       <button
         type="button"
         onClick={onChange}
         className={`w-11 h-6 rounded-full transition-colors relative shrink-0 p-0.5 cursor-pointer ${
-          checked ? "bg-[#046A38]" : "bg-stone-300 dark:bg-zinc-700"
+          checked ? "bg-[#213650]" : "bg-stone-300 dark:bg-zinc-700"
         }`}
       >
         <span

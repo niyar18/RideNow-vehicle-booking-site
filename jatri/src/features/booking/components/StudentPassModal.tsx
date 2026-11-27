@@ -138,7 +138,7 @@ export default function StudentPassModal({
           {/* Header */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-emerald-100 text-[#046A38] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-xl bg-emerald-100 text-[var(--text-primary)] flex items-center justify-center">
                 <GraduationCap size={18} />
               </div>
               <div>
@@ -158,7 +158,7 @@ export default function StudentPassModal({
           {/* ACTIVE STATE */}
           {isStudent ? (
             <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-2">
-              <CheckCircle2 size={32} className="text-[#046A38] mx-auto" />
+              <CheckCircle2 size={32} className="text-[var(--text-primary)] mx-auto" />
               <p className="text-xs font-black text-emerald-900">Student Pass Active ✓</p>
               <p className="text-[11px] text-emerald-700 leading-snug">
                 10% discount (up to ₹50 per ride) is automatically applied on eligible rides.
@@ -214,7 +214,7 @@ export default function StudentPassModal({
                   placeholder="e.g. Guwahati University, IIT"
                   value={institution}
                   onChange={(e) => setInstitution(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-zinc-200 rounded-xl outline-none focus:border-[#046A38]"
+                  className="w-full px-3 py-2 text-xs border border-zinc-200 rounded-xl outline-none focus:border-[var(--border-interactive)]"
                   required
                 />
               </div>
@@ -228,7 +228,7 @@ export default function StudentPassModal({
                   placeholder="yourname@college.edu or .ac.in"
                   value={eduEmail}
                   onChange={(e) => setEduEmail(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-zinc-200 rounded-xl outline-none focus:border-[#046A38]"
+                  className="w-full px-3 py-2 text-xs border border-zinc-200 rounded-xl outline-none focus:border-[var(--border-interactive)]"
                   required
                 />
                 <p className="text-[10px] text-zinc-400 mt-1">
@@ -249,7 +249,7 @@ export default function StudentPassModal({
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 py-2.5 bg-[#046A38] hover:bg-[#03532C] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-50 min-h-[44px] cursor-pointer"
+                  className="flex-1 py-2.5 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[var(--on-primary)] rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-50 min-h-[44px] cursor-pointer"
                 >
                   {loading && <Loader2 size={13} className="animate-spin" />}
                   Send Code
@@ -260,7 +260,7 @@ export default function StudentPassModal({
             /* STEP 2: Enter 6-digit OTP */
             <form onSubmit={handleVerifyOtp} className="space-y-3">
               <div className="text-center pb-1">
-                <div className="w-10 h-10 rounded-full bg-emerald-100 text-[#046A38] flex items-center justify-center mx-auto mb-2">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 text-[var(--text-primary)] flex items-center justify-center mx-auto mb-2">
                   <KeyRound size={20} />
                 </div>
                 <p className="text-xs font-bold text-zinc-900">Enter Verification Code</p>
@@ -281,7 +281,7 @@ export default function StudentPassModal({
                     setOtp(e.target.value.replace(/\D/g, ""));
                     setError(null);
                   }}
-                  className="w-full px-3 py-2.5 text-center text-xl tracking-[0.4em] font-mono font-bold border border-zinc-300 rounded-xl outline-none focus:border-[#046A38]"
+                  className="w-full px-3 py-2.5 text-center text-xl tracking-[0.4em] font-mono font-bold border border-zinc-300 rounded-xl outline-none focus:border-[var(--border-interactive)]"
                   autoFocus
                   required
                 />
@@ -301,7 +301,7 @@ export default function StudentPassModal({
                   type="button"
                   disabled={resendCooldown > 0 || loading}
                   onClick={handleSendOtp}
-                  className="text-[#046A38] hover:underline font-semibold disabled:opacity-50 disabled:no-underline cursor-pointer"
+                  className="text-[var(--text-primary)] hover:underline font-semibold disabled:opacity-50 disabled:no-underline cursor-pointer"
                 >
                   {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : "Resend Code"}
                 </button>
@@ -318,7 +318,7 @@ export default function StudentPassModal({
                 <button
                   type="submit"
                   disabled={loading || otp.length < 6}
-                  className="flex-1 py-2.5 bg-[#046A38] hover:bg-[#03532C] text-white rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-50 min-h-[44px] cursor-pointer"
+                  className="flex-1 py-2.5 bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-[var(--on-primary)] rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 disabled:opacity-50 min-h-[44px] cursor-pointer"
                 >
                   {loading && <Loader2 size={13} className="animate-spin" />}
                   Verify Code

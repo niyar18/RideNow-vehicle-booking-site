@@ -66,8 +66,8 @@ export default function DriverPassengerPreferenceCard() {
 
   if (loading) {
     return (
-      <div className="p-5 rounded-[12px] bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] flex items-center justify-center min-h-[100px]">
-        <Loader2 size={20} className="animate-spin text-[#046A38] dark:text-[#90C8A8]" />
+      <div className="p-5 rounded-[12px] bg-[var(--surface-raised)] border border-[var(--border-default)] flex items-center justify-center min-h-[100px]">
+        <Loader2 size={20} className="animate-spin text-[var(--accent-ink)]" />
       </div>
     );
   }
@@ -75,12 +75,12 @@ export default function DriverPassengerPreferenceCard() {
   const hasChanges = policy !== initialPolicy;
 
   return (
-    <div className="p-5 rounded-[12px] bg-white dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#24483D] shadow-xs flex flex-col gap-4">
+    <div className="p-5 rounded-[12px] bg-[var(--surface-raised)] border border-[var(--border-default)] flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <h3 className="text-base font-black tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-            <Shield size={18} className="text-[#046A38] dark:text-[#90C8A8]" />
+          <h3 className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <Shield size={18} className="text-[var(--accent-ink)]" />
             Passenger Preferences
           </h3>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
@@ -88,7 +88,7 @@ export default function DriverPassengerPreferenceCard() {
           </p>
         </div>
         {canActivateWomenOnly && (
-          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-[#046A38] dark:text-[#90C8A8] border border-emerald-300 dark:border-emerald-800">
+          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/60 text-[var(--accent-ink)] border border-emerald-300 dark:border-emerald-800">
             <Sparkles size={11} /> Verified Woman Driver
           </span>
         )}
@@ -102,12 +102,12 @@ export default function DriverPassengerPreferenceCard() {
           onClick={() => setPolicy("all_eligible")}
           className={`flex items-start gap-3 p-4 rounded-[10px] border text-left transition-all min-h-[64px] touch-manipulation cursor-pointer ${
             policy === "all_eligible"
-              ? "border-[#046A38] bg-[#FAF7F0] dark:bg-[#123D32]/30 ring-1 ring-[#046A38]"
-              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0B2822] hover:border-zinc-300 dark:hover:border-zinc-700"
+              ? "border-[var(--midnight)] bg-[var(--ice)] dark:bg-[var(--midnight)]/30 ring-1 ring-[var(--midnight)]"
+              : "border-zinc-200 dark:border-zinc-800 bg-[var(--surface-raised)] hover:border-zinc-300 dark:hover:border-zinc-700"
           }`}
         >
-          <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">
-            {policy === "all_eligible" && <div className="w-2 h-2 rounded-full bg-[#046A38]" />}
+          <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[var(--midnight)]">
+            {policy === "all_eligible" && <div className="w-2 h-2 rounded-full bg-[var(--midnight)]" />}
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
@@ -129,12 +129,12 @@ export default function DriverPassengerPreferenceCard() {
             !canActivateWomenOnly
               ? "opacity-60 cursor-not-allowed border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50"
               : policy === "women_only"
-              ? "border-[#046A38] bg-[#FAF7F0] dark:bg-[#123D32]/30 ring-1 ring-[#046A38] cursor-pointer"
-              : "border-zinc-200 dark:border-zinc-800 bg-white dark:bg-[#0B2822] hover:border-zinc-300 dark:hover:border-zinc-700 cursor-pointer"
+              ? "border-[var(--midnight)] bg-[var(--ice)] dark:bg-[var(--midnight)]/30 ring-1 ring-[var(--midnight)] cursor-pointer"
+              : "border-zinc-200 dark:border-zinc-800 bg-[var(--surface-raised)] hover:border-zinc-300 dark:hover:border-zinc-700 cursor-pointer"
           }`}
         >
-          <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[#046A38]">
-            {policy === "women_only" && <div className="w-2 h-2 rounded-full bg-[#046A38]" />}
+          <div className="mt-0.5 w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 border-[var(--midnight)]">
+            {policy === "women_only" && <div className="w-2 h-2 rounded-full bg-[var(--midnight)]" />}
           </div>
           <div className="flex flex-col min-w-0">
             <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-1.5">
@@ -172,7 +172,7 @@ export default function DriverPassengerPreferenceCard() {
             type="button"
             disabled={saving}
             onClick={handleSave}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-[#046A38] hover:bg-[#03532C] text-white text-xs font-black uppercase tracking-wider transition-colors min-h-[44px] touch-manipulation cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-[8px] bg-[var(--midnight)] hover:bg-[#243751] text-white text-xs font-semibold transition-colors min-h-[44px] touch-manipulation cursor-pointer active:scale-95 disabled:opacity-50"
           >
             {saving ? (
               <>
