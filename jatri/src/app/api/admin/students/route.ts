@@ -13,7 +13,6 @@ import logger from "@/lib/logger";
  */
 export async function GET(req: NextRequest) {
   try {
-    await connectDb();
     const session = await auth();
 
     if (!session?.user?.id || (session.user as any)?.role !== "admin") {
@@ -23,10 +22,11 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    await connectDb();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status") || "pending";
-    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const page = Math.max(1, (parseInt(searchParams.get("page") || "1", 10) || 1));
+    const limit = Math.min(100, Math.max(1, (parseInt(searchParams.get("limit") || "20", 10) || 20)));
     const skip = (page - 1) * limit;
 
     const query: Record<string, any> = {};
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
 
     const [students, total] = await Promise.all([
       User.find(query)
-        .select("name email mobileNumber isStudent studentVerification createdAt")
+        .select("name studentVerification.status studentVerification.institutionName studentVerification.verificationMethod studentVerification.studentName studentVerification.documentType studentVerification.documentUrl studentVerification.submittedAt studentVerification.rejectionReason")
         .sort({ "studentVerification.submittedAt": -1, createdAt: -1 })
         .skip(skip)
         .limit(limit)
@@ -48,7 +48,16 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      students,
+      students: students.map((student) => {
+        const submitted = student.studentVerification;
+        if (!submitted?.documentUrl) return student;
+        try {
+          const url = new URL(submitted.documentUrl);
+          if (url.protocol === "https:" && url.hostname === "res.cloudinary.com" && !url.username && !url.password &&
+              process.env.CLOUDINARY_CLOUD_NAME && url.pathname.startsWith(`/${process.env.CLOUDINARY_CLOUD_NAME}/`)) return student;
+        } catch {}
+        return { ...student, studentVerification: { ...submitted, documentUrl: undefined, untrustedDocument: true } };
+      }),
       pagination: {
         page,
         limit,
@@ -62,7 +71,7 @@ export async function GET(req: NextRequest) {
       stack: error?.stack,
     });
     return NextResponse.json(
-      { success: false, message: "Failed to fetch student verification requests", error: error.message },
+      { success: false, message: "Failed to fetch student verification requests" },
       { status: 500 }
     );
   }

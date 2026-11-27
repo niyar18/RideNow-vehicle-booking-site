@@ -309,3 +309,34 @@
 @media (max-width: 480px), (max-height: 560px) {
   .shell main[id] { scroll-margin-block-start: 0; }
 }
+
+.adminNav { width: min(calc(100% - 32px), 1328px); margin-inline: auto; display: flex; flex-wrap: wrap; gap: 3px 12px; padding-bottom: 8px; }
+.adminNav a { min-height: 42px; padding: 8px 10px; display: flex; align-items: center; color: var(--admin-muted); font-size: 13px; font-weight: 650; border: 1px solid transparent; border-radius: 8px; }
+.adminNav a[aria-current="page"] { color: var(--text-primary); background: var(--admin-subtle); border-color: var(--admin-rule); text-decoration: underline; text-underline-offset: .2em; }
+.toolsGrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 176px), 1fr)); gap: 12px; }
+.toolCard { position: relative; height: 100%; display: grid; gap: 8px; align-content: start; padding: 16px; padding-inline-end: 26px; border: 1px solid var(--admin-rule); border-radius: 12px; background: var(--admin-surface); }
+.toolCard:hover { border-color: var(--admin-control); background: var(--admin-subtle); }
+.toolIcon, .toolArrow { color: var(--admin-accent); }
+.toolArrow { position: absolute; inset-inline-end: 9px; top: 17px; }
+.controlIntro { display: grid; gap: 10px; padding-block: 6px; }
+.controlIntro .title { font-size: clamp(33px, 5vw, 58px); }
+.controlPanel { display: grid; gap: 16px; min-width: 0; }
+.controlBar { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; justify-content: space-between; }
+.controlBar label { display: grid; gap: 4px; font-size: 13px; font-weight: 650; max-width: 100%; }
+.controlBar select { min-width: min(190px, 100%); }
+.controlPanel input, .controlPanel textarea, .controlPanel select, .dialog textarea { max-width: 100%; }
+.controlRows { display: grid; gap: 10px; }
+.controlRow { overflow-wrap: anywhere; border: 1px solid var(--admin-rule); border-radius: 10px; padding: 14px; min-width: 0; display: grid; gap: 7px; }
+.controlRow h3 { font-weight: 750; }
+.controlRow a { overflow-wrap: anywhere; }
+.controlRow details summary { min-height: 44px; padding-block: 11px; font-weight: 650; cursor: pointer; }
+.controlRow dl { display: grid; gap: 4px 10px; grid-template-columns: max-content minmax(0,1fr); color: var(--admin-muted); font-size: 13px; }
+.actionRow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.controlPanel button, .controlPanel a, .adminNav a { scroll-margin-block: 155px 50px; }
+.confirmReason { display: grid; gap: 6px; margin-block: 12px; font-size: 14px; }
+.confirmReason textarea { min-height: 84px; width: 100%; }
+@media(max-width: 700px) {
+  .header { position: static; }
+  .adminNav { gap: 3px; }
+  .adminNav a { min-height: 44px; }
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  ArrowRight, CheckCircle2, Clock, IndianRupee, RefreshCw, Truck, Users, Video, XCircle,
+  ArrowRight, CheckCircle2, Clock, RefreshCw, Truck, Users, Video, XCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -10,9 +10,10 @@ import axios from "axios";
 import AdminEarningsChart from "@/features/admin/components/AdminEarningsChart";
 import StatusAreaChart from "@/features/admin/components/AdminStatusChart";
 import styles from "@/features/admin/components/admin-ui.module.css";
+import { AdminShortcuts } from "@/features/admin/components/AdminShortcuts";
 
 type Stats = { totalVendors: number; approved: number; pending: number; rejected: number };
-type Tab = "kyc" | "vendor" | "vehicle" | "pricing";
+type Tab = "kyc" | "vendor" | "vehicle";
 
 type QueueItem = {
   _id: string;
@@ -30,7 +31,6 @@ const tabs = [
   { key: "kyc", label: "Video KYC", icon: Video },
   { key: "vendor", label: "Vendors", icon: Users },
   { key: "vehicle", label: "Vehicles", icon: Truck },
-  { key: "pricing", label: "Category fares", icon: IndianRupee },
 ] as const;
 
 const kpis = [
@@ -84,8 +84,8 @@ export default function AdminDashboardClient() {
       <section className={styles.hero} aria-labelledby="admin-page-title">
         <div className={styles.intro}>
           <p className={styles.eyebrow}>Jaatri &nbsp;/&nbsp; operations</p>
-          <h1 id="admin-page-title" className={styles.title}>Review desk.</h1>
-          <p className={styles.introText}>Verify the people and vehicles behind each ride, and manage the fares riders see.</p>
+          <h1 id="admin-page-title" className={styles.title}>Operations dashboard</h1>
+          <p className={styles.introText}>See what needs attention, review applications and get to the settings that affect daily service.</p>
         </div>
         <div className={styles.heroArtwork} aria-hidden="true">
           <svg viewBox="0 0 240 105" fill="none" preserveAspectRatio="none">
@@ -107,11 +107,13 @@ export default function AdminDashboardClient() {
         ))}
       </dl>
 
+      <AdminShortcuts />
+
       <section aria-labelledby="reviews-title">
         <div className={styles.sectionTop}>
           <div>
-            <h2 className={styles.sectionTitle} id="reviews-title">Reviews & fares</h2>
-            <p className={styles.secondary}>Open an application or update a fare category.</p>
+            <h2 className={styles.sectionTitle} id="reviews-title">Verification queues</h2>
+            <p className={styles.secondary}>Review vendor, vehicle and video KYC applications.</p>
           </div>
           <button type="button" className={styles.button} onClick={refresh} disabled={loading}>
             <RefreshCw size={15} aria-hidden="true" /> {loading ? "Refreshing…" : "Refresh queues"}
@@ -124,23 +126,19 @@ export default function AdminDashboardClient() {
                 onClick={() => setActiveTab(key)} className={styles.tab}>
                 <span className={styles.tabIcon}><Icon size={16} aria-hidden="true" /></span>
                 <span>{label}</span>
-                {key !== "pricing" && hasSnapshot && <span className={styles.tabCount}>{data[key].length}</span>}
+                {hasSnapshot && <span className={styles.tabCount}>{data[key].length}</span>}
               </button>
             ))}
           </div>
 
-          {activeTab === "pricing" ? <PricingEditor /> : (
-            <>
-              {loadError && (
+          {loadError && (
                 <div className={styles.notice} role="alert">
                   <strong>Couldn’t refresh the review queues.</strong>
                   <span>{hasSnapshot ? "Showing the last loaded data." : "Try refreshing the queues."}</span>
                 </div>
               )}
               {!hasSnapshot && loading && <p className={styles.notice} role="status">Loading the review queues…</p>}
-              {hasSnapshot && <Queue key={activeTab} items={data[activeTab]} type={activeTab} />}
-            </>
-          )}
+          {hasSnapshot && <Queue key={activeTab} items={data[activeTab]} type={activeTab} />}
         </div>
       </section>
 
@@ -160,7 +158,7 @@ export default function AdminDashboardClient() {
 const queueTitles = { kyc: "Video verification", vendor: "Vendor applications", vehicle: "Vehicle reviews" };
 const kycStates: Record<string, string> = { pending: "Pending", in_progress: "Call in progress", completed: "Completed", approved: "Approved" };
 
-function Queue({ items, type }: { items: QueueItem[]; type: Exclude<Tab, "pricing"> }) {
+function Queue({ items, type }: { items: QueueItem[]; type: Tab }) {
   const router = useRouter();
   const [startingId, setStartingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -225,103 +223,6 @@ function Queue({ items, type }: { items: QueueItem[]; type: Exclude<Tab, "pricin
             );
           })}
         </ul>
-      )}
-    </div>
-  );
-}
-
-const fareFields = [
-  { field: "baseFare", label: "Base fare (₹)", step: "0.01", fallback: 0 },
-  { field: "pricePerKm", label: "Per km (₹)", step: "0.01", fallback: 0 },
-  { field: "pricePerMinute", label: "Per minute (₹)", step: "0.01", fallback: 0 },
-  { field: "multiplier", label: "Multiplier", step: "0.1", fallback: 1 },
-  { field: "minDistance", label: "Min distance (km)", step: "0.1", fallback: 0 },
-  { field: "maxDistance", label: "Max distance (km)", step: "0.1", fallback: 9999 },
-] as const;
-type FareField = typeof fareFields[number]["field"];
-type Fare = { _id?: string; vehicleType: string } & Partial<Record<FareField, number>>;
-
-function PricingEditor() {
-  const [configs, setConfigs] = useState<Fare[]>([]);
-  const [edits, setEdits] = useState<Record<string, Partial<Record<FareField, string>>>>({});
-  const [saving, setSaving] = useState<string | null>(null);
-  const [message, setMessage] = useState<{ id: string; text: string; error?: boolean } | null>(null);
-  const [load, setLoad] = useState<"loading" | "ready" | "error">("loading");
-  const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    axios.get<{ success: boolean; configs: Fare[] }>("/api/admin/pricing", { signal: controller.signal })
-      .then(({ data }) => {
-        if (!data.success) throw new Error("Unable to load pricing");
-        setConfigs(data.configs || []);
-        setLoad("ready");
-      })
-      .catch(() => { if (!controller.signal.aborted) setLoad("error"); });
-    return () => controller.abort();
-  }, [attempt]);
-
-  async function save(config: Fare) {
-    const id = config.vehicleType;
-    setSaving(id);
-    setMessage(null);
-    const changes = Object.fromEntries(Object.entries(edits[id] || {}).map(([key, value]) => [key, Number(value)]));
-    try {
-      const { data } = await axios.post<{ success: boolean; config?: Fare }>("/api/admin/pricing", { ...config, ...changes });
-      if (!data.success) throw new Error("Unable to save pricing");
-      setConfigs((previous) => previous.map((item) => item.vehicleType === id ? data.config ?? { ...item, ...changes } : item));
-      setEdits((previous) => ({ ...previous, [id]: {} }));
-      setMessage({ id, text: "Rates saved." });
-    } catch {
-      setMessage({ id, text: "Couldn’t save these rates. Try again.", error: true });
-    } finally {
-      setSaving(null);
-    }
-  }
-
-  return (
-    <div className={styles.panelPad}>
-      <h3 className={styles.panelTitle}>Category fares</h3>
-      <p className={styles.secondary}>Set the base fare, time and distance rates for each vehicle category. Amounts are in rupees.</p>
-      {load === "loading" && <p className={styles.notice} role="status">Loading fare configurations…</p>}
-      {load === "error" && <div className={styles.notice} role="alert">
-        Couldn’t load fares.
-        <button type="button" className={styles.button} onClick={() => { setLoad("loading"); setAttempt((n) => n + 1); }}>Try again</button>
-      </div>}
-      {load === "ready" && !configs.length && <p className={styles.notice}>No fare categories found.</p>}
-      {load === "ready" && configs.length > 0 && (
-        <div className={styles.fareCards}>
-          {configs.map((config) => {
-            const id = config.vehicleType;
-            return (
-              <form key={id} className={styles.fareCard} onSubmit={(event) => { event.preventDefault(); void save(config); }}>
-                <h4>{id.replaceAll("_", " ")}</h4>
-                <div className={styles.fareFields}>
-                  {fareFields.map(({ field, label, step, fallback }) => (
-                    <label key={field}>
-                      {label}
-                      <input
-                        type="number" min="0" step={step} required disabled={saving === id} className={styles.field}
-                        value={edits[id]?.[field] ?? config[field] ?? fallback}
-                        onChange={(e) => {
-                          const value = e.currentTarget.value;
-                          setEdits((previous) => ({ ...previous, [id]: { ...previous[id], [field]: value } }));
-                          if (message?.id === id) setMessage(null);
-                        }}
-                      />
-                    </label>
-                  ))}
-                </div>
-                <div className={styles.fareFooter}>
-                  <button type="submit" disabled={saving !== null || !Object.keys(edits[id] || {}).length} className={styles.primary}>
-                    {saving === id ? "Saving…" : "Save rates"}
-                  </button>
-                  {message?.id === id && <span className={styles.secondary} role={message.error ? "alert" : "status"}>{message.text}</span>}
-                </div>
-              </form>
-            );
-          })}
-        </div>
       )}
     </div>
   );

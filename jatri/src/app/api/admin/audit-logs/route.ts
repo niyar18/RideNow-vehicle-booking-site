@@ -12,7 +12,6 @@ import AuditLog from "@/models/auditLog.model";
  */
 export async function GET(req: NextRequest) {
   try {
-    await connectDb();
     const session = await auth();
 
     if (!session || !session.user?.id || session.user.role !== "admin") {
@@ -22,6 +21,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
+    await connectDb();
     const { searchParams } = new URL(req.url);
     const targetId = searchParams.get("targetId");
     const targetType = searchParams.get("targetType");
@@ -49,12 +49,13 @@ export async function GET(req: NextRequest) {
 
     const [logs, total] = await Promise.all([
       AuditLog.find(query)
+        .select("action targetId targetType admin beforeState afterState reason createdAt")
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .populate({
           path: "admin",
-          select: "name email role",
+          select: "name",
         })
         .lean(),
       AuditLog.countDocuments(query),

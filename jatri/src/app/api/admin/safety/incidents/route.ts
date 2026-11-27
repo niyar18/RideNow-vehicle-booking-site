@@ -2,21 +2,22 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import SafetyIncident from "@/models/safetyIncident.model";
+import { recordAuditLog } from "@/lib/auditLogger";
 import { resolveSafetyIncident } from "@/lib/safetyEngine";
 
 export async function GET(req: NextRequest) {
   try {
-    await connectDb();
     const session = await auth();
 
     if (!session?.user?.id || session.user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized admin access" }, { status: 403 });
     }
 
+    await connectDb();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
     const severity = searchParams.get("severity");
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50")));
+    const limit = Math.min(100, Math.max(1, (parseInt(searchParams.get("limit") || "50") || 50)));
 
     const query: any = {};
     if (status && ["active", "investigating", "resolved", "false_alarm"].includes(status)) {
@@ -27,15 +28,16 @@ export async function GET(req: NextRequest) {
     }
 
     const incidents = await SafetyIncident.find(query)
+      .select("incidentId booking reporter type severity status description createdAt resolvedAt")
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate({
         path: "booking",
-        select: "pickupAddress dropAddress fare vehicle status isPanicActive",
+        select: "status isPanicActive",
       })
       .populate({
         path: "reporter",
-        select: "name email phone role",
+        select: "name role",
       })
       .populate({
         path: "resolvedBy",
@@ -66,13 +68,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDb();
     const session = await auth();
 
     if (!session?.user?.id || session.user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized admin access" }, { status: 403 });
     }
 
+    await connectDb();
     const { incidentId, status, resolutionNotes } = await req.json();
 
     if (!incidentId || !status || !resolutionNotes) {
@@ -107,5 +109,34 @@ export async function POST(req: NextRequest) {
       { error: error?.message || "Failed to resolve safety incident" },
       { status: 400 }
     );
+  }
+}
+
+
+/** Claim an active report for investigation without changing its booking or SOS flag. */
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== "admin") return NextResponse.json({ message: "Admin access required." }, { status: 403 });
+  const body = await req.json().catch(() => null);
+  const { incidentId, reason: rawReason } = body || {};
+  const reason = typeof rawReason === "string" ? rawReason.trim() : "";
+  if (typeof incidentId !== "string" || !incidentId.trim() || incidentId.length > 100 || reason.length < 8 || reason.length > 240) {
+    return NextResponse.json({ message: "Select an incident and enter a reason of 8 to 240 characters." }, { status: 400 });
+  }
+  try {
+    await connectDb();
+    const updated = await SafetyIncident.findOneAndUpdate(
+      { incidentId, status: "active" }, { $set: { status: "investigating" } }, { returnDocument: "after", runValidators: true },
+    ).select("_id");
+    if (!updated) return NextResponse.json({ message: "The incident is no longer active. Refresh the queue." }, { status: 409 });
+    const audit = await recordAuditLog({
+      adminId: session.user.id, adminEmail: session.user.email ?? undefined,
+      action: "INVESTIGATE_INCIDENT", targetType: "SAFETY_INCIDENT", targetId: incidentId, reason,
+      beforeState: { status: "active" }, afterState: { status: "investigating" }, req,
+    });
+    return NextResponse.json({ success: true, auditRecorded: Boolean(audit) });
+  } catch (error) {
+    console.error("Admin incident triage failed", error);
+    return NextResponse.json({ message: "Couldn’t update the incident." }, { status: 500 });
   }
 }
