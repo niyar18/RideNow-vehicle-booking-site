@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { adminTools } from "./AdminShortcuts";
 import { ArrowLeft, LogOut } from "lucide-react";
 import type { ReactNode } from "react";
 import { performFastSignOut } from "@/lib/authLogout";
 import styles from "./admin-ui.module.css";
 
 export default function AdminChrome({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const nav = [{ key: "dashboard", title: "Overview" }, ...adminTools];
   return (
     <div className={styles.shell}>
       <a href="#admin-content" className={styles.skipLink}>Skip to main content</a>
@@ -22,6 +26,12 @@ export default function AdminChrome({ children }: { children: ReactNode }) {
             <LogOut size={15} aria-hidden="true" /> Sign out
           </button>
         </div>
+        <nav className={styles.adminNav} aria-label="Admin sections">
+          {nav.map(({ key, title }) => {
+            const href = `/admin/${key}`;
+            return <Link key={key} href={href} aria-current={pathname === href ? "page" : undefined}>{title}</Link>;
+          })}
+        </nav>
       </header>
       {children}
     </div>

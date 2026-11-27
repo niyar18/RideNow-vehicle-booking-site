@@ -10,16 +10,16 @@ import { recordAuditLog } from "@/lib/auditLogger";
 
 export async function GET(req: NextRequest) {
   try {
-    await connectDb();
     const session = await auth();
 
     if (!session || !session.user?.id || session.user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized admin access" }, { status: 403 });
     }
 
+    await connectDb();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status");
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "50")));
+    const limit = Math.min(100, Math.max(1, (parseInt(searchParams.get("limit") || "50") || 50)));
 
     const query: any = {};
     if (status && ["pending", "processing", "success", "failed", "reversed"].includes(status)) {
@@ -27,11 +27,12 @@ export async function GET(req: NextRequest) {
     }
 
     const withdrawals = await Withdrawal.find(query)
+      .select("withdrawalId driver amount status createdAt processedAt")
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate({
         path: "driver",
-        select: "name email phone role vendorStatus",
+        select: "name",
       })
       .lean();
 
@@ -58,13 +59,13 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    await connectDb();
     const session = await auth();
 
     if (!session || !session.user?.id || session.user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized admin access" }, { status: 403 });
     }
 
+    await connectDb();
     const { withdrawalId, action, failureReason } = await req.json();
 
     if (!withdrawalId || !action) {

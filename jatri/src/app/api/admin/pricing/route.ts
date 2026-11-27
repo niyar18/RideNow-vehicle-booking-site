@@ -1,90 +1,70 @@
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import FareConfig from "@/models/fareConfig.model";
-import { DEFAULT_VEHICLE_RATES } from "@/lib/fareEngine";
+import { recordAuditLog } from "@/lib/auditLogger";
+import { mergeFareRates, normalizeFareVehicle } from "@/lib/farePolicy";
+import { validateAdminFareChange } from "@/lib/adminFareEditing";
+
+const conflict = () => NextResponse.json({ message: "Rates changed since you opened this editor. Reload before saving." }, { status: 409 });
 
 export async function GET() {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== "admin") return NextResponse.json({ message: "Admin access required." }, { status: 403 });
   try {
-    const session = await auth();
-    if (!session?.user?.id || session.user.role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     await connectDb();
-
-    let configs = await FareConfig.find({});
-    
-    // Auto-seed if empty
-    if (!configs.length) {
-      const seedData = Object.entries(DEFAULT_VEHICLE_RATES).map(([vehicleType, rate]) => ({
-        vehicleType,
-        ...rate,
-      }));
-      await FareConfig.insertMany(seedData);
-      configs = await FareConfig.find({});
-    }
-
-    return NextResponse.json({ success: true, configs });
+    const rows = await FareConfig.find({}).lean() as unknown as Array<Record<string, unknown> & { updatedAt?: Date }>;
+    return NextResponse.json({
+      success: true,
+      configs: Object.entries(mergeFareRates(rows)).map(([vehicleType, rate]) => ({
+        ...rate, vehicleType, version: rows.find((row) => row.vehicleType === vehicleType)?.updatedAt?.toISOString() ?? null,
+      })),
+    });
   } catch (error) {
-    console.error("ADMIN GET PRICING ERROR:", error);
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+    console.error("Admin fare read failed", error);
+    return NextResponse.json({ message: "Couldn’t load fare rules." }, { status: 500 });
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id || session.user.role !== "admin") return NextResponse.json({ message: "Admin access required." }, { status: 403 });
   try {
-    const session = await auth();
-    if (!session?.user?.id || session.user.role !== "admin") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
+    const input = await req.json().catch(() => null);
+    if (!input || typeof input !== "object") return NextResponse.json({ message: "Enter a valid fare change." }, { status: 400 });
+    const vehicleType = normalizeFareVehicle(input.vehicleType);
     await connectDb();
+    const previous = await FareConfig.findOne({ vehicleType });
+    const before = mergeFareRates(previous ? [previous.toObject()] : [])[vehicleType];
+    let update;
+    try { update = validateAdminFareChange(input, before); }
+    catch (error) { return NextResponse.json({ message: (error as Error).message }, { status: 400 }); }
+    if ((previous?.updatedAt?.toISOString() ?? null) !== update.version) return conflict();
 
-    const body = await req.json();
-    const {
-      vehicleType,
-      baseFare,
-      pricePerKm,
-      pricePerMinute = 0,
-      waitingChargePerMinute = 2.5,
-      freeWaitingMinutes = 3,
-      platformFee = 15,
-      taxRate = 0.05,
-      cancellationFee = 50,
-      multiplier = 1.0,
-      minDistance = 0,
-      maxDistance = 9999,
-    } = body;
-
-    if (!vehicleType || baseFare === undefined || pricePerKm === undefined) {
-      return NextResponse.json({ message: "Missing required fields (vehicleType, baseFare, pricePerKm)" }, { status: 400 });
-    }
-
-    const config = await FareConfig.findOneAndUpdate(
-      { vehicleType: vehicleType.toLowerCase() },
-      {
-        baseFare: Number(baseFare),
-        pricePerKm: Number(pricePerKm),
-        pricePerMinute: Number(pricePerMinute),
-        waitingChargePerMinute: Number(waitingChargePerMinute),
-        freeWaitingMinutes: Number(freeWaitingMinutes),
-        platformFee: Number(platformFee),
-        taxRate: Number(taxRate),
-        cancellationFee: Number(cancellationFee),
-        multiplier: Number(multiplier),
-        minDistance: Number(minDistance),
-        maxDistance: Number(maxDistance),
-      },
-      { new: true, upsert: true }
-    );
-
-    return NextResponse.json({ success: true, config });
+    const config = previous
+      ? await FareConfig.findOneAndUpdate(
+        { _id: previous._id, updatedAt: previous.updatedAt ?? { $exists: false } },
+        { $set: update.patch }, { returnDocument: "after", runValidators: true },
+      )
+      : await FareConfig.create({ vehicleType, ...update.rate });
+    if (!config) return conflict();
+    const audit = await recordAuditLog({
+      adminId: session.user.id, adminEmail: session.user.email ?? undefined,
+      action: "UPDATE_FARE", targetId: vehicleType, targetType: "PRICING",
+      reason: update.reason,
+      beforeState: Object.fromEntries(Object.keys(update.patch).map((key) => [key, before[key as keyof typeof before]])),
+      afterState: update.patch, req,
+    });
+    return NextResponse.json({
+      success: true,
+      config: { ...update.rate, vehicleType, version: config.updatedAt?.toISOString() ?? null },
+      auditRecorded: Boolean(audit),
+    });
   } catch (error) {
-    console.error("ADMIN POST PRICING ERROR:", error);
-    return NextResponse.json({ message: "Server error" }, { status: 500 });
+    if (typeof error === "object" && error && "code" in error && error.code === 11000) return conflict();
+    console.error("Admin fare update failed", error);
+    return NextResponse.json({ message: "Couldn’t save fare rules." }, { status: 500 });
   }
 }

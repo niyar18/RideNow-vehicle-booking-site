@@ -7,19 +7,14 @@ import StudentConfig from "@/models/studentConfig.model";
 
 export async function GET() {
   try {
+    const session = await auth();
+    if (!session?.user?.id || session.user.role !== "admin") return NextResponse.json({ message: "Admin access required." }, { status: 403 });
     await connectDb();
-    let config = await StudentConfig.findOne({ isActive: true });
-    if (!config) {
-      config = await StudentConfig.create({
-        discountPercentage: 10,
-        maxDiscountCap: 50,
-        minFare: 100,
-        validityMonths: 12,
-        eligibleVehicleTypes: ["bike", "auto", "car"],
-        allowStackingWithPromo: false,
-        isActive: true,
-      });
-    }
+    const config = await StudentConfig.findOne({ isActive: true }).lean() ?? {
+      discountPercentage: 10, maxDiscountCap: 50, minFare: 100, validityMonths: 12,
+      monthlyDiscountCap: 200, maxMonthlyRides: 10, eligibleVehicleTypes: ["bike", "auto", "car"],
+      allowStackingWithPromo: false, isActive: true,
+    };
 
     return NextResponse.json({
       success: true,
@@ -35,7 +30,6 @@ export async function GET() {
 
 export async function PATCH(req: NextRequest) {
   try {
-    await connectDb();
     const session = await auth();
 
     // Check admin role
@@ -46,6 +40,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
+    await connectDb();
     const body = await req.json();
     const {
       discountPercentage,
