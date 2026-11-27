@@ -216,6 +216,7 @@ export async function evaluateReferralDiscountForBooking(params: {
   userId: string | Types.ObjectId;
   baseFare: number;
   isStudent?: boolean;
+  readOnly?: boolean;
 }): Promise<{
   isEligible: boolean;
   discountAmount: number;
@@ -223,7 +224,7 @@ export async function evaluateReferralDiscountForBooking(params: {
   reason?: string;
 }> {
   await connectDb();
-  const { userId, baseFare, isStudent } = params;
+  const { userId, baseFare, isStudent, readOnly = false } = params;
 
   // 1. Strict anti-stacking: Cannot combine referral discount with student pass
   if (isStudent) {
@@ -267,9 +268,11 @@ export async function evaluateReferralDiscountForBooking(params: {
 
   if (priorCompleted > 0) {
     // If the user already finished a ride, mark referral as expired/invalid
-    referral.status = "expired";
-    referral.rejectionReason = "User has already completed prior rides.";
-    await referral.save();
+    if (!readOnly) {
+      referral.status = "expired";
+      referral.rejectionReason = "User has already completed prior rides.";
+      await referral.save();
+    }
     return {
       isEligible: false,
       discountAmount: 0,

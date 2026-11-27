@@ -5,6 +5,8 @@ import { ArrowRight, Clock, Package, Users } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 import { VEHICLE_OPTIONS, type VehicleType } from "@/lib/vehicleConfig";
 import { VEHICLE_ART_SRC } from "@/lib/vehiclePhotos";
+import { calculateFareBreakdown } from "@/lib/fareEngine";
+import { isFareDistanceEligible, pricingVehicleForChoice, type FareRateTable } from "@/lib/farePolicy";
 import { getEstimatedArrivalInfo } from "@/lib/tripTiming";
 
 interface VehicleProps {
@@ -22,19 +24,23 @@ interface VehicleProps {
   isRecommended?: boolean;
   scheduledPickupTime?: Date | string | null;
   onBook?: () => void;
+  rates?: FareRateTable | null;
 }
 
 function VehicleBookingCard({
-  vehicle, distanceKm = 0, isRecommended, scheduledPickupTime, onBook,
+  vehicle, distanceKm = 0, isRecommended, scheduledPickupTime, onBook, rates,
 }: VehicleProps) {
   const { t } = useTranslation();
-  const { type, vehicleModel, number, imageUrl, baseFare = 0, pricePerKm = 0, waitingCharge = 0 } = vehicle;
+  const { type, vehicleModel, number, imageUrl } = vehicle;
   const [failedUrl, setFailedUrl] = useState<string>();
   const opt = VEHICLE_OPTIONS[type] ?? VEHICLE_OPTIONS.car;
   const image = imageUrl && imageUrl !== failedUrl ? imageUrl : undefined;
-  const estimated = Math.round(baseFare + distanceKm * pricePerKm);
+  const pricingVehicle = pricingVehicleForChoice(opt.id, distanceKm);
+  const breakdown = calculateFareBreakdown(pricingVehicle, distanceKm, rates);
+  const canBook = distanceKm > 0 && isFareDistanceEligible(pricingVehicle, distanceKm, rates);
+  const label = pricingVehicle === "intercity" ? "Jaatri Intercity" : opt.label;
   const arrival = getEstimatedArrivalInfo({
-    vehicleType: type,
+    vehicleType: pricingVehicle,
     distanceKm,
     etaText: opt.etaText,
     isScheduled: Boolean(scheduledPickupTime),
@@ -56,7 +62,7 @@ function VehicleBookingCard({
         </div>
         <div className="min-w-0">
           <h3 className="break-words text-sm font-semibold text-[var(--text-primary)]">{vehicleModel || opt.label}</h3>
-          <p className="text-xs text-[var(--text-secondary)]">{opt.label} {number && <>· {number}</>}</p>
+          <p className="text-xs text-[var(--text-secondary)]">{label} {number && <>· {number}</>}</p>
           <p className="mt-0.5 flex items-center gap-1 text-xs text-[var(--text-secondary)]">
             {opt.passengerCapacity ? <Users size={13} aria-hidden="true" /> : <Package size={13} aria-hidden="true" />}
             {opt.passengerCapacity ? `${opt.passengerCapacity} seats` : `Up to ${opt.maxWeightKg} kg`}
@@ -65,21 +71,22 @@ function VehicleBookingCard({
         </div>
         <div className="text-right">
           <p className="text-xs text-[var(--text-secondary)]">{t("booking.estFare", "Est. Fare")}</p>
-          <p className="text-base font-semibold tabular-nums text-[var(--text-primary)]">₹{estimated.toLocaleString("en-IN")}</p>
+          <p className="text-base font-semibold tabular-nums text-[var(--text-primary)]">{canBook ? `₹${breakdown.totalFare.toLocaleString("en-IN")}` : "—"}</p>
         </div>
       </div>
       <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-[var(--border-default)] pt-2 text-xs text-[var(--text-secondary)]">
         <p className="inline-flex items-center gap-1"><Clock size={13} aria-hidden="true" />{distanceKm > 0 ? arrival.displayLine : t("booking.selectDestForArrival", "Select destination for arrival time")}</p>
-        <p>₹{pricePerKm}/km · ₹{waitingCharge}/min waiting</p>
+        {canBook && <p>₹{breakdown.pricePerKm}/km · Final quote at checkout</p>}
       </div>
       {onBook && (
         <button
           type="button"
           onClick={onBook}
-          aria-label={`Book ${vehicleModel ? `${vehicleModel}, ` : ""}${opt.label}`}
-          className="mt-2.5 flex min-h-11 w-full items-center justify-center gap-2 rounded-[8px] border border-[var(--border-interactive)] bg-[var(--action-bg)] px-3 text-sm font-semibold text-[var(--action-fg)] hover:brightness-95"
+          disabled={!canBook}
+          aria-label={`Book ${vehicleModel ? `${vehicleModel}, ` : ""}${label}`}
+          className="mt-2.5 flex min-h-11 w-full items-center justify-center gap-2 rounded-[8px] border border-[var(--border-interactive)] bg-[var(--action-bg)] px-3 text-sm font-semibold text-[var(--action-fg)] hover:brightness-95 disabled:cursor-not-allowed disabled:bg-[var(--surface-subtle)] disabled:text-[var(--text-secondary)]"
         >
-          {t("fleet.bookNow", "Book")} <ArrowRight size={15} aria-hidden="true" />
+          {canBook ? t("fleet.bookNow", "Book") : distanceKm > 0 ? "Unavailable for this route" : "Select your destination"} <ArrowRight size={15} aria-hidden="true" />
         </button>
       )}
     </article>

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useId } from "react";
+import { pricingVehicleForChoice } from "@/lib/farePolicy";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -20,6 +21,7 @@ import {
   VehicleType,
   VEHICLE_OPTIONS,
   recommendVehicle,
+  pickAvailableRecommendation,
   RecommendationResult,
 } from "@/lib/vehicleConfig";
 
@@ -65,15 +67,16 @@ export default function SmartRideAssistantModal({
   if (!isOpen) return null;
 
   // Real-time route-aware recommendation calculation
-  const recommendation = recommendVehicle({
+  const recommendation = pickAvailableRecommendation(recommendVehicle({
     passengers,
     luggage,
     preference,
     isGoods: serviceMode === "logistics",
     cargoWeightKg,
     distanceKm: distanceKm ?? undefined,
-  });
+  }), { passengers, isGoods: serviceMode === "logistics", cargoWeightKg, isAvailable: (id) => !distanceKm || checkLimit(id, distanceKm) });
 
+  const isIntercity = pricingVehicleForChoice(recommendation.vehicleId, distanceKm ?? 0) === "intercity";
   const recommendedVehicleMeta = VEHICLE_OPTIONS[recommendation.vehicleId];
   const isEligible = distanceKm ? checkLimit(recommendation.vehicleId, distanceKm) : true;
   const fare = distanceKm && distanceKm > 0 ? estimateFare(recommendation.vehicleId, distanceKm) : null;

@@ -155,6 +155,9 @@ export interface IBooking extends Document {
     surgeMultiplier: number;
     surgeAmount: number;
     taxes: number;
+    taxRate?: number;
+    roundingAdjustment?: number;
+    promoDiscount?: number;
     discount: number;
     isStudentDiscountApplied?: boolean;
     studentDiscount?: number;
@@ -464,6 +467,9 @@ partnerAmount: {
       surgeMultiplier: { type: Number },
       surgeAmount: { type: Number },
       taxes: { type: Number },
+      taxRate: { type: Number },
+      roundingAdjustment: { type: Number },
+      promoDiscount: { type: Number },
       discount: { type: Number },
       isStudentDiscountApplied: { type: Boolean, default: false },
       studentDiscount: { type: Number, default: 0 },

@@ -702,6 +702,7 @@ export default function DriverRidePage() {
       {/* MAP */}
       <div className="relative flex-1 h-full z-0">
         <LiveRideMap
+          rideOverlay
           driverLocation={driverPos}
           pickupLocation={pickupPos}
           dropLocation={dropPos}

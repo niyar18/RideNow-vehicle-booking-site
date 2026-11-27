@@ -1,4 +1,6 @@
-﻿export type VehicleType = "scooty" | "bike" | "auto" | "e-rickshaw" | "mini" | "car" | "priority" | "loading" | "truck";
+﻿import { isFareDistanceEligible, pricingVehicleForChoice, type FareRateTable } from "./farePolicy";
+
+export type VehicleType = "scooty" | "bike" | "auto" | "e-rickshaw" | "mini" | "car" | "priority" | "loading" | "truck";
 export type ServiceMode = "passenger" | "logistics";
 
 export interface VehicleOption {
@@ -162,13 +164,23 @@ export interface RecommendationResult {
 /**
  * Checks whether a vehicle type is eligible for a given journey road distance.
  */
-export function isVehicleDistanceEligible(vehicleId: VehicleType, distanceKm?: number): boolean {
-  if (!distanceKm || distanceKm <= 0) return true;
-  if (vehicleId === "bike" || vehicleId === "scooty") return distanceKm <= 15;
-  if (vehicleId === "e-rickshaw") return distanceKm <= 20;
-  if (vehicleId === "auto") return distanceKm <= 30;
-  if (vehicleId === "loading") return distanceKm <= 250;
-  return distanceKm <= 500;
+export function isVehicleDistanceEligible(vehicleId: VehicleType, distanceKm?: number, rates?: FareRateTable): boolean {
+  if (distanceKm === undefined || distanceKm === 0) return true;
+  return isFareDistanceEligible(pricingVehicleForChoice(vehicleId, distanceKm), distanceKm, rates);
+}
+
+/** Keep recommendation preferences, but never prefer a vehicle outside the current tariff or capacity. */
+export function pickAvailableRecommendation(
+  recommendation: RecommendationResult,
+  options: { passengers: number; isGoods: boolean; cargoWeightKg: number; isAvailable: (id: VehicleType) => boolean },
+): RecommendationResult {
+  if (options.isAvailable(recommendation.vehicleId)) return recommendation;
+  const alternatives = options.isGoods ? LOGISTICS_VEHICLES : PASSENGER_VEHICLES;
+  const alternative = alternatives.find((v) => options.isAvailable(v.id) &&
+    (options.isGoods ? (v.maxWeightKg ?? 0) >= options.cargoWeightKg : (v.passengerCapacity ?? 0) >= options.passengers));
+  return alternative
+    ? { vehicleId: alternative.id, matchScore: 90, reason: "Fits your party or payload and serves this route at the current rates." }
+    : recommendation;
 }
 
 /**
@@ -186,7 +198,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
         matchScore: 96,
         reason:
           typeof distanceKm === "number" && distanceKm > 250
-            ? "Intercity freight (>250km) requires Jaatri Freight 14ft payload"
+            ? "For this long freight route (>250km), choose Jaatri Freight"
             : "Heavy commercial cargo (>500kg) requires Jaatri Freight 14ft payload",
       };
     }
@@ -252,7 +264,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
       return {
         vehicleId: "mini",
         matchScore: 92,
-        reason: "Route distance exceeds 30km auto limit; Jaatri Mini offers affordable 4-wheeler AC travel",
+        reason: "For this longer route, Jaatri Mini offers affordable AC travel",
       };
     }
 
@@ -300,7 +312,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
     return {
       vehicleId: "mini",
       matchScore: 92,
-      reason: "Longer journey (>30km); Jaatri Mini offers our most economical 4-wheeler AC ride",
+      reason: "Longer journey (>30km); Jaatri Mini is an economical AC choice",
     };
   }
 
@@ -308,7 +320,7 @@ export function recommendVehicle(criteria: SmartRecommendationCriteria): Recomme
     return {
       vehicleId: "auto",
       matchScore: 94,
-      reason: "Route distance exceeds 15km bike limit; Jaatri Auto offers the lowest fare for this distance",
+      reason: "Jaatri Auto offers more room for this longer solo ride",
     };
   }
 

@@ -5,12 +5,9 @@ import type { StyleSpecification } from "maplibre-gl";
  */
 const OSM_RASTER_SOURCE = {
   type: "raster" as const,
-  tiles: [
-    "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    "https://b.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    "https://c.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  ],
+  tiles: ["https://tile.openstreetmap.org/{z}/{x}/{y}.png"],
   tileSize: 256,
+  maxzoom: 19,
   attribution:
     '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> contributors',
 };
@@ -20,9 +17,8 @@ const OSM_RASTER_LAYER = {
   type: "raster" as const,
   source: "osm-streets",
   minzoom: 0,
-  maxzoom: 19,
   paint: {
-    "raster-saturation": -0.5,
+    "raster-saturation": -0.57,
     "raster-contrast": 0.12,
     "raster-brightness-min": 0.06,
     "raster-brightness-max": 1.0,
@@ -30,7 +26,7 @@ const OSM_RASTER_LAYER = {
 };
 
 /**
- * RideNow Booking Route Map Style Specification.
+ * Jaatri Booking Route Map Style Specification.
  * Includes route GeoJSON sources & line layers pre-compiled into the style so they
  * are guaranteed to exist in WebGL from frame 0 with ZERO dynamic layer loading race conditions.
  */
@@ -64,7 +60,7 @@ export const ROUTE_MAP_STYLE: StyleSpecification = {
       source: "route-alt-source",
       layout: { "line-join": "round", "line-cap": "round" },
       paint: {
-        "line-color": "#ffffff",
+        "line-color": "#f3f8f6",
         "line-width": 7.0,
         "line-opacity": 0.8,
       },
@@ -75,7 +71,7 @@ export const ROUTE_MAP_STYLE: StyleSpecification = {
       source: "route-alt-source",
       layout: { "line-join": "round", "line-cap": "round" },
       paint: {
-        "line-color": "#94a3b8",
+        "line-color": "#42627a",
         "line-width": 4.5,
         "line-opacity": 0.85,
       },
@@ -87,19 +83,19 @@ export const ROUTE_MAP_STYLE: StyleSpecification = {
       source: "route-source",
       layout: { "line-join": "round", "line-cap": "round" },
       paint: {
-        "line-color": "#ffffff",
+        "line-color": "#f3f8f6",
         "line-width": 9.5,
         "line-opacity": 1.0,
       },
     },
-    // Primary route core (vivid Google Maps blue line)
+    // Primary route core (Midnight line)
     {
       id: "route-core",
       type: "line",
       source: "route-source",
       layout: { "line-join": "round", "line-cap": "round" },
       paint: {
-        "line-color": "#2563eb",
+        "line-color": "#142238",
         "line-width": 5.5,
         "line-opacity": 1.0,
       },
@@ -108,7 +104,7 @@ export const ROUTE_MAP_STYLE: StyleSpecification = {
 };
 
 /**
- * RideNow Live Tracking Map Style Specification.
+ * Jaatri Live Tracking Map Style Specification.
  * Includes persistent trip route and driver approach route pre-compiled into style.
  */
 export const LIVE_TRACKING_MAP_STYLE: StyleSpecification = {
@@ -141,7 +137,7 @@ export const LIVE_TRACKING_MAP_STYLE: StyleSpecification = {
       source: "trip-route",
       layout: { "line-join": "round", "line-cap": "round" },
       paint: {
-        "line-color": "#ffffff",
+        "line-color": "#f3f8f6",
         "line-width": 9.5,
         "line-opacity": 1.0,
       },
@@ -152,7 +148,7 @@ export const LIVE_TRACKING_MAP_STYLE: StyleSpecification = {
       source: "trip-route",
       layout: { "line-join": "round", "line-cap": "round" },
       paint: {
-        "line-color": "#2563eb",
+        "line-color": "#142238",
         "line-width": 5.5,
         "line-opacity": 1.0,
       },
@@ -164,7 +160,7 @@ export const LIVE_TRACKING_MAP_STYLE: StyleSpecification = {
       source: "driver-route",
       layout: { "line-join": "round", "line-cap": "round" },
       paint: {
-        "line-color": "#ffffff",
+        "line-color": "#f3f8f6",
         "line-width": 8.5,
         "line-opacity": 0.9,
       },
@@ -175,7 +171,7 @@ export const LIVE_TRACKING_MAP_STYLE: StyleSpecification = {
       source: "driver-route",
       layout: { "line-join": "round", "line-cap": "round" },
       paint: {
-        "line-color": "#0284c7",
+        "line-color": "#42627a",
         "line-width": 4.5,
         "line-opacity": 0.9,
         "line-dasharray": [1, 2],

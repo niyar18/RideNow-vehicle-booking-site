@@ -25,7 +25,7 @@ describe("recommendVehicle - Distance and Capacity Awareness", () => {
       distanceKm: 22,
     });
     expect(rec.vehicleId).toBe("auto");
-    expect(rec.reason).toContain("exceeds 15km bike limit");
+    expect(rec.reason).toContain("longer solo ride");
     expect(isVehicleDistanceEligible("auto", 22)).toBe(true);
   });
 
@@ -49,7 +49,7 @@ describe("recommendVehicle - Distance and Capacity Awareness", () => {
       distanceKm: 35,
     });
     expect(rec.vehicleId).toBe("mini");
-    expect(rec.reason).toContain("exceeds 30km auto limit");
+    expect(rec.reason).toContain("longer route");
   });
 
   it("recommends auto for 2 passengers budget within 30 km", () => {
@@ -86,11 +86,11 @@ describe("recommendVehicle - Distance and Capacity Awareness", () => {
   });
 
   it("correctly identifies distance eligibility limits", () => {
-    expect(isVehicleDistanceEligible("bike", 15)).toBe(true);
-    expect(isVehicleDistanceEligible("bike", 15.1)).toBe(false);
-    expect(isVehicleDistanceEligible("auto", 30)).toBe(true);
-    expect(isVehicleDistanceEligible("auto", 30.5)).toBe(false);
-    expect(isVehicleDistanceEligible("mini", 400)).toBe(true);
+    expect(isVehicleDistanceEligible("bike", 25)).toBe(true);
+    expect(isVehicleDistanceEligible("bike", 25.1)).toBe(false);
+    expect(isVehicleDistanceEligible("auto", 35)).toBe(true);
+    expect(isVehicleDistanceEligible("auto", 35.1)).toBe(false);
+    expect(isVehicleDistanceEligible("mini", 400)).toBe(false);
     expect(isVehicleDistanceEligible("loading", 250)).toBe(true);
     expect(isVehicleDistanceEligible("loading", 251)).toBe(false);
   });

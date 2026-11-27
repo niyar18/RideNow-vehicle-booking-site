@@ -51,3 +51,6 @@ next-env.d.ts
 .svg/
 .svgs/
 
+
+# Generated same-origin MapLibre worker modules
+/public/map-runtime/

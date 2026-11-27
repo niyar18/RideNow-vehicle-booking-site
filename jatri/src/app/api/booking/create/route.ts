@@ -4,13 +4,8 @@ import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
 import Vehicle from "@/models/vehicle.model";
-import FareConfig from "@/models/fareConfig.model";
 import { auth } from "@/auth";
-import axios from "axios";
-import { calculateFareBreakdown, DEFAULT_VEHICLE_RATES } from "@/lib/fareEngine";
 import { calculateCommissionSplit } from "@/lib/commission";
-import { haversineDistance, estimateMultiStopRoadDistanceKm } from "@/lib/routeUtils";
-import { getAuthoritativeRoadDistance } from "@/lib/valhalla";
 import { sendPushToUser } from "@/lib/webPush";
 import { findEligibleCandidates } from "@/lib/driverMatchingEngine";
 import { idempotency } from "@/lib/idempotency";
@@ -18,13 +13,29 @@ import { getRequestId } from "@/lib/apiResponse";
 import { generateSecureOtp } from "@/lib/cryptoOtp";
 import { emitSocketEvent } from "@/lib/socketServerEmit";
 import { rateLimiter } from "@/lib/rateLimit";
-import { getStudentMonthlyStatus, reserveStudentDiscount, releaseStudentDiscountReservation } from "@/lib/studentDiscountEngine";
-import { evaluateReferralDiscountForBooking } from "@/lib/referralEngine";
+import { reserveStudentDiscount, undoUnattachedStudentDiscount } from "@/lib/studentDiscountEngine";
+import { FareQuoteError, getBookingQuote } from "@/lib/bookingQuote.server";
+import { normalizeFareVehicle, fareDistanceLimits, type BookingFareQuote } from "@/lib/farePolicy";
 
 export async function POST(req: Request) {
   const requestId = getRequestId(req);
+  let unattachedStudentReservation: { userId: string; amount: number } | null = null;
+  const priceChanged = (quote?: BookingFareQuote) => NextResponse.json(
+    { success: false, code: "FARE_CHANGED", message: "Your fare changed. Review the updated total before requesting the ride.", quote },
+    { status: 409 },
+  );
+
   try {
-    const idempotencyKey = idempotency.getKey(req);
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { success: false, message: "Please sign in to request a ride", meta: { requestId } },
+        { status: 401 }
+      );
+    }
+
+    const requestKey = idempotency.getKey(req);
+    const idempotencyKey = requestKey ? `booking:create:${session.user.id}:${requestKey}` : null;
     if (idempotencyKey) {
       const cached = await idempotency.get(idempotencyKey);
       if (cached) {
@@ -41,14 +52,6 @@ export async function POST(req: Request) {
 
     await connectDb();
 
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { success: false, message: "Please sign in to request a ride", meta: { requestId } },
-        { status: 401 }
-      );
-    }
-
     const userLimit = rateLimiter.check(`booking:create:${session.user.id}`, 10, 60 * 1000);
     if (!userLimit.allowed) {
       return NextResponse.json(
@@ -57,7 +60,8 @@ export async function POST(req: Request) {
       );
     }
 
-    const body = await req.json();
+    const body = await req.json().catch(() => null);
+    if (!body || typeof body !== "object") throw new FareQuoteError("Invalid booking request.");
 
     const {
       pickup,
@@ -65,8 +69,6 @@ export async function POST(req: Request) {
       pickupDetails,
       dropDetails,
       vehicle, // requested vehicle type: bike, auto, car, intercity, loading, truck
-      fare,
-      mobileNumber, // user's mobile number
       pickupLat,
       pickupLng,
       dropLat,
@@ -80,7 +82,6 @@ export async function POST(req: Request) {
       scheduledPickupTime,
       serviceMode,
       cargoDetails,
-      distanceKm: clientDistanceKm,
       driverPreference,
       searchRadiusKm,
     } = body;
@@ -107,43 +108,13 @@ export async function POST(req: Request) {
       );
     }
 
-    let vehicleKey = String(vehicle).toLowerCase();
-    if (vehicleKey === "toto" || vehicleKey === "erickshaw" || vehicleKey === "e_rickshaw") { vehicleKey = "e-rickshaw"; }
-    const VALID_VEHICLES = ["scooty", "bike", "auto", "e-rickshaw", "mini", "car", "priority", "intercity", "loading", "truck"];
-    if (!VALID_VEHICLES.includes(vehicleKey)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: `Invalid vehicle type '${vehicle}'. Must be one of: ${VALID_VEHICLES.join(", ")}`,
-        },
-        { status: 400 }
-      );
-    }
+    const vehicleKey = normalizeFareVehicle(vehicle);
+    if (!fareDistanceLimits(vehicleKey)) throw new FareQuoteError("Select a valid vehicle type.");
 
     const effectiveServiceMode: "passenger" | "logistics" =
       serviceMode === "logistics" || ["loading", "truck"].includes(vehicleKey)
         ? "logistics"
         : "passenger";
-
-    if (effectiveServiceMode === "passenger" && ["loading", "truck"].includes(vehicleKey)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Loading and Truck are reserved for Goods Transport services. Please select Bike, Auto, or RideNow Go.",
-        },
-        { status: 400 }
-      );
-    }
-
-    if (effectiveServiceMode === "logistics" && !["loading", "truck"].includes(vehicleKey)) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Only Loading and Truck vehicles are available for Goods Transport.",
-        },
-        { status: 400 }
-      );
-    }
 
     let parsedScheduledTime: Date | undefined;
     if (isScheduled) {
@@ -180,28 +151,15 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check outstanding cancellation balance (Anti-abuse threshold)
-    const userOutstanding = Number((currentUser as any)?.outstandingAmount || 0);
-    const MAX_OUTSTANDING_THRESHOLD = 150;
-    if (userOutstanding >= MAX_OUTSTANDING_THRESHOLD) {
-      return NextResponse.json(
-        {
-          success: false,
-          requiresOutstandingSettlement: true,
-          outstandingAmount: userOutstanding,
-          message: `You have ₹${userOutstanding} in unpaid cancellation dues. Please settle your outstanding balance before requesting a new ride.`,
-        },
-        { status: 403 }
-      );
+    const effectiveUserMobile = currentUser.mobileNumber;
+    const { quote, distance: routeDistance, routeCoordinates } = await getBookingQuote(
+      body, session.user.id, currentUser as Parameters<typeof getBookingQuote>[2],
+    );
+    const breakdown = quote.breakdown;
+    const expectedFare = body.expectedFare ?? body.fare;
+    if (typeof expectedFare !== "number" || !Number.isSafeInteger(expectedFare) || expectedFare !== breakdown.totalFare) {
+      return priceChanged(quote);
     }
-
-    const effectiveUserMobile = (currentUser as any)?.mobileNumber;
-    const studentVer = (currentUser as any)?.studentVerification;
-    const isStudent =
-      Boolean((currentUser as any)?.isStudent) &&
-      studentVer?.status === "verified" &&
-      studentVer?.expiresAt &&
-      new Date(studentVer.expiresAt).getTime() > Date.now();
 
     // Prevent duplicate active booking for instant rides
     if (!isScheduled) {
@@ -297,160 +255,30 @@ export async function POST(req: Request) {
       );
     }
 
-    // Rates from FareConfig collection with complete economic parameters
-    const rates = await FareConfig.find({});
-    const ratesMap: Record<string, any> = {};
-    rates.forEach((c) => {
-      const vKey = c.vehicleType.toLowerCase();
-      ratesMap[vKey] = {
-        baseFare: c.baseFare,
-        pricePerKm: c.pricePerKm,
-        pricePerMinute: c.pricePerMinute || 0,
-        waitingChargePerMinute: c.waitingChargePerMinute || 2.5,
-        freeWaitingMinutes: c.freeWaitingMinutes || 3,
-        platformFee: c.platformFee !== undefined ? c.platformFee : 15,
-        taxRate: c.taxRate !== undefined ? c.taxRate : 0.05,
-        cancellationFee: c.cancellationFee !== undefined ? c.cancellationFee : 50,
-        multiplier: c.multiplier || 1.0,
-        minDistance: c.minDistance !== undefined ? c.minDistance : 0,
-        maxDistance: c.maxDistance !== undefined ? c.maxDistance : 9999,
-      };
-    });
-
-    const cfg = ratesMap[vehicleKey] || DEFAULT_VEHICLE_RATES[vehicleKey] || DEFAULT_VEHICLE_RATES.car;
-
-    // Authoritative road distance & duration resolution
-    const waypoints: [number, number][] = [
-      [pLat, pLng],
-      ...(Array.isArray(stops) && stops.length > 0
-        ? stops
-            .filter((s: any) => !isNaN(Number(s.lat)) && !isNaN(Number(s.lng)))
-            .map((s: any) => [Number(s.lat), Number(s.lng)] as [number, number])
-        : []),
-      [dLat, dLng],
-    ];
-
-    let routeDistance = 0;
-    let routingDurationMin = 0;
-    let routeCoordinates: [number, number][] = waypoints.map((w) => [w[1], w[0]]); // default [lng, lat][]
-    try {
-      const roadRoute = await getAuthoritativeRoadDistance(waypoints, { timeoutMs: 2500 });
-      routeDistance = roadRoute.distanceKm;
-      routingDurationMin = roadRoute.durationMinutes;
-      if (Array.isArray(roadRoute.geojsonCoords) && roadRoute.geojsonCoords.length > 0) {
-        routeCoordinates = roadRoute.geojsonCoords;
-      }
-    } catch (routeErr) {
-      console.warn("Authoritative road distance calculation failed, using winding fallback:", routeErr);
-      routeDistance = estimateMultiStopRoadDistanceKm(waypoints);
-    }
-
-    if (!routeDistance || isNaN(routeDistance) || routeDistance <= 0) {
-      routeDistance = estimateMultiStopRoadDistanceKm(waypoints);
-    }
-
-    // Validate 100km rule for city fleet vs Intercity/Logistics
-    if (["bike", "auto", "e-rickshaw", "car", "mini", "priority", "scooty"].includes(vehicleKey) && routeDistance > 100) {
-      return NextResponse.json(
-        {
-          success: false,
-          isServiceUnavailable: true,
-          message: `Bike, Auto, and City Cab are available for local trips up to 100 km (Current: ${routeDistance.toFixed(1)} km). Please choose Intercity Car Service or Cargo.`,
-        },
-        { status: 400 }
-      );
-    }
-
-    // Validate distance limits
-    const min = cfg.minDistance !== undefined ? cfg.minDistance : 0;
-    const max = cfg.maxDistance !== undefined ? cfg.maxDistance : 9999;
-    if (routeDistance < min) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: `Selected vehicle type requires a minimum ride distance of ${min} km (Current: ${routeDistance.toFixed(1)} km)`,
-        },
-        { status: 400 }
-      );
-    }
-    if (routeDistance > max) {
-      return NextResponse.json(
-        {
-          success: false,
-          isServiceUnavailable: true,
-          message: `Selected vehicle type is limited to a maximum ride distance of ${max} km (Current: ${routeDistance.toFixed(1)} km)`,
-        },
-        { status: 400 }
-      );
-    }
-
-    const studentStatus = isStudent ? await getStudentMonthlyStatus(session.user.id) : null;
-    const studentSettings = studentStatus
-      ? {
-          remainingMonthlyAllowance: studentStatus.remainingAllowance,
-          remainingMonthlyRides: studentStatus.remainingRides,
-        }
-      : undefined;
-
-    // Authoritative distance-only pricing calculation (including any unsettled cancellation dues)
-    const breakdown = calculateFareBreakdown(
-      vehicleKey,
-      routeDistance,
-      ratesMap,
-      undefined,
-      0,
-      isStudent,
-      undefined,
-      studentSettings,
-      userOutstanding
-    );
-
-    let isStudentReserved = false;
-    let actualReservedDiscount = 0;
-    if (breakdown.isStudentDiscountApplied && (breakdown.studentDiscount || 0) > 0) {
-      const reservation = await reserveStudentDiscount(session.user.id, breakdown.studentDiscount || 0);
+    const studentDiscount = breakdown.studentDiscount ?? 0;
+    if (breakdown.isStudentDiscountApplied && studentDiscount > 0) {
+      const reservation = await reserveStudentDiscount(session.user.id, studentDiscount);
       if (reservation.success && reservation.discountAmount > 0) {
-        isStudentReserved = true;
-        actualReservedDiscount = reservation.discountAmount;
-        if (actualReservedDiscount !== breakdown.studentDiscount) {
-          const diff = (breakdown.studentDiscount || 0) - actualReservedDiscount;
-          breakdown.studentDiscount = actualReservedDiscount;
-          breakdown.discount = actualReservedDiscount;
-          breakdown.totalFare += diff;
+        unattachedStudentReservation = { userId: session.user.id, amount: reservation.discountAmount };
+      }
+      if (!reservation.success || reservation.discountAmount !== studentDiscount) {
+        if (unattachedStudentReservation) {
+          await undoUnattachedStudentDiscount(unattachedStudentReservation.userId, unattachedStudentReservation.amount);
+          unattachedStudentReservation = null;
         }
-      } else {
-        const removedDiscount = breakdown.studentDiscount || 0;
-        breakdown.isStudentDiscountApplied = false;
-        breakdown.studentDiscount = 0;
-        breakdown.discount = 0;
-        breakdown.totalFare += removedDiscount;
+        const updated = await getBookingQuote(body, session.user.id, currentUser as Parameters<typeof getBookingQuote>[2]);
+        return priceChanged(updated.quote);
       }
     }
-    let isReferralApplied = false;
-    let referralDiscountAmount = 0;
-    if (!breakdown.isStudentDiscountApplied) {
-      const referralEval = await evaluateReferralDiscountForBooking({
-        userId: session.user.id,
-        baseFare: breakdown.baseFare + breakdown.distanceFare,
-        isStudent: false,
-      });
-      if (referralEval.isEligible && referralEval.discountAmount > 0) {
-        isReferralApplied = true;
-        referralDiscountAmount = referralEval.discountAmount;
-        breakdown.isReferralDiscountApplied = true;
-        breakdown.referralDiscount = referralDiscountAmount;
-        breakdown.discount = (breakdown.discount || 0) + referralDiscountAmount;
-        breakdown.totalFare = Math.max(0, breakdown.totalFare - referralDiscountAmount);
-      }
-    }
+    const isStudentReserved = unattachedStudentReservation !== null;
+    const isReferralApplied = breakdown.isReferralDiscountApplied === true;
+    const referralDiscountAmount = breakdown.referralDiscount ?? 0;
     const calculatedFare = breakdown.totalFare;
+    const userOutstanding = breakdown.cancellationDues ?? 0;
     const rideFareOnly = Math.max(0, calculatedFare - userOutstanding);
     const commissionSplit = calculateCommissionSplit(rideFareOnly);
 
-    const estimatedDurationMin = Math.max(
-      5,
-      routingDurationMin || breakdown.timeMinutes || Math.round((routeDistance / 25) * 60) || 15
-    );
+    const estimatedDurationMin = quote.durationMinutes;
     const baseStartTime = parsedScheduledTime ? parsedScheduledTime.getTime() : Date.now();
     const estimatedDropoffTime = new Date(baseStartTime + estimatedDurationMin * 60 * 1000);
 
@@ -564,6 +392,8 @@ export async function POST(req: Request) {
       matchingPolicyVersion: "v1",
     });
 
+    unattachedStudentReservation = null;
+
     // 4️⃣ Safely broadcast socket events and Web Push to ALL candidate drivers simultaneously
     const eventName = isScheduled ? "new-scheduled-booking" : "new-booking";
     for (const candidate of sortedCandidates) {
@@ -611,12 +441,22 @@ export async function POST(req: Request) {
       status: 201,
       headers: { "X-Request-Id": requestId },
     });
-  } catch (error: any) {
+  } catch (error) {
+    if (unattachedStudentReservation) {
+      try {
+        await undoUnattachedStudentDiscount(unattachedStudentReservation.userId, unattachedStudentReservation.amount);
+      } catch (releaseError) {
+        console.error("Could not release an unattached student fare reservation", releaseError);
+      }
+    }
+    if (error instanceof FareQuoteError) {
+      return NextResponse.json({ success: false, message: error.message, ...error.details, meta: { requestId } }, { status: error.status });
+    }
     console.error(`[${requestId}] Booking creation error:`, error);
     return NextResponse.json(
       {
         success: false,
-        message: error.message || "Failed to create booking",
+        message: "Failed to create booking. Please try again.",
         meta: { requestId },
       },
       {
