@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+import { driverBookingProjection } from "@/lib/bookingPrivacy";
 import { NextResponse } from "next/server";
 import { Types } from "mongoose";
 import connectDb from "@/lib/db";
@@ -79,7 +80,10 @@ export async function GET() {
     ],
   })
     .sort({ updatedAt: -1, createdAt: -1 })
-    .populate("user driver vehicle")
+    .select(driverBookingProjection)
+    .populate("user", "name profilePicture")
+    .populate("driver", "name profilePicture")
+    .populate("vehicle", "number vehicleModel type imageUrl")
     .lean();
 
   if (!booking) return NextResponse.json(null);

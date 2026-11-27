@@ -7,6 +7,11 @@ import {
   sanitizePublicTrackingEvent,
 } from "../trackingSecurity.js";
 
+import {
+  createSocketRateLimiter, directRidePayload, installLiveGpsHandler, installSocketRateLimit,
+  isTripParticipant, stripRiderFields,
+} from "../rideEventPolicy.js";
+
 const HOUR = 60 * 60 * 1000;
 
 test("terminal ride statuses are recognized case-insensitively", () => {
@@ -123,3 +128,82 @@ test("public booking updates reject nested or invalid field values", () => {
   });
 });
 
+
+test("only current ride participants are recognized for trip broadcasts", () => {
+  const booking = { user: "rider", driver: "assigned", candidateDrivers: ["candidate"] };
+  assert.equal(isTripParticipant(booking, "rider", "user"), true);
+  assert.equal(isTripParticipant(booking, "assigned", "vendor"), true);
+  assert.equal(isTripParticipant(booking, "candidate", "vendor"), false);
+  assert.equal(isTripParticipant(booking, "support", "admin"), true);
+});
+
+test("active trip updates keep private fields on the designated rider delivery only", () => {
+  const booking = { user: "rider", driver: "assigned" };
+  const payload = {
+    bookingId: "booking-id",
+    status: "started",
+    dropOtp: "fixture-code",
+    association: { shareToken: "fixture-token", status: "started" },
+  };
+  const sharedPayload = {
+    bookingId: "booking-id", status: "started", association: { status: "started" },
+  };
+  assert.deepEqual(stripRiderFields(payload), sharedPayload);
+  assert.deepEqual(directRidePayload("booking-updated", payload, booking, "rider"), payload);
+  assert.deepEqual(directRidePayload("booking-updated", payload, booking, "assigned"), sharedPayload);
+  assert.deepEqual(directRidePayload("booking-updated", payload, null, "rider"), sharedPayload);
+});
+
+test("dispatch offers carry notification details, not the booking record", () => {
+  assert.deepEqual(directRidePayload("new-booking", {
+    _id: "booking-id", pickupAddress: "Pickup", dropAddress: "Drop-off", fare: 42,
+    pickupOtp: "fixture-code", shareToken: "fixture-token", userMobileNumber: "fixture-number",
+  }), {
+    _id: "booking-id", pickupAddress: "Pickup", dropAddress: "Drop-off", fare: 42,
+  });
+});
+
+test("an assigned driver's normal GPS packet reaches the publisher once", async () => {
+  let time = 0;
+  const handlers = new Map();
+  const published = [];
+  let middleware;
+  const socket = {
+    id: "fixture-socket",
+    userId: "driver",
+    use: (fn) => { middleware = fn; },
+    on: (event, fn) => handlers.set(event, fn),
+    emit: () => {},
+  };
+  const booking = { user: "rider", driver: "driver", status: "started" };
+  installSocketRateLimit(socket, createSocketRateLimiter(() => time));
+  installLiveGpsHandler(socket, {
+    canonicalBookingId: (id) => id === "ride" ? id : null,
+    findBooking: async () => booking,
+    publish: async (...args) => { published.push(args); },
+    revokeObservers: () => assert.fail("Active trip should remain visible"),
+    now: () => time,
+  });
+  const event = "driver-location-update";
+  const payload = { bookingId: "ride", latitude: 26.2, longitude: 91.7 };
+  const dispatch = () => {
+    let handled;
+    middleware([event, payload], () => { handled = handlers.get(event)(payload); });
+    return handled;
+  };
+  await dispatch();
+  assert.deepEqual(published[0], [
+    "ride", "driver-location",
+    { bookingId: "ride", latitude: 26.2, longitude: 91.7, status: "started", timestamp: 0 },
+    null, booking,
+  ]);
+  time = 550;
+  await dispatch();
+  time = 900;
+  await dispatch();
+  time = 1001;
+  await dispatch();
+  time = 1500;
+  await dispatch();
+  assert.deepEqual(published.map((item) => item[2].timestamp), [0, 900, 1500]);
+});

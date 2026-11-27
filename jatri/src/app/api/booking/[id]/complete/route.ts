@@ -1,3 +1,4 @@
+import { withoutRiderSecrets } from "@/lib/bookingPrivacy";
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import { auth } from "@/auth";
@@ -111,7 +112,7 @@ export async function POST(
       console.error(`[complete] Settlement flagged as pending/failed for booking ${booking._id}:`, settlementResult.error);
       return NextResponse.json({
         success: true,
-        booking,
+        booking: withoutRiderSecrets(booking),
         isDuplicate: transitionRes.isDuplicateCall,
         settlementPending: true,
         warning: "Ride completed successfully. Earnings settlement is queued and will update shortly.",
@@ -119,5 +120,5 @@ export async function POST(
     }
   }
 
-  return NextResponse.json({ success: true, booking, isDuplicate: transitionRes.isDuplicateCall });
+  return NextResponse.json({ success: true, booking: withoutRiderSecrets(booking), isDuplicate: transitionRes.isDuplicateCall });
 }

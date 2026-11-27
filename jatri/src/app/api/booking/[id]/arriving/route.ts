@@ -1,3 +1,4 @@
+import { withoutRiderSecrets } from "@/lib/bookingPrivacy";
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import { auth } from "@/auth";
@@ -11,8 +12,15 @@ export async function POST(
   await connectDb();
   const session = await auth();
 
-  const actorRole = session?.user?.role === "vendor" || session?.user?.role === "driver" ? "driver" : session?.user?.role === "admin" ? "admin" : "driver";
-  const actorId = session?.user?.id;
+  if (!session?.user?.id) {
+    return NextResponse.json({ message: "Unauthorized: Driver login required" }, { status: 401 });
+  }
+  const userRole = session.user.role;
+  if (userRole !== "vendor" && userRole !== "driver" && userRole !== "admin") {
+    return NextResponse.json({ message: "Forbidden: Driver or Admin privileges required" }, { status: 403 });
+  }
+  const actorRole = userRole === "admin" ? "admin" : "driver";
+  const actorId = session.user.id;
 
   const transitionRes = await transitionBookingState({
     bookingId: id,
@@ -26,5 +34,5 @@ export async function POST(
     return NextResponse.json({ message: transitionRes.message || "Could not update arriving status" }, { status });
   }
 
-  return NextResponse.json({ success: true, booking: transitionRes.booking });
+  return NextResponse.json({ success: true, booking: withoutRiderSecrets(transitionRes.booking) });
 }

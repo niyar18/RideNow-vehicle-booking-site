@@ -1,3 +1,4 @@
+import { withoutRiderSecrets } from "@/lib/bookingPrivacy";
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import { auth } from "@/auth";
@@ -35,5 +36,5 @@ export async function POST(
     return NextResponse.json({ message: transitionRes.message || "Could not update arrived status" }, { status });
   }
 
-  return NextResponse.json({ success: true, booking: transitionRes.booking });
+  return NextResponse.json({ success: true, booking: withoutRiderSecrets(transitionRes.booking) });
 }

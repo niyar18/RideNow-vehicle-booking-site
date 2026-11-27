@@ -1,7 +1,8 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import type { Connection, Types } from "mongoose";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import Wallet from "@/models/wallet.model";
@@ -12,6 +13,8 @@ import { emitSocketEvent } from "@/lib/socketServerEmit";
 import { sendPushToUser } from "@/lib/webPush";
 import logger from "@/lib/logger";
 import { auth } from "@/auth";
+import { generateTransactionId } from "@/lib/walletLedger";
+import { releaseStudentDiscountReservation } from "@/lib/studentDiscountEngine";
 
 /**
  * Validates whether the incoming cron request is authorized via:
@@ -37,6 +40,62 @@ function isAuthorizedCron(req: Request, isAdmin: boolean): boolean {
   return false;
 }
 
+// Claim the state change and record any refund in the same transaction.
+async function expireStaleBooking(
+  connection: Connection, bookingId: Types.ObjectId, now: Date, staleHorizon: Date,
+) {
+  return connection.transaction(async (session) => {
+    const booking = await Booking.findOneAndUpdate(
+      {
+        _id: bookingId,
+        status: { $in: ["requested", "searching_driver"] },
+        isScheduled: { $ne: true },
+        createdAt: { $lte: staleHorizon },
+      },
+      { $set: {
+        status: "expired",
+        expiredAt: now,
+        expiredReason: "No drivers accepted the request within the 15-minute fulfillment window.",
+      } },
+      { new: true, session },
+    );
+    if (!booking || booking.paymentStatus !== "paid" || !booking.user || booking.fare <= 0) {
+      return booking;
+    }
+
+    const rider = await User.findById(booking.user).session(session).select("walletBalance");
+    if (!rider) throw new Error("Rider account missing for refund.");
+    const existingWallet = await Wallet.findOne({ userId: booking.user }).session(session);
+    const previousBalance = existingWallet?.balance ?? rider.walletBalance ?? 0;
+    const wallet = existingWallet ?? new Wallet({ userId: booking.user, balance: previousBalance });
+    wallet.balance = previousBalance + booking.fare;
+    await wallet.save({ session });
+    rider.walletBalance = wallet.balance;
+    await rider.save({ session, validateModifiedOnly: true });
+
+    await WalletTransaction.create([{
+      transactionId: generateTransactionId("TXN_REF_EXP"),
+      idempotencyKey: `RIDE_EXPIRY_REFUND_${booking._id}`,
+      walletId: wallet._id,
+      userId: booking.user,
+      rideId: booking._id,
+      bookingId: booking._id,
+      type: "credit",
+      transactionType: "REFUND",
+      category: "ride_refund",
+      amount: booking.fare,
+      balanceBefore: previousBalance,
+      balanceAfter: wallet.balance,
+      description: "Refund for an unfulfilled expired ride",
+      status: "success",
+    }], { session });
+
+    booking.paymentStatus = "refunded";
+    await booking.save({ session });
+    return booking;
+  });
+}
+
 /**
  * Core Rides Cron Runner:
  * 1. Dispatches scheduled rides within 25-minute pickup window
@@ -44,7 +103,6 @@ function isAuthorizedCron(req: Request, isAdmin: boolean): boolean {
  */
 export async function executeRidesCron(req: Request) {
   try {
-    await connectDb();
     const session = await auth();
     const isAdmin = session?.user?.role === "admin";
 
@@ -55,7 +113,11 @@ export async function executeRidesCron(req: Request) {
       );
     }
 
+    const connection = await connectDb();
+    if (!connection) throw new Error("Database is not available.");
+
     const now = new Date();
+    let failureCount = 0;
     const dispatchedIds: string[] = [];
     const expiredIds: string[] = [];
 
@@ -79,6 +141,7 @@ export async function executeRidesCron(req: Request) {
         });
 
         if (!transitionRes.success) {
+          if (transitionRes.errorCode !== "RACE_CONDITION" && transitionRes.errorCode !== "TERMINAL_STATE") failureCount += 1;
           logger.warn("cron.scheduled_dispatch_transition_failed", {
             bookingId: String(booking._id),
             error: transitionRes.message,
@@ -150,6 +213,7 @@ export async function executeRidesCron(req: Request) {
           scheduledPickupTime: booking.scheduledPickupTime,
         });
       } catch (dispatchErr: any) {
+        failureCount += 1;
         logger.error("cron.scheduled_dispatch_error", {
           bookingId: String(booking._id),
           error: dispatchErr?.message || String(dispatchErr),
@@ -165,62 +229,17 @@ export async function executeRidesCron(req: Request) {
       createdAt: { $lte: staleHorizon },
     });
 
-    for (const booking of staleBookings) {
+    for (const staleBooking of staleBookings) {
       try {
-        // Automatically refund customer if fare was prepaid
-        if (booking.paymentStatus === "paid" && booking.user && booking.fare > 0) {
-          const refundAmount = booking.fare;
-          const riderWallet =
-            (await Wallet.findOne({ userId: booking.user })) ||
-            (await Wallet.create({ userId: booking.user, balance: 0, outstandingAmount: 0 }));
-
-          const prevBalance = riderWallet.balance || 0;
-          await Wallet.findByIdAndUpdate(riderWallet._id, {
-            $inc: { balance: refundAmount },
-          });
-          await User.findByIdAndUpdate(booking.user, {
-            $inc: { walletBalance: refundAmount },
-          });
-
-          await WalletTransaction.create({
-            transactionId: `TXN_REF_EXP_${Date.now()}_${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
-            walletId: riderWallet._id,
-            userId: booking.user,
-            rideId: booking._id,
-            bookingId: booking._id,
-            type: "credit",
-            transactionType: "REFUND",
-            category: "ride_refund",
-            amount: refundAmount,
-            balanceBefore: prevBalance,
-            balanceAfter: prevBalance + refundAmount,
-            description: `Full refund for unfulfilled expired ride #${booking._id.toString().slice(-6)}`,
-            status: "success",
-          });
-
-          booking.paymentStatus = "refunded";
-        }
-
-        const transitionRes = await transitionBookingState({
-          bookingId: booking._id,
-          targetStatus: "expired",
-          actorRole: "system",
-          payload: {
-            expiredAt: now,
-            expiredReason: "No drivers accepted the request within the 15-minute fulfillment window.",
-            paymentStatus: booking.paymentStatus,
-          },
-        });
-
-        if (!transitionRes.success) {
-          logger.warn("cron.stale_expire_transition_failed", {
-            bookingId: String(booking._id),
-            error: transitionRes.message,
-          });
-          continue;
-        }
-
+        const booking = await expireStaleBooking(connection, staleBooking._id, now, staleHorizon);
+        if (!booking) continue; // Already handled or no longer eligible.
         expiredIds.push(booking._id.toString());
+        try {
+          await releaseStudentDiscountReservation(booking._id, booking.user);
+        } catch (error) {
+          failureCount += 1;
+          logger.warn("cron.stale_discount_release_failed", { bookingId: String(booking._id), error });
+        }
 
         // Notify passenger
         if (booking.user) {
@@ -251,8 +270,9 @@ export async function executeRidesCron(req: Request) {
           createdAt: booking.createdAt,
         });
       } catch (expireErr: any) {
+        failureCount += 1;
         logger.error("cron.stale_expire_error", {
-          bookingId: String(booking._id),
+          bookingId: String(staleBooking._id),
           error: expireErr?.message || String(expireErr),
         });
       }
@@ -278,25 +298,27 @@ export async function executeRidesCron(req: Request) {
         logger.info("cron.expired_students_cleanup", { count: expiredStudentsCount });
       }
     } catch (stuErr: any) {
+      failureCount += 1;
       logger.warn("cron.expired_students_cleanup_failed", { error: stuErr?.message || String(stuErr) });
     }
 
     return NextResponse.json({
-      success: true,
+      success: failureCount === 0,
+      failureCount,
       timestamp: now.toISOString(),
       scheduledDispatchedCount: dispatchedIds.length,
       staleExpiredCount: expiredIds.length,
       expiredStudentsCount,
       dispatchedBookingIds: dispatchedIds,
       expiredBookingIds: expiredIds,
-    });
+    }, { status: failureCount ? 500 : 200 });
   } catch (error: any) {
     logger.critical("cron.rides_execution_error", {
       error: error?.message || String(error),
       stack: error?.stack,
     });
     return NextResponse.json(
-      { success: false, message: "Rides cron execution failed", error: error.message },
+      { success: false, message: "Rides cron execution failed" },
       { status: 500 }
     );
   }

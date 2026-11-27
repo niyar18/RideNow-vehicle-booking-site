@@ -8,6 +8,8 @@ import crypto from "crypto"
 import mongoose from "mongoose"
 import { getTrackingExpiry, isTerminalBookingStatus, isTrackingTokenExpired, sanitizePublicTrackingEvent } from "./trackingSecurity.js"
 
+import { createSocketRateLimiter, directRidePayload, hasRiderFields, installLiveGpsHandler, installSocketRateLimit, isDispatchOffer, isTripParticipant, stripRiderFields } from "./rideEventPolicy.js";
+
 dotenv.config()
 
 import User from "./models/user.models.js";
@@ -108,24 +110,48 @@ app.get(["/", "/health"], (req, res) => {
 
 const publicTrackingExpiryTimers = new Map();
 
-async function emitToBookingRoom(bookingId, event, data, excludeSocketId = null) {
-  const normalizedBookingId = String(bookingId);
-  const room = `booking-${normalizedBookingId}`;
-  const roomSockets = await io.in(room).fetchSockets();
+function canonicalBookingId(value) {
+  const id = String(value ?? "");
+  return mongoose.Types.ObjectId.isValid(id) ? id.toLowerCase() : null;
+}
 
-  for (const roomSocket of roomSockets) {
-    if (excludeSocketId && roomSocket.id === excludeSocketId) continue;
-    const observedBookings = roomSocket.data?.publicTrackingBookingIds;
-    const isPublicObserver = Array.isArray(observedBookings) &&
-      observedBookings.includes(normalizedBookingId);
+async function findSocketBooking(bookingId) {
+  return mongoose.connection.collection("bookings").findOne(
+    { _id: new mongoose.Types.ObjectId(bookingId) },
+    { projection: { user: 1, driver: 1, shareToken: 1, status: 1, shareTokenExpiresAt: 1, createdAt: 1, isScheduled: 1, scheduledPickupTime: 1 } }
+  );
+}
 
-    if (isPublicObserver) {
-      const safePayload = sanitizePublicTrackingEvent(event, data, normalizedBookingId);
-      if (safePayload) roomSocket.emit(event, safePayload);
-      continue;
+async function emitToBookingRoom(bookingId, event, data, excludeSocketId = null, knownBooking) {
+  const id = canonicalBookingId(bookingId);
+  if (!id || isDispatchOffer(event)) return;
+
+  const room = `booking-${id}`;
+  const sockets = await io.in(room).fetchSockets();
+  if (sockets.length) {
+    const booking = knownBooking === undefined ? await findSocketBooking(id) : knownBooking;
+    const participantPayload = stripRiderFields(data);
+    for (const roomSocket of sockets) {
+      if (roomSocket.id === excludeSocketId) continue;
+      if (isTripParticipant(booking, roomSocket.data?.userId, roomSocket.data?.userRole)) {
+        roomSocket.emit(event, participantPayload);
+      } else {
+        await roomSocket.leave(room);
+      }
     }
+  }
 
-    roomSocket.emit(event, data);
+  const observerPayload = sanitizePublicTrackingEvent(event, data, id);
+  if (observerPayload) {
+    const trackingRoom = `tracking-${id}`;
+    const observers = await io.in(trackingRoom).fetchSockets();
+    for (const observer of observers) {
+      if (observer.data?.publicTrackingExpiries?.[id] > Date.now()) {
+        observer.emit(event, observerPayload);
+      } else {
+        await observer.leave(trackingRoom);
+      }
+    }
   }
 }
 
@@ -141,11 +167,8 @@ function schedulePublicTrackingExpiry(socket, bookingId, expiresAt) {
     if (remaining <= 0) {
       const liveSocket = io.sockets.sockets.get(socket.id);
       if (liveSocket) {
-        liveSocket.leave(`booking-${bookingId}`);
-        if (Array.isArray(liveSocket.data.publicTrackingBookingIds)) {
-          liveSocket.data.publicTrackingBookingIds =
-            liveSocket.data.publicTrackingBookingIds.filter((id) => id !== bookingId);
-        }
+        liveSocket.leave(`tracking-${bookingId}`);
+        delete liveSocket.data.publicTrackingExpiries?.[bookingId];
       }
       publicTrackingExpiryTimers.delete(key);
       return;
@@ -168,16 +191,13 @@ function clearPublicTrackingExpiry(socketId, bookingId) {
 
 async function revokePublicTrackingObservers(bookingId) {
   if (!bookingId) return;
-  const room = `booking-${bookingId}`;
+  const room = `tracking-${bookingId}`;
   try {
     const roomSockets = await io.in(room).fetchSockets();
     await Promise.all(roomSockets.map(async (observer) => {
-      const publicBookings = observer.data?.publicTrackingBookingIds;
-      if (Array.isArray(publicBookings) && publicBookings.includes(String(bookingId))) {
-        await observer.leave(room);
-        clearPublicTrackingExpiry(observer.id, String(bookingId));
-        observer.data.publicTrackingBookingIds = publicBookings.filter((id) => id !== String(bookingId));
-      }
+      await observer.leave(room);
+      clearPublicTrackingExpiry(observer.id, bookingId);
+      delete observer.data.publicTrackingExpiries?.[bookingId];
     }));
   } catch (error) {
     console.error(`[SocketSecurity] Failed to revoke public tracking observers for booking ${bookingId}:`, error);
@@ -197,41 +217,36 @@ app.post("/emit", async (req, res) => {
     return res.status(403).json({ success: false, error: "Unauthorized socket emission secret" });
   }
 
-  const { userId, event, data, bookingId: directBookingId, room } = req.body;
+  const { userId, event, data, directBookingId, bookingId: legacyBookingId, room } = req.body;
   if (!event || typeof event !== "string") {
     return res.status(400).json({ success: false, error: "Missing or invalid event name" });
   }
 
   try {
-    // 1. Emit to user room and socket ID if targeted at a specific user
+    const bookingId = canonicalBookingId(directBookingId || legacyBookingId || data?.bookingId || data?._id);
+    const roomMatch = /^booking-([a-f\d]{24})$/i.exec(String(room ?? ""));
+    const roomBookingId = roomMatch ? canonicalBookingId(roomMatch[1]) : null;
+    const riderFields = !isDispatchOffer(event) && hasRiderFields(data);
+    const booking = riderFields && bookingId ? await findSocketBooking(bookingId) : undefined;
+
+    // User rooms contain authenticated sessions only. Dispatch offers never
+    // fan out to a trip room, and get an independent, minimal payload.
     if (userId) {
-      io.to(`user-${userId}`).emit(event, data);
-      const user = await User.findById(userId).select("socketId").lean();
-      if (user?.socketId) {
-        io.to(user.socketId).emit(event, data);
+      const payload = directRidePayload(event, data, booking, userId);
+      if (payload !== null) io.to(`user-${userId}`).emit(event, payload);
+    }
+
+    if (!isDispatchOffer(event)) {
+      if (bookingId) await emitToBookingRoom(bookingId, event, data, null, booking);
+      if (roomBookingId && roomBookingId !== bookingId) {
+        await emitToBookingRoom(roomBookingId, event, data);
+      } else if (room && !roomMatch && !/^(?:tracking|booking|user)-/i.test(String(room))) {
+        io.to(room).emit(event, stripRiderFields(data));
       }
     }
 
-    // 2. Broadcast to booking room with a separate public-observer payload.
-    const bId = directBookingId || data?.bookingId || data?._id;
-    if (bId) {
-      await emitToBookingRoom(String(bId), event, data);
-    }
-
-    // 3. Custom booking rooms also use the observer-safe broadcaster.
-    if (room) {
-      const roomMatch = /^booking-([a-f\d]{24})$/i.exec(String(room));
-      if (roomMatch) {
-        await emitToBookingRoom(roomMatch[1], event, data);
-      } else {
-        io.to(room).emit(event, data);
-      }
-    }
-
-    // Deliver the terminal status once, then revoke public live-tracking subscriptions.
-    const emittedBookingId = directBookingId || data?.bookingId || data?._id;
-    if (emittedBookingId && isTerminalBookingStatus(data?.status)) {
-      await revokePublicTrackingObservers(String(emittedBookingId));
+    if (bookingId && isTerminalBookingStatus(data?.status)) {
+      await revokePublicTrackingObservers(bookingId);
     }
 
     res.json({ success: true });
@@ -314,7 +329,7 @@ io.use(async (socket, next) => {
           return next(new Error("Vendor account is blocked"));
         }
         socket.userId = user._id.toString();
-        socket.userRole = user.role || verified.role || "user";
+        socket.userRole = user.role || "user";
         socket.data.userId = user._id.toString();
         socket.data.userRole = socket.userRole;
         return next();
@@ -338,27 +353,16 @@ async function verifyBookingAccess(bookingId, userId, userRole, trackingToken) {
   if (!bookingId || !mongoose.Types.ObjectId.isValid(bookingId)) return { allowed: false };
 
   try {
-    const booking = await mongoose.connection.collection("bookings").findOne(
-      { _id: new mongoose.Types.ObjectId(bookingId) },
-      { projection: { user: 1, driver: 1, candidateDrivers: 1, shareToken: 1, status: 1, shareTokenExpiresAt: 1, createdAt: 1, isScheduled: 1, scheduledPickupTime: 1 } }
-    );
-
+    const booking = await findSocketBooking(bookingId);
     if (!booking) return { allowed: false };
 
-    // Authenticated booking participants retain participant access independent of
-    // a share-link expiry. Do not mark them as public observers or schedule revocation.
-    if (userId) {
-      const uidStr = userId.toString();
-      const isRider = booking.user && booking.user.toString() === uidStr;
-      const isDriver = booking.driver && booking.driver.toString() === uidStr;
-      const isCandidate =
-        Array.isArray(booking.candidateDrivers) &&
-        booking.candidateDrivers.some((c) => c && c.toString() === uidStr);
-      const isAdmin = userRole === "admin";
-
-      if (isRider || isDriver || isCandidate || isAdmin) {
-        return { allowed: true, isRider, isDriver, isCandidate, isAdmin };
-      }
+    if (isTripParticipant(booking, userId, userRole)) {
+      return {
+        allowed: true,
+        isRider: String(booking.user) === String(userId),
+        isDriver: String(booking.driver) === String(userId),
+        isAdmin: userRole === "admin",
+      };
     }
 
     // Public observer access requires the secret share token and an active trip.
@@ -378,42 +382,12 @@ async function verifyBookingAccess(bookingId, userId, userRole, trackingToken) {
   }
 }
 
-// ── In-Memory Socket Rate Limiter (Max 30 msgs/sec per socket) ────────────────
-const socketMessageCounts = new Map(); // socketId -> { count, resetTime, lastGpsTime }
-
-function checkSocketRateLimit(socketId, isGps = false) {
-  const now = Date.now();
-  let entry = socketMessageCounts.get(socketId);
-  if (!entry || now > entry.resetTime) {
-    entry = { count: 0, resetTime: now + 1000, lastGpsTime: 0 };
-    socketMessageCounts.set(socketId, entry);
-  }
-
-  if (isGps) {
-    if (now - entry.lastGpsTime < 600) {
-      return false; // Throttled GPS: minimum 600ms between updates
-    }
-    entry.lastGpsTime = now;
-  }
-
-  entry.count += 1;
-  return entry.count <= 35;
-}
+// Apply the shared 35-event limit and the GPS cooldown once per packet.
+const socketRateLimiter = createSocketRateLimiter();
 
 // ── Socket Event Dispatcher ──────────────────────────────────────────────────
 io.on("connection", (socket) => {
-  // Global socket-level rate-limiting middleware for all incoming client events
-  socket.use(([event, ...args], next) => {
-    const isGps = event === "driver-location-update" || event === "driver-live-location";
-    if (!checkSocketRateLimit(socket.id, isGps)) {
-      socket.emit("rate-limit-warning", {
-        message: "Too many messages sent. Please slow down.",
-        event,
-      });
-      return; // Drop excessive message
-    }
-    next();
-  });
+  installSocketRateLimit(socket, socketRateLimiter);
 
   // Auto-join user room if authenticated during handshake
   if (socket.userId) {
@@ -443,8 +417,12 @@ io.on("connection", (socket) => {
         return;
       }
 
+      if (socket.userId && socket.userId !== String(user._id)) {
+        if (typeof ackCb === "function") ackCb({ success: false, error: "Reconnect to change user" });
+        return;
+      }
       socket.userId = user._id.toString();
-      socket.userRole = user.role || verified.role || "user";
+      socket.userRole = user.role || "user";
       socket.data.userId = user._id.toString();
       socket.data.userRole = socket.userRole;
 
@@ -476,16 +454,11 @@ io.on("connection", (socket) => {
 
   // Secure Room Joining: Enforces booking access verification with inline fast-path authentication
   socket.on("join-booking", async (payload, ackCb) => {
-    if (!checkSocketRateLimit(socket.id)) {
-      if (typeof ackCb === "function") ackCb({ success: false, error: "Rate limit exceeded" });
-      return;
-    }
-
-    const bookingId = typeof payload === "string" ? payload : payload?.bookingId;
-    const trackingToken = typeof payload === "object" ? payload?.trackingToken : socket.trackingToken;
+    const bookingId = canonicalBookingId(typeof payload === "string" ? payload : payload?.bookingId);
+    const trackingToken = payload?.trackingToken ?? socket.trackingToken;
     const clientToken = typeof payload === "object" ? payload?.token : null;
 
-    if (!bookingId || typeof bookingId !== "string" || !mongoose.Types.ObjectId.isValid(bookingId)) {
+    if (!bookingId) {
       if (typeof ackCb === "function") ackCb({ success: false, error: "Invalid booking ID" });
       return;
     }
@@ -497,11 +470,24 @@ io.on("connection", (socket) => {
       const authToken = clientToken || socket.handshake.auth?.token;
       const verified = verifySocketToken(authToken);
       if (verified?.userId && mongoose.Types.ObjectId.isValid(verified.userId)) {
-        socket.userId = verified.userId;
-        socket.userRole = verified.role || "user";
-        socket.data.userId = socket.userId;
-        socket.data.userRole = socket.userRole;
-        socket.join(`user-${socket.userId}`);
+        try {
+          const user = await User.findById(verified.userId).select("_id role isVendorBlocked");
+          if (user && !user.isVendorBlocked) {
+            if (socket.userId && socket.userId !== String(user._id)) {
+              if (typeof ackCb === "function") ackCb({ success: false, error: "Reconnect to change user" });
+              return;
+            }
+            socket.userId = String(user._id);
+            socket.userRole = user.role || "user";
+            socket.data.userId = socket.userId;
+            socket.data.userRole = socket.userRole;
+            await socket.join(`user-${socket.userId}`);
+          }
+        } catch (err) {
+          console.error("[SocketAuth] Inline authentication failed:", err);
+          if (typeof ackCb === "function") ackCb({ success: false, error: "Authentication failed" });
+          return;
+        }
       }
     }
 
@@ -512,30 +498,34 @@ io.on("connection", (socket) => {
       return;
     }
 
-    socket.join(`booking-${bookingId}`);
-    if (auth.isObserver) {
-      const observed = Array.isArray(socket.data.publicTrackingBookingIds)
-        ? socket.data.publicTrackingBookingIds
-        : [];
-      if (!observed.includes(bookingId)) observed.push(bookingId);
-      socket.data.publicTrackingBookingIds = observed;
-      if (auth.expiresAt) schedulePublicTrackingExpiry(socket, bookingId, auth.expiresAt);
+    const room = `${auth.isObserver ? "tracking" : "booking"}-${bookingId}`;
+    if (auth.isObserver && auth.expiresAt <= Date.now()) {
+      if (typeof ackCb === "function") ackCb({ success: false, error: "Tracking expired" });
+      return;
     }
-
+    if (auth.isObserver) {
+      socket.data.publicTrackingExpiries ??= {};
+      socket.data.publicTrackingExpiries[bookingId] = auth.expiresAt;
+    } else {
+      await socket.leave(`tracking-${bookingId}`);
+      clearPublicTrackingExpiry(socket.id, bookingId);
+      delete socket.data.publicTrackingExpiries?.[bookingId];
+    }
+    await socket.join(room);
+    if (auth.isObserver) schedulePublicTrackingExpiry(socket, bookingId, auth.expiresAt);
     if (typeof ackCb === "function") {
-      ackCb({ success: true, room: `booking-${bookingId}`, isObserver: !!auth.isObserver });
+      ackCb({ success: true, room, isObserver: !!auth.isObserver });
     }
   });
 
   // Leave Booking Room
-  socket.on("leave-booking", (bookingId) => {
-    if (bookingId && typeof bookingId === "string") {
-      socket.leave(`booking-${bookingId}`);
-      clearPublicTrackingExpiry(socket.id, bookingId);
-      if (Array.isArray(socket.data.publicTrackingBookingIds)) {
-        socket.data.publicTrackingBookingIds = socket.data.publicTrackingBookingIds.filter((id) => id !== bookingId);
-      }
-    }
+  socket.on("leave-booking", async (bookingId) => {
+    const id = canonicalBookingId(bookingId);
+    if (!id) return;
+    await socket.leave(`booking-${id}`);
+    await socket.leave(`tracking-${id}`);
+    clearPublicTrackingExpiry(socket.id, id);
+    delete socket.data.publicTrackingExpiries?.[id];
   });
 
   // Booking status is authoritative server state. Clients must use the
@@ -546,48 +536,15 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Driver Live GPS Telemetry: Authenticated and strictly restricted to the assigned driver
-  socket.on("driver-location-update", async (data) => {
-    if (!checkSocketRateLimit(socket.id, true)) return;
-    if (!socket.userId || !data?.bookingId || !mongoose.Types.ObjectId.isValid(data.bookingId)) return;
-
-    const lat = Number(data.latitude);
-    const lng = Number(data.longitude);
-    if (!Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-      return;
-    }
-
-    try {
-      const booking = await mongoose.connection.collection("bookings").findOne(
-        { _id: new mongoose.Types.ObjectId(data.bookingId) },
-        { projection: { driver: 1, status: 1 } }
-      );
-
-      if (!booking || booking.driver?.toString() !== socket.userId.toString()) {
-        console.warn(`[SocketSecurity] Unauthorized location update for booking ${data.bookingId} by user ${socket.userId}`);
-        return;
-      }
-      if (isTerminalBookingStatus(booking.status)) {
-        await revokePublicTrackingObservers(String(data.bookingId));
-        return;
-      }
-
-      // Relay coordinates to participants; public observers receive a strict DTO.
-      await emitToBookingRoom(data.bookingId, "driver-location", {
-        bookingId: data.bookingId,
-        latitude: lat,
-        longitude: lng,
-        status: data.status || booking.status || "arriving",
-        timestamp: Date.now(),
-      });
-    } catch (err) {
-      console.error("[SocketSecurity] driver-location-update error:", err);
-    }
+  installLiveGpsHandler(socket, {
+    canonicalBookingId,
+    findBooking: findSocketBooking,
+    publish: emitToBookingRoom,
+    revokeObservers: revokePublicTrackingObservers,
   });
 
   // In-Ride Chat Messaging: Authenticated booking participants only
   socket.on("chat-message", async (msg) => {
-    if (!checkSocketRateLimit(socket.id)) return;
     if (!socket.userId) return;
 
     const bookingId = msg?.rideId || msg?.bookingId;
@@ -604,7 +561,6 @@ io.on("connection", (socket) => {
 
   // Call Signaling Authorization: Verified booking participants only
   socket.on("call-user", async (data) => {
-    if (!checkSocketRateLimit(socket.id)) return;
     if (!socket.userId || !data?.bookingId) return;
 
     const auth = await verifyBookingAccess(data.bookingId, socket.userId, socket.userRole);
@@ -614,7 +570,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("accept-call", async (data) => {
-    if (!checkSocketRateLimit(socket.id)) return;
     if (!socket.userId || !data?.bookingId) return;
 
     const auth = await verifyBookingAccess(data.bookingId, socket.userId, socket.userRole);
@@ -624,7 +579,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("reject-call", async (data) => {
-    if (!checkSocketRateLimit(socket.id)) return;
     if (!socket.userId || !data?.bookingId) return;
 
     const auth = await verifyBookingAccess(data.bookingId, socket.userId, socket.userRole);
@@ -634,7 +588,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("end-call", async (data) => {
-    if (!checkSocketRateLimit(socket.id)) return;
     if (!socket.userId || !data?.bookingId) return;
 
     const auth = await verifyBookingAccess(data.bookingId, socket.userId, socket.userRole);
@@ -644,16 +597,15 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    for (const bookingId of socket.data.publicTrackingBookingIds || []) {
+    for (const bookingId of Object.keys(socket.data.publicTrackingExpiries || {})) {
       clearPublicTrackingExpiry(socket.id, bookingId);
     }
-    socketMessageCounts.delete(socket.id);
+    socketRateLimiter.delete(socket.id);
   });
 
   // Driver Idle Location Updates (Geospatial Point for Matching)
   socket.on("update-location", async (payload) => {
-    if (!checkSocketRateLimit(socket.id, true)) return;
-    if (!socket.userId) return;
+    if (!socket.userId || !["vendor", "driver"].includes(socket.userRole)) return;
 
     const lat = Number(payload?.latitude);
     const lng = Number(payload?.longitude);
@@ -677,7 +629,6 @@ io.on("connection", (socket) => {
 
   // Graceful Disconnect & Presence Cleanup
   socket.on("disconnect", async () => {
-    socketMessageCounts.delete(socket.id);
     if (!socket.userId) return;
 
     try {

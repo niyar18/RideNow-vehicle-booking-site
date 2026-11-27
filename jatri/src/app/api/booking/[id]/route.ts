@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+import { withoutRiderSecrets } from "@/lib/bookingPrivacy";
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
@@ -41,7 +42,10 @@ export async function GET(
       .lean();
 
     const id = (await context.params).id;
-    const booking: any = await Booking.findById(id).populate("user driver vehicle");
+    const booking: any = await Booking.findById(id)
+      .populate("user", "name profilePicture")
+      .populate("driver", "name profilePicture avatar rating totalRides")
+      .populate("vehicle", "number vehicleModel type imageUrl");
 
     if (!booking) {
       return NextResponse.json(
@@ -67,14 +71,7 @@ export async function GET(
       );
     }
 
-    // Security Hardening: Never leak secret OTPs to the driver
-    const sanitizedBooking = booking.toObject ? booking.toObject() : { ...booking };
-    if (!isRider && !isAdmin) {
-      delete sanitizedBooking.pickupOtp;
-      delete sanitizedBooking.dropOtp;
-    }
-
-    return NextResponse.json(sanitizedBooking);
+    return NextResponse.json(isRider ? booking : withoutRiderSecrets(booking));
   } catch (err: any) {
     console.error("GET /api/booking/[id] error:", err);
     return NextResponse.json(

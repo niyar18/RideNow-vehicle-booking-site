@@ -1,6 +1,7 @@
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+import { driverBookingProjection } from "@/lib/bookingPrivacy";
 import { NextRequest, NextResponse } from "next/server";
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
@@ -32,6 +33,7 @@ export async function GET(req: NextRequest) {
     const [total, bookings] = await Promise.all([
       Booking.countDocuments(query),
       Booking.find(query)
+        .select(driverBookingProjection)
         .populate({
           path: "vehicle",
           select: "vehicleModel imageUrl type number",
