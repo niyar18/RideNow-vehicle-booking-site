@@ -1,5 +1,7 @@
 "use client";
 
+import { AddressSearchCredit } from "@/shared/components/AddressSearchCredit";
+
 
 
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
@@ -442,7 +444,7 @@ export default function BookPage() {
     }
 
     try {
-      const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
+      const res = await fetch(`/api/places?action=details&placeId=${encodeURIComponent(p.id)}`);
       const data = await res.json();
       if (data.status === "OK" && data.result) {
         const result = data.result;
@@ -759,7 +761,7 @@ export default function BookPage() {
     // 1. If place ID exists and isn't a synthetic chip, fetch authoritative details
     if (p.id && !p.id.startsWith("recent-") && !p.id.startsWith("chip-")) {
       try {
-        const res = await fetch(`/api/places?action=details&placeId=${p.id}`);
+        const res = await fetch(`/api/places?action=details&placeId=${encodeURIComponent(p.id)}`);
         const data = await res.json();
         if (data.status === "OK" && data.result) {
           const result = data.result;
@@ -979,7 +981,7 @@ export default function BookPage() {
         let lng = first.lng;
         let formatted = first.subtitle ? `${first.title || first.name || addressText}, ${first.subtitle}` : (first.title || first.name || first.description || addressText);
         if ((lat === undefined || lng === undefined) && first.place_id) {
-          const dRes = await fetch(`/api/places?action=details&placeId=${first.place_id}`);
+          const dRes = await fetch(`/api/places?action=details&placeId=${encodeURIComponent(first.place_id)}`);
           const dData = await dRes.json();
           if (dData?.result?.geometry?.location) {
             lat = dData.result.geometry.location.lat;
@@ -2400,6 +2402,7 @@ export default function BookPage() {
 
           {/* Location Inputs */}
           {renderLocationInputs()}
+          <AddressSearchCredit />
         </div>
 
         {/* Scrollable Card Body */}
@@ -2515,7 +2518,7 @@ export default function BookPage() {
                 <h1 className="text-[1.7rem] leading-tight font-semibold tracking-[-0.045em]">Where are you headed?</h1>
               </div>
               <ActiveRideBanner variant="inline" onActiveRideFound={setActiveExistingRide} />
-              {renderLocationInputs()}
+              {renderLocationInputs()}<AddressSearchCredit />
             </div>
             <div className="flex-1 relative z-0 bg-[var(--background)]">
               <RouteMap
@@ -2671,7 +2674,7 @@ export default function BookPage() {
                 {mobileSheetState !== "down" && (
                   <>
                     <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-2.5 [scroll-padding-block:0.75rem]">
-                      {isEditingRoute && <div className="mb-3 border-b border-[var(--border-default)] pb-3">{renderLocationInputs()}</div>}
+                      {isEditingRoute && <div className="mb-3 border-b border-[var(--border-default)] pb-3">{renderLocationInputs()}<AddressSearchCredit /></div>}
                       {renderRideSelection()}
                     </div>
                     {renderTripAction()}
