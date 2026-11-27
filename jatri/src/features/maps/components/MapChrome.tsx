@@ -21,7 +21,7 @@ export function observeMapSize(map: Map, element: HTMLElement) {
 
 export function fitMapPadding(map: Map, requestedBottom = 28): PaddingOptions {
   const { clientWidth: width, clientHeight: height } = map.getContainer();
-  const horizontal = Math.max(0, Math.min(52, width * 0.13));
+  const horizontal = Math.max(0, Math.min(64, width * 0.2));
   return {
     top: Math.max(0, Math.min(69, height * 0.27)),
     bottom: Math.max(0, Math.min(requestedBottom, height * 0.48)),
