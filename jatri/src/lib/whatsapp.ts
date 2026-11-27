@@ -71,6 +71,8 @@ export async function sendWhatsAppOtp(
   // ── 2. Meta WhatsApp Cloud API (Graph API v21.0) ───────────────────────────
   const token = process.env.WHATSAPP_API_TOKEN;
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const template = process.env.WHATSAPP_OTP_TEMPLATE_NAME?.trim();
+  const language = process.env.WHATSAPP_OTP_TEMPLATE_LANGUAGE?.trim() || "en_US";
   const isMetaConfigured =
     token &&
     phoneNumberId &&
@@ -79,7 +81,7 @@ export async function sendWhatsAppOtp(
     !token.includes("your_") &&
     !phoneNumberId.includes("your_");
 
-  if (isMetaConfigured) {
+  if (isMetaConfigured && template && /^[a-z0-9_]+$/.test(template)) {
     try {
       const url = `https://graph.facebook.com/v21.0/${phoneNumberId}/messages`;
 
@@ -87,10 +89,14 @@ export async function sendWhatsAppOtp(
         messaging_product: "whatsapp",
         recipient_type: "individual",
         to: formattedPhone,
-        type: "text",
-        text: {
-          preview_url: false,
-          body: `*${otp}* is your RideNow verification code.\n\nValid for 5 minutes. For your security, do not share this code with anyone.`,
+        type: "template",
+        template: {
+          name: template,
+          language: { code: language },
+          components: [
+            { type: "body", parameters: [{ type: "text", text: otp }] },
+            { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: otp }] },
+          ],
         },
       };
 
@@ -101,29 +107,27 @@ export async function sendWhatsAppOtp(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(8000),
+        redirect: "error",
       });
 
       const data = await res.json();
 
-      if (!res.ok) {
-        console.error("Meta WhatsApp API error:", data);
-        return {
-          success: false,
-          error: data?.error?.message || "WhatsApp dispatch failed",
-        };
+      const messageId = data.messages?.[0]?.id;
+      if (!res.ok || typeof messageId !== "string" || !messageId) {
+        console.warn("Meta WhatsApp did not accept the authentication template", res.status);
+        return { success: false, error: "WhatsApp dispatch failed" };
       }
-
-      return {
-        success: true,
-        messageId: data.messages?.[0]?.id,
-      };
-    } catch (err: any) {
-      console.error("Meta WhatsApp network exception:", err);
-      return {
-        success: false,
-        error: "Network exception while contacting WhatsApp API",
-      };
+      return { success: true, messageId };
+    } catch {
+      console.warn("Meta WhatsApp authentication request failed");
+      return { success: false, error: "WhatsApp dispatch failed" };
     }
+  }
+
+  // An explicitly selected provider must not silently simulate a sent code.
+  if (provider === "meta") {
+    return { success: false, error: "WhatsApp authentication template is not configured" };
   }
 
   // ── 3. Development / Simulation Mode Fallback ─────────────────────────────

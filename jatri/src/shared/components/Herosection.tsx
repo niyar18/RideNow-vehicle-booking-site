@@ -1,5 +1,7 @@
 "use client";
 
+import { AddressSearchCredit } from "@/shared/components/AddressSearchCredit";
+
 import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { ArrowRight, CalendarDays, Car, Crosshair, LoaderCircle, MapPin, Package } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -176,6 +178,7 @@ export default function LandingBooking() {
         <button type="button" aria-pressed={mode === "ride"} onClick={() => setMode("ride")}><Car size={18} aria-hidden />{t("landing.ride", "Ride")}</button>
         <button type="button" aria-pressed={mode === "cargo"} onClick={() => setMode("cargo")}><Package size={17} aria-hidden />{t("landing.cargo", "Cargo")}</button>
       </div>
+      <AddressSearchCredit />
       <div className={styles.bookingFields}>
         {fields.map((field) => {
           const visible = active === field && items.length > 0;

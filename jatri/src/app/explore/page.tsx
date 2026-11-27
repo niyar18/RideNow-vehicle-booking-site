@@ -1,5 +1,7 @@
 "use client";
 
+import { AddressSearchCredit } from "@/shared/components/AddressSearchCredit";
+
 import { useState, useEffect, useRef, type FormEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -262,6 +264,7 @@ export default function ExplorePage() {
       </PublicHeading>
 
       <div className={styles.serviceSearch} ref={searchContainerRef}>
+        <AddressSearchCredit />
         <label className={styles.searchLabel} htmlFor="explore-destination">Plan a ride</label>
         <form onSubmit={handleSearchSubmit} className={styles.searchForm} role="search" aria-label="Find a destination">
           <Search size={20} aria-hidden="true" />

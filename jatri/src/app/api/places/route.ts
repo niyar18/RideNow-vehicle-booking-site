@@ -1,495 +1,198 @@
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
+import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
-import { redisGet, redisSet } from "@/lib/redis";
+import { redisGet, redisIncr, redisSet } from "@/lib/redis";
 
-interface CacheEntry {
-  data: any;
-  expiresAt: number;
-}
-const placesCache = new Map<string, CacheEntry>();
-const PLACES_CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes in-memory
-const REDIS_PLACES_CACHE_TTL_SEC = 24 * 60 * 60; // 24 hours in Upstash Redis
-const MAX_PLACES_CACHE_SIZE = 350;
+type Point = { lat: number; lng: number };
+type Place = Point & {
+  place_id: string; description: string; title: string; subtitle: string; category: string;
+  countrycode: string; country: string; locality: string; city: string; state: string; postalCode: string;
+  distanceKm?: number;
+};
 
-async function getCached(key: string): Promise<any | null> {
-  const entry = placesCache.get(key);
-  if (entry && Date.now() <= entry.expiresAt) {
-    return entry.data;
-  }
-  // Fallback to Upstash Redis
-  const fromRedis = await redisGet(key);
-  if (fromRedis) {
-    placesCache.set(key, { data: fromRedis, expiresAt: Date.now() + PLACES_CACHE_TTL_MS });
-    return fromRedis;
-  }
-  return null;
+const cache = new Map<string, { expires: number; value: Place[] }>();
+const pending = new Map<string, Promise<Place[] | null>>();
+const photonHeaders = { "User-Agent": "Jaatri/1.0 (+https://ridenow-vehicle-booking-site.vercel.app/contact)" };
+const defaultBias = { lat: 26.1445, lng: 91.7362 };
+const cacheTtl = 300;
+let localUsage = { day: "", count: 0 };
+
+function point(lat: unknown, lng: unknown): Point | null {
+  if ((typeof lat !== "number" && typeof lat !== "string") ||
+      (typeof lng !== "number" && typeof lng !== "string") || String(lat).trim() === "" || String(lng).trim() === "") return null;
+  const p = { lat: Number(lat), lng: Number(lng) };
+  return Number.isFinite(p.lat) && Number.isFinite(p.lng) && Math.abs(p.lat) <= 90 && Math.abs(p.lng) <= 180 ? p : null;
 }
 
-async function setCached(key: string, data: any, ttlSec: number = REDIS_PLACES_CACHE_TTL_SEC) {
-  if (placesCache.size >= MAX_PLACES_CACHE_SIZE) {
-    const firstKey = placesCache.keys().next().value;
-    if (firstKey) placesCache.delete(firstKey);
+const str = (v: unknown) => typeof v === "string" ? v.trim() : "";
+const join = (...v: string[]) => [...new Set(v.filter(Boolean))].join(", ");
+function category(raw: string, title: string) {
+  const value = `${raw} ${title}`.toLowerCase();
+  if (/airport|aerodrome/.test(value)) return "airport";
+  if (/station|railway|junction|metro|platform/.test(value)) return "train_station";
+  if (/\bbus\b|isbt|transit/.test(value)) return "transit_station";
+  if (/hospital|clinic|medical|health|pharmacy/.test(value)) return "hospital";
+  if (/college|university|school|institute|campus/.test(value)) return "education";
+  if (/mall|market|bazaar|plaza|supermarket/.test(value)) return "shopping";
+  if (/hotel|resort|inn\b|lodge/.test(value)) return "hotel";
+  if (/restaurant|cafe|food|dhaba/.test(value)) return "restaurant";
+  if (/post office|bank|temple|mosque|church|mandir/.test(value)) return "landmark";
+  return "place";
+}
+function parseResult(raw: unknown, provider: "geo" | "photon"): Place | null {
+  if (!raw || typeof raw !== "object") return null;
+  const row = raw as Record<string, unknown>;
+  const properties = provider === "geo" ? row : row.properties;
+  if (!properties || typeof properties !== "object") return null;
+  const p = properties as Record<string, unknown>;
+  const coords = (row.geometry as { coordinates?: unknown[] } | undefined)?.coordinates;
+  const pos = provider === "geo" ? point(p.lat, p.lon) : point(coords?.[1], coords?.[0]);
+  if (!pos) return null;
+  const locality = str(p.suburb) || str(p.district) || str(p.locality) || str(p.neighbourhood);
+  const city = str(p.city) || str(p.town) || str(p.village);
+  const state = str(p.state);
+  const countrycode = str(p.country_code ?? p.countrycode).toLowerCase();
+  const country = str(p.country);
+  const postalCode = str(p.postcode);
+  const street = [str(p.housenumber), str(p.street)].filter(Boolean).join(" ");
+  const title = str(p.name) || str(p.address_line1) || street || locality || city || state || country;
+  if (!title) return null;
+  const subtitle = str(p.address_line2) || join(...[street, locality, city, state, country].filter(x => x !== title));
+  const description = (str(p.formatted) || join(title, street, locality, city, postalCode, state, country)).slice(0, 500);
+  return {
+    ...pos, title, subtitle, description, category: category(str(p.category ?? p.osm_value ?? p.result_type), title),
+    place_id: `${provider}_${pos.lat}_${pos.lng}_${countrycode}_${encodeURIComponent(description)}`,
+    countrycode, country, locality, city, state, postalCode,
+  };
+}
+function geocodeResult(p: Place) {
+  return {
+    name: p.title, formatted_address: p.description, locality: p.locality, city: p.city, state: p.state,
+    postalCode: p.postalCode, geometry: { location: { lat: p.lat, lng: p.lng } },
+    address_components: [{ long_name: p.country || p.countrycode.toUpperCase(), short_name: p.countrycode, types: ["country"] }],
+  };
+}
+
+async function permitGeoapify() {
+  const day = new Date().toISOString().slice(0, 10);
+  const count = await redisIncr(`places:geoapify:requests:${day}`, 172800);
+  // Keep headroom under the free tier; fail closed across production replicas.
+  if (count !== null) {
+    if (count > 2400) return false;
+    const burst = await redisIncr(`places:geoapify:second:${Math.floor(Date.now() / 1000)}`, 5);
+    return burst !== null && burst <= 5;
   }
-  placesCache.set(key, { data, expiresAt: Date.now() + PLACES_CACHE_TTL_MS });
-  // Also store in Upstash Redis
-  await redisSet(key, data, ttlSec);
+  if (process.env.NODE_ENV === "production") return false;
+  if (localUsage.day !== day) localUsage = { day, count: 0 };
+  return ++localUsage.count <= 2400;
+}
+
+async function fetchPlaces(provider: "geo" | "photon", key: string, type: "autocomplete" | "search" | "reverse", query: string, pos: Point | null, country: string): Promise<Place[] | null> {
+  try {
+    let url: URL;
+    if (provider === "geo") {
+      if (!await permitGeoapify()) return null;
+      url = new URL(`https://api.geoapify.com/v1/geocode/${type}`);
+      url.searchParams.set("apiKey", key);
+      url.searchParams.set("format", "json");
+    } else {
+      url = new URL(type === "reverse" ? "https://photon.komoot.io/reverse" : "https://photon.komoot.io/api/");
+    }
+    url.searchParams.set("limit", type === "reverse" ? "1" : "10");
+    if (type === "reverse" && pos) {
+      url.searchParams.set("lat", String(pos.lat));
+      url.searchParams.set("lon", String(pos.lng));
+    } else {
+      url.searchParams.set(provider === "geo" ? "text" : "q", query);
+      if (country) url.searchParams.set(provider === "geo" ? "filter" : "countrycode", provider === "geo" ? `countrycode:${country}` : country);
+      const bias = pos ?? (country === "in" ? defaultBias : null);
+      if (bias && provider === "geo") url.searchParams.set("bias", `proximity:${bias.lng},${bias.lat}`);
+      if (bias && provider === "photon") {
+        url.searchParams.set("lat", String(bias.lat));
+        url.searchParams.set("lon", String(bias.lng));
+      }
+    }
+    const res = await fetch(url, { headers: provider === "photon" ? photonHeaders : undefined, signal: AbortSignal.timeout(3500), cache: "no-store", redirect: "error" });
+    if (!res.ok) return null;
+    const body = await res.json();
+    const rows = provider === "geo" ? body?.results : body?.features;
+    if (!Array.isArray(rows)) return null;
+    const seen = new Set<string>();
+    return rows.map(row => parseResult(row, provider)).filter((p): p is Place => {
+      if (!p || (type !== "reverse" && country && p.countrycode !== country)) return false;
+      const id = `${p.title.toLowerCase()}:${p.lat.toFixed(4)}:${p.lng.toFixed(4)}`;
+      if (seen.has(id)) return false;
+      seen.add(id);
+      if (type === "autocomplete" && pos) {
+        const rad = Math.PI / 180;
+        const a = Math.sin((p.lat - pos.lat) * rad / 2) ** 2 + Math.cos(pos.lat * rad) * Math.cos(p.lat * rad) * Math.sin((p.lng - pos.lng) * rad / 2) ** 2;
+        p.distanceKm = +(12742 * Math.asin(Math.sqrt(Math.min(1, a)))).toFixed(1);
+      }
+      return true;
+    }).slice(0, 10);
+  } catch {
+    return null; // Do not log the request URL (it contains the key and can contain a rider's address).
+  }
+}
+
+async function cachedPlaces(key: string, load: () => Promise<Place[] | null>) {
+  const item = cache.get(key);
+  if (item && item.expires > Date.now()) return item.value;
+  const active = pending.get(key);
+  if (active) return active;
+  const work = (async () => {
+    let value = await redisGet<Place[]>(key);
+    if (!Array.isArray(value)) {
+      value = await load();
+      if (value) await redisSet(key, value, cacheTtl);
+    }
+    if (value) {
+      if (cache.size >= 350) cache.delete(cache.keys().next().value!);
+      cache.set(key, { expires: Date.now() + cacheTtl * 1000, value });
+    }
+    return value;
+  })();
+  pending.set(key, work);
+  try { return await work; } finally { pending.delete(key); }
 }
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  let action = searchParams.get("action");
-
-  // Intelligent action inferencing if omitted by callers
-  if (!action) {
-    if (searchParams.has("placeId") || searchParams.has("place_id")) {
-      action = "details";
-    } else if (searchParams.has("lat") && (searchParams.has("lng") || searchParams.has("lon"))) {
-      action = "geocode";
-    } else if (searchParams.has("input") || searchParams.has("query") || searchParams.has("q") || searchParams.has("address")) {
-      action = "autocomplete";
-    }
-  } else if (action === "reverse") {
-    action = "geocode";
+  const q = req.nextUrl.searchParams;
+  const rawId = q.get("placeId") || q.get("place_id") || "";
+  const rawLat = q.get("lat"), rawLng = q.get("lng") ?? q.get("lon");
+  const rawText = q.get("input") || q.get("query") || q.get("q") || q.get("address") || "";
+  const query = rawText.trim().normalize("NFC").replace(/\s+/gu, " ");
+  const action = q.get("action") ?? (rawId ? "details" : rawLat !== null && rawLng !== null && !rawText ? "geocode" : rawText ? "autocomplete" : "");
+  const invalid = () => NextResponse.json({ status: "INVALID_REQUEST" }, { status: 400 });
+  const pos = point(rawLat, rawLng);
+  if (action === "details") {
+    if (rawId.length > 6500) return invalid();
+    const [source, lat, lng, country, ...description] = rawId.split("_");
+    const location = point(lat, lng);
+    if (!["geo", "nom", "photon"].includes(source) || !location || !/^(?:[a-z]{2})?$/i.test(country ?? "") || !description.length) return invalid();
+    let address: string;
+    try { address = decodeURIComponent(description.join("_")); } catch { return invalid(); }
+    if (!address || address.length > 500) return invalid();
+    return NextResponse.json({ status: "OK", result: { formatted_address: address, geometry: { location },
+      address_components: [{ long_name: country.toUpperCase(), short_name: country.toLowerCase(), types: ["country"] }] } });
   }
-
-  // Descriptive User-Agent to prevent rate-limiting from public Photon servers
-  const headers = {
-    "User-Agent": "RideNow-Vehicle-Booking-Site/1.0 (contact: support@ridenow.app; contact_page: https://ridenow-vehicle-booking-site.vercel.app/contact)"
-  };
-
-  try {
-    if (action === "autocomplete") {
-      const input = (searchParams.get("input") || searchParams.get("query") || searchParams.get("q") || searchParams.get("address") || "").trim();
-      if (!input || input.length < 2) {
-        return NextResponse.json({ predictions: [], status: "OK" });
-      }
-      const country = (searchParams.get("country") || "in").toUpperCase();
-      const lat = searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : null;
-      const lng = searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : null;
-
-      const cacheKey = `ac_v4_${input.toLowerCase()}_${country}_${lat ? lat.toFixed(2) : ""}_${lng ? lng.toFixed(2) : ""}`;
-      const cached = await getCached(cacheKey);
-      if (cached) {
-        return NextResponse.json(
-          { predictions: cached, status: "OK" },
-          { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } }
-        );
-      }
-
-      let photonUrl = `https://photon.komoot.io/api/?q=${encodeURIComponent(input)}&limit=15`;
-      if (country && country !== "NULL") photonUrl += `&countrycode=${country.toLowerCase()}`;
-      if (lat !== null && lng !== null) photonUrl += `&lat=${lat}&lon=${lng}&location_bias_scale=0.8`;
-
-      let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(input)}&limit=12&addressdetails=1`;
-      if (country && country !== "NULL") nomUrl += `&countrycodes=${country.toLowerCase()}`;
-      if (lat !== null && lng !== null) {
-        // Soft bias Nominatim within ~70km around user coordinates
-        const d = 0.65;
-        nomUrl += `&viewbox=${lng - d},${lat + d},${lng + d},${lat - d}&bounded=0`;
-      }
-
-      const [photonResult, nomResult] = await Promise.allSettled([
-        fetch(photonUrl, { headers, signal: AbortSignal.timeout(3500) }).then((r) => r.ok ? r.json() : null),
-        fetch(nomUrl, { headers, signal: AbortSignal.timeout(3500) }).then((r) => r.ok ? r.json() : null),
-      ]);
-
-      const photonData = photonResult.status === "fulfilled" ? photonResult.value : null;
-      const nomData = nomResult.status === "fulfilled" ? nomResult.value : null;
-
-      const classifyCategory = (rawCat: string, name: string): string => {
-        const text = `${rawCat} ${name}`.toLowerCase();
-        if (text.includes("airport") || text.includes("aerodrome") || text.includes("terminal") || text.includes("airfield")) return "airport";
-        if (text.includes("station") || text.includes("railway") || text.includes("junction") || text.includes("metro") || text.includes("platform")) return "train_station";
-        if (text.includes("bus") || text.includes("stand") || text.includes("isbt")) return "transit_station";
-        if (text.includes("hospital") || text.includes("clinic") || text.includes("medical") || text.includes("health") || text.includes("pharmacy")) return "hospital";
-        if (text.includes("college") || text.includes("university") || text.includes("school") || text.includes("institute") || text.includes("campus") || text.includes("academy")) return "education";
-        if (text.includes("mall") || text.includes("market") || text.includes("bazaar") || text.includes("plaza") || text.includes("store") || text.includes("supermarket")) return "shopping";
-        if (text.includes("hotel") || text.includes("resort") || text.includes("inn") || text.includes("lodge")) return "hotel";
-        if (text.includes("restaurant") || text.includes("cafe") || text.includes("food") || text.includes("dhaba")) return "restaurant";
-        if (text.includes("post office") || text.includes("bank") || text.includes("temple") || text.includes("mosque") || text.includes("church") || text.includes("mandir") || text.includes("gurudwara")) return "landmark";
-        return "place";
-      };
-
-      const rawPredictions: any[] = [];
-
-      // 1. Process Photon results
-      if (photonData?.features && Array.isArray(photonData.features)) {
-        for (const feature of photonData.features) {
-          const props = feature.properties || {};
-          const coords = feature.geometry?.coordinates || [0, 0];
-          const name = props.name || props.street || "";
-          if (!name) continue;
-
-          const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-          const localArea = props.district || props.suburb || props.locality;
-          const cityTown = props.city || props.town || props.village;
-          const secondary = [streetAndNumber, localArea, cityTown, props.state].filter((s) => s && s !== name).join(", ");
-
-          const parts: string[] = [name];
-          if (streetAndNumber && streetAndNumber !== name) parts.push(streetAndNumber);
-          if (localArea && localArea !== name) parts.push(localArea);
-          if (cityTown && cityTown !== name) parts.push(cityTown);
-          if (props.postcode) parts.push(props.postcode);
-          if (props.state && props.state !== name) parts.push(props.state);
-          const description = parts.filter(Boolean).join(", ");
-
-          const cat = classifyCategory(props.osm_value || props.osm_key || "", name);
-          const pLat = coords[1];
-          const pLng = coords[0];
-
-          rawPredictions.push({
-            place_id: `photon_${pLat}_${pLng}_${(props.countrycode || "in").toLowerCase()}_${encodeURIComponent(description)}`,
-            description,
-            title: name,
-            subtitle: secondary || props.country || "India",
-            category: cat,
-            lat: pLat,
-            lng: pLng,
-            countrycode: (props.countrycode || "in").toLowerCase(),
-            locality: localArea || "",
-            city: cityTown || "",
-            state: props.state || "",
-            postalCode: props.postcode || "",
-          });
-        }
-      }
-
-      // 2. Process Nominatim results
-      if (Array.isArray(nomData)) {
-        for (const item of nomData) {
-          const addr = item.address || {};
-          const name = item.name || (item.display_name ? item.display_name.split(",")[0] : "");
-          if (!name) continue;
-
-          const street = [addr.house_number, addr.road].filter(Boolean).join(" ");
-          const localArea = addr.suburb || addr.neighbourhood || addr.residential;
-          const cityTown = addr.city || addr.town || addr.municipality || addr.village;
-          const secondary = [street, localArea, cityTown, addr.state].filter((s) => s && s !== name).join(", ");
-
-          const cat = classifyCategory(item.type || item.class || "", name);
-          const pLat = parseFloat(item.lat);
-          const pLng = parseFloat(item.lon);
-
-          rawPredictions.push({
-            place_id: `nom_${pLat}_${pLng}_in_${encodeURIComponent(item.display_name)}`,
-            description: item.display_name,
-            title: name,
-            subtitle: secondary || "India",
-            category: cat,
-            lat: pLat,
-            lng: pLng,
-            countrycode: String(addr.country_code || "in").toLowerCase(),
-            locality: localArea || "",
-            city: cityTown || "",
-            state: addr.state || "",
-            postalCode: addr.postcode || "",
-          });
-        }
-      }
-
-      // 3. Deduplicate by proximity (< 50m) or identical title
-      const uniquePredictions: any[] = [];
-      const seenTitles = new Set<string>();
-
-      for (const p of rawPredictions) {
-        const normTitle = (p.title || "").toLowerCase().trim();
-        if (seenTitles.has(normTitle)) continue;
-
-        const isDuplicateNearby = uniquePredictions.some((ex) => {
-          const dLat = Math.abs(ex.lat - p.lat);
-          const dLng = Math.abs(ex.lng - p.lng);
-          return dLat < 0.0005 && dLng < 0.0005;
-        });
-
-        if (!isDuplicateNearby) {
-          seenTitles.add(normTitle);
-          uniquePredictions.push(p);
-        }
-      }
-
-      // 4. Calculate proximity distance and sort
-      if (lat !== null && lng !== null) {
-        uniquePredictions.forEach((p) => {
-          const dLat = (p.lat - lat) * (Math.PI / 180);
-          const dLng = (p.lng - lng) * (Math.PI / 180);
-          const a =
-            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat * (Math.PI / 180)) * Math.cos(p.lat * (Math.PI / 180)) *
-            Math.sin(dLng / 2) * Math.sin(dLng / 2);
-          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-          p.distanceKm = +(6371 * c).toFixed(1);
-        });
-
-        uniquePredictions.sort((a, b) => {
-          if (a.distanceKm !== undefined && b.distanceKm !== undefined) {
-            return a.distanceKm - b.distanceKm;
-          }
-          return 0;
-        });
-      }
-
-      const predictions = uniquePredictions.slice(0, 10);
-
-      await setCached(cacheKey, predictions);
-      return NextResponse.json(
-        { predictions, status: "OK" },
-        { headers: { "Cache-Control": "public, s-maxage=300, stale-while-revalidate=600" } }
-      );
-    }
-
-    if (action === "details") {
-      const placeId = searchParams.get("placeId") || searchParams.get("place_id") || "";
-
-      if (placeId.startsWith("photon_") || placeId.startsWith("nom_")) {
-        const parts = placeId.split("_");
-        if (parts.length >= 4) {
-          const isPhoton = placeId.startsWith("photon_");
-          const lat = Number(parts[1]);
-          const lng = Number(parts[2]);
-          const countrycode = isPhoton ? parts[3] : "in";
-          const descParts = isPhoton ? parts.slice(4) : parts.slice(3);
-          const description = decodeURIComponent(descParts.join("_"));
-          return NextResponse.json({
-            status: "OK",
-            result: {
-              formatted_address: description,
-              geometry: {
-                location: { lat, lng },
-              },
-              address_components: [
-                {
-                  long_name: (countrycode || "IN").toUpperCase(),
-                  short_name: (countrycode || "in").toLowerCase(),
-                  types: ["country"],
-                },
-              ],
-            },
-          });
-        }
-      }
-      return NextResponse.json({ status: "INVALID_REQUEST", message: "Invalid placeId format" }, { status: 400 });
-    }
-
-    if (action === "geocode") {
-      const lat = searchParams.get("lat");
-      const lng = searchParams.get("lng") || searchParams.get("lon");
-      const address = (searchParams.get("address") || searchParams.get("query") || searchParams.get("q") || "").trim();
-
-      const cacheKey = address
-        ? `gc_addr_${address.toLowerCase()}`
-        : `gc_rev_${lat ? Number(lat).toFixed(4) : ""}_${lng ? Number(lng).toFixed(4) : ""}`;
-      const cached = await getCached(cacheKey);
-      if (cached) {
-        return NextResponse.json(
-          { results: cached, status: "OK" },
-          { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" } }
-        );
-      }
-
-      if (address) {
-        const country = (searchParams.get("country") || "in").toUpperCase();
-        let url = `https://photon.komoot.io/api/?q=${encodeURIComponent(address)}`;
-        if (country && country !== "NULL") {
-          url += `&countrycode=${country}`;
-        }
-        if (lat && lng) {
-          url += `&lat=${lat}&lon=${lng}`;
-        }
-
-        let results: any[] = [];
-        try {
-          const res = await fetch(url, { headers, signal: AbortSignal.timeout(3500) });
-          if (res.ok) {
-            const data = await res.json();
-            results = (data?.features || []).map((feature: any) => {
-              const props = feature.properties || {};
-              const coords = feature.geometry?.coordinates || [0, 0];
-              const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-              const localArea = props.district || props.suburb || props.locality;
-              const cityTown = props.city || props.town || props.village;
-              const parts: string[] = [props.name];
-              if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
-              if (localArea && localArea !== props.name) parts.push(localArea);
-              if (cityTown && cityTown !== props.name) parts.push(cityTown);
-              if (props.postcode) parts.push(props.postcode);
-              if (props.state && props.state !== props.name) parts.push(props.state);
-              if (props.country && props.country !== props.name) parts.push(props.country);
-              const description = parts.filter(Boolean).join(", ");
-              
-              return {
-                name: props.name || localArea || cityTown || "Selected Location",
-                formatted_address: description,
-                locality: localArea || "",
-                city: cityTown || "",
-                state: props.state || "",
-                postalCode: props.postcode || "",
-                geometry: {
-                  location: {
-                    lat: coords[1],
-                    lng: coords[0],
-                  },
-                },
-                address_components: [
-                  {
-                    long_name: props.country || "India",
-                    short_name: String(props.countrycode || "in").toLowerCase(),
-                    types: ["country"],
-                  },
-                ],
-              };
-            });
-          }
-        } catch (e) {
-          console.warn("Photon address geocode error:", e);
-        }
-
-        // Secondary fallback to Nominatim search if no results
-        if (results.length === 0) {
-          try {
-            let nomUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=5&addressdetails=1`;
-            if (country && country !== "NULL") {
-              nomUrl += `&countrycodes=${country.toLowerCase()}`;
-            }
-            const nomRes = await fetch(nomUrl, { headers, signal: AbortSignal.timeout(3500) });
-            if (nomRes.ok) {
-              const nomData = await nomRes.json();
-              if (Array.isArray(nomData)) {
-                results = nomData.map((item: any) => {
-                  const addr = item.address || {};
-                  return {
-                    name: item.name || addr.amenity || addr.building || addr.road || "Selected Location",
-                    formatted_address: item.display_name,
-                    locality: addr.suburb || addr.neighbourhood || addr.residential || "",
-                    city: addr.city || addr.town || addr.village || addr.county || "",
-                    state: addr.state || "",
-                    postalCode: addr.postcode || "",
-                    geometry: {
-                      location: {
-                        lat: parseFloat(item.lat),
-                        lng: parseFloat(item.lon),
-                      },
-                    },
-                    address_components: [
-                      {
-                        long_name: addr.country || "India",
-                        short_name: String(addr.country_code || "in").toLowerCase(),
-                        types: ["country"],
-                      },
-                    ],
-                  };
-                });
-              }
-            }
-          } catch (nomErr) {
-            console.warn("Nominatim address search fallback error:", nomErr);
-          }
-        }
-
-        await setCached(cacheKey, results);
-        return NextResponse.json(
-          { results, status: "OK" },
-          { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" } }
-        );
-      } else if (lat && lng) {
-        let results: any[] = [];
-        try {
-          const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lng}`;
-          const res = await fetch(url, { headers, signal: AbortSignal.timeout(3500) });
-          if (res.ok) {
-            const data = await res.json();
-            results = (data?.features || []).map((feature: any) => {
-              const props = feature.properties || {};
-              const coords = feature.geometry?.coordinates || [0, 0];
-              const streetAndNumber = [props.housenumber, props.street].filter(Boolean).join(" ");
-              const localArea = props.district || props.suburb || props.locality;
-              const cityTown = props.city || props.town || props.village;
-              const parts: string[] = [props.name];
-              if (streetAndNumber && streetAndNumber !== props.name) parts.push(streetAndNumber);
-              if (localArea && localArea !== props.name) parts.push(localArea);
-              if (cityTown && cityTown !== props.name) parts.push(cityTown);
-              if (props.postcode) parts.push(props.postcode);
-              if (props.state && props.state !== props.name) parts.push(props.state);
-              if (props.country && props.country !== props.name) parts.push(props.country);
-              const description = parts.filter(Boolean).join(", ");
-              
-              return {
-                name: props.name || localArea || cityTown || "Pin Location",
-                formatted_address: description,
-                locality: localArea || "",
-                city: cityTown || "",
-                state: props.state || "",
-                postalCode: props.postcode || "",
-                geometry: {
-                  location: {
-                    lat: coords[1],
-                    lng: coords[0],
-                  },
-                },
-                address_components: [
-                  {
-                    long_name: props.country || "India",
-                    short_name: String(props.countrycode || "in").toLowerCase(),
-                    types: ["country"],
-                  },
-                ],
-              };
-            });
-          }
-        } catch (e) {
-          console.warn("Photon reverse failed, falling back to Nominatim:", e);
-        }
-
-        // Secondary fallback: Nominatim OpenStreetMap reverse geocoding
-        if (results.length === 0) {
-          try {
-            const nomUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
-            const nomRes = await fetch(nomUrl, { headers, signal: AbortSignal.timeout(3500) });
-            if (nomRes.ok) {
-              const nomData = await nomRes.json();
-              if (nomData?.display_name) {
-                const nomAddr = nomData.address || {};
-                results.push({
-                  name: nomData.name || nomAddr.amenity || nomAddr.building || nomAddr.road || "Pin Location",
-                  formatted_address: nomData.display_name,
-                  locality: nomAddr.suburb || nomAddr.neighbourhood || nomAddr.residential || "",
-                  city: nomAddr.city || nomAddr.town || nomAddr.village || nomAddr.county || "",
-                  state: nomAddr.state || "",
-                  postalCode: nomAddr.postcode || "",
-                  geometry: {
-                    location: {
-                      lat: parseFloat(nomData.lat || String(lat)),
-                      lng: parseFloat(nomData.lon || String(lng)),
-                    },
-                  },
-                  address_components: [
-                    {
-                      long_name: nomAddr.country || "India",
-                      short_name: String(nomAddr.country_code || "in").toLowerCase(),
-                      types: ["country"],
-                    },
-                  ],
-                });
-              }
-            }
-          } catch (nomErr) {
-            console.warn("Nominatim reverse fallback error:", nomErr);
-          }
-        }
-
-        await setCached(cacheKey, results);
-        return NextResponse.json(
-          { results, status: "OK" },
-          { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=1200" } }
-        );
-      }
-      return NextResponse.json({ status: "INVALID_REQUEST", message: "Missing coordinates or address" }, { status: 400 });
-    }
-
-    return NextResponse.json({ message: "Invalid action" }, { status: 400 });
-  } catch (error) {
-    console.error("Places Proxy Error:", error);
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
-  }
+  const type = action === "autocomplete" ? "autocomplete" : action === "reverse" ? "reverse" : action === "geocode" ? (query ? "search" : "reverse") : null;
+  if (!type || query.length > 240 || (type === "reverse" && !pos) || ((rawLat !== null || rawLng !== null) && !pos)) return invalid();
+  const rawCountry = (q.get("country") || "in").toLowerCase();
+  if (rawCountry !== "null" && !/^[a-z]{2}$/.test(rawCountry)) return invalid();
+  const country = rawCountry === "null" ? "" : rawCountry;
+  if (type === "autocomplete" && query.length < 2) return NextResponse.json({ predictions: [], status: "OK" });
+  const apiKey = process.env.GEOAPIFY_API_KEY?.trim() || "";
+  const provider = apiKey ? "geo" : "photon";
+  const precision = type === "reverse" ? 5 : 2;
+  // Use the same rounded location for provider lookup and caching; search bias does not require precise GPS.
+  const coarse = pos && { lat: +pos.lat.toFixed(precision), lng: +pos.lng.toFixed(precision) };
+  const scope = apiKey ? createHash("sha256").update(apiKey).digest("hex").slice(0, 16) : "photon";
+  const hash = createHash("sha256").update(JSON.stringify([scope, type, query.toLowerCase(), country, coarse])).digest("hex");
+  const result = await cachedPlaces(`places:v5:${hash}`, () => fetchPlaces(provider, apiKey, type, query, coarse, country));
+  const field = type === "autocomplete" ? "predictions" : "results";
+  const headers = { "Cache-Control": "private, no-store" };
+  if (!result) return NextResponse.json({ [field]: [], status: "UNAVAILABLE" }, { status: 503, headers });
+  return NextResponse.json({ [field]: type === "autocomplete" ? result : result.map(geocodeResult), status: "OK" }, { headers });
 }
