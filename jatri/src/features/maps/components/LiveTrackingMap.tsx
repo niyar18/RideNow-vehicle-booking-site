@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
-import { Crosshair } from "lucide-react";
 import { LIVE_TRACKING_MAP_STYLE } from "@/lib/mapConfig";
+import { applyMapPalette, fitMapPadding, labelMap, makeLocationMarker, makeVehicleMarker, MapAttribution, MapControls, mapFrame, MapUnavailable, observeMapSize, prepareMapRuntime, refreshLocationMarker, vehicleSymbol } from "./MapChrome";
+import styles from "./map-chrome.module.css";
 
 type VehicleType = "auto" | "car" | "bike" | "suv" | string;
 
@@ -16,6 +17,7 @@ type Props = {
   status: "arriving" | "ongoing" | "completed" | string;
   vehicleType?: VehicleType;
   etaMinutes?: number;
+  rideOverlay?: boolean;
   onStats?: (data: {
     distanceToPickup: number;
     durationToPickup: number;
@@ -24,292 +26,27 @@ type Props = {
   }) => void;
 };
 
-/* ─── BEARING FORMULA ──────────────────────────────────────────────── */
-function calculateBearing(start: [number, number], end: [number, number]): number {
-  const startLat = (start[0] * Math.PI) / 180;
-  const startLng = (start[1] * Math.PI) / 180;
-  const endLat = (end[0] * Math.PI) / 180;
-  const endLng = (end[1] * Math.PI) / 180;
-  const dLng = endLng - startLng;
-  const y = Math.sin(dLng) * Math.cos(endLat);
-  const x =
-    Math.cos(startLat) * Math.sin(endLat) -
-    Math.sin(startLat) * Math.cos(endLat) * Math.cos(dLng);
-  return ((Math.atan2(y, x) * 180) / Math.PI + 360) % 360;
+function validPosition(p?: [number, number] | null): p is [number, number] {
+  return Boolean(p && Number.isFinite(p[0]) && Number.isFinite(p[1]) && Math.abs(p[0]) <= 90 && Math.abs(p[1]) <= 180);
 }
 
-/* ─── VEHICLE SVG ICONS ─────────────────────────────────────────────── */
-function getVehicleStyle(type: VehicleType): { svg: string; bg: string; size: number } {
-  switch (type) {
-    case "auto":
-      return {
-        bg: "#f59e0b",
-        size: 44,
-        svg: `<svg width="22" height="22" viewBox="0 0 32 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="11" width="20" height="10" rx="3" fill="white" fill-opacity="0.95"/>
-          <path d="M6 11 L10 5 L24 5 L24 11Z" fill="white" fill-opacity="0.85"/>
-          <rect x="11" y="6" width="12" height="5" rx="1" fill="#f59e0b" fill-opacity="0.7"/>
-          <rect x="10" y="11" width="1.5" height="10" fill="#d97706" fill-opacity="0.5"/>
-          <circle cx="9" cy="22" r="2.5" fill="#1f2937"/>
-          <circle cx="9" cy="22" r="1.2" fill="white"/>
-          <circle cx="22" cy="22" r="2.5" fill="#1f2937"/>
-          <circle cx="22" cy="22" r="1.2" fill="white"/>
-        </svg>`,
-      };
-    case "bike":
-      return {
-        bg: "#10b981",
-        size: 40,
-        svg: `<svg width="20" height="20" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="10" cy="22" r="5" stroke="white" stroke-width="2.5" fill="none"/>
-          <circle cx="22" cy="22" r="5" stroke="white" stroke-width="2.5" fill="none"/>
-          <path d="M10 22 L16 10 L22 22" stroke="white" stroke-width="2.5" stroke-linejoin="round"/>
-          <path d="M18 10 L24 10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <path d="M12 10 L16 10" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="10" cy="22" r="1.5" fill="white"/>
-          <circle cx="22" cy="22" r="1.5" fill="white"/>
-        </svg>`,
-      };
-    case "suv":
-      return {
-        bg: "#6366f1",
-        size: 48,
-        svg: `<svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="13" width="28" height="10" rx="2" fill="white" fill-opacity="0.95"/>
-          <path d="M5 13 L7 6 L25 6 L27 13Z" fill="white" fill-opacity="0.9"/>
-          <rect x="8" y="7.5" width="6" height="5" rx="1" fill="#6366f1" fill-opacity="0.5"/>
-          <rect x="16" y="7.5" width="8" height="5" rx="1" fill="#6366f1" fill-opacity="0.5"/>
-          <circle cx="8" cy="24.5" r="3.5" fill="#1f2937"/>
-          <circle cx="8" cy="24.5" r="1.8" fill="white"/>
-          <circle cx="24" cy="24.5" r="3.5" fill="#1f2937"/>
-          <circle cx="24" cy="24.5" r="1.8" fill="white"/>
-        </svg>`,
-      };
-    case "car":
-    default:
-      return {
-        bg: "#3b82f6",
-        size: 44,
-        svg: `<svg width="22" height="22" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="2" y="15" width="28" height="9" rx="2.5" fill="white" fill-opacity="0.95"/>
-          <path d="M7 15 L10 9 L22 9 L25 15Z" fill="white" fill-opacity="0.9"/>
-          <path d="M10.5 15 L12 10 L20 10 L21.5 15Z" fill="#3b82f6" fill-opacity="0.45"/>
-          <rect x="27" y="15.5" width="2" height="3" rx="0.5" fill="#fde68a"/>
-          <circle cx="9" cy="25" r="3.5" fill="#1f2937"/>
-          <circle cx="9" cy="25" r="1.8" fill="white"/>
-          <circle cx="23" cy="25" r="3.5" fill="#1f2937"/>
-          <circle cx="23" cy="25" r="1.8" fill="white"/>
-        </svg>`,
-      };
-  }
+function bearingBetween(from: [number, number], to: [number, number]) {
+  const [lat1, lat2, delta] = [from[0], to[0], to[1] - from[1]].map((angle) => angle * Math.PI / 180);
+  return Math.atan2(Math.sin(delta) * Math.cos(lat2), Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(delta)) * 180 / Math.PI;
 }
 
-/* ─── DRIVER MARKER WITH ETA BADGE ─────────────────────────────────── */
-function createDriverMarkerEl(vehicleType: VehicleType = "car", etaMinutes?: number): {
-  container: HTMLElement;
-  vehicleEl: HTMLElement;
-  etaBadge: HTMLElement;
-} {
-  const { svg, bg, size } = getVehicleStyle(vehicleType);
-  const container = document.createElement("div");
-  container.style.cssText = `display:flex;flex-direction:column;align-items:center;gap:4px;width:${size + 8}px;`;
-
-  const etaBadge = document.createElement("div");
-  const etaText = etaMinutes != null && etaMinutes > 0 ? `${Math.round(etaMinutes)} min` : "";
-  etaBadge.style.cssText = `
-    background:#09090b;color:#fff;padding:3px 9px;border-radius:100px;
-    font-size:11px;font-weight:700;font-family:system-ui,-apple-system,sans-serif;
-    letter-spacing:0.01em;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.3);
-    display:flex;align-items:center;gap:3px;line-height:1;
-    opacity:${etaText ? "1" : "0"};transition:opacity 0.3s ease;
-  `;
-  etaBadge.innerHTML = etaText ? `<span style="color:#fbbf24;font-size:9px">⏱</span> ${etaText}` : "";
-
-  const vehicleEl = document.createElement("div");
-  vehicleEl.style.cssText = `
-    width:${size}px;height:${size}px;background:${bg};border-radius:50%;
-    display:flex;align-items:center;justify-content:center;
-    box-shadow:0 0 0 3px #fff,0 0 0 5px ${bg}55,0 8px 24px rgba(0,0,0,0.35);
-    transition:transform 0.45s cubic-bezier(0.34,1.56,0.64,1);
-  `;
-  vehicleEl.innerHTML = svg;
-
-  container.appendChild(etaBadge);
-  container.appendChild(vehicleEl);
-  return { container, vehicleEl, etaBadge };
-}
-
-/* ─── PICKUP PIN (JAATRI EMERALD & WARM IVORY DESIGN) ───────────────── */
-function createPickupPinEl(locationName?: string): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "cursor-default select-none flex flex-col items-center pointer-events-auto";
-  el.style.zIndex = "1000";
-
-  const rawTitle = (locationName || "").split(",")[0].trim() || "Pickup";
-  const cleanTitle = rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle;
-
-  el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(18,61,50,0.2));transform:translateY(3px);">
-      <!-- Elevated Callout Badge (Jaatri Emerald & Ivory Design) -->
-      <div style="
-        background: #FAF7F0;
-        color: #10251C;
-        padding: 5px 10px;
-        border-radius: 8px;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: -0.01em;
-        white-space: nowrap;
-        font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(18,61,50,0.15);
-        border: 1.5px solid #DED7CA;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      ">
-        <span style="width:7px;height:7px;border-radius:50%;background:#046A38;display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(4,106,56,0.25);"></span>
-        <span>${cleanTitle}</span>
-      </div>
-
-      <!-- Hairline Elevated Stem -->
-      <div style="
-        width: 2px;
-        height: 6px;
-        background: #046A38;
-      "></div>
-
-      <!-- Precision Road Contact Anchor Circle -->
-      <div style="
-        width: 7px;
-        height: 7px;
-        background: #046A38;
-        border-radius: 50%;
-        border: 1.5px solid #ffffff;
-        box-shadow: 0 0 0 1px #046A38;
-      "></div>
-    </div>
-  `;
-  return el;
-}
-
-/* ─── DROP PIN (JAATRI VERMILION & FOREST DESIGN) ─────────────────────── */
-function createDropPinEl(locationName?: string): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "cursor-default select-none flex flex-col items-center pointer-events-auto";
-  el.style.zIndex = "1000";
-
-  const rawTitle = (locationName || "").split(",")[0].trim() || "Drop";
-  const cleanTitle = rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle;
-
-  el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(227,66,34,0.22));transform:translateY(2px);">
-      <!-- Elevated Callout Badge (Jaatri Assamese Vermilion Accent) -->
-      <div style="
-        background: #123D32;
-        color: #FAF7F0;
-        padding: 5px 10px;
-        border-radius: 8px;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: -0.01em;
-        white-space: nowrap;
-        font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(18,61,50,0.25);
-        border: 1.5px solid #123D32;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      ">
-        <span style="width:7px;height:7px;border-radius:50%;background:#E34222;display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(227,66,34,0.35);"></span>
-        <span>${cleanTitle}</span>
-      </div>
-
-      <!-- Hairline Elevated Stem -->
-      <div style="
-        width: 2px;
-        height: 6px;
-        background: #E34222;
-      "></div>
-
-      <!-- Precision Road Contact Anchor Circle -->
-      <div style="
-        width: 7px;
-        height: 7px;
-        background: #E34222;
-        border-radius: 50%;
-        border: 1.5px solid #ffffff;
-        box-shadow: 0 0 0 1px #E34222;
-      "></div>
-    </div>
-  `;
-  return el;
-}
-
-/* ─── ROUTE LAYER SETUP ─────────────────────────────────────────────── */
-function setupRouteLayers(map: maplibregl.Map): boolean {
-  if (!map) return false;
-
-  try {
-    // 1. Trip route (active or preview road route) - Matching /book styling
-    if (!map.getSource("trip-route")) {
-      map.addSource("trip-route", {
-        type: "geojson",
-        data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } },
-      });
-    }
-    if (!map.getLayer("trip-casing")) {
-      map.addLayer({
-        id: "trip-casing",
-        type: "line",
-        source: "trip-route",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: { "line-color": "#ffffff", "line-width": 9.5, "line-opacity": 1.0 },
-      });
-    }
-    if (!map.getLayer("trip-core")) {
-      map.addLayer({
-        id: "trip-core",
-        type: "line",
-        source: "trip-route",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: { "line-color": "#046A38", "line-width": 5.5, "line-opacity": 1.0 },
-      });
-    }
-
-    // 2. Driver approach route (Driver -> Pickup)
-    if (!map.getSource("driver-route")) {
-      map.addSource("driver-route", {
-        type: "geojson",
-        data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } },
-      });
-    }
-    if (!map.getLayer("driver-casing")) {
-      map.addLayer({
-        id: "driver-casing",
-        type: "line",
-        source: "driver-route",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: { "line-color": "#ffffff", "line-width": 7.5, "line-opacity": 0.95 },
-      });
-    }
-    if (!map.getLayer("driver-core")) {
-      map.addLayer({
-        id: "driver-core",
-        type: "line",
-        source: "driver-route",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: {
-          "line-color": "#123D32",
-          "line-width": 4.5,
-          "line-opacity": 1.0,
-          "line-dasharray": [1.5, 2],
-        },
-      });
-    }
-    return true;
-  } catch (e) {
-    return false;
-  }
+function createDriverMarkerEl(type: VehicleType, etaMinutes?: number) {
+  const marker = makeVehicleMarker(type, "Driver location", "driver");
+  const eta = document.createElement("span");
+  eta.className = styles.eta;
+  eta.textContent = etaMinutes && etaMinutes > 0 ? `${Math.round(etaMinutes)} min` : "";
+  eta.hidden = !eta.textContent;
+  const heading = document.createElement("span");
+  heading.className = styles.heading;
+  heading.setAttribute("aria-hidden", "true");
+  heading.hidden = true;
+  marker.container.prepend(eta, heading);
+  return { ...marker, eta, heading };
 }
 
 interface RouteResult {
@@ -321,7 +58,8 @@ interface RouteResult {
 /* ─── FETCH ROAD ROUTE VIA API ──────────────────────────────────────── */
 async function fetchRoadRoute(
   from: [number, number],
-  to: [number, number]
+  to: [number, number],
+  signal: AbortSignal
 ): Promise<RouteResult> {
   const dLat = ((to[0] - from[0]) * Math.PI) / 180;
   const dLon = ((to[1] - from[1]) * Math.PI) / 180;
@@ -340,7 +78,7 @@ async function fetchRoadRoute(
   try {
     const res = await fetch(
       `https://router.project-osrm.org/route/v1/driving/${from[1]},${from[0]};${to[1]},${to[0]}?overview=full&geometries=geojson`,
-      { signal: AbortSignal.timeout(4000) }
+      { signal: AbortSignal.any([signal, AbortSignal.timeout(4000)]) }
     );
     if (res.ok) {
       const data = await res.json();
@@ -355,23 +93,23 @@ async function fetchRoadRoute(
         };
       }
     }
-  } catch (_) {}
+  } catch { signal.throwIfAborted(); }
 
   // Fallback to our API route
   try {
     const ptsParam = `${from[0]},${from[1]};${to[0]},${to[1]}`;
     const res = await fetch(`/api/route?points=${encodeURIComponent(ptsParam)}`, {
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.any([signal, AbortSignal.timeout(5000)]),
     });
     if (res.ok) {
       const contentType = res.headers.get("content-type") || "";
       if (contentType.includes("json")) {
         const data = await res.json();
         if (data.success && data.primary?.geojsonCoords?.length) {
-          const distKm = Number(data.primary.distance ?? directDistKm);
+          const distKm = Number(data.primary.distanceKm ?? directDistKm);
           const durMin = Math.max(
             1,
-            Math.round(data.primary.duration ?? directDuration)
+            Math.round(data.primary.durationMinutes ?? directDuration)
           );
           return {
             coordinates: data.primary.geojsonCoords,
@@ -381,7 +119,7 @@ async function fetchRoadRoute(
         }
       }
     }
-  } catch (_) {}
+  } catch { signal.throwIfAborted(); }
 
   // Fail-safe direct fallback so the polyline is 100% NEVER blank
   return {
@@ -405,20 +143,28 @@ export default function LiveTrackingMap({
   vehicleType = "car",
   etaMinutes,
   onStats,
+  rideOverlay = false,
 }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const [readyMap, setReadyMap] = useState<maplibregl.Map | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
+  const initial = useRef({ driverLocation, pickupLocation, dropLocation });
+  const tripRequest = useRef<AbortController | null>(null);
+  const approachRequest = useRef<AbortController | null>(null);
+  const vehicleTypeRef = useRef(vehicleType);
 
   const driverMarkerRef = useRef<maplibregl.Marker | null>(null);
   const vehicleElRef = useRef<HTMLElement | null>(null);
   const etaBadgeRef = useRef<HTMLElement | null>(null);
+  const headingRef = useRef<HTMLElement | null>(null);
+  const lastDriverPosition = useRef<[number, number] | null>(null);
   const pickupMarkerRef = useRef<maplibregl.Marker | null>(null);
   const dropMarkerRef = useRef<maplibregl.Marker | null>(null);
 
-  const lastPosRef = useRef<[number, number] | null>(null);
   const lastDriverRouteFetchRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
   const lastTripRouteFetchRef = useRef<{ lat: number; lng: number; time: number } | null>(null);
-  const tripRouteDrawnRef = useRef(false);
+  const drawnTripKey = useRef("");
 
   const tripCoordsRef = useRef<[number, number][]>([]);
   const driverCoordsRef = useRef<[number, number][]>([]);
@@ -467,130 +213,125 @@ export default function LiveTrackingMap({
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const initialCenter: [number, number] = (driverLocation && typeof driverLocation[0] === "number")
-      ? [driverLocation[1], driverLocation[0]]
-      : (pickupLocation && typeof pickupLocation[0] === "number")
-      ? [pickupLocation[1], pickupLocation[0]]
-      : [91.7516, 26.1884];
-
-    const map = new maplibregl.Map({
-      container: mapContainerRef.current,
-      style: LIVE_TRACKING_MAP_STYLE,
-      center: initialCenter,
-      zoom: 14.5,
-      pitch: 0,
-      attributionControl: false,
-    });
-
-    map.addControl(new maplibregl.AttributionControl({ compact: true }), "bottom-right");
-
+    const { driverLocation, pickupLocation, dropLocation } = initial.current;
+    const pos = [driverLocation, pickupLocation, dropLocation].find(validPosition);
+    let map: maplibregl.Map;
+    try {
+      prepareMapRuntime();
+      map = new maplibregl.Map({
+        container: mapContainerRef.current,
+        style: LIVE_TRACKING_MAP_STYLE,
+        center: pos ? [pos[1], pos[0]] : [91.7516, 26.1884],
+        zoom: 14.5,
+        attributionControl: false,
+        scrollZoom: false,
+        dragRotate: false,
+      });
+    } catch {
+      setUnavailable(true);
+      return;
+    }
+    labelMap(map, "Live trip map");
+    const stopPalette = applyMapPalette(map, [
+      ["trip-casing", "outline"], ["trip-core", "main"], ["driver-casing", "outline"], ["driver-core", "approach"],
+    ]);
+    const stopResize = observeMapSize(map, mapContainerRef.current);
     const onStyleReady = () => {
-      setupRouteLayers(map);
+      for (const [name, coords] of [["trip-route", tripCoordsRef.current], ["driver-route", driverCoordsRef.current]] as const) {
+        map.getSource<maplibregl.GeoJSONSource>(name)?.setData({
+          type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: coords },
+        });
+      }
       updateSvgOverlay();
-      map.triggerRepaint();
     };
-
     map.on("load", onStyleReady);
-    map.on("styledata", onStyleReady);
-
     map.on("render", updateSvgOverlay);
     map.on("move", updateSvgOverlay);
     map.on("zoom", updateSvgOverlay);
     map.on("resize", updateSvgOverlay);
 
     mapRef.current = map;
+    setReadyMap(map);
 
     return () => {
+      tripRequest.current?.abort();
+      approachRequest.current?.abort();
+      drawnTripKey.current = "";
+      lastDriverRouteFetchRef.current = null;
+      lastDriverPosition.current = null;
+      stopResize();
+      stopPalette();
+      pickupMarkerRef.current = null;
+      dropMarkerRef.current = null;
+      driverMarkerRef.current = null;
       map.remove();
       mapRef.current = null;
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [updateSvgOverlay]);
 
-  /* ─── RESIZE OBSERVER ─── */
   useEffect(() => {
-    const handleResize = () => mapRef.current?.resize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  /* ─── STATIC PINS (PICKUP & DROP) ─── */
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    if (pickupLocation && typeof pickupLocation[0] === "number" && typeof pickupLocation[1] === "number") {
-      const pinEl = createPickupPinEl(pickupAddress);
-      if (!pickupMarkerRef.current) {
-        pickupMarkerRef.current = new maplibregl.Marker({ element: pinEl, anchor: "bottom" })
-          .setLngLat([pickupLocation[1], pickupLocation[0]])
-          .addTo(map);
+    if (!readyMap) return;
+    const sync = (kind: "pickup" | "drop", point: [number, number] | null | undefined, address: string | undefined, ref: typeof pickupMarkerRef) => {
+      if (!validPosition(point)) {
+        ref.current?.remove();
+        ref.current = null;
+        return;
+      }
+      const next = makeLocationMarker(kind, address);
+      if (!ref.current) {
+        ref.current = new maplibregl.Marker({ element: next, anchor: "bottom" }).setLngLat([point[1], point[0]]).addTo(readyMap);
       } else {
-        pickupMarkerRef.current.setLngLat([pickupLocation[1], pickupLocation[0]]);
-        pickupMarkerRef.current.getElement().innerHTML = pinEl.innerHTML;
+        ref.current.setLngLat([point[1], point[0]]);
+        refreshLocationMarker(ref.current.getElement(), next);
       }
-    } else if (pickupMarkerRef.current) {
-      pickupMarkerRef.current.remove();
-      pickupMarkerRef.current = null;
-    }
+    };
+    sync("pickup", pickupLocation, pickupAddress, pickupMarkerRef);
+    sync("drop", dropLocation, dropAddress, dropMarkerRef);
+  }, [readyMap, pickupLocation, dropLocation, pickupAddress, dropAddress]);
 
-    if (dropLocation && typeof dropLocation[0] === "number" && typeof dropLocation[1] === "number") {
-      const pinEl = createDropPinEl(dropAddress);
-      if (!dropMarkerRef.current) {
-        dropMarkerRef.current = new maplibregl.Marker({ element: pinEl, anchor: "bottom" })
-          .setLngLat([dropLocation[1], dropLocation[0]])
-          .addTo(map);
-      } else {
-        dropMarkerRef.current.setLngLat([dropLocation[1], dropLocation[0]]);
-        dropMarkerRef.current.getElement().innerHTML = pinEl.innerHTML;
-      }
-    } else if (dropMarkerRef.current) {
-      dropMarkerRef.current.remove();
-      dropMarkerRef.current = null;
-    }
-  }, [pickupLocation, dropLocation, pickupAddress, dropAddress]);
-
-  /* ─── UPDATE ETA BADGE REACTIVELY ─── */
   useEffect(() => {
-    const badge = etaBadgeRef.current;
-    if (!badge) return;
-    const etaText = etaMinutes != null && etaMinutes > 0 ? `${Math.round(etaMinutes)} min` : "";
-    badge.innerHTML = etaText ? `<span style="color:#fbbf24;font-size:9px">⏱</span> ${etaText}` : "";
-    badge.style.opacity = etaText ? "1" : "0";
-  }, [etaMinutes]);
-
-  /* ─── DRIVER MARKER + BEARING ─── */
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    if (driverLocation && typeof driverLocation[0] === "number" && typeof driverLocation[1] === "number") {
-      if (lastPosRef.current && vehicleElRef.current) {
-        const dist = Math.hypot(
-          driverLocation[0] - lastPosRef.current[0],
-          driverLocation[1] - lastPosRef.current[1]
-        );
-        if (dist > 0.00005) {
-          const bearing = calculateBearing(lastPosRef.current, driverLocation);
-          vehicleElRef.current.style.transform = `rotate(${Math.round(bearing)}deg)`;
-        }
-      }
-      lastPosRef.current = driverLocation;
-
-      if (!driverMarkerRef.current) {
-        const { container, vehicleEl, etaBadge } = createDriverMarkerEl(vehicleType, etaMinutes);
-        vehicleElRef.current = vehicleEl;
-        etaBadgeRef.current = etaBadge;
-        driverMarkerRef.current = new maplibregl.Marker({ element: container, anchor: "bottom" })
-          .setLngLat([driverLocation[1], driverLocation[0]])
-          .addTo(map);
-      } else {
-        driverMarkerRef.current.setLngLat([driverLocation[1], driverLocation[0]]);
-      }
-    } else if (driverMarkerRef.current) {
-      driverMarkerRef.current.remove();
+    if (!readyMap) return;
+    if (!validPosition(driverLocation) || status === "completed") {
+      driverMarkerRef.current?.remove();
       driverMarkerRef.current = null;
+      vehicleElRef.current = null;
+      etaBadgeRef.current = null;
+      headingRef.current = null;
+      lastDriverPosition.current = null;
+      return;
     }
-  }, [driverLocation, vehicleType, etaMinutes]);
+
+    const point: [number, number] = [driverLocation[1], driverLocation[0]];
+    if (!driverMarkerRef.current) {
+      const { container, vehicleEl, eta, heading } = createDriverMarkerEl(vehicleType, etaMinutes);
+      vehicleElRef.current = vehicleEl;
+      etaBadgeRef.current = eta;
+      headingRef.current = heading;
+      driverMarkerRef.current = new maplibregl.Marker({ element: container, anchor: "center" }).setLngLat(point).addTo(readyMap);
+      vehicleTypeRef.current = vehicleType;
+    } else {
+      driverMarkerRef.current.setLngLat(point);
+      if (vehicleTypeRef.current !== vehicleType) {
+        const next = vehicleSymbol(vehicleType);
+        vehicleElRef.current?.replaceWith(next);
+        vehicleElRef.current = next;
+        vehicleTypeRef.current = vehicleType;
+      }
+      const eta = etaBadgeRef.current;
+      if (eta) {
+        eta.textContent = etaMinutes && etaMinutes > 0 ? `${Math.round(etaMinutes)} min` : "";
+        eta.hidden = !eta.textContent;
+      }
+    }
+    const previous = lastDriverPosition.current;
+    const heading = headingRef.current;
+    if (!previous) lastDriverPosition.current = driverLocation;
+    else if (heading && Math.hypot(driverLocation[0] - previous[0], driverLocation[1] - previous[1]) > .00005) {
+      heading.style.transform = `rotate(${bearingBetween(previous, driverLocation)}deg)`;
+      heading.hidden = false;
+      lastDriverPosition.current = driverLocation;
+    }
+  }, [readyMap, driverLocation, vehicleType, etaMinutes, status]);
 
   const onStatsRef = useRef(onStats);
   useEffect(() => {
@@ -604,282 +345,128 @@ export default function LiveTrackingMap({
     durationToDrop: 0,
   });
 
-  /* ─── DYNAMIC TRIP ROUTE (PICKUP → DROP OR DRIVER → DROP) ─── */
-  const updateTripRoute = useCallback(async () => {
+  const draw = useCallback((kind: "trip" | "driver", coords: [number, number][]) => {
+    const lineRef = kind === "trip" ? tripCoordsRef : driverCoordsRef;
+    lineRef.current = coords;
     const map = mapRef.current;
-    if (!map || !pickupLocation || !dropLocation) return;
+    if (!map) return;
+    updateSvgOverlay();
+    map.getSource<maplibregl.GeoJSONSource>(`${kind}-route`)?.setData({
+      type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: coords },
+    });
+  }, [updateSvgOverlay]);
 
-    if (status === "ongoing") {
-      // Ride active: route is from driver's current position to drop location!
-      const startPt = driverLocation || pickupLocation;
-      const last = lastTripRouteFetchRef.current;
-      if (last && driverLocation) {
-        const dist = Math.hypot(driverLocation[0] - last.lat, driverLocation[1] - last.lng);
-        const elapsed = Date.now() - last.time;
-        if (dist < 0.001 && elapsed < 12000) return; // Throttle: <120m moved and <12s elapsed
-      }
-      if (driverLocation) {
-        lastTripRouteFetchRef.current = { lat: driverLocation[0], lng: driverLocation[1], time: Date.now() };
-      }
+  const dLat = driverLocation?.[0], dLng = driverLocation?.[1];
+  const pLat = pickupLocation?.[0], pLng = pickupLocation?.[1];
+  const tLat = dropLocation?.[0], tLng = dropLocation?.[1];
+  const fromLat = status === "ongoing" ? dLat ?? pLat : pLat;
+  const fromLng = status === "ongoing" ? dLng ?? pLng : pLng;
 
-      setupRouteLayers(map);
-      const routeRes = await fetchRoadRoute(startPt, dropLocation);
-      if (!routeRes || !mapRef.current) return;
-      const coords = routeRes.coordinates;
-
-      statsRef.current.distanceToDrop = routeRes.distanceKm;
-      statsRef.current.durationToDrop = routeRes.durationMinutes;
+  // An older request may not overwrite a newer point or restore a line cleared by a status change.
+  useEffect(() => {
+    const endpoint = `${status}:${pLat},${pLng};${tLat},${tLng}`;
+    if (!readyMap || status === "completed" || fromLat == null || fromLng == null || tLat == null || tLng == null) {
+      tripRequest.current?.abort();
+      drawnTripKey.current = "";
+      lastTripRouteFetchRef.current = null;
+      draw("trip", []);
+      return;
+    }
+    const start: [number, number] = [fromLat, fromLng];
+    const end: [number, number] = [tLat, tLng];
+    if (!validPosition(start) || !validPosition(end)) return;
+    const changed = drawnTripKey.current !== endpoint;
+    const prev = lastTripRouteFetchRef.current;
+    if (!changed && (status !== "ongoing" || prev && Date.now() - prev.time < 12000 && Math.hypot(fromLat - prev.lat, fromLng - prev.lng) < 0.001)) return;
+    tripRequest.current?.abort();
+    const controller = new AbortController();
+    tripRequest.current = controller;
+    lastTripRouteFetchRef.current = { lat: fromLat, lng: fromLng, time: Date.now() };
+    drawnTripKey.current = endpoint;
+    void fetchRoadRoute(start, end, controller.signal).then((route) => {
+      if (controller.signal.aborted) return;
+      draw("trip", route.coordinates);
+      statsRef.current.distanceToDrop = route.distanceKm;
+      statsRef.current.durationToDrop = route.durationMinutes;
       onStatsRef.current?.({ ...statsRef.current });
+    }).catch((error) => {
+      if (!controller.signal.aborted) { drawnTripKey.current = ""; console.warn("Trip route unavailable", error); }
+    });
+  }, [readyMap, status, pLat, pLng, tLat, tLng, fromLat, fromLng, draw]);
 
-      tripCoordsRef.current = coords;
-      updateSvgOverlay();
-      map.triggerRepaint();
-
-      const source = mapRef.current.getSource("trip-route") as maplibregl.GeoJSONSource;
-      if (source) {
-        source.setData({
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: coords },
-        });
-      }
-
-      // Clear driver approach route once trip is ongoing
-      driverCoordsRef.current = [];
-      updateSvgOverlay();
-      const driverSource = mapRef.current.getSource("driver-route") as maplibregl.GeoJSONSource;
-      if (driverSource) {
-        driverSource.setData({
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: [] },
-        });
-      }
-    } else if (status !== "completed") {
-      // Driver heading to pickup OR booking requested: trip route is pickup -> drop
-      if (tripRouteDrawnRef.current) return;
-      setupRouteLayers(map);
-      const routeRes = await fetchRoadRoute(pickupLocation, dropLocation);
-      if (!routeRes || !mapRef.current) return;
-      const coords = routeRes.coordinates;
-
-      statsRef.current.distanceToDrop = routeRes.distanceKm;
-      statsRef.current.durationToDrop = routeRes.durationMinutes;
-      onStats?.({ ...statsRef.current });
-
-      tripCoordsRef.current = coords;
-      updateSvgOverlay();
-      map.triggerRepaint();
-
-      const source = mapRef.current.getSource("trip-route") as maplibregl.GeoJSONSource;
-      if (source) {
-        source.setData({
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: coords },
-        });
-        tripRouteDrawnRef.current = true;
-      }
-    } else {
-      // Completed: clear route
-      tripCoordsRef.current = [];
-      driverCoordsRef.current = [];
-      updateSvgOverlay();
-      const source = map.getSource("trip-route") as maplibregl.GeoJSONSource;
-      if (source) {
-        source.setData({
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: [] },
-        });
-      }
+  const approachKey = useRef("");
+  useEffect(() => {
+    if (!readyMap || status === "ongoing" || status === "completed" || dLat == null || dLng == null || pLat == null || pLng == null) {
+      approachRequest.current?.abort();
+      approachKey.current = "";
+      lastDriverRouteFetchRef.current = null;
+      draw("driver", []);
+      return;
     }
-  }, [driverLocation, pickupLocation, dropLocation, status, updateSvgOverlay]);
-
-  /* ─── DRIVER APPROACH ROUTE (DRIVER → PICKUP) ─── */
-  const updateDriverRoute = useCallback(async () => {
-    const map = mapRef.current;
-    if (!map || !driverLocation || !pickupLocation) return;
-
-    if (status !== "ongoing" && status !== "completed") {
-      const last = lastDriverRouteFetchRef.current;
-      if (last) {
-        const dist = Math.hypot(driverLocation[0] - last.lat, driverLocation[1] - last.lng);
-        const elapsed = Date.now() - last.time;
-        if (dist < 0.001 && elapsed < 12000) return; // Throttle: <120m moved and <12s elapsed
-      }
-      lastDriverRouteFetchRef.current = { lat: driverLocation[0], lng: driverLocation[1], time: Date.now() };
-
-      setupRouteLayers(map);
-      const routeRes = await fetchRoadRoute(driverLocation, pickupLocation);
-      if (!routeRes || !mapRef.current) return;
-      const coords = routeRes.coordinates;
-
-      statsRef.current.distanceToPickup = routeRes.distanceKm;
-      statsRef.current.durationToPickup = routeRes.durationMinutes;
+    const start: [number, number] = [dLat, dLng];
+    const end: [number, number] = [pLat, pLng];
+    if (!validPosition(start) || !validPosition(end)) return;
+    const key = `${status}:${pLat},${pLng}`;
+    const prev = lastDriverRouteFetchRef.current;
+    if (approachKey.current === key && prev && Date.now() - prev.time < 12000 && Math.hypot(dLat - prev.lat, dLng - prev.lng) < 0.001) return;
+    approachRequest.current?.abort();
+    const controller = new AbortController();
+    approachRequest.current = controller;
+    approachKey.current = key;
+    lastDriverRouteFetchRef.current = { lat: dLat, lng: dLng, time: Date.now() };
+    void fetchRoadRoute(start, end, controller.signal).then((route) => {
+      if (controller.signal.aborted) return;
+      draw("driver", route.coordinates);
+      statsRef.current.distanceToPickup = route.distanceKm;
+      statsRef.current.durationToPickup = route.durationMinutes;
       onStatsRef.current?.({ ...statsRef.current });
+    }).catch((error) => {
+      if (!controller.signal.aborted) { approachKey.current = ""; console.warn("Pickup approach unavailable", error); }
+    });
+  }, [readyMap, status, dLat, dLng, pLat, pLng, draw]);
 
-      driverCoordsRef.current = coords;
-      updateSvgOverlay();
-      map.triggerRepaint();
+  /* Frame on endpoint/status change or when the driver first appears, not on every GPS update. */
+  const points = useRef({ pickupLocation, dropLocation, driverLocation });
 
-      const source = mapRef.current.getSource("driver-route") as maplibregl.GeoJSONSource;
-      if (source) {
-        source.setData({
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: coords },
-        });
-      }
-    } else {
-      // Clear driver approach line when ride is ongoing/completed
-      driverCoordsRef.current = [];
-      updateSvgOverlay();
-      const source = mapRef.current?.getSource("driver-route") as maplibregl.GeoJSONSource;
-      if (source) {
-        source.setData({
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: [] },
-        });
-      }
-    }
-  }, [driverLocation, pickupLocation, status, updateSvgOverlay]);
+  useEffect(() => { points.current = { pickupLocation, dropLocation, driverLocation }; }, [pickupLocation, dropLocation, driverLocation]);
 
-  // Initial and reactive trip route
-  useEffect(() => {
-    updateTripRoute();
-  }, [updateTripRoute]);
+  const fitRouteCamera = useCallback(() => {
+    if (!readyMap) return;
+    const { pickupLocation, dropLocation, driverLocation } = points.current;
+    const positions = [pickupLocation, dropLocation, driverLocation].filter(validPosition);
+    if (!positions.length) return;
+    const bounds = new maplibregl.LngLatBounds();
+    for (const pos of positions) bounds.extend([pos[1], pos[0]]);
+    const mobileOverlay = rideOverlay && window.innerWidth < 1024;
+    readyMap.fitBounds(bounds, {
+      padding: fitMapPadding(readyMap, mobileOverlay ? 220 : 56),
+      duration: 400,
+      maxZoom: 16,
+    });
+  }, [readyMap, rideOverlay]);
 
-  // Reactive driver approach route
-  useEffect(() => {
-    updateDriverRoute();
-  }, [updateDriverRoute]);
-
-  // Reset trip route drawn flag when endpoints change
-  useEffect(() => {
-    tripRouteDrawnRef.current = false;
-  }, [pickupLocation?.[0], pickupLocation?.[1], dropLocation?.[0], dropLocation?.[1]]);
-
-  /* ─── STABLE CAMERA FRAMING & USER INTERACTION (NO PERPETUAL BOUNCING) ─── */
-  const userInteractedRef = useRef(false);
-  const prevFramedStatusRef = useRef<string | null>(null);
-  const hadDriverRef = useRef<boolean>(false);
-  const lastFramedCoordsRef = useRef<string>("");
-
-  const pickupLocationRef = useRef(pickupLocation);
-  const dropLocationRef = useRef(dropLocation);
-  const driverLocationRef = useRef(driverLocation);
-
-  useEffect(() => { pickupLocationRef.current = pickupLocation; }, [pickupLocation]);
-  useEffect(() => { dropLocationRef.current = dropLocation; }, [dropLocation]);
-  useEffect(() => { driverLocationRef.current = driverLocation; }, [driverLocation]);
-
-  const fitRouteCamera = useCallback((force = false) => {
-    const map = mapRef.current;
-    const pickup = pickupLocationRef.current;
-    const drop = dropLocationRef.current;
-    const driver = driverLocationRef.current;
-    if (!map || !pickup || !drop) return;
-    if (!force && userInteractedRef.current) return;
-
-    try {
-      const bounds = new maplibregl.LngLatBounds();
-      bounds.extend([pickup[1], pickup[0]]);
-      bounds.extend([drop[1], drop[0]]);
-      if (driver && typeof driver[0] === "number" && typeof driver[1] === "number") {
-        bounds.extend([driver[1], driver[0]]);
-      }
-
-      map.fitBounds(bounds, {
-        padding: { top: 90, bottom: 200, left: 60, right: 60 },
-        duration: 500,
-        essential: true,
-        maxZoom: 16.5,
-      });
-    } catch (_) {}
-  }, []);
-
-  // Track user manual pan/zoom so continuous driver updates never fight the user
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      const map = mapRef.current;
-      if (!map) return;
-      const onUserInteraction = () => {
-        userInteractedRef.current = true;
-      };
-      map.on("dragstart", onUserInteraction);
-      map.on("touchmove", onUserInteraction);
-      map.on("wheel", onUserInteraction);
-    }, 200);
-
-    return () => {
-      clearTimeout(timeout);
-      const map = mapRef.current;
-      if (!map) return;
-      const onUserInteraction = () => {
-        userInteractedRef.current = true;
-      };
-      map.off("dragstart", onUserInteraction);
-      map.off("touchmove", onUserInteraction);
-      map.off("wheel", onUserInteraction);
-    };
-  }, []);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !pickupLocation || !dropLocation) return;
-
-    const pLat = typeof pickupLocation[0] === "number" ? pickupLocation[0].toFixed(4) : "";
-    const pLng = typeof pickupLocation[1] === "number" ? pickupLocation[1].toFixed(4) : "";
-    const dLat = typeof dropLocation[0] === "number" ? dropLocation[0].toFixed(4) : "";
-    const dLng = typeof dropLocation[1] === "number" ? dropLocation[1].toFixed(4) : "";
-    const coordsKey = `${pLat},${pLng}_${dLat},${dLng}`;
-
-    const isNewLocation = coordsKey !== lastFramedCoordsRef.current;
-    const isNewStatus = status !== prevFramedStatusRef.current;
-    const hasDriverNow = Boolean(driverLocation && typeof driverLocation[0] === "number");
-    const driverFirstAppeared = hasDriverNow && !hadDriverRef.current;
-
-    // Only frame camera on initial route load, when status transitions (e.g. arriving -> ongoing),
-    // or when driver first becomes available. Never frame on continuous periodic driverLocation updates!
-    if (isNewLocation || isNewStatus || driverFirstAppeared) {
-      lastFramedCoordsRef.current = coordsKey;
-      prevFramedStatusRef.current = status;
-      hadDriverRef.current = hasDriverNow;
-      userInteractedRef.current = false;
-      fitRouteCamera(true);
-    }
-  }, [pickupLocation, dropLocation, driverLocation, status, fitRouteCamera]);
+  const hasDriver = validPosition(driverLocation);
+  useEffect(() => { fitRouteCamera(); }, [pLat, pLng, tLat, tLng, hasDriver, status, fitRouteCamera]);
 
   return (
-    <div className="relative w-full h-full overflow-hidden select-none">
-      <div ref={mapContainerRef} className="w-full h-full" />
-
-      {/* Floating Re-center / Fit Route Button */}
-      <button
-        type="button"
-        onClick={() => {
-          userInteractedRef.current = false;
-          fitRouteCamera(true);
-        }}
-        className="absolute bottom-28 md:bottom-8 right-4 z-20 bg-white/95 hover:bg-white text-zinc-900 border border-zinc-300 shadow-md p-2.5 rounded-none flex items-center justify-center transition active:scale-95 cursor-pointer backdrop-blur-xs"
-        title="Re-center Route"
-        aria-label="Re-center Route"
-      >
-        <Crosshair size={18} className="text-zinc-900" />
-      </button>
+    <div className={mapFrame}>
+      <div ref={mapContainerRef} className="size-full" />
+      {unavailable ? <MapUnavailable /> : <>
+        <MapAttribution top={rideOverlay} />
+        <MapControls map={readyMap} onRecenter={fitRouteCamera} recenterLabel="Re-center on trip route" top={rideOverlay} bottom={24} />
+      </>}
 
       {/* ── FAIL-SAFE SVG ROUTE POLYLINE OVERLAY ── */}
       <svg
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 10, pointerEvents: "none" }}
+        style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }}
       >
         {/* Driver approach route (dashed cyan with white halo) */}
         <path
           ref={svgDriverCasingRef}
           d=""
-          stroke="#ffffff"
+          stroke="var(--map-line-outline)"
           strokeWidth="8.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -889,7 +476,7 @@ export default function LiveTrackingMap({
         <path
           ref={svgDriverCoreRef}
           d=""
-          stroke="#123D32"
+          stroke="var(--map-secondary-line)"
           strokeWidth="4.5"
           strokeDasharray="6, 8"
           strokeLinecap="round"
@@ -901,7 +488,7 @@ export default function LiveTrackingMap({
         <path
           ref={svgTripCasingRef}
           d=""
-          stroke="#ffffff"
+          stroke="var(--map-line-outline)"
           strokeWidth="9.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -911,7 +498,7 @@ export default function LiveTrackingMap({
         <path
           ref={svgTripCoreRef}
           d=""
-          stroke="#046A38"
+          stroke="var(--map-primary-line)"
           strokeWidth="5.5"
           strokeLinecap="round"
           strokeLinejoin="round"

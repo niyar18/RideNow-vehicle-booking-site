@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 import fs from "fs";
 import path from "path";
+import { createRequire } from "node:module";
 
 try {
   const publicJatriPng = path.join(process.cwd(), "public", "logojatri.png");
@@ -16,6 +17,17 @@ try {
   }
 } catch (err) {
   console.error("Error setting up Jaatri favicon:", err);
+}
+
+// Keep the MapLibre worker and its relative import together. Next hashes individual
+// bundled module filenames, but this worker has an unbundled relative dependency.
+const resolveDependency = createRequire(path.join(process.cwd(), "package.json"));
+const mapRuntime = path.dirname(resolveDependency.resolve("maplibre-gl/package.json"));
+const mapRuntimeVersion = (JSON.parse(fs.readFileSync(path.join(mapRuntime, "package.json"), "utf8")) as { version: string }).version;
+const mapRuntimePublicDir = path.join(process.cwd(), "public", "map-runtime", mapRuntimeVersion);
+fs.mkdirSync(mapRuntimePublicDir, { recursive: true });
+for (const file of ["maplibre-gl-worker.mjs", "maplibre-gl-shared.mjs"]) {
+  fs.copyFileSync(path.join(mapRuntime, "dist", file), path.join(mapRuntimePublicDir, file));
 }
 
 const securityHeaders = [

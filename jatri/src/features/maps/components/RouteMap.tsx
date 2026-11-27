@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import * as maplibregl from "maplibre-gl";
-import { motion, AnimatePresence } from "framer-motion";
-import { Crosshair, Plus, Minus, RotateCcw, MapPin, Check, X, Loader2 } from "lucide-react";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
+import { RotateCcw, MapPin, Check, X, Loader2 } from "lucide-react";
 import { UBER_MINIMAL_MAP_STYLE } from "@/lib/mapConfig";
+import { applyMapPalette, fitMapPadding, gpsMarker, labelMap, makeLocationMarker, makeVehicleMarker, MapAttribution, MapControls, mapFrame, MapUnavailable, observeMapSize, prepareMapRuntime, refreshLocationMarker } from "./MapChrome";
 
 type Props = {
   pickup: string;
@@ -44,320 +45,6 @@ type Props = {
   ) => void;
 };
 
-/* ─── DOM MARKER GENERATORS (ELEVATED STEM ZERO-COLLISION CALLOUTS) ─────── */
-
-function createPickupEl(locationName?: string, durationMin?: number | null): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
-  el.style.zIndex = "1000";
-
-  const rawTitle = (locationName || "").split(",")[0].trim();
-  const cleanTitle = rawTitle && rawTitle.length > 0 ? (rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle) : "Pickup";
-  const etaBadge = durationMin && durationMin > 0 ? ` • ${durationMin} min` : "";
-
-  el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(18,61,50,0.18));transform:translateY(3px);">
-      <!-- Elevated Callout Badge (Jaatri Emerald & Ivory Design) -->
-      <div style="
-        background: var(--surface-raised);
-        color: var(--text-primary);
-        padding: 5px 10px;
-        border-radius: 8px;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: -0.01em;
-        white-space: nowrap;
-        font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(18,61,50,0.15);
-        border: 1.5px solid var(--border-default);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      ">
-        <span style="width:7px;height:7px;border-radius:50%;background:var(--accent-mint);display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(4,106,56,0.2);"></span>
-        <span>${cleanTitle}</span>
-        ${etaBadge ? `<span style="color:var(--text-primary);font-size:9px;font-weight:700;">${etaBadge}</span>` : ""}
-      </div>
-
-      <!-- Hairline Elevated Stem -->
-      <div style="
-        width: 2px;
-        height: 6px;
-        background: #142238;
-      "></div>
-
-      <!-- Precision Road Contact Anchor Circle -->
-      <div style="
-        width: 7px;
-        height: 7px;
-        background: #142238;
-        border-radius: 50%;
-        border: 1.5px solid #ffffff;
-        box-shadow: 0 0 0 1px #142238;
-      "></div>
-    </div>
-  `;
-  return el;
-}
-
-function createDropEl(locationName?: string): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "cursor-grab active:cursor-grabbing select-none flex flex-col items-center pointer-events-auto";
-  el.style.zIndex = "1000";
-
-  const rawTitle = (locationName || "").split(",")[0].trim();
-  const cleanTitle = rawTitle && rawTitle.length > 0 ? (rawTitle.length > 20 ? rawTitle.slice(0, 18) + "…" : rawTitle) : "Drop";
-
-  el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;position:relative;z-index:1000;filter:drop-shadow(0 4px 10px rgba(227,66,34,0.18));transform:translateY(2px);">
-      <!-- Elevated Callout Badge (Jaatri Assamese Vermilion Accent) -->
-      <div style="
-        background: var(--brand-primary);
-        color: var(--on-primary);
-        padding: 5px 10px;
-        border-radius: 8px;
-        font-size: 10px;
-        font-weight: 800;
-        letter-spacing: -0.01em;
-        white-space: nowrap;
-        font-family: system-ui, -apple-system, sans-serif;
-        box-shadow: 0 4px 12px rgba(18,61,50,0.25);
-        border: 1.5px solid var(--on-primary);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      ">
-        <span style="width:7px;height:7px;border-radius:50%;background:#E34222;display:inline-block;flex-shrink:0;box-shadow:0 0 0 2px rgba(227,66,34,0.35);"></span>
-        <span>${cleanTitle}</span>
-      </div>
-
-      <!-- Hairline Elevated Stem -->
-      <div style="
-        width: 2px;
-        height: 6px;
-        background: #E34222;
-      "></div>
-
-      <!-- Precision Road Contact Anchor Circle -->
-      <div style="
-        width: 7px;
-        height: 7px;
-        background: #E34222;
-        border-radius: 50%;
-        border: 1.5px solid #ffffff;
-        box-shadow: 0 0 0 1px #E34222;
-      "></div>
-    </div>
-  `;
-  return el;
-}
-
-function createStopEl(index: number): HTMLElement {
-  const el = document.createElement("div");
-  el.style.zIndex = "1000";
-  el.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 4px 8px rgba(18,61,50,0.2));">
-      <div style="
-        background:var(--brand-primary);color:var(--on-primary);
-        padding:3px 8px;border-radius:6px;
-        font-size:9px;font-weight:900;
-        white-space:nowrap;
-        border:1.5px solid #DED7CA;
-        box-shadow:0 2px 8px rgba(0,0,0,0.2);
-      ">STOP ${index + 1}</div>
-      <div style="width:2px;height:6px;background:#123D32;"></div>
-      <div style="
-        width:7px;height:7px;background:#123D32;border-radius:50%;
-        border:1.5px solid #ffffff;
-      "></div>
-    </div>
-  `;
-  return el;
-}
-
-/**
- * Google Maps Style Pulsing Current Location GPS Beacon
- */
-function createCurrentLocationEl(): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "select-none pointer-events-none";
-  el.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:center;position:relative;width:34px;height:34px;">
-      <!-- Google Maps Pulsing Accuracy Halo -->
-      <div style="position:absolute;width:30px;height:30px;border-radius:50%;background:rgba(37,99,235,0.22);animation:pulse 2s infinite ease-in-out;"></div>
-      <!-- Crisp White Outer Ring -->
-      <div style="position:relative;width:16px;height:16px;border-radius:50%;background:#ffffff;box-shadow:0 1px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;">
-        <!-- Vibrant Google Blue Core -->
-        <div style="width:10px;height:10px;border-radius:50%;background:#1d4ed8;"></div>
-      </div>
-    </div>
-  `;
-  return el;
-}
-
-/**
- * Sleek Top-Down / Isometric Dispatch Vehicle Silhouette
- */
-function createVehicleMapMarkerEl(type?: string): HTMLElement {
-  const el = document.createElement("div");
-  el.className = "select-none pointer-events-none";
-  const normalized = (type || "").toLowerCase();
-  const isAuto = normalized === "auto";
-  const isBike = normalized === "bike" || normalized === "scooty";
-  const isTruck = normalized === "loading" || normalized === "truck" || normalized === "pickup_truck" || normalized === "tata_ace";
-  const isSuv = normalized === "suv" || normalized === "xl";
-
-  if (isBike) {
-    el.innerHTML = `
-      <div style="filter:drop-shadow(0 2px 5px rgba(0,0,0,0.3));width:22px;height:22px;display:flex;align-items:center;justify-content:center;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#09090b" stroke-width="2.4" stroke-linecap="round">
-          <circle cx="6" cy="18" r="3"/><circle cx="18" cy="18" r="3"/><path d="M6 18l4-7h4l4 7"/><path d="M12 11V7h3"/>
-        </svg>
-      </div>
-    `;
-  } else if (isAuto) {
-    el.innerHTML = `
-      <div style="filter:drop-shadow(0 3px 6px rgba(0,0,0,0.32));width:26px;height:26px;display:flex;align-items:center;justify-content:center;">
-        <svg width="26" height="24" viewBox="0 0 28 26" fill="none">
-          <rect x="4" y="3" width="20" height="15" rx="3" fill="#09090b" stroke="#ffffff" stroke-width="1.5"/>
-          <rect x="6" y="5" width="16" height="5" rx="1.5" fill="#fbbf24"/>
-          <circle cx="7" cy="21" r="2.5" fill="#09090b" stroke="#ffffff" stroke-width="1"/>
-          <circle cx="21" cy="21" r="2.5" fill="#09090b" stroke="#ffffff" stroke-width="1"/>
-        </svg>
-      </div>
-    `;
-  } else if (isTruck) {
-    el.innerHTML = `
-      <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.38));width:26px;height:34px;display:flex;align-items:center;justify-content:center;">
-        <svg width="24" height="32" viewBox="0 0 24 36" fill="none">
-          <rect x="2" y="2" width="20" height="20" rx="2" fill="#18181b" stroke="#ffffff" stroke-width="1.5"/>
-          <rect x="4" y="22" width="16" height="11" rx="3" fill="#09090b" stroke="#ffffff" stroke-width="1.5"/>
-          <rect x="6" y="24" width="12" height="4" rx="1" fill="#f59e0b" fill-opacity="0.9"/>
-          <circle cx="5" cy="5" r="1.5" fill="#ffffff"/>
-          <circle cx="19" cy="5" r="1.5" fill="#ffffff"/>
-        </svg>
-      </div>
-    `;
-  } else if (isSuv) {
-    el.innerHTML = `
-      <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.38));width:26px;height:32px;display:flex;align-items:center;justify-content:center;">
-        <svg width="22" height="30" viewBox="0 0 26 38" fill="none">
-          <rect x="2.5" y="3" width="21" height="32" rx="5" fill="#09090b" stroke="#ffffff" stroke-width="1.6"/>
-          <rect x="4.5" y="7" width="17" height="7" rx="2" fill="#6366f1" fill-opacity="0.85"/>
-          <rect x="4.5" y="24" width="17" height="6" rx="2" fill="#6366f1" fill-opacity="0.85"/>
-          <circle cx="6" cy="4.5" r="1.5" fill="#fef08a"/>
-          <circle cx="20" cy="4.5" r="1.5" fill="#fef08a"/>
-        </svg>
-      </div>
-    `;
-  } else {
-    // Sleek Dispatch Sedan/Car
-    el.innerHTML = `
-      <div style="filter:drop-shadow(0 3px 8px rgba(0,0,0,0.35));width:24px;height:30px;display:flex;align-items:center;justify-content:center;">
-        <svg width="20" height="28" viewBox="0 0 24 36" fill="none">
-          <rect x="3" y="4" width="18" height="28" rx="4.5" fill="#09090b" stroke="#ffffff" stroke-width="1.5"/>
-          <rect x="5" y="8" width="14" height="6" rx="2" fill="#38bdf8" fill-opacity="0.85"/>
-          <rect x="5" y="22" width="14" height="5" rx="1.5" fill="#38bdf8" fill-opacity="0.85"/>
-          <circle cx="6" cy="5.5" r="1.5" fill="#fef08a"/>
-          <circle cx="18" cy="5.5" r="1.5" fill="#fef08a"/>
-        </svg>
-      </div>
-    `;
-  }
-  return el;
-}
-
-function ensureRouteLayers(map: maplibregl.Map): boolean {
-  if (!map) return false;
-
-  try {
-    // 1. Alternative Route Source & Layers
-    if (!map.getSource("route-alt-source")) {
-      map.addSource("route-alt-source", {
-        type: "geojson",
-        data: {
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: [] },
-        },
-      });
-    }
-
-    if (!map.getLayer("route-alt-casing")) {
-      map.addLayer({
-        id: "route-alt-casing",
-        type: "line",
-        source: "route-alt-source",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: {
-          "line-color": "#ffffff",
-          "line-width": 7.0,
-          "line-opacity": 0.8,
-        },
-      });
-    }
-
-    if (!map.getLayer("route-alt-core")) {
-      map.addLayer({
-        id: "route-alt-core",
-        type: "line",
-        source: "route-alt-source",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: {
-          "line-color": "#94a3b8",
-          "line-width": 4.5,
-          "line-opacity": 0.85,
-        },
-      });
-    }
-
-    // 2. Primary Route Source & Layers (Vivid, road-following Google Maps style)
-    if (!map.getSource("route-source")) {
-      map.addSource("route-source", {
-        type: "geojson",
-        data: {
-          type: "Feature",
-          properties: {},
-          geometry: { type: "LineString", coordinates: [] },
-        },
-      });
-    }
-
-    // White halo casing for maximum contrast over OSM roads
-    if (!map.getLayer("route-casing")) {
-      map.addLayer({
-        id: "route-casing",
-        type: "line",
-        source: "route-source",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: {
-          "line-color": "#ffffff",
-          "line-width": 9.5,
-          "line-opacity": 1.0,
-        },
-      });
-    }
-
-    // Core road polyline — Jaatri Emerald brand line
-    if (!map.getLayer("route-core")) {
-      map.addLayer({
-        id: "route-core",
-        type: "line",
-        source: "route-source",
-        layout: { "line-join": "round", "line-cap": "round" },
-        paint: {
-          "line-color": "#142238",
-          "line-width": 5.5,
-          "line-opacity": 1.0,
-        },
-      });
-    }
-    return true;
-  } catch (e) {
-    return false;
-  }
-}
-
 export default function RouteMap({
   pickup,
   drop,
@@ -368,9 +55,6 @@ export default function RouteMap({
   onChange,
   onCoordinatesChange,
   vehicles,
-  disableFallbackGeocode = false,
-  smartPickups,
-  onSelectSmartPickup,
   stops,
   bottomPadding = 340,
   hideMapControls = false,
@@ -381,6 +65,11 @@ export default function RouteMap({
 }: Props) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<maplibregl.Map | null>(null);
+  const [readyMap, setReadyMap] = useState<maplibregl.Map | null>(null);
+  const [unavailable, setUnavailable] = useState(false);
+  const pendingRouteRef = useRef<{ key: string; controller: AbortController } | null>(null);
+  const initialPickupRef = useRef(pickupCoords);
+  const [approximateRoute, setApproximateRoute] = useState(false);
 
   const userLocationMarkerRef = useRef<maplibregl.Marker | null>(null);
   const pickupMarkerRef = useRef<maplibregl.Marker | null>(null);
@@ -433,36 +122,11 @@ export default function RouteMap({
     }
   }, [selectionMode]);
 
-  /* ─── GEOCODE ADDRESS WITH PROXIMITY BIAS ─── */
-  const geocodeAddress = async (
-    q: string,
-    biasPt?: [number, number] | null
-  ): Promise<[number, number] | null> => {
-    if (!q || q.trim().length < 2) return null;
-    try {
-      let url = `/api/places?action=geocode&address=${encodeURIComponent(q.trim())}`;
-      if (biasPt) {
-        url += `&lat=${biasPt[0]}&lng=${biasPt[1]}`;
-      }
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data?.results?.length) {
-        const loc = data.results[0].geometry?.location;
-        if (loc?.lat && loc?.lng) {
-          return [loc.lat, loc.lng];
-        }
-      }
-    } catch (err) {
-      console.error("Geocoding failed for", q, err);
-    }
-    return null;
-  };
-
   /* ─── REVERSE GEOCODE WITH STRUCTURED DETAILS ─── */
   const reverseGeocodeFull = useCallback(
     async (lat: number, lon: number): Promise<{ address: string; details: any }> => {
       try {
-        const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`);
+        const r = await fetch(`/api/places?action=geocode&lat=${lat}&lng=${lon}`, { signal: AbortSignal.timeout(7000) });
         const d = await r.json();
         if (d?.results?.length) {
           const first = d.results[0];
@@ -506,17 +170,31 @@ export default function RouteMap({
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const initialCenter: [number, number] = p1 ? [p1[1], p1[0]] : [91.7516, 26.1884]; // Guwahati default [lng, lat]
-    const initialZoom = p1 ? 13.5 : 12;
+    const initialPickup = initialPickupRef.current;
+    const initialCenter: [number, number] = initialPickup ? [initialPickup[1], initialPickup[0]] : [91.7516, 26.1884]; // Guwahati default [lng, lat]
+    const initialZoom = initialPickup ? 13.5 : 12;
 
-    const map = new maplibregl.Map({
-      container: mapContainerRef.current,
-      style: UBER_MINIMAL_MAP_STYLE,
-      center: initialCenter,
-      zoom: initialZoom,
-      pitch: 0,
-      attributionControl: false,
-    });
+    let map: maplibregl.Map;
+    try {
+      prepareMapRuntime();
+      map = new maplibregl.Map({
+        container: mapContainerRef.current,
+        style: UBER_MINIMAL_MAP_STYLE,
+        center: initialCenter,
+        zoom: initialZoom,
+        attributionControl: false,
+        scrollZoom: false,
+        dragRotate: false,
+      });
+    } catch {
+      setUnavailable(true);
+      return;
+    }
+    labelMap(map, "Route map");
+    const stopPalette = applyMapPalette(map, [
+      ["route-casing", "outline"], ["route-core", "main"], ["route-alt-casing", "outline"], ["route-alt-core", "approach"],
+    ]);
+    const stopResize = observeMapSize(map, mapContainerRef.current);
 
     const updateSvgOverlay = () => {
       const m = mapRef.current;
@@ -553,7 +231,6 @@ export default function RouteMap({
     };
 
     const onReady = () => {
-      ensureRouteLayers(map);
       if (lastRouteCoordsRef.current && lastRouteCoordsRef.current.length > 0) {
         const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
         if (source) {
@@ -571,15 +248,22 @@ export default function RouteMap({
     };
 
     map.on("load", onReady);
-    map.on("styledata", onReady);
     map.on("render", updateSvgOverlay);
     map.on("move", updateSvgOverlay);
     map.on("zoom", updateSvgOverlay);
     map.on("resize", updateSvgOverlay);
 
     mapRef.current = map;
+    setReadyMap(map);
 
     return () => {
+      pendingRouteRef.current?.controller.abort();
+      pendingRouteRef.current = null;
+      stopPalette();
+      stopResize();
+      pickupMarkerRef.current = null;
+      dropMarkerRef.current = null;
+      userLocationMarkerRef.current = null;
       if (routeRetryTimerRef.current) {
         clearInterval(routeRetryTimerRef.current);
         routeRetryTimerRef.current = null;
@@ -596,6 +280,7 @@ export default function RouteMap({
 
     const handleMoveStart = () => {
       if (!activePinMode) return;
+      ++pinGeocodeTokenRef.current;
       setIsMapMoving(true);
       if (reverseGeocodeTimerRef.current) {
         clearTimeout(reverseGeocodeTimerRef.current);
@@ -617,7 +302,6 @@ export default function RouteMap({
       }
 
       const token = ++pinGeocodeTokenRef.current;
-      const targetMode = activePinMode;
 
       reverseGeocodeTimerRef.current = setTimeout(async () => {
         const res = await reverseGeocodeFull(lat, lng);
@@ -634,17 +318,22 @@ export default function RouteMap({
     return () => {
       map.off("movestart", handleMoveStart);
       map.off("moveend", handleMoveEnd);
+      ++pinGeocodeTokenRef.current;
+      if (reverseGeocodeTimerRef.current) clearTimeout(reverseGeocodeTimerRef.current);
     };
   }, [activePinMode, reverseGeocodeFull]);
 
   // Handle switching into / out of activePinMode (smooth camera ease ONCE on entry)
   useEffect(() => {
     const map = mapRef.current;
-    if (!map) return;
+    if (!map) {
+      if (activePinMode && unavailable) onSelectionModeChange?.("none");
+      return;
+    }
 
     if (activePinMode && activePinMode !== prevActivePinModeRef.current) {
       const token = ++pinGeocodeTokenRef.current;
-      const targetMode = activePinMode;
+      if (map.getContainer().clientWidth) map.getCanvas().focus({ preventScroll: true });
 
       if (activePinMode === "pickup") {
         const target: [number, number] = p1 ? [p1[1], p1[0]] : [91.7516, 26.1884];
@@ -681,12 +370,13 @@ export default function RouteMap({
       }
     }
     prevActivePinModeRef.current = activePinMode;
-  }, [activePinMode, p1, p2, pickup, drop, reverseGeocodeFull]);
+  }, [activePinMode, p1, p2, pickup, drop, reverseGeocodeFull, unavailable, onSelectionModeChange]);
 
   /* ─── CONFIRM PIN SELECTION HANDLER ─── */
   const handleConfirmPin = async () => {
     const map = mapRef.current;
-    if (!map || !activePinMode) return;
+    if (!map || !activePinMode || isMapMoving || isPinGeocoding) return;
+    const token = ++pinGeocodeTokenRef.current;
 
     const center = map.getCenter();
     const confirmedCoords: [number, number] = [center.lat, center.lng];
@@ -702,7 +392,10 @@ export default function RouteMap({
       Math.abs(detailsCoords[1] - center.lng) > 0.002;
 
     if (isStaleOrMismatch) {
+      setIsPinGeocoding(true);
       const res = await reverseGeocodeFull(center.lat, center.lng);
+      if (token !== pinGeocodeTokenRef.current) return;
+      setIsPinGeocoding(false);
       address = res.address;
       details = res.details;
     }
@@ -724,6 +417,9 @@ export default function RouteMap({
   };
 
   const handleCancelPin = () => {
+    ++pinGeocodeTokenRef.current;
+    setIsMapMoving(false);
+    setIsPinGeocoding(false);
     setActivePinMode(null);
     onSelectionModeChange?.("none");
   };
@@ -768,8 +464,7 @@ export default function RouteMap({
 
       const tryApply = () => {
         try {
-          ensureRouteLayers(map);
-          const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
+              const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
           const altSource = map.getSource("route-alt-source") as maplibregl.GeoJSONSource;
 
           if (altSource) {
@@ -801,10 +496,7 @@ export default function RouteMap({
               for (const c of coords) {
                 bounds.extend(c as [number, number]);
               }
-              const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
-              const responsivePadding = isDesktop
-                ? { top: 80, bottom: 80, left: 60, right: 60 }
-                : { top: 70, bottom: Math.max(160, bottomPadding), left: 35, right: 35 };
+              const responsivePadding = fitMapPadding(map, bottomPadding + 42);
 
               map.fitBounds(bounds, {
                 padding: responsivePadding,
@@ -814,7 +506,7 @@ export default function RouteMap({
             }
             return true;
           }
-        } catch (err) {
+        } catch {
           return false;
         }
         return false;
@@ -854,7 +546,7 @@ export default function RouteMap({
       interStops?: Array<{ address: string; lat: number; lng: number }>
     ) => {
       const validStops = (interStops || []).filter(
-        (s) => s && typeof s.lat === "number" && typeof s.lng === "number"
+        (s) => s && Number.isFinite(s.lat) && Number.isFinite(s.lng) && Math.abs(s.lat) <= 90 && Math.abs(s.lng) <= 180
       );
       const waypoints: [number, number][] = [
         pickupPt,
@@ -864,11 +556,16 @@ export default function RouteMap({
 
       const currentKey = waypoints.map((w) => `${w[0].toFixed(5)},${w[1].toFixed(5)}`).join(";");
       if (currentKey === lastRouteKeyRef.current && lastRouteCoordsRef.current.length > 0) {
+        pendingRouteRef.current?.controller.abort();
+        pendingRouteRef.current = null;
+        setIsRouting(false);
         applyRouteLine(lastRouteCoordsRef.current, [], currentKey);
         return;
       }
-      lastRouteKeyRef.current = currentKey;
-
+      if (pendingRouteRef.current?.key === currentKey) return;
+      pendingRouteRef.current?.controller.abort();
+      const controller = new AbortController();
+      pendingRouteRef.current = { key: currentKey, controller };
       setIsRouting(true);
 
       let routeData: any = null;
@@ -879,7 +576,7 @@ export default function RouteMap({
         const coordStr = waypoints.map(([lat, lon]) => `${lon},${lat}`).join(";");
         const osrmRes = await fetch(
           `https://router.project-osrm.org/route/v1/driving/${coordStr}?overview=full&geometries=geojson&alternatives=false`,
-          { signal: AbortSignal.timeout(4500) }
+          { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(4500)]) }
         );
         if (osrmRes.ok) {
           const osrmJson = await osrmRes.json();
@@ -893,15 +590,15 @@ export default function RouteMap({
             };
           }
         }
-      } catch (e) {
-        console.warn("Client OSRM fallback failed, trying API route:", e);
+      } catch {
+        if (controller.signal.aborted) return;
       }
 
       // Tier 2: Next.js API Server Route Fallback (OSRM -> Valhalla -> synthetic)
       if (!routeData) {
         try {
           const pointsParam = waypoints.map(([lat, lng]) => `${lat},${lng}`).join(";");
-          const res = await fetch(`/api/route?points=${encodeURIComponent(pointsParam)}`);
+          const res = await fetch(`/api/route?points=${encodeURIComponent(pointsParam)}`, { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(9000)]) });
           if (res.ok) {
             const contentType = res.headers.get("content-type") || "";
             if (contentType.includes("json")) {
@@ -911,8 +608,8 @@ export default function RouteMap({
               }
             }
           }
-        } catch (e) {
-          console.warn("Proxy route fetch failed:", e);
+        } catch {
+          if (controller.signal.aborted) return;
         }
       }
 
@@ -930,7 +627,11 @@ export default function RouteMap({
         };
       }
 
+      if (controller.signal.aborted) return;
+      pendingRouteRef.current = null;
       if (routeData && routeData.geojsonCoords?.length > 0) {
+        lastRouteKeyRef.current = currentKey;
+        setApproximateRoute(["direct", "synthetic", "fallback"].includes(routeData.engine));
         // Snap connection: If the route end point snapped away from true drop point, extend directly to the drop coordinate
         const lastPt = routeData.geojsonCoords[routeData.geojsonCoords.length - 1];
         const dEndKm = Math.hypot(lastPt[1] - dropPt[0], lastPt[0] - dropPt[1]) * 111;
@@ -957,6 +658,9 @@ export default function RouteMap({
 
   /* ─── CLEAR ROUTE WHEN COORDS ARE MISSING (PREVENTS PREMATURE ROUTING) ─── */
   const clearRoute = useCallback(() => {
+    pendingRouteRef.current?.controller.abort();
+    pendingRouteRef.current = null;
+    setApproximateRoute(false);
     hasFittedRouteRef.current = null;
     lastRouteCoordsRef.current = [];
     lastAltCoordsRef.current = [];
@@ -968,7 +672,6 @@ export default function RouteMap({
 
     const map = mapRef.current;
     if (map) {
-      ensureRouteLayers(map);
       const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
       const altSource = map.getSource("route-alt-source") as maplibregl.GeoJSONSource;
       if (source) {
@@ -997,77 +700,25 @@ export default function RouteMap({
     const map = mapRef.current;
     if (!map) return;
 
-    // 1. Pickup Marker (Hidden while actively setting pickup with center pin)
-    if (p1 && activePinMode !== "pickup") {
-      const attachPickupClickHandler = (el: HTMLElement) => {
-        el.style.cursor = "pointer";
-        el.title = "Click to adjust pickup location on map";
-        el.onclick = (e) => {
-          e.stopPropagation();
-          setActivePinMode("pickup");
-          onSelectionModeChange?.("pickup");
-        };
-      };
-
-      if (!pickupMarkerRef.current) {
-        const el = createPickupEl(pickup, durationMin);
-        attachPickupClickHandler(el);
-        const marker = new maplibregl.Marker({
-          element: el,
-          draggable: false, // Strictly locked to ground, NO direct dragging!
-          anchor: "bottom",
-        })
-          .setLngLat([p1[1], p1[0]])
-          .addTo(map);
-
-        pickupMarkerRef.current = marker;
-      } else {
-        pickupMarkerRef.current.setLngLat([p1[1], p1[0]]);
-        const el = createPickupEl(pickup, durationMin);
-        attachPickupClickHandler(el);
-        pickupMarkerRef.current.getElement().innerHTML = el.innerHTML;
-        attachPickupClickHandler(pickupMarkerRef.current.getElement());
+    const createEndpoint = (kind: "pickup" | "drop", address: string) => makeLocationMarker(kind, address, () => {
+      setActivePinMode(kind);
+      onSelectionModeChange?.(kind);
+    });
+    const syncEndpoint = (kind: "pickup" | "drop", address: string, coords: [number, number] | null, ref: typeof pickupMarkerRef) => {
+      if (!coords || activePinMode === kind) {
+        ref.current?.remove();
+        ref.current = null;
+        return;
       }
-    } else if (pickupMarkerRef.current) {
-      pickupMarkerRef.current.remove();
-      pickupMarkerRef.current = null;
-    }
-
-    // 2. Drop Marker (Hidden while actively setting drop with center pin)
-    if (p2 && activePinMode !== "drop") {
-      const attachDropClickHandler = (el: HTMLElement) => {
-        el.style.cursor = "pointer";
-        el.title = "Click to adjust drop-off location on map";
-        el.onclick = (e) => {
-          e.stopPropagation();
-          setActivePinMode("drop");
-          onSelectionModeChange?.("drop");
-        };
-      };
-
-      if (!dropMarkerRef.current) {
-        const el = createDropEl(drop);
-        attachDropClickHandler(el);
-        const marker = new maplibregl.Marker({
-          element: el,
-          draggable: false, // Strictly locked to ground, NO direct dragging!
-          anchor: "bottom",
-        })
-          .setLngLat([p2[1], p2[0]])
-          .addTo(map);
-
-        dropMarkerRef.current = marker;
-      } else {
-        dropMarkerRef.current.setLngLat([p2[1], p2[0]]);
-        const el = createDropEl(drop);
-        attachDropClickHandler(el);
-        dropMarkerRef.current.getElement().innerHTML = el.innerHTML;
-        attachDropClickHandler(dropMarkerRef.current.getElement());
+      const next = createEndpoint(kind, address);
+      if (!ref.current) ref.current = new maplibregl.Marker({ element: next, anchor: "bottom" }).setLngLat([coords[1], coords[0]]).addTo(map);
+      else {
+        ref.current.setLngLat([coords[1], coords[0]]);
+        refreshLocationMarker(ref.current.getElement(), next);
       }
-    } else if (dropMarkerRef.current) {
-      dropMarkerRef.current.remove();
-      dropMarkerRef.current = null;
-    }
+    };
+    syncEndpoint("pickup", pickup, p1, pickupMarkerRef);
+    syncEndpoint("drop", drop, p2, dropMarkerRef);
 
     // 3. Multi-stop markers
     stopMarkersRef.current.forEach((m) => m.remove());
@@ -1075,7 +726,7 @@ export default function RouteMap({
     if (stops && stops.length > 0) {
       stops.forEach((s, idx) => {
         if (typeof s.lat === "number" && typeof s.lng === "number") {
-          const el = createStopEl(idx);
+          const el = makeLocationMarker("stop", `Stop ${idx + 1}`);
           const marker = new maplibregl.Marker({ element: el, anchor: "bottom" })
             .setLngLat([s.lng, s.lat])
             .addTo(map);
@@ -1084,13 +735,12 @@ export default function RouteMap({
       });
     }
 
-    // 4. Trigger route calculation strictly when both p1 and p2 exist, otherwise purge line
-    if (p1 && p2) {
-      renderRoute(p1, p2, stops);
-    } else {
-      clearRoute();
-    }
-  }, [p1, p2, stops, renderRoute, clearRoute, drop, onChange, onCoordinatesChange, pickup, activePinMode, durationMin, reverseGeocodeFull]);
+  }, [p1, p2, stops, drop, pickup, activePinMode, onSelectionModeChange]);
+
+  useEffect(() => {
+    if (p1 && p2) void renderRoute(p1, p2, stops);
+    else clearRoute();
+  }, [p1, p2, stops, renderRoute, clearRoute]);
 
   // 5. Vehicles (Live nearby fleet markers)
   useEffect(() => {
@@ -1110,7 +760,7 @@ export default function RouteMap({
       const [lng, lat] = loc;
       if (!Number.isFinite(lng) || !Number.isFinite(lat)) return;
 
-      const el = createVehicleMapMarkerEl(v.type);
+      const el = makeVehicleMarker(typeof v.type === "string" ? v.type : undefined, "Nearby vehicle", "nearby").container;
       const marker = new maplibregl.Marker({ element: el, anchor: "center" })
         .setLngLat([lng, lat])
         .addTo(map);
@@ -1130,7 +780,7 @@ export default function RouteMap({
 
     if (userCoords) {
       if (!userLocationMarkerRef.current) {
-        const el = createCurrentLocationEl();
+        const el = gpsMarker();
         const marker = new maplibregl.Marker({ element: el, anchor: "center" })
           .setLngLat([userCoords[1], userCoords[0]])
           .addTo(map);
@@ -1153,10 +803,8 @@ export default function RouteMap({
       const bounds = new maplibregl.LngLatBounds();
       bounds.extend([p1[1], p1[0]]);
       bounds.extend([p2[1], p2[0]]);
-      const isDesktop = typeof window !== "undefined" && window.innerWidth >= 768;
-      const responsivePadding = isDesktop
-        ? { top: 80, bottom: 80, left: 60, right: 60 }
-        : { top: 70, bottom: Math.max(160, bottomPadding), left: 35, right: 35 };
+      for (const point of lastRouteCoordsRef.current) bounds.extend(point);
+      const responsivePadding = fitMapPadding(map, bottomPadding + 42);
 
       map.fitBounds(bounds, {
         padding: responsivePadding,
@@ -1167,11 +815,15 @@ export default function RouteMap({
       map.easeTo({ center: [p1[1], p1[0]], zoom: 16, duration: 600 });
     } else if (p2) {
       map.easeTo({ center: [p2[1], p2[0]], zoom: 16, duration: 600 });
+    } else if (userCoords) {
+      map.easeTo({ center: [userCoords[1], userCoords[0]], zoom: 16, duration: 600 });
+    } else {
+      map.easeTo({ center: [91.7516, 26.1884], zoom: 12, duration: 600 });
     }
   };
 
   const handleReset = () => {
-    hasFittedRouteRef.current = null;
+    clearRoute();
     setP1(null);
     setP2(null);
     onCoordinatesChange?.(null, null);
@@ -1188,7 +840,6 @@ export default function RouteMap({
 
     const map = mapRef.current;
     if (map) {
-      ensureRouteLayers(map);
       const source = map.getSource("route-source") as maplibregl.GeoJSONSource;
       const altSource = map.getSource("route-alt-source") as maplibregl.GeoJSONSource;
       if (source) {
@@ -1209,7 +860,14 @@ export default function RouteMap({
   };
 
   return (
-    <div className="maplibre-map-container relative w-full h-full overflow-hidden select-none bg-slate-100">
+    <MotionConfig reducedMotion="user">
+    <div className={mapFrame} onKeyDown={(event) => {
+      if (activePinMode && event.key === "Escape") {
+        event.preventDefault();
+        handleCancelPin();
+      }
+    }}>
+      {unavailable ? <MapUnavailable /> : <MapAttribution bottom={compactRouteSummary ? bottomPadding : 0} />}
       {/* MapLibre WebGL DOM Container */}
       <div
         ref={mapContainerRef}
@@ -1218,6 +876,7 @@ export default function RouteMap({
 
       {/* ── FAIL-SAFE SVG ROUTE POLYLINE OVERLAY (STACKED UNDER DOM MARKERS) ── */}
       <svg
+        aria-hidden="true"
         className="absolute inset-0 w-full h-full pointer-events-none"
         style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", zIndex: 0, pointerEvents: "none" }}
       >
@@ -1225,7 +884,7 @@ export default function RouteMap({
         <path
           ref={svgAltCasingRef}
           d=""
-          stroke="#ffffff"
+          stroke="var(--map-line-outline)"
           strokeWidth="7"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -1235,7 +894,7 @@ export default function RouteMap({
         <path
           ref={svgAltCoreRef}
           d=""
-          stroke="#94a3b8"
+          stroke="var(--map-secondary-line)"
           strokeWidth="4.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -1246,7 +905,7 @@ export default function RouteMap({
         <path
           ref={svgCasingRef}
           d=""
-          stroke="#ffffff"
+          stroke="var(--map-line-outline)"
           strokeWidth="9.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -1257,7 +916,7 @@ export default function RouteMap({
         <path
           ref={svgCoreRef}
           d=""
-          stroke="#142238"
+          stroke="var(--map-primary-line)"
           strokeWidth="5.5"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -1268,7 +927,7 @@ export default function RouteMap({
 
       {/* ── CENTRAL FIXED PIN WITH TACTILE SPRING PHYSICS ── */}
       <AnimatePresence>
-        {activePinMode && (
+        {activePinMode && !unavailable && (
           <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-30">
             <div className="relative flex flex-col items-center">
               {/* Floating Pin Assembly */}
@@ -1285,13 +944,13 @@ export default function RouteMap({
               >
                 {/* Floating Callout Badge (Jaatri Design System) */}
                 <div
-                  className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold tracking-tight text-[#FAF7F0] shadow-xl flex items-center gap-2 border border-[#426457]/40 bg-[#123D32]"
+                  className="px-3.5 py-1.5 rounded-[8px] text-[11px] font-bold tracking-tight text-[var(--on-primary)] shadow-xl flex items-center gap-2 border border-[var(--border-interactive)] bg-[var(--brand-primary)]"
                 >
                   <span
                     className={`w-2 h-2 rounded-full flex-shrink-0 ${
                       activePinMode === "pickup"
-                        ? "bg-[#046A38] shadow-[0_0_6px_rgba(4,106,56,0.6)]"
-                        : "bg-[#E34222] shadow-[0_0_6px_rgba(227,66,34,0.6)]"
+                        ? "bg-[var(--accent-mint)]"
+                        : "border border-current rounded-none"
                     }`}
                   />
                   <span>{activePinMode === "pickup" ? "Move Map to Set Pickup" : "Move Map to Set Drop"}</span>
@@ -1304,7 +963,7 @@ export default function RouteMap({
                     viewBox="0 0 48 48"
                     width="44"
                     height="44"
-                    className={activePinMode === "pickup" ? "fill-[#046A38]" : "fill-[#E34222]"}
+                    className={activePinMode === "pickup" ? "fill-[var(--accent-mint)] stroke-[#142238] stroke-2" : "fill-[var(--brand-primary)] stroke-[var(--on-primary)] stroke-2"}
                   >
                     <path d="M 24 4 C 18.486 4 14 8.486 14 14 C 14 19.003129 17.696643 23.147695 22.5 23.875 L 22.5 42.5 A 1.50015 1.50015 0 1 0 25.5 42.5 L 25.5 23.875 C 30.303357 23.147695 34 19.003129 34 14 C 34 8.486 29.514 4 24 4 z M 21.5 10 C 22.328 10 23 10.672 23 11.5 C 23 12.328 22.328 13 21.5 13 C 20.672 13 20 12.328 20 11.5 C 20 10.672 20.672 10 21.5 10 z" />
                   </svg>
@@ -1313,7 +972,7 @@ export default function RouteMap({
 
               {/* Dynamic Ground Shadow underneath the needle */}
               <div
-                className={`w-3.5 h-1.5 bg-[#123D32]/40 rounded-full filter blur-[1px] transition-all duration-200 ${
+                className={`w-3.5 h-1.5 bg-[var(--brand-primary)]/40 rounded-full filter blur-[1px] transition-all duration-200 ${
                   isMapMoving ? "scale-75 opacity-25 translate-y-2" : "scale-100 opacity-60 translate-y-0"
                 }`}
               />
@@ -1324,45 +983,46 @@ export default function RouteMap({
 
       {/* ── TOP CONFIRMATION BANNER WHEN IN CENTRAL PIN MODE ── */}
       <AnimatePresence>
-        {activePinMode && (
+        {activePinMode && !unavailable && (
           <motion.div
             initial={{ opacity: 0, y: -16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
-            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[2000] bg-[#FAF7F0] dark:bg-[#0B2822] border border-[#DED7CA] dark:border-[#1E3E34] rounded-[12px] shadow-2xl p-4 flex flex-col gap-3 isolate"
+            className="absolute top-4 left-4 right-4 md:left-auto md:right-4 md:w-96 z-[2000] bg-[var(--surface-raised)] border border-[var(--border-interactive)] rounded-[12px] shadow-2xl p-4 flex flex-col gap-3 isolate"
             style={{ zIndex: 2000 }}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <span
                   className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                    activePinMode === "pickup" ? "bg-[#046A38]" : "bg-[#E34222]"
+                    activePinMode === "pickup" ? "bg-[var(--accent-ink)]" : "bg-[var(--brand-primary)] rounded-none"
                   }`}
                 />
-                <span className="text-xs font-bold tracking-tight text-[#10251C] dark:text-[#F7F5ED]">
+                <span className="text-xs font-bold tracking-tight text-[var(--text-primary)]">
                   {activePinMode === "pickup" ? "Confirm Pickup Point" : "Confirm Drop-off Point"}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={handleCancelPin}
-                className="w-7 h-7 rounded-[8px] bg-white dark:bg-[#10352C] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] border border-[#DED7CA] dark:border-[#1E3E34] text-[#696B64] hover:text-[#10251C] transition flex items-center justify-center cursor-pointer"
-                title="Cancel"
+                className="w-11 h-11 rounded-[8px] bg-[var(--surface)] hover:bg-[var(--surface-subtle)] border border-[var(--border-interactive)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition flex items-center justify-center cursor-pointer"
+                aria-label="Cancel pin selection"
               >
                 <X size={14} />
               </button>
             </div>
 
-            <div className="bg-white dark:bg-[#10352C] rounded-[8px] p-2.5 border border-[#DED7CA] dark:border-[#1E3E34] flex items-start gap-2 shadow-xs">
-              <MapPin size={15} className={`shrink-0 mt-0.5 ${activePinMode === "pickup" ? "text-[#046A38]" : "text-[#E34222]"}`} />
-              <div className="flex-1 min-w-0">
+            <p className="text-xs text-[var(--text-secondary)]">Drag the map, or use the arrow keys, to move the pin.</p>
+            <div className="bg-[var(--surface)] rounded-[8px] p-2.5 border border-[var(--border-interactive)] flex items-start gap-2 shadow-xs">
+              <MapPin size={15} className={`shrink-0 mt-0.5 ${activePinMode === "pickup" ? "text-[var(--accent-ink)]" : "text-[var(--brand-primary)]"}`} />
+              <div className="flex-1 min-w-0" role="status">
                 {isPinGeocoding ? (
-                  <div className="flex items-center gap-2 text-[#696B64] text-xs">
-                    <Loader2 size={13} className="animate-spin text-[#123D32] dark:text-[#347858]" />
+                  <div className="flex items-center gap-2 text-[var(--text-secondary)] text-xs">
+                    <Loader2 size={13} className="animate-spin text-[var(--accent-ink)]" />
                     <span>Resolving address...</span>
                   </div>
                 ) : (
-                  <p className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED] leading-snug line-clamp-2">
+                  <p className="text-xs font-semibold text-[var(--text-primary)] leading-snug line-clamp-2">
                     {pinAddress || "Move map to choose location"}
                   </p>
                 )}
@@ -1385,10 +1045,10 @@ export default function RouteMap({
                     type="button"
                     onClick={handleConfirmPin}
                     disabled={isConfirmDisabled}
-                    className={`flex-1 py-2.5 px-4 rounded-[8px] text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${
+                    className={`min-h-11 flex-1 py-2.5 px-2.5 rounded-[8px] text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer shadow-xs ${
                       isConfirmDisabled
-                        ? "bg-[#DED7CA] text-[#696B64] cursor-not-allowed shadow-none"
-                        : "bg-[#046A38] hover:bg-[#03532C] text-white active:scale-95"
+                        ? "bg-[var(--surface-subtle)] text-[var(--text-secondary)] cursor-not-allowed shadow-none"
+                        : "bg-[var(--action-bg)] hover:opacity-90 text-[var(--action-fg)] active:scale-95"
                     }`}
                   >
                     <Check size={14} />
@@ -1397,7 +1057,7 @@ export default function RouteMap({
                   <button
                     type="button"
                     onClick={handleCancelPin}
-                    className="py-2.5 px-3.5 rounded-[8px] border border-[#DED7CA] dark:border-[#1E3E34] text-xs font-semibold bg-white dark:bg-[#10352C] text-[#10251C] dark:text-[#F7F5ED] hover:bg-[#FAF7F0] dark:hover:bg-[#143D32] transition cursor-pointer"
+                    className="min-h-11 py-2.5 px-2.5 rounded-[8px] border border-[var(--border-interactive)] text-xs font-semibold bg-[var(--surface)] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)] transition cursor-pointer"
                   >
                     Cancel
                   </button>
@@ -1409,8 +1069,8 @@ export default function RouteMap({
       </AnimatePresence>
 
       {/* ── TOP RIGHT MAP CONTROLS & ROUTE ETA PILL (WHEN NOT IN PIN MODE) ── */}
-      {!activePinMode && (
-        <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20 flex flex-col items-end gap-1.5 md:gap-2 pointer-events-none">
+      {!activePinMode && !unavailable && (
+        <div className={`absolute ${compactRouteSummary ? "top-16" : "top-2"} right-2 md:top-4 md:right-4 z-20 flex flex-col items-end gap-1.5 md:gap-2 pointer-events-none`}>
           {/* Route ETA & Distance Pill */}
           <AnimatePresence>
             {(km !== null || isRouting) && (
@@ -1418,11 +1078,11 @@ export default function RouteMap({
                 initial={{ opacity: 0, y: -8, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: -8 }}
-                className="flex items-center gap-2 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] px-2.5 py-1.5 text-[var(--text-primary)] md:gap-3 md:px-3.5 md:py-2"
+                className="flex items-center gap-2 rounded-[8px] border border-[var(--border-interactive)] bg-[var(--surface-raised)] px-2.5 py-1.5 text-[var(--text-primary)] md:gap-3 md:px-3.5 md:py-2"
               >
                 {isRouting ? (
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-[#046A38] animate-pulse rounded-full" />
+                    <span className="w-2 h-2 md:w-2.5 md:h-2.5 bg-[var(--accent-ink)] animate-pulse rounded-full" />
                     <span className="text-[11px] font-semibold md:text-xs">Finding route…</span>
                   </div>
                 ) : (
@@ -1431,11 +1091,11 @@ export default function RouteMap({
                       <span className="text-[11px] font-semibold tabular-nums md:text-xs">
                         {durationMin ?? Math.max(3, Math.round(((km || 5) / 25) * 60))} min
                       </span>
-                      <span className="text-xs font-medium text-[var(--text-secondary)]">({km} km)</span>
+                      <span className="text-xs font-medium text-[var(--text-secondary)]">({approximateRoute ? "≈ " : ""}{km} km)</span>
                     </div>
                     {!compactRouteSummary && (
                       <span className="rounded-full bg-[var(--surface-subtle)] px-2 py-0.5 text-xs font-medium text-[var(--text-primary)]">
-                        Fastest route
+                        {approximateRoute ? "Approximate route" : "Road route"}
                       </span>
                     )}
                   </>
@@ -1445,7 +1105,7 @@ export default function RouteMap({
           </AnimatePresence>
 
           {/* Pinpoint Selector Pill (Hidden on mobile when route is already active to prevent map overlaps) */}
-          <div className={`pointer-events-auto items-center gap-1 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] p-1 ${
+          <div className={`pointer-events-auto items-center gap-1 rounded-[8px] border border-[var(--border-interactive)] bg-[var(--surface-raised)] p-1 ${
             p1 && p2 ? "hidden md:flex" : "flex"
           }`}>
             <button
@@ -1468,7 +1128,7 @@ export default function RouteMap({
               }}
               className="flex min-h-11 items-center gap-1.5 rounded-[6px] px-2.5 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
             >
-              <span className="size-2.5 shrink-0 rounded-full bg-[var(--accent-vermilion)]" />
+              <span className="size-2.5 shrink-0 rounded-full bg-[var(--brand-primary)] rounded-none" />
               <span>Pin Drop</span>
             </button>
 
@@ -1487,44 +1147,15 @@ export default function RouteMap({
         </div>
       )}
 
-      {/* ── BOTTOM RIGHT CONTROLS (RE-CENTER CROSSHAIR & ZOOM) ── */}
-      <div
-        hidden={hideMapControls}
-        className={`absolute right-4 z-20 flex-col gap-2 ${hideMapControls ? "hidden" : "flex"}`}
-        style={{
-          bottom: bottomPadding && bottomPadding > 40 ? `${Math.min(bottomPadding + 14, 280)}px` : "24px",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Re-center / Locate Crosshair Button */}
-        <button
-          onClick={handleRecenter}
-          aria-label="Re-center on route"
-          title="Re-center view"
-          className="grid size-11 place-items-center rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
-        >
-          <Crosshair size={18} aria-hidden="true" />
-        </button>
-
-        {/* Zoom In & Out */}
-        <div className="flex flex-col rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-raised)]">
-          <button
-            onClick={() => mapRef.current?.zoomIn()}
-            aria-label="Zoom in"
-            className="grid size-11 place-items-center rounded-[7px] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
-          >
-            <Plus size={15} />
-          </button>
-          <div className="h-px bg-[var(--border-default)]" />
-          <button
-            onClick={() => mapRef.current?.zoomOut()}
-            aria-label="Zoom out"
-            className="grid size-11 place-items-center rounded-[7px] text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]"
-          >
-            <Minus size={15} />
-          </button>
-        </div>
-      </div>
+      {!hideMapControls && !unavailable && (
+        <MapControls
+          map={readyMap}
+          recenterLabel="Re-center on route"
+          onRecenter={activePinMode ? undefined : handleRecenter}
+          bottom={activePinMode ? 0 : compactRouteSummary ? bottomPadding : 22}
+        />
+      )}
     </div>
+    </MotionConfig>
   );
 }
