@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import {
   Bike, Car, Truck, Zap,
   IndianRupee, Clock, Gauge,
-  ArrowRight, Star, Users, Package
+  ArrowRight, Users, Package
 } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 import { VEHICLE_OPTIONS, VehicleType } from "@/lib/vehicleConfig";
@@ -29,6 +29,7 @@ interface VehicleProps {
 }
 
 import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
+import { VEHICLE_PHOTO_SRC } from "@/lib/vehiclePhotos";
 import { getEstimatedArrivalInfo } from "@/lib/tripTiming";
 
 const TYPE_ICONS: Record<VehicleType, any> = {
@@ -54,6 +55,7 @@ function VehicleBookingCard({
 
   const opt = VEHICLE_OPTIONS[type] ?? VEHICLE_OPTIONS.car;
   const label = opt.label;
+  const examplePhoto = VEHICLE_PHOTO_SRC[type] || VEHICLE_PHOTO_SRC.car;
   const Icon = TYPE_ICONS[type] ?? Car;
   const estimated = Math.round(baseFare + distanceKm * pricePerKm);
 
@@ -93,23 +95,17 @@ function VehicleBookingCard({
       {/* IMAGE AREA */}
       <div className="relative h-48 bg-[var(--surface-raised)] flex items-center justify-center overflow-hidden">
 
-        {/* Subtle grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: "linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
-          }}
-        />
-
-        {/* Vehicle image */}
         <motion.img
-          src={imageUrl || "https://images.unsplash.com/photo-1549924231-f129b911e442?w=400&q=80"}
-          alt={vehicleModel}
-          className="relative z-10 h-32 w-full object-contain"
-          style={{ filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.14))" }}
-          whileHover={{ scale: 1.06, filter: "drop-shadow(0 12px 32px rgba(0,0,0,0.22))" }}
-          transition={{ duration: 0.35 }}
+          src={imageUrl || examplePhoto}
+          alt={imageUrl ? vehicleModel : `Example ${label} vehicle`}
+          className="relative z-10 h-full w-full object-cover"
+          whileHover={{ scale: 1.035 }}
+          transition={{ duration: 0.25 }}
+          onError={(event) => {
+            if (event.currentTarget.getAttribute("src") === examplePhoto) return;
+            event.currentTarget.src = examplePhoto;
+            event.currentTarget.alt = `Example ${label} vehicle`;
+          }}
         />
 
         {/* Type pill — bottom right */}
@@ -118,11 +114,7 @@ function VehicleBookingCard({
           {label}
         </div>
 
-        {/* Rating pill — bottom left */}
-        <div className="absolute bottom-3 left-3 z-20 flex items-center gap-1 bg-white dark:bg-[#0B2822] border border-[var(--border-default)] text-[var(--text-primary)] text-[10px] font-bold px-2 py-1 rounded-[6px] shadow-xs">
-          <Star size={9} className="fill-amber-500 text-amber-500" />
-          4.8
-        </div>
+        {!imageUrl && <span className="absolute bottom-3 left-3 z-20 rounded-md bg-[var(--surface-raised)] px-2 py-1 text-[11px] font-semibold text-[var(--text-primary)]">Example photo</span>}
       </div>
 
       {/* THIN DIVIDER */}

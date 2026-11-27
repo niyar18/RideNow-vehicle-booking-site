@@ -420,6 +420,19 @@
     "drive": "যাত্ৰীৰ সৈতে গাড়ী চলাওক",
     "safetyTitle": "পৰস্পৰৰ যত্ন লওঁ আহক।",
     "safetyDetail": "চালক পৰীক্ষণ, যাত্ৰা শ্বেয়াৰ আৰু উঠাৰ পিনৰ বিষয়ে জানক।",
-    "safety": "যাত্ৰাৰ সুৰক্ষা"
+    "safety": "যাত্ৰাৰ সুৰক্ষা",
+    "mobileRegion": "অসম ফুৰক, নিজৰ ধৰণেৰে",
+    "mobileTitle": "যাবলৈ সাজু নে?",
+    "mobileSearch": "আপুনি ক’লৈ যাব?",
+    "greeting_day": "নমস্কাৰ",
+    "greeting_morning": "সুপ্ৰভাত",
+    "greeting_afternoon": "শুভ দুপৰীয়া",
+    "greeting_evening": "শুভ সন্ধিয়া",
+    "addPlace": "যোগ কৰক",
+    "mobileDestinations": "জনপ্ৰিয় গন্তব্যস্থান",
+    "mobileSeeAll": "সকলো চাওক",
+    "mobileFleet": "গাড়ীৰ বিকল্প",
+    "photoExamples": "ফটোত গাড়ীৰ উদাহৰণহে দেখুওৱা হৈছে।",
+    "photoCredits": "ফটোৰ কৃতিত্ব"
   }
 }

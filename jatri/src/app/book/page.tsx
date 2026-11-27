@@ -67,19 +67,7 @@ type Place = {
   distanceKm?: number;
 };
 
-import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
-
-const VEHICLE_ICONS: Record<VehicleType, any> = {
-  scooty: VEHICLE_SVG_ICONS.scooty,
-  bike: VEHICLE_SVG_ICONS.bike,
-  auto: VEHICLE_SVG_ICONS.auto,
-  "e-rickshaw": VEHICLE_SVG_ICONS["e-rickshaw"] || VEHICLE_SVG_ICONS.auto,
-  mini: VEHICLE_SVG_ICONS.mini,
-  car: VEHICLE_SVG_ICONS.car,
-  priority: VEHICLE_SVG_ICONS.priority,
-  loading: VEHICLE_SVG_ICONS.loading,
-  truck: VEHICLE_SVG_ICONS.truck,
-};
+import { VEHICLE_PHOTO_SRC } from "@/lib/vehiclePhotos";
 
 const getCategoryIcon = (category?: string, name?: string) => {
   const c = (category || "").toLowerCase();
@@ -1052,46 +1040,45 @@ export default function BookPage() {
       const urlParams = new URLSearchParams(window.location.search);
       const isFresh = urlParams.get("fresh") === "true";
 
-      const raw = sessionStorage.getItem("ridenow_booking_draft") || localStorage.getItem("ridenow_booking_draft");
       let draft: any = null;
-      if (raw) {
-        try {
-          draft = JSON.parse(raw);
-        } catch (_) {}
-      }
-
-      const rawPickup = (draft?.pickup && draft.pickup !== "Pickup Location") ? draft.pickup : urlParams.get("pickup");
-      const rawDrop = (draft?.drop && draft.drop !== "Drop Location") ? draft.drop : urlParams.get("drop");
-
-      // Only clear draft if fresh was explicitly requested AND no location parameters were passed
-      if (isFresh && !rawPickup && !rawDrop) {
-        try {
-          sessionStorage.removeItem("ridenow_booking_draft");
-          localStorage.removeItem("ridenow_booking_draft");
-        } catch (_) {}
-        locateCurrentLocation();
-        if (window.location.search) {
-          window.history.replaceState({}, "", "/book");
+      if (isFresh) {
+        // A new trip must not inherit a previous trip's route, vehicle or stops.
+        try { sessionStorage.removeItem("ridenow_booking_draft"); } catch {}
+        try { localStorage.removeItem("ridenow_booking_draft"); } catch {}
+      } else {
+        const raw = sessionStorage.getItem("ridenow_booking_draft") || localStorage.getItem("ridenow_booking_draft");
+        if (raw) {
+          try { draft = JSON.parse(raw); } catch {}
         }
-        return;
       }
 
-      const p = rawPickup;
-      const d = rawDrop;
-      const v = draft?.vehicle || urlParams.get("vehicle");
-      const m = draft?.mobileNumber || draft?.mobile || urlParams.get("mobileNumber");
-      const pLat = typeof draft?.pickupLat === "number" ? draft.pickupLat : urlParams.get("pickupLat") ? Number(urlParams.get("pickupLat")) : null;
-      const pLng = typeof draft?.pickupLng === "number" ? draft.pickupLng : urlParams.get("pickupLng") ? Number(urlParams.get("pickupLng")) : null;
-      const dLat = typeof draft?.dropLat === "number" ? draft.dropLat : urlParams.get("dropLat") ? Number(urlParams.get("dropLat")) : null;
-      const dLng = typeof draft?.dropLng === "number" ? draft.dropLng : urlParams.get("dropLng") ? Number(urlParams.get("dropLng")) : null;
+      const urlPickup = urlParams.get("pickup");
+      const urlDrop = urlParams.get("drop");
+      const p = urlPickup || (draft?.pickup !== "Pickup Location" ? draft?.pickup : null);
+      const d = urlDrop || (draft?.drop !== "Drop Location" ? draft?.drop : null);
+      const rawVehicle = urlParams.get("vehicle") || draft?.vehicle;
+      const v = typeof rawVehicle === "string" && Object.hasOwn(VEHICLE_OPTIONS, rawVehicle) ? rawVehicle as VehicleType : null;
+      const m = urlParams.get("mobileNumber") || draft?.mobileNumber || draft?.mobile;
+      const readCoordinate = (key: "pickupLat" | "pickupLng" | "dropLat" | "dropLng", explicitStop: string | null) => {
+        const value = urlParams.get(key);
+        if (value !== null && value.trim()) {
+          const coordinate = Number(value);
+          return Number.isFinite(coordinate) ? coordinate : null;
+        }
+        return !explicitStop && typeof draft?.[key] === "number" ? draft[key] : null;
+      };
+      const pLat = readCoordinate("pickupLat", urlPickup);
+      const pLng = readCoordinate("pickupLng", urlPickup);
+      const dLat = readCoordinate("dropLat", urlDrop);
+      const dLng = readCoordinate("dropLng", urlDrop);
 
-      if (v) setVehicle(v);
       if (m) setMobile(m);
-
-      const category = draft?.category || urlParams.get("category");
-      if (category === "trucks") {
-        setServiceMode("logistics");
-      }
+      const category = urlParams.get("category") || draft?.category;
+      const logistics = category === "trucks" || urlParams.get("serviceMode") === "logistics" ||
+        (v !== null && VEHICLE_OPTIONS[v].serviceMode === "logistics");
+      if (logistics) setServiceMode("logistics");
+      if (v) setVehicle(v);
+      else if (logistics) setVehicle("loading");
 
       if (Array.isArray(draft?.stops) && draft.stops.length > 0) {
         setStops(
@@ -2196,7 +2183,7 @@ export default function BookPage() {
               {serviceMode === "passenger" ? "Choose a trip" : "Goods Transport Vehicles"}
             </h2>
             <p className="text-xs text-[var(--text-secondary)] font-body">
-              {serviceMode === "passenger" ? `${PASSENGER_VEHICLES.length} rides nearby` : `${LOGISTICS_VEHICLES.length} freight sizes`}
+              {serviceMode === "passenger" ? `${PASSENGER_VEHICLES.length} ride categories` : `${LOGISTICS_VEHICLES.length} freight sizes`}
             </p>
           </div>
         </div>
@@ -2216,7 +2203,6 @@ export default function BookPage() {
               const isTabStop = isLimitOk && (isSelected || (!selectedVehicleIsAvailable && v.id === firstAvailableVehicleId));
               const fare = estimateFare(v.id, effectiveDistance);
               const isSmartPick = smartMatchResult?.vehicleId === v.id;
-              const Icon = VEHICLE_ICONS[v.id] || Car;
               const isFastest =
                 (serviceMode === "passenger" && (v.id === "bike" || v.id === "scooty")) ||
                 (serviceMode === "logistics" && v.id === "loading");
@@ -2278,8 +2264,8 @@ export default function BookPage() {
                     </span>
                   )}
                   <div className="flex items-center gap-3 sm:gap-3.5 min-w-0 flex-1 mr-2">
-                    <div className="w-16 h-14 sm:w-20 sm:h-16 flex items-center justify-center flex-shrink-0 p-0.5">
-                      <Icon size={56} className="w-full h-full object-contain" />
+                    <div className="relative h-12 w-16 shrink-0 overflow-hidden rounded-md border border-black/10 bg-[var(--surface-subtle)] sm:h-14 sm:w-20">
+                      <Image src={VEHICLE_PHOTO_SRC[v.id]} alt="" fill sizes="(max-width: 639px) 64px, 80px" className="object-cover" />
                     </div>
                     <div className="min-w-0 flex-1">
                       {/* Line 1: Vehicle Title + Capacity */}

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowDownRight, ArrowRight, ArrowUpRight, BriefcaseBusiness, CalendarDays, CarFront, Home, MapPin, Package, Plane, Route, ShieldCheck } from "lucide-react";
 import { useTranslation } from "@/context/LanguageContext";
 import LandingBooking from "./Herosection";
+import MobileHome from "./MobileHome";
 import styles from "./landing.module.css";
 
 const services = [
@@ -60,7 +61,9 @@ export default function PublicHome() {
   }
 
   return (
-    <main className={styles.landing}>
+    <main>
+      <div className="md:hidden"><MobileHome /></div>
+      <div className={`hidden md:block ${styles.landing}`}>
       <section className={styles.hero} aria-labelledby="jaatri-home-title">
         <div className={styles.heroContent}>
           <p className={styles.kicker}><Weave />{t("landing.region", "From Assam, for the way we travel")}</p>
@@ -75,7 +78,7 @@ export default function PublicHome() {
         </div>
         <figure className={styles.heroArt}>
           <div className={styles.artImage}>
-            <Image src="/mobile-home/hero_landscape.webp" fill preload alt="" sizes="(max-width: 760px) 94vw, 50vw" className={styles.cover} />
+            <Image src="/mobile-home/hero_landscape.webp?v=photo-1" fill alt="" fetchPriority="high" sizes="(max-width: 767px) 1px, 50vw" className={styles.cover} />
             <div className={styles.artStamp} lang="as">নমস্কাৰ</div>
           </div>
           <figcaption>
@@ -109,7 +112,7 @@ export default function PublicHome() {
         <div className={styles.destinationGrid}>
           {destinations.map((destination) => (
             <Link className={styles.destination} key={destination.id} href={toBooking(destination.name, destination.lat, destination.lng)}>
-              <div className={styles.destinationImage}><Image src={`/mobile-home/dest_${destination.id}.webp`} alt="" fill sizes="(max-width: 760px) 45vw, 25vw" className={styles.cover} /></div>
+              <div className={styles.destinationImage}><Image src={`/mobile-home/dest_${destination.id}.webp?v=photo-1`} alt="" fill sizes="(max-width: 760px) 45vw, 25vw" className={styles.cover} /></div>
               <div className={styles.destinationLabel}>
                 <div><h3>{t(`landing.${destination.id}`, destination.name)}</h3><p>{t(`landing.${destination.id}Detail`, destination.detail)}</p></div>
                 <ArrowUpRight size={18} aria-hidden />
@@ -134,6 +137,7 @@ export default function PublicHome() {
           <Link href="/safety" className={styles.textLink}>{t("landing.safety", "Ride safety")} <ArrowDownRight size={17} aria-hidden /></Link>
         </div>
       </section>
+      </div>
     </main>
   );
 }

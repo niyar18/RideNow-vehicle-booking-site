@@ -37,7 +37,7 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
     id: "daily-rides",
     title: "Daily Rides",
     subtitle: "From the market to the office",
-    image: "/explore/explore_daily_rides.webp",
+    image: "/explore/explore_daily_rides.webp?v=photo-1",
     icon: Car,
     route: "/book?category=cars",
   },
@@ -45,7 +45,7 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
     id: "outstation",
     title: "Outstation",
     subtitle: "Make a day of it beyond the city",
-    image: "/explore/explore_outstation.webp",
+    image: "/explore/explore_outstation.webp?v=photo-1",
     icon: CalendarDays,
     route: "/book?category=cars&service=outstation",
   },
@@ -53,7 +53,7 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
     id: "airport",
     title: "Airport Transfers",
     subtitle: "To and from Guwahati airport",
-    image: "/explore/explore_airport.webp",
+    image: "/explore/explore_airport.webp?v=photo-1",
     icon: Plane,
     route:
       "/book?drop=Lokpriya+Gopinath+Bordoloi+International+Airport,+Guwahati&dropLat=26.1061&dropLng=91.5859&category=cars",
@@ -62,7 +62,7 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
     id: "schedule",
     title: "Schedule Booking",
     subtitle: "Set a pickup for later",
-    image: "/explore/explore_schedule.webp",
+    image: "/explore/explore_schedule.webp?v=photo-1",
     icon: CalendarClock,
     route: "/book?reserve=true",
   },
@@ -70,7 +70,7 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
     id: "group",
     title: "Group Booking",
     subtitle: "Share a plan with your group",
-    image: "/explore/explore_group.webp",
+    image: "/explore/explore_group.webp?v=photo-1",
     icon: Users,
     route: "/group/join",
   },
@@ -78,7 +78,7 @@ const EXPLORE_SERVICES: ServiceCardItem[] = [
     id: "cargo",
     title: "Parcel & Cargo",
     subtitle: "For parcels, stock and small moves",
-    image: "/explore/explore_cargo.webp",
+    image: "/explore/explore_cargo.webp?v=photo-1",
     icon: Package,
     route: "/book?category=trucks&serviceMode=logistics",
   },
@@ -321,7 +321,7 @@ export default function ExplorePage() {
 
       <Link href={KAZIRANGA_BOOKING} className={styles.getaway} onClick={saveGetawayDraft}>
         <div className={styles.getawayImage}>
-          <Image src="/explore/explore_weekend_getaways.webp" alt="" fill sizes="(max-width: 669px) 95vw, 55vw" />
+          <Image src="/explore/explore_weekend_getaways.webp?v=photo-1" alt="" fill sizes="(max-width: 669px) 95vw, 55vw" />
         </div>
         <div className={styles.getawayText}>
           <p className={styles.kicker}>Out of town / Kaziranga</p>

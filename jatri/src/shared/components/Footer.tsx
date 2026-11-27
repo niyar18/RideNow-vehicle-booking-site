@@ -21,6 +21,7 @@ const sections = [
     ["footer.privacy", "Privacy", "/privacy"], ["footer.terms", "Terms of service", "/terms"],
     ["footer.paymentTerms", "Payment terms", "/payment-terms"], ["footer.refunds", "Cancellations and refunds", "/cancellation-refund"],
     ["footer.driverTerms", "Driver terms", "/partner-terms"], ["footer.cookies", "Cookie policy", "/cookies"],
+    ["landing.photoCredits", "Photo credits", "/photo-credits"],
   ] },
 ];
 

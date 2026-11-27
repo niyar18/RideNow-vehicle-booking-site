@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { useTranslation } from "@/context/LanguageContext";
 import { VehicleType } from "@/lib/vehicleConfig";
 import { VEHICLE_SVG_ICONS } from "@/shared/components/VehicleIcons";
@@ -33,7 +34,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Comfortable and eco-friendly rides",
     Icon: VEHICLE_SVG_ICONS.scooty,
     TagIcon: Leaf,
-    image: "/fleet/scooty.webp",
+    image: "/fleet/scooty.webp?v=photo-1",
     tagKey: "eco",
     tag: "ECO",
     tagBg: "bg-[#E5EBDD] text-[#123D32] border-[#cdd6c3]",
@@ -46,7 +47,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Fast, affordable, everyday rides",
     Icon: VEHICLE_SVG_ICONS.bike,
     TagIcon: Flame,
-    image: "/fleet/moto.webp",
+    image: "/fleet/moto.webp?v=photo-1",
     tagKey: "popular",
     tag: "POPULAR",
     tagBg: "bg-[#faebe8] text-[#E34222] border-[#f0c8c1]",
@@ -59,11 +60,24 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Quick and economical for short trips",
     Icon: VEHICLE_SVG_ICONS.auto,
     TagIcon: Users,
-    image: "/fleet/auto.webp",
+    image: "/fleet/auto.webp?v=photo-1",
     tagKey: "budget",
     tag: "BUDGET",
     tagBg: "bg-[#eaf3e7] text-[#1e5a28] border-[#c8e3c3]",
     rate: "11.5/km",
+  },
+  {
+    id: "e-rickshaw",
+    key: "e-rickshaw",
+    title: "Jaatri Toto",
+    desc: "Quiet electric rides for short trips",
+    Icon: VEHICLE_SVG_ICONS["e-rickshaw"],
+    TagIcon: Leaf,
+    image: "/fleet/e-rickshaw.webp?v=photo-1",
+    tagKey: "eco",
+    tag: "ECO",
+    tagBg: "bg-[#E5EBDD] text-[#123D32] border-[#cdd6c3]",
+    rate: "8/km",
   },
   {
     id: "mini",
@@ -72,7 +86,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Affordable and comfortable for city rides",
     Icon: VEHICLE_SVG_ICONS.mini,
     TagIcon: Car,
-    image: "/fleet/car-mini.webp",
+    image: "/fleet/car-mini.webp?v=photo-1",
     tagKey: "mini",
     tag: "MINI",
     tagBg: "bg-[#e7eff8] text-[#1e4d7d] border-[#c8dcf1]",
@@ -85,7 +99,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Spacious and premium sedan for a better experience",
     Icon: VEHICLE_SVG_ICONS.car,
     TagIcon: Crown,
-    image: "/fleet/premier.webp",
+    image: "/fleet/premier.webp?v=photo-1",
     tagKey: "premier",
     tag: "PREMIER",
     tagBg: "bg-[#fdf3e5] text-[#8a520e] border-[#f5ddbb]",
@@ -98,7 +112,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "More space for families and groups",
     Icon: VEHICLE_SVG_ICONS.priority,
     TagIcon: Users,
-    image: "/fleet/suv.webp",
+    image: "/fleet/suv.webp?v=photo-1",
     tagKey: "xl_priority",
     tag: "XL / PRIORITY",
     tagBg: "bg-[#eee9f8] text-[#51358a] border-[#d8ccf0]",
@@ -111,7 +125,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Small cargo, big convenience",
     Icon: VEHICLE_SVG_ICONS.loading,
     TagIcon: Truck,
-    image: "/fleet/express-mini.webp",
+    image: "/fleet/express-mini.webp?v=photo-1",
     tagKey: "express_mini",
     tag: "EXPRESS MINI",
     tagBg: "bg-[#e5f0fb] text-[#1b589b] border-[#c8e2f8]",
@@ -124,7 +138,7 @@ const FLEET_ITEMS: FleetSliderItem[] = [
     desc: "Reliable truck service for larger shipments",
     Icon: VEHICLE_SVG_ICONS.truck,
     TagIcon: Package,
-    image: "/fleet/freight.webp",
+    image: "/fleet/freight.webp?v=photo-1",
     tagKey: "freight",
     tag: "FREIGHT",
     tagBg: "bg-[#fcf0e4] text-[#9a4f0f] border-[#f4d5b6]",
@@ -280,12 +294,14 @@ export default function VehicleCategoriesSlider() {
                 {/* Card Container: Refined surface matching mobile theme tokens (#0B2822 in dark) */}
                 <div className="relative rounded-[14px] border border-[#DED7CA]/85 dark:border-[#24483D] bg-white dark:bg-[#0B2822] p-3.5 sm:p-4 overflow-hidden h-full flex flex-col justify-between shadow-[0_2px_8px_rgba(18,61,50,0.04)] dark:shadow-[0_4px_14px_rgba(0,0,0,0.4)] group-hover:shadow-[0_8px_20px_rgba(18,61,50,0.08)] dark:group-hover:shadow-[0_8px_20px_rgba(0,0,0,0.5)] group-hover:border-[#046A38]/50 dark:group-hover:border-[#34D399]/50 transition-all duration-200">
                   <div>
-                    {/* CARD TOP MEDIA: Hero vehicle artwork with mobile-native proportions */}
+                    {/* Vehicle photography with mobile-native proportions */}
                     <div className="-mx-3.5 -mt-3.5 sm:-mx-4 sm:-mt-4 mb-3 relative overflow-hidden select-none h-38 sm:h-46 rounded-t-[13px] bg-[var(--background)]">
-                      <img
+                      <Image
                         src={item.image}
-                        alt={item.title}
-                        className="w-full h-full object-cover object-bottom transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                        alt=""
+                        fill
+                        sizes="(max-width: 373px) 75vw, 280px"
+                        className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                       />
 
                       {/* Unified category badge in upper-left */}

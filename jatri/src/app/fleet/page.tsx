@@ -20,7 +20,7 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     name: VEHICLE_OPTIONS.scooty.label,
     description: VEHICLE_OPTIONS.scooty.tagline,
     price: "Starting from ₹7/km",
-    image: "/fleet/scooty.webp",
+    image: "/fleet/scooty.webp?v=photo-1",
     capacity: "1 Passenger",
   },
   {
@@ -28,7 +28,7 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     name: VEHICLE_OPTIONS.bike.label,
     description: VEHICLE_OPTIONS.bike.tagline,
     price: "Starting from ₹8/km",
-    image: "/fleet/moto.webp",
+    image: "/fleet/moto.webp?v=photo-1",
     capacity: "1 Passenger",
   },
   {
@@ -36,7 +36,7 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     name: VEHICLE_OPTIONS.auto.label,
     description: VEHICLE_OPTIONS.auto.tagline,
     price: "Starting from ₹11.5/km",
-    image: "/fleet/auto.webp",
+    image: "/fleet/auto.webp?v=photo-1",
     capacity: "3 Passengers",
   },
   {
@@ -44,7 +44,7 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     name: VEHICLE_OPTIONS["e-rickshaw"].label,
     description: VEHICLE_OPTIONS["e-rickshaw"].tagline,
     price: "Starting from ₹8/km",
-    image: "/fleet/auto.webp",
+    image: "/fleet/e-rickshaw.webp?v=photo-1",
     capacity: "3 Passengers (Eco)",
   },
   {
@@ -52,7 +52,7 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     name: VEHICLE_OPTIONS.mini.label,
     description: VEHICLE_OPTIONS.mini.tagline,
     price: "Starting from ₹13.5/km",
-    image: "/fleet/car-mini.webp",
+    image: "/fleet/car-mini.webp?v=photo-1",
     capacity: "4 Passengers (AC)",
   },
   {
@@ -60,7 +60,7 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     name: VEHICLE_OPTIONS.car.label,
     description: VEHICLE_OPTIONS.car.tagline,
     price: "Starting from ₹16.5/km",
-    image: "/fleet/premier.webp",
+    image: "/fleet/premier.webp?v=photo-1",
     capacity: "4 Passengers (Sedan)",
   },
   {
@@ -68,7 +68,7 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     name: VEHICLE_OPTIONS.priority.label,
     description: VEHICLE_OPTIONS.priority.tagline,
     price: "Starting from ₹21/km",
-    image: "/fleet/suv.webp",
+    image: "/fleet/suv.webp?v=photo-1",
     capacity: "6 Passengers (SUV)",
   },
   {
@@ -76,7 +76,7 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     name: VEHICLE_OPTIONS.loading.label,
     description: VEHICLE_OPTIONS.loading.tagline,
     price: "Starting from ₹20/km",
-    image: "/fleet/express-mini.webp",
+    image: "/fleet/express-mini.webp?v=photo-1",
     capacity: "Up to 500 kg Cargo",
   },
   {
@@ -84,7 +84,7 @@ const FLEET_CATEGORIES: FleetCategory[] = [
     name: VEHICLE_OPTIONS.truck.label,
     description: VEHICLE_OPTIONS.truck.tagline,
     price: "Starting from ₹35/km",
-    image: "/fleet/freight.webp",
+    image: "/fleet/freight.webp?v=photo-1",
     capacity: "Up to 2,000 kg Freight",
   },
 ];
@@ -101,7 +101,14 @@ export default function FleetPage() {
 
       <div className="space-y-12 sm:space-y-18">
         <FleetGroup title="Passenger rides" caption="For quick errands, family rides and longer trips across Assam." variants={passenger} />
-        <FleetGroup title="Parcel & freight" caption="For furniture, merchant stock and larger loads." variants={cargo} />
+        <div>
+          <FleetGroup title="Parcel & freight" caption="For furniture, merchant stock and larger loads." variants={cargo} />
+          <div className="pt-4">
+            <p className={styles.sectionNote}>
+              Photos show example vehicles. The model you get may vary. <Link href="/photo-credits" className="underline underline-offset-2">Photo credits</Link>
+            </p>
+          </div>
+        </div>
         <aside className={styles.callout} aria-label="Driver information">
           <div>
             <h2 className={styles.sectionTitle}>Drive with Jaatri.</h2>
@@ -130,7 +137,6 @@ function FleetGroup({ title, caption, variants }: { title: string; caption: stri
                 alt=""
                 fill
                 sizes="(max-width: 669px) 48vw, (max-width: 1250px) 31vw, 390px"
-                style={option.id === "scooty" ? { objectPosition: "center 72%" } : undefined}
               />
             </div>
             <div className={styles.cardBody}>
