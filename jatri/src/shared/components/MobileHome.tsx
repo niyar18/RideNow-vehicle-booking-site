@@ -82,9 +82,7 @@ export default function MobileHome() {
   return (
     <div className={styles.home}>
       <section className={styles.hero} aria-labelledby="mobile-home-title">
-        <div className={styles.photo} aria-hidden="true">
-          <Image src="/hero/brahmaputra-at-dusk-mobile.webp" fill alt="" sizes="(max-width: 767px) 100vw, 1px" fetchPriority="high" className={styles.cover} />
-        </div>
+        <div className={styles.photo} aria-hidden="true" />
         <div className={styles.heroInner}>
           <div className={styles.greeting}>
             <div className={styles.eyebrow}><span className={styles.weave} aria-hidden="true" />{t("landing.mobileRegion", "Explore Assam, your way")}</div>

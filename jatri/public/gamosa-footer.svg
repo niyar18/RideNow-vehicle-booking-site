@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="80" height="46" viewBox="0 0 80 46">
+  <title>Original gamosa-inspired floral end-band</title>
+  <defs>
+    <pattern id="weft" width="3" height="2" patternUnits="userSpaceOnUse">
+      <path d="M0 1.5h3M.5 0v2" stroke="#88725b" stroke-width=".3" opacity=".25"/>
+    </pattern>
+    <path id="petal" d="M-1-3h-2v-2h-2v-2h2v-2h2v-2h2v2h2v2h2v2H3v2H1v2h-2z"/>
+    <g id="flower">
+      <use href="#petal"/>
+      <use href="#petal" transform="rotate(90)"/>
+      <use href="#petal" transform="rotate(180)"/>
+      <use href="#petal" transform="rotate(270)"/>
+      <path d="M-6-6h2v2h-2zm10 0h2v2H4zM-6 4h2v2h-2zM4 4h2v2H4z"/>
+      <path d="M0-4 4 0 0 4-4 0z"/>
+      <path d="M0-1.5 1.5 0 0 1.5-1.5 0z" fill="#faf3e8"/>
+    </g>
+  </defs>
+  <path fill="#faf3e8" d="M0 0h80v46H0z"/>
+  <g fill="#a12c36" shape-rendering="crispEdges">
+    <path d="M0 0h80v3H0zm0 6h80v1H0zm0 32h80v1H0zm0 5h80v3H0z"/>
+    <use href="#flower" x="40" y="23"/>
+    <path d="M0 18h1v2h2v2h2v2H3v2H1v2h-2v-2h-2v-2h-2v-2h2v-2h2v-2zM80 18h1v2h2v2h2v2h-2v2h-2v2h-2v-2h-2v-2h-2v-2h2v-2h2v-2z"/>
+    <path d="M0 21h1v1h1v2H1v1h-2v-1h-1v-2h1v-1zm80 0h1v1h1v2h-1v1h-2v-1h-1v-2h1v-1z" fill="#faf3e8"/>
+    <path d="M8 22h4v2H8zm7 0h2v2h-2zm5 0h4v2h-4zm5-2h2v2h-2zm0 4h2v2h-2zm23-4h2v2h-2zm0 4h2v2h-2zm8-2h4v2h-4zm7 0h2v2h-2zm5 0h4v2h-4z"/>
+    <path d="M8 12h2v2H8zm12 0h2v2h-2zm38 0h2v2h-2zm12 0h2v2h-2zM8 32h2v2H8zm12 0h2v2h-2zm38 0h2v2h-2zm12 0h2v2h-2z"/>
+  </g>
+  <path fill="url(#weft)" d="M0 0h80v46H0z"/>
+</svg>

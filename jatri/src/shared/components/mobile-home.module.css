@@ -33,7 +33,6 @@
   background: #284d3d;
 }
 .cover { object-fit: cover; }
-.photo img { object-position: 41% 50%; }
 .photo::after {
   position: absolute;
   inset: 0;
@@ -108,13 +107,7 @@
   --home-card: var(--surface-raised);
   --home-border: var(--border-default);
 }
-.photo { background: var(--midnight); }
-/* Keep a dark field behind the title while leaving the ferry and reflected light visible. */
-.photo::after { background: linear-gradient(180deg, #142238 0%, #142238e8 27%, #142238c9 43%, #14223818 64%, #142238a6 100%); }
-.greeting { color: var(--ice); }
-.greeting em { color: var(--accent-mint); }
 .greeting h1, .sectionTitle h2, .partner strong { font-family: var(--font-outfit), var(--font-inter), system-ui, sans-serif; font-weight: 620; }
-.weave { border-color: var(--accent-mint); background: repeating-linear-gradient(135deg,transparent 0 4px,var(--accent-mint) 4px 5px,transparent 5px 9px); }
 .search { background: var(--ice); color: var(--midnight); border-color: var(--border-interactive); }
 .search:focus-visible { outline-color: var(--accent-mint); }
 .searchArrow { background: var(--midnight); color: var(--accent-mint); }
@@ -126,3 +119,22 @@
 .partner { background: var(--midnight); color: var(--ice); }
 .partner p { color: #b3cbd1; }
 .partner a { background: var(--accent-mint); color: var(--midnight); }
+
+/* Separate mobile crops preserve the river and foreground below the greeting. */
+.photo {
+  background: #e9f3ee url("/hero/luit-morning-mobile.webp") center / cover no-repeat;
+}
+.photo::after {
+  background: linear-gradient(180deg, #f3f8f6 0%, #f3f8f6ed 25%, #f3f8f6d9 43%, #f3f8f600 70%, #14223855 100%);
+}
+.greeting { color: #142238; }
+.greeting em { color: #185c54; }
+.weave { border-color: currentColor; background: repeating-linear-gradient(135deg, transparent 0 4px, currentColor 4px 5px, transparent 5px 9px); }
+:global(.dark) .photo {
+  background: var(--midnight) url("/hero/brahmaputra-night-mobile.webp") center / cover no-repeat;
+}
+:global(.dark) .photo::after {
+  background: linear-gradient(180deg, #142238 0%, #142238e8 25%, #142238c9 43%, #14223800 66%, #14223880 100%);
+}
+:global(.dark) .greeting { color: var(--ice); }
+:global(.dark) .greeting em, :global(.dark) .weave { color: var(--accent-mint); }

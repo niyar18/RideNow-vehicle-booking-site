@@ -6,7 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import LanguageSelector from "./LanguageSelector";
 import ThemeToggle from "./ThemeToggle";
 import { useTranslation } from "@/context/LanguageContext";
-import { GamosaBorder } from "./GamosaMotif";
+import styles from "./footer.module.css";
 
 const sections = [
   { title: "footer.services", fallback: "Travel", links: [
@@ -30,7 +30,7 @@ export default function Footer() {
 
   return (
     <footer className="relative bg-[#142238] text-[#fcfaef]">
-      <GamosaBorder height={10} accentColor="#d58d74" />
+      <div className={styles.gamosaBand} aria-hidden="true" />
       <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-5 gap-y-8 px-5 py-12 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr_1fr] md:gap-8 md:py-16">
         <div className="col-span-2 md:col-span-1">
           <Link href="/" aria-label="Jaatri Home" className="inline-flex">

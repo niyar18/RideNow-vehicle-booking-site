@@ -51,7 +51,6 @@
 }
 .artImage { min-height: 460px; flex: 1; position: relative; isolation: isolate; background: #b7bd91; }
 .cover { object-fit: cover; }
-.artImage .cover { object-position: 49% 56%; }
 .artStamp {
   position: absolute;
   right: 18px;
@@ -202,7 +201,6 @@
   .intro { max-width: 44ch; }
   .booking { margin-top: 17px; }
   .artImage { min-height: 0; flex: auto; aspect-ratio: 17/10; }
-  .artImage .cover { object-position: 50% 59%; }
   .artStamp { top: 10px; right: 10px; font-size: 13px; }
   .heroArt figcaption { min-height: 43px; padding: 7px 12px; }
   .serviceGrid, .destinationGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
@@ -258,8 +256,7 @@
 .hero h1 { font-size: clamp(44px, 5.2vw, 81px); }
 .hero h1 span, :global(.dark) .hero h1 span, .kicker { color: var(--accent-mint); }
 .heroArt { min-height: 0; align-self: stretch; background: #1e314a; color: #f3f8f6; border-color: #526d84; }
-.artImage { min-height: 390px; background: var(--midnight); }
-.artImage .cover { object-position: 42% 49%; }
+.artImage { min-height: 390px; }
 .heroArt figcaption { border-color: #526d84; }
 .heroArt figcaption small { color: #d2e1e5; }
 .artStamp { color: var(--midnight); background: var(--accent-mint); border-color: var(--accent-mint); }
@@ -274,3 +271,14 @@
 .partnerWeave { color: var(--accent-mint); }
 .partnerLink { color: var(--midnight); }
 .partnerLink:hover { background: #bef8e4; }
+
+/* Use the resolved app theme so system and explicit theme settings agree. */
+.artImage {
+  background: #dceeea url("/hero/luit-morning-desktop.webp") center / cover no-repeat;
+}
+:global(.dark) .artImage {
+  background: var(--midnight) url("/hero/brahmaputra-night-desktop.webp") center / cover no-repeat;
+}
+.heroArt figcaption .nightLocation,
+:global(.dark) .heroArt figcaption .dayLocation { display: none; }
+:global(.dark) .heroArt figcaption .nightLocation { display: inline-flex; }

@@ -1,0 +1,15 @@
+/*
+ * Original interpretation of an Assamese phulam gamosa end band:
+ * an off-white ground, red woven guard stripes and repeating floral units.
+ * Kept outside the navy footer content so the contrast of every link is unchanged.
+ */
+.gamosaBand {
+  display: block;
+  inline-size: 100%;
+  block-size: clamp(38px, 4.5vw, 52px);
+  background-color: #faf3e8;
+  background-image: url("/gamosa-footer.svg");
+  background-position: center;
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+}
