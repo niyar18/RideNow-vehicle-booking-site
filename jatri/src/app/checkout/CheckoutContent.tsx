@@ -784,7 +784,7 @@ export default function CheckoutContent() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[var(--background)] text-[var(--text-primary)] px-3 sm:px-4 pt-5 pb-[max(28px,env(safe-area-inset-bottom))] sm:py-10">
+    <main tabIndex={-1} className="min-h-[100dvh] bg-[var(--background)] text-[var(--text-primary)] px-3 sm:px-4 pt-5 pb-[max(28px,env(safe-area-inset-bottom))] sm:py-10">
 
       <div className="relative max-w-[46rem] mx-auto z-10 space-y-4 sm:space-y-6">
 
@@ -1472,7 +1472,7 @@ export default function CheckoutContent() {
           handleCreateBooking({ overridePreference: "any", overrideRadius: 10 });
         }}
       />
-    </div>
+    </main>
   );
 }
 

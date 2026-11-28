@@ -377,7 +377,7 @@ export default function ProfilePage() {
     <div className="w-full min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col justify-between font-sans transition-colors duration-200">
       <Nav />
 
-      <div className="relative z-10 mx-auto w-full max-w-[56rem] flex-1 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
+      <main tabIndex={-1} className="relative z-10 mx-auto w-full max-w-[56rem] flex-1 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
         <RiderPageHead current="/profile"
           title="Your profile"
           description="Update your details and manage family rides and student benefits."
@@ -577,13 +577,13 @@ export default function ProfilePage() {
                     Status: Pending Review
                   </span>
                 ) : studentData?.status === "rejected" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] text-xs font-bold">
-                    <AlertCircle size={14} className="text-[#E34222] dark:text-[#E06A50]" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#a03226] dark:text-[#ff9d89] text-xs font-bold">
+                    <AlertCircle size={14} className="text-[#a03226] dark:text-[#ff9d89]" />
                     Status: Not Approved
                   </span>
                 ) : studentData?.status === "expired" ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] text-xs font-bold">
-                    <AlertCircle size={14} className="text-[#E34222] dark:text-[#E06A50]" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#a03226] dark:text-[#ff9d89] text-xs font-bold">
+                    <AlertCircle size={14} className="text-[#a03226] dark:text-[#ff9d89]" />
                     {t("student.expired", "Status: Expired")}
                   </span>
                 ) : (
@@ -664,11 +664,11 @@ export default function ProfilePage() {
             ) : studentData?.status === "rejected" ? (
               <div className="p-4 bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-2 text-[#E34222] dark:text-[#E06A50] font-bold text-sm">
-                    <AlertCircle size={16} className="text-[#E34222] dark:text-[#E06A50]" />
+                  <div className="flex items-center gap-2 text-[#a03226] dark:text-[#ff9d89] font-bold text-sm">
+                    <AlertCircle size={16} className="text-[#a03226] dark:text-[#ff9d89]" />
                     Verification Request Not Approved
                   </div>
-                  <p className="text-xs text-[#E34222] dark:text-[#E06A50] mt-1">
+                  <p className="text-xs text-[#a03226] dark:text-[#ff9d89] mt-1">
                     Reason: {studentData.verification?.rejectionReason || "Could not verify credentials with official records."}
                   </p>
                 </div>
@@ -688,11 +688,11 @@ export default function ProfilePage() {
             ) : studentData?.status === "expired" ? (
               <div className="p-4 bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 rounded-[10px] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
-                  <div className="flex items-center gap-2 text-[#E34222] dark:text-[#E06A50] font-bold text-sm">
-                    <AlertCircle size={16} className="text-[#E34222] dark:text-[#E06A50]" />
+                  <div className="flex items-center gap-2 text-[#a03226] dark:text-[#ff9d89] font-bold text-sm">
+                    <AlertCircle size={16} className="text-[#a03226] dark:text-[#ff9d89]" />
                     Student Status Expired
                   </div>
-                  <p className="text-xs text-[#E34222] dark:text-[#E06A50] mt-1">
+                  <p className="text-xs text-[#a03226] dark:text-[#ff9d89] mt-1">
                     Your 12-month annual student discount has concluded. Re-verify your enrollment to resume 10% off on all eligible rides.
                   </p>
                 </div>
@@ -872,6 +872,7 @@ export default function ProfilePage() {
               <button
                 type="button"
                 onClick={handleToggleCentralBilling}
+                role="switch" aria-checked={Boolean(family?.sharedPaymentEnabled)} aria-label="Central billing"
                 className={`w-11 h-6 rounded-full transition-colors flex items-center p-0.5 cursor-pointer ${family?.sharedPaymentEnabled ? "bg-[#142238] dark:bg-[#365671] justify-end" : "bg-[#b3c8ca] dark:bg-[#435e76] justify-start"}`}
               >
                 <div className="w-5 h-5 rounded-full bg-white shadow-md" />
@@ -973,7 +974,7 @@ export default function ProfilePage() {
                         type="button"
                         aria-label={`Remove ${m.name || "family member"}`}
                         onClick={() => handleRemoveMember(m._id)}
-                        className="min-w-[44px] min-h-[44px] rounded-[6px] hover:bg-[#faebe8] dark:hover:bg-[#341814] text-[var(--text-secondary)] hover:text-[#E34222] dark:hover:text-[#E06A50] flex items-center justify-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E34222]"
+                        className="min-w-[44px] min-h-[44px] rounded-[6px] hover:bg-[#faebe8] dark:hover:bg-[#341814] text-[var(--text-secondary)] hover:text-[#a03226] dark:hover:text-[#ff9d89] flex items-center justify-center transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E34222]"
                       >
                         <Trash2 size={15} />
                       </button>
@@ -1021,7 +1022,7 @@ export default function ProfilePage() {
                   setDeleteSuccess(false);
                   setShowDeleteModal(true);
                 }}
-                className="min-h-[44px] inline-flex items-center justify-center gap-2 text-xs font-bold text-[#E34222] dark:text-[#E06A50] bg-[#faebe8] dark:bg-[#341814] hover:bg-[#faebe8]/80 dark:hover:bg-[#341814]/80 border border-[#E34222]/30 dark:border-[#E06A50]/40 px-4 py-2.5 rounded-[8px] transition w-full sm:w-auto cursor-pointer"
+                className="min-h-[44px] inline-flex items-center justify-center gap-2 text-xs font-bold text-[#a03226] dark:text-[#ff9d89] bg-[#faebe8] dark:bg-[#341814] hover:bg-[#faebe8]/80 dark:hover:bg-[#341814]/80 border border-[#E34222]/30 dark:border-[#E06A50]/40 px-4 py-2.5 rounded-[8px] transition w-full sm:w-auto cursor-pointer"
               >
                 <Trash2 size={14} /> Request Account Deletion
               </button>
@@ -1042,7 +1043,7 @@ export default function ProfilePage() {
           {/* 🚪 SIGN OUT ACTION CARD */}
           <div className="bg-[var(--surface-raised)] rounded-[12px] border border-[var(--border-default)] p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#faebe8] dark:bg-[#341814] text-[#E34222] dark:text-[#E06A50] flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-full bg-[#faebe8] dark:bg-[#341814] text-[#a03226] dark:text-[#ff9d89] flex items-center justify-center shrink-0">
                 <LogOut size={18} />
               </div>
               <div>
@@ -1113,8 +1114,8 @@ export default function ProfilePage() {
                 </div>
 
                 {deleteError && (
-                  <div className="mb-4 p-3 rounded-[8px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] text-xs flex items-start gap-2">
-                    <AlertCircle size={15} className="shrink-0 text-[#E34222] dark:text-[#E06A50] mt-0.5" />
+                  <div className="mb-4 p-3 rounded-[8px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#a03226] dark:text-[#ff9d89] text-xs flex items-start gap-2">
+                    <AlertCircle size={15} className="shrink-0 text-[#a03226] dark:text-[#ff9d89] mt-0.5" />
                     <span>{deleteError}</span>
                   </div>
                 )}
@@ -1219,8 +1220,8 @@ export default function ProfilePage() {
                 </div>
 
                 {studentError && (
-                  <div className="mb-4 p-3 rounded-[8px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#E34222] dark:text-[#E06A50] text-xs flex items-center gap-2">
-                    <AlertCircle size={15} className="shrink-0 text-[#E34222] dark:text-[#E06A50]" />
+                  <div className="mb-4 p-3 rounded-[8px] bg-[#faebe8] dark:bg-[#341814] border border-[#E34222]/30 dark:border-[#E06A50]/40 text-[#a03226] dark:text-[#ff9d89] text-xs flex items-center gap-2">
+                    <AlertCircle size={15} className="shrink-0 text-[#a03226] dark:text-[#ff9d89]" />
                     <span>{studentError}</span>
                   </div>
                 )}
@@ -1533,7 +1534,7 @@ export default function ProfilePage() {
             </div>
           )}
         </AnimatePresence>
-      </div>
+      </main>
 
       <Footer />
     </div>

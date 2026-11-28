@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "@/redux/store";
 import { useSession } from "next-auth/react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   User as UserIcon,
   Briefcase,
@@ -36,6 +36,7 @@ import Nav from "@/shared/components/Nav";
 import Footer from "@/shared/components/Footer";
 import AuthModal from "@/features/auth/components/AuthModal";
 import { useTheme, Theme } from "@/context/ThemeContext";
+import AccessibleDialog from "@/shared/components/AccessibleDialog";
 import { useTranslation, Language, SUPPORTED_LANGUAGES } from "@/context/LanguageContext";
 import { usePushNotifications } from "@/shared/hooks/usePushNotifications";
 import { performFastSignOut } from "@/lib/authLogout";
@@ -267,7 +268,7 @@ export default function SettingsPage() {
     <div className="w-full min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col justify-between font-sans transition-colors duration-200">
       <Nav />
 
-      <div className="relative z-10 mx-auto w-full max-w-[56rem] flex-1 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
+      <main tabIndex={-1} className="relative z-10 mx-auto w-full max-w-[56rem] flex-1 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
         <RiderPageHead current="/settings"
           title="Settings"
           description="Manage how Jaatri looks, sends notifications, and uses your account preferences."
@@ -478,24 +479,14 @@ export default function SettingsPage() {
             </button>
           </div>
         )}
-      </div>
+      </main>
 
       <Footer />
 
       {/* ── MODALS & BOTTOM SHEETS ── */}
-      <AnimatePresence>
-        {activeModal && (
-          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4">
-            <motion.div
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "100%", opacity: 0 }}
-              transition={{ type: "spring", damping: 28, stiffness: 350 }}
-              className="w-full max-w-lg bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-t-[20px] sm:rounded-[16px] shadow-2xl p-5 sm:p-6 pb-[max(20px,env(safe-area-inset-bottom))] overflow-hidden max-h-[85vh] flex flex-col"
-            >
-              {/* Modal Drag Bar for mobile */}
-              <div className="w-12 h-1 bg-stone-300 dark:bg-zinc-700 rounded-full mx-auto mb-4 sm:hidden" />
-
+      {activeModal && (
+        <AccessibleDialog labelledBy="settings-dialog-title" onClose={() => setActiveModal(null)}
+          className="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-1.5rem)] max-w-lg overflow-y-auto rounded-xl border border-[var(--border-interactive)] bg-[var(--surface-raised)] p-4 text-[var(--text-primary)] shadow-2xl backdrop:bg-black/70 sm:p-6">
               {/* HOME MODAL */}
               {activeModal === "home" && (
                 <div>
@@ -503,6 +494,7 @@ export default function SettingsPage() {
                   <p className="text-xs text-[var(--text-secondary)] mb-3">
                     Your home address is saved locally on your device for one-tap pickup or destination selection.
                   </p>
+                  <label htmlFor="home-input" className="mb-1 block text-xs font-semibold">Home address</label>
                   <input
                     type="text"
                     defaultValue={homeAddress}
@@ -539,6 +531,7 @@ export default function SettingsPage() {
                   <p className="text-xs text-[var(--text-secondary)] mb-3">
                     Your workplace address enables rapid daily commute booking.
                   </p>
+                  <label htmlFor="work-input" className="mb-1 block text-xs font-semibold">Work address</label>
                   <input
                     type="text"
                     defaultValue={workAddress}
@@ -601,15 +594,17 @@ export default function SettingsPage() {
 
                   <div className="pt-3 border-t border-[var(--border-default)] space-y-2">
                     <p className="text-xs font-bold text-[var(--text-primary)]">Add new custom place</p>
+                    <label htmlFor="saved-place-label" className="block text-xs font-semibold">Place label</label>
                     <input
-                      type="text"
+                      id="saved-place-label" type="text"
                       value={newPlaceLabel}
                       onChange={(e) => setNewPlaceLabel(e.target.value)}
                       placeholder="Label (e.g. Gym, Airport, Parents)"
                       className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] outline-none"
                     />
+                    <label htmlFor="saved-place-address" className="block text-xs font-semibold">Place address or landmark</label>
                     <input
-                      type="text"
+                      id="saved-place-address" type="text"
                       value={newPlaceAddress}
                       onChange={(e) => setNewPlaceAddress(e.target.value)}
                       placeholder="Full Address / Landmark"
@@ -670,30 +665,30 @@ export default function SettingsPage() {
                   </p>
                   <div className="space-y-2.5 mb-4">
                     <div>
-                      <label className="text-[11px] font-bold text-[#4d6374] uppercase block mb-1">GSTIN Number</label>
+                      <label className="text-[11px] font-bold text-[#4d6374] uppercase block mb-1" htmlFor="invoice-gstin">GSTIN Number</label>
                       <input
                         type="text"
-                        value={gstin}
+                        id="invoice-gstin" value={gstin}
                         onChange={(e) => setGstin(e.target.value)}
                         placeholder="e.g. 18AABCR1234F1Z5"
                         className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] uppercase outline-none"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-[#4d6374] uppercase block mb-1">Company / Legal Name</label>
+                      <label className="text-[11px] font-bold text-[#4d6374] uppercase block mb-1" htmlFor="invoice-company">Company / Legal Name</label>
                       <input
                         type="text"
-                        value={businessName}
+                        id="invoice-company" value={businessName}
                         onChange={(e) => setBusinessName(e.target.value)}
                         placeholder="e.g. Acme Tech Solutions Pvt Ltd"
                         className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] outline-none"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-[#4d6374] uppercase block mb-1">Billing Address</label>
+                      <label className="text-[11px] font-bold text-[#4d6374] uppercase block mb-1" htmlFor="invoice-address">Billing Address</label>
                       <input
                         type="text"
-                        value={billingAddress}
+                        id="invoice-address" value={billingAddress}
                         onChange={(e) => setBillingAddress(e.target.value)}
                         placeholder="e.g. GS Road, Christian Basti, Guwahati"
                         className="w-full bg-white dark:bg-[#142238] border border-[var(--border-default)] rounded-[8px] px-3 py-2 text-xs text-[var(--text-primary)] outline-none"
@@ -810,7 +805,7 @@ export default function SettingsPage() {
                         <div className="flex items-center gap-2.5">
                           <span className="text-lg">{lang.flag}</span>
                           <div>
-                            <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)]">{lang.nativeName}</p>
+                            <p className="text-xs sm:text-sm font-bold text-[var(--text-primary)]"><span lang={lang.code}>{lang.nativeName}</span></p>
                             <p className="text-[11px] text-[var(--text-secondary)]">{lang.name}</p>
                           </div>
                         </div>
@@ -967,10 +962,8 @@ export default function SettingsPage() {
                   )}
                 </div>
               )}
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+        </AccessibleDialog>
+      )}
 
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
@@ -1018,11 +1011,12 @@ function SettingRow({
 function ModalHeader({ title, onClose }: { title: string; onClose: () => void }) {
   return (
     <div className="flex items-center justify-between pb-3 border-b border-[#b3c8ca]/70 dark:border-[#425b73] mb-3">
-      <h3 className="text-base font-bold text-[var(--text-primary)]">{title}</h3>
+      <h2 id="settings-dialog-title" data-dialog-heading tabIndex={-1} className="text-base font-bold text-[var(--text-primary)]">{title}</h2>
       <button
         type="button"
         onClick={onClose}
-        className="p-1 rounded-[6px] hover:bg-black/5 dark:hover:bg-white/5 text-[var(--text-secondary)]"
+        aria-label="Close settings dialog"
+        className="grid min-h-11 min-w-11 place-items-center rounded-[6px] hover:bg-black/5 dark:hover:bg-white/5 text-[var(--text-secondary)]"
       >
         <X size={18} />
       </button>
@@ -1050,6 +1044,7 @@ function ToggleOption({
       <button
         type="button"
         onClick={onChange}
+        role="switch" aria-checked={checked} aria-label={title}
         className={`w-11 h-6 rounded-full transition-colors relative shrink-0 p-0.5 cursor-pointer ${
           checked ? "bg-[#213650]" : "bg-stone-300 dark:bg-zinc-700"
         }`}

@@ -131,3 +131,5 @@ export default function DriverPartnerTermsPage() {
     </PolicyPage>
   );
 }
+
+export const metadata = { title: "Driver partner agreement" };

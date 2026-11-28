@@ -31,7 +31,7 @@ function ReferralContent() {
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col font-sans">
       <Nav />
 
-      <div className="mx-auto w-full max-w-[57rem] flex-1 space-y-6 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
+      <main tabIndex={-1} className="mx-auto w-full max-w-[57rem] flex-1 space-y-6 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
         <RiderPageHead section="Invite a friend"
           title="Good rides are worth sharing"
           description="Give a friend ₹30 off their first ride and earn ₹50 in Jaatri Cash when they complete it."
@@ -95,7 +95,7 @@ function ReferralContent() {
             </li>
           </ul>
         </div>
-      </div>
+      </main>
 
       {showAuthModal && <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />}
       <Footer />

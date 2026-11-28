@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { CalendarDays, Car, ClipboardList, Compass, House, Navigation, UserRound, Wallet, type LucideIcon } from "lucide-react";
-import { useTranslation } from "@/context/LanguageContext";
+import { LocalizedText } from "@/context/LanguageContext";
 import { useSelector } from "react-redux";
 import type { RootState } from "@/redux/store";
 import { useSession } from "next-auth/react";
@@ -27,7 +27,6 @@ const partnerTabs: Tab[] = [
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
-  const { t } = useTranslation();
   const user = useSelector((state: RootState) => state.user.userData);
   const { data: session } = useSession();
   if (!pathname || hiddenRoutes.some((pattern) => pattern.test(pathname))) return null;
@@ -50,7 +49,7 @@ export default function MobileBottomNav() {
             <span className={`flex items-center justify-center ${homeBook ? "h-9 w-9 rounded-full bg-[var(--action-bg)] text-[var(--action-fg)]" : "h-7 w-10 rounded-md"} ${!homeBook && mainAction ? "bg-[var(--action-bg)] text-[var(--action-fg)]" : current ? "bg-[var(--surface-subtle)]" : ""}`}>
               <Icon size={19} strokeWidth={current ? 2.35 : 1.8} aria-hidden />
             </span>
-            {t(`nav.${key}`, label)}
+            <LocalizedText id={`nav.${key}`} fallback={label} />
           </Link>;
         })}
       </div>

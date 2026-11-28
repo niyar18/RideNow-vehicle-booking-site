@@ -110,3 +110,5 @@ export default function SafetyPolicyPage() {
     </PolicyPage>
   );
 }
+
+export const metadata = { title: "Safety and emergency guidance" };

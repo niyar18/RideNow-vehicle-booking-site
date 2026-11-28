@@ -17,3 +17,8 @@ export default async function AdminSection({ params }: { params: Promise<{ secti
     {section === "pricing" ? <FareControls /> : <OperationsQueue key={section} section={section as QueueSection} />}
   </main>;
 }
+
+export async function generateMetadata({ params }: { params: Promise<{ section: string }> }) {
+  const { section } = await params;
+  return { title: adminTools.find((tool) => tool.key === section)?.title ?? "Operations" };
+}

@@ -163,7 +163,7 @@ export default function PublicTrackPage() {
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-[86rem] flex-1 gap-4 p-4 sm:gap-6 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:items-start">
+      <main tabIndex={-1} className="mx-auto grid w-full max-w-[86rem] flex-1 gap-4 p-4 sm:gap-6 sm:p-7 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,28rem)] lg:items-start">
           {booking.isPanicActive && (
             <aside role="alert" className="lg:col-span-2 rounded-[12px] border border-red-400 bg-red-50 p-4 text-red-950 dark:border-red-700 dark:bg-red-950/60 dark:text-red-100">
               <p className="flex items-center gap-2 text-sm font-semibold">
@@ -228,24 +228,18 @@ export default function PublicTrackPage() {
           <section aria-label="Trip route" className="rounded-[12px] border border-[var(--border-default)] bg-[var(--surface-raised)] p-4 sm:p-5">
             <h2 className="mb-3 text-sm font-semibold">Route</h2>
             <dl className="space-y-3">
-              <div className="flex gap-2.5">
-                <span className="mt-1.5 size-2.5 shrink-0 rounded-full border-2 border-[var(--brand-primary)] dark:border-[#91f2ce]" aria-hidden="true" />
-                <div className="min-w-0">
-                  <dt className="text-xs text-[var(--text-secondary)]">Pickup</dt>
-                  <dd className="break-words text-sm font-medium">{booking.pickupAddress || "Not available"}</dd>
-                </div>
+              <div className="grid min-w-0 grid-cols-[1rem_minmax(0,1fr)] gap-x-2">
+                <dt className="col-start-2 text-xs text-[var(--text-secondary)]">Pickup</dt>
+                <dd className="col-start-2 break-words text-sm font-medium">{booking.pickupAddress || "Not available"}</dd>
               </div>
-              <div className="flex gap-2.5">
-                <MapPin size={13} className="mt-1 shrink-0 text-[var(--text-secondary)]" aria-hidden="true" />
-                <div className="min-w-0">
-                  <dt className="text-xs text-[var(--text-secondary)]">Destination</dt>
-                  <dd className="break-words text-sm font-medium">{booking.dropAddress || "Not available"}</dd>
-                </div>
+              <div className="grid min-w-0 grid-cols-[1rem_minmax(0,1fr)] gap-x-2">
+                <dt className="col-start-2 text-xs text-[var(--text-secondary)]">Destination</dt>
+                <dd className="col-start-2 break-words text-sm font-medium">{booking.dropAddress || "Not available"}</dd>
               </div>
             </dl>
           </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

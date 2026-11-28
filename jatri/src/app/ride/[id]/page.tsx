@@ -813,7 +813,7 @@ export default function RidePage() {
   if (error || !booking) return (
     <div className="h-dvh w-full bg-[var(--background)] flex items-center justify-center px-6">
       <div className="bg-[var(--surface-raised)] border border-[var(--border-default)] rounded-[14px] p-6 flex flex-col items-center gap-4 text-center max-w-sm">
-        <AlertCircle size={44} className="text-[#E34222] dark:text-[#E06A50]" />
+        <AlertCircle size={44} className="text-[#a03226] dark:text-[#ff9d89]" />
         <p className="text-[var(--text-primary)] font-bold text-xl">Unable to load ride</p>
         <p className="text-[var(--text-secondary)] text-xs">{error || "Trip details could not be retrieved. Please check your connection."}</p>
         <div className="flex items-center gap-2.5 mt-2 w-full">
@@ -893,7 +893,7 @@ export default function RidePage() {
   };
 
   return (
-    <div className="h-dvh w-full bg-[var(--background)] flex flex-col lg:flex-row overflow-hidden">
+    <main tabIndex={-1} className="h-dvh w-full bg-[var(--background)] flex flex-col lg:flex-row overflow-hidden">
 
       {/* ══ MAP ══ */}
       <div className="relative flex-1 h-full z-0">
@@ -917,7 +917,7 @@ export default function RidePage() {
         <div className="absolute top-4 left-4 z-[500] flex items-center gap-2 pointer-events-auto">
           <Link
             href="/"
-            className="h-9 px-3 bg-[#f3f8f6]/95 hover:bg-[var(--surface-raised)]/95 dark:hover:bg-[#263d54] text-[var(--text-primary)] border border-[var(--border-default)] rounded-[8px] flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition"
+            className="min-h-10 px-3 bg-[var(--surface-raised)] hover:bg-[var(--surface-subtle)] dark:hover:bg-[#263d54] text-[var(--text-primary)] border border-[var(--border-default)] rounded-[8px] flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider transition"
             title="Back to Home"
           >
             <HomeIcon size={16} className="text-[#142238] dark:text-[#D7AC62]" />
@@ -926,8 +926,7 @@ export default function RidePage() {
         </div>
 
         <motion.div
-          initial={{ opacity: 0, y: -16 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.3 }}
+          initial={false}
           className="absolute top-4 left-1/2 -translate-x-1/2 z-[500] pointer-events-none flex flex-col items-center gap-1.5"
         >
           <div className="flex items-center gap-2 bg-[#f3f8f6]/95 dark:bg-[#1a2d45]/95 px-3.5 py-1.5 rounded-[8px] border border-[var(--border-default)] backdrop-blur-sm">
@@ -935,7 +934,7 @@ export default function RidePage() {
             <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">{cfg.label}</span>
           </div>
           {!isSocketConnected && (
-            <div className="flex items-center gap-1.5 bg-amber-500 text-[#142238] px-2.5 py-1 rounded-[8px] border border-amber-600 font-mono text-[10px] font-bold uppercase tracking-wider">
+            <div className="flex items-center gap-1.5 bg-[#ffdc89] text-[#40280e] px-2.5 py-1 rounded-[8px] border border-[#9a621c] font-mono text-[10px] font-bold uppercase tracking-wider">
               <span className="w-1.5 h-1.5 rounded-full bg-[#142238] animate-pulse" />
               <span>Reconnecting…</span>
             </div>
@@ -987,7 +986,6 @@ export default function RidePage() {
           <motion.button
             type="button"
             aria-expanded={expanded}
-            aria-label={expanded ? "Show less ride detail" : "Show ride details"}
             drag="y"
             dragConstraints={{ top: 0, bottom: 0 }}
             dragElastic={0.25}
@@ -1011,7 +1009,7 @@ export default function RidePage() {
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <p className="text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] leading-tight truncate">{cfg.label}</p>
                     {!isSocketConnected && (
-                      <span className="text-[8px] font-mono font-bold uppercase bg-amber-500 text-[#142238] px-1.5 py-0.5 rounded-[4px] border border-amber-600">
+                      <span className="text-[8px] font-mono font-bold uppercase bg-[#ffdc89] text-[#40280e] px-1.5 py-0.5 rounded-[4px] border border-amber-600">
                         Reconnecting
                       </span>
                     )}
@@ -1061,7 +1059,7 @@ export default function RidePage() {
               {/* Header */}
               <div className="p-4 border-b border-[var(--border-default)] flex items-center justify-between bg-[var(--surface-raised)]">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-[8px] bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-[8px] bg-[#E34222]/10 text-[#a03226] dark:text-[#ff9d89] flex items-center justify-center flex-shrink-0">
                     <AlertTriangle size={16} />
                   </div>
                   <div>
@@ -1151,7 +1149,7 @@ export default function RidePage() {
                                     <span className="font-bold text-[var(--text-primary)]">₹{cancellationQuote.willDeductFromWallet}</span>
                                   </div>
                                   {cancellationQuote.willAddToOutstanding > 0 && (
-                                    <div className="flex justify-between text-[#E34222] dark:text-[#E06A50] font-bold">
+                                    <div className="flex justify-between text-[#a03226] dark:text-[#ff9d89] font-bold">
                                       <span>{t("cancellation.outstandingAccrued", "Added to Outstanding Dues:")}</span>
                                       <span>₹{cancellationQuote.willAddToOutstanding}</span>
                                     </div>
@@ -1280,7 +1278,7 @@ export default function RidePage() {
               className="bg-[var(--surface-raised)] w-full max-w-sm rounded-[16px] shadow-2xl overflow-hidden border border-[var(--border-default)]"
             >
               <div className="p-6 text-center space-y-4">
-                <div className="w-12 h-12 bg-[#E34222]/10 rounded-[10px] flex items-center justify-center mx-auto text-[#E34222] dark:text-[#E06A50]">
+                <div className="w-12 h-12 bg-[#E34222]/10 rounded-[10px] flex items-center justify-center mx-auto text-[#a03226] dark:text-[#ff9d89]">
                   <XCircle size={24} />
                 </div>
                 <div className="space-y-1">
@@ -1433,7 +1431,7 @@ export default function RidePage() {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </main>
   );
 }
 
@@ -1475,7 +1473,7 @@ function ActionBar({
         <button
           type="button"
           onClick={onCancel}
-          className="w-full bg-[var(--surface-raised)] hover:bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[var(--border-default)] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+          className="w-full bg-[var(--surface-raised)] hover:bg-[#E34222]/10 text-[#a03226] dark:text-[#ff9d89] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[var(--border-default)] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
         >
           {status === "scheduled" ? "Cancel Scheduled Ride" : "Cancel Ride Request"}
         </button>
@@ -1494,7 +1492,7 @@ function ActionBar({
         <button
           type="button"
           onClick={onCancel}
-          className="flex-1 bg-[var(--surface-raised)] hover:bg-[#E34222]/10 text-[#E34222] dark:text-[#E06A50] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[var(--border-default)] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
+          className="flex-1 bg-[var(--surface-raised)] hover:bg-[#E34222]/10 text-[#a03226] dark:text-[#ff9d89] py-3 rounded-[8px] text-xs font-bold uppercase tracking-wider transition border border-[var(--border-default)] flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
         >
           Cancel Ride
         </button>
@@ -1693,7 +1691,7 @@ function PanelContent({
             </div>
 
             {paymentError && (
-              <div className="p-3 bg-[#E34222]/10 border border-[#E34222] rounded-[8px] text-[#E34222] dark:text-[#E06A50] text-xs font-medium">
+              <div className="p-3 bg-[#E34222]/10 border border-[#E34222] rounded-[8px] text-[#a03226] dark:text-[#ff9d89] text-xs font-medium">
                 {paymentError}
               </div>
             )}
@@ -1854,7 +1852,7 @@ function PanelContent({
               )}
               <button
                 type="button"
-                aria-label="Share live trip tracking link"
+                aria-label="Share Trip tracking link"
                 onClick={() => {
                   if (typeof window === "undefined") return;
                   const tokenStr = booking?.shareToken;

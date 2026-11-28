@@ -4,8 +4,9 @@ import CheckoutContent from "./CheckoutContent";
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<p role="status">Loading checkout…</p>}>
       <CheckoutContent />
     </Suspense>
   );
 }
+export const metadata = { title: "Review and pay for your ride" };

@@ -151,3 +151,5 @@ export default function PaymentTermsPage() {
     </PolicyPage>
   );
 }
+
+export const metadata = { title: "Payment and settlement terms" };

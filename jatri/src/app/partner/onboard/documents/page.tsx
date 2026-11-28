@@ -265,6 +265,7 @@ export default function PartnerDocumentsPage() {
             <div className="flex-1 w-full space-y-2">
               <input
                 ref={profilePicInputRef}
+                hidden aria-label="Upload profile photograph"
                 type="file"
                 accept="image/*"
                 capture="user"

@@ -116,3 +116,5 @@ export default function CancellationRefundPolicyPage() {
     </PolicyPage>
   );
 }
+
+export const metadata = { title: "Cancellation and refunds" };

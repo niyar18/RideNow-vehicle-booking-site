@@ -36,8 +36,8 @@
   text-wrap: balance;
 }
 .hero h1 { font-size: clamp(49px, 6.1vw, 101px); line-height: 0.97; margin: 20px 0 18px; }
-.hero h1 span { color: var(--brand-primary); }
-:global(.dark) .hero h1 span { color: #b9d197; }
+.hero h1 .titleAccent { color: var(--brand-primary); }
+:global(.dark) .hero h1 .titleAccent { color: #b9d197; }
 .intro { color: var(--text-secondary); line-height: 1.6; font-size: clamp(15px, 1.35vw, 18px); max-width: 43ch; }
 .heroArt {
   display: flex;
@@ -254,7 +254,7 @@
 .heroContent :is(a,button,input):focus-visible { outline-color: var(--focus-ring); }
 .hero h1, .sectionHead h2, .partnerGroup h2 { font-family: var(--font-outfit), var(--font-inter), system-ui, sans-serif; font-weight: 620; letter-spacing: -.06em; }
 .hero h1 { font-size: clamp(44px, 5.2vw, 81px); }
-.hero h1 span, :global(.dark) .hero h1 span, .kicker { color: var(--accent-mint); }
+.hero h1 .titleAccent, :global(.dark) .hero h1 .titleAccent, .kicker { color: var(--accent-mint); }
 .heroArt { min-height: 0; align-self: stretch; background: #1e314a; color: #f3f8f6; border-color: #526d84; }
 .artImage { min-height: 390px; }
 .heroArt figcaption { border-color: #526d84; }

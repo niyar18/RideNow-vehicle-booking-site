@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowDownRight, ArrowRight, ArrowUpRight, BriefcaseBusiness, CalendarDays, CarFront, Home, MapPin, Package, Plane, Route, ShieldCheck } from "lucide-react";
-import { useTranslation } from "@/context/LanguageContext";
+import { LocalizedText, useTranslation } from "@/context/LanguageContext";
 import LandingBooking from "./Herosection";
 import MobileHome from "./MobileHome";
 import styles from "./landing.module.css";
@@ -66,14 +66,14 @@ export default function PublicHome() {
       <div className={`hidden md:block ${styles.landing}`}>
       <section className={styles.hero} aria-labelledby="jaatri-home-title">
         <div className={styles.heroContent}>
-          <p className={styles.kicker}><Weave />{t("landing.region", "From Assam, for the way we travel")}</p>
-          <h1 id="jaatri-home-title">{t("landing.titleFirst", "Familiar roads.")}<br /><span>{t("landing.titleSecond", "New journeys.")}</span></h1>
-          <p className={styles.intro}>{t("landing.intro", "A ride to the station, a weekend in the hills, or a parcel across town. Start wherever you are.")}</p>
+          <p className={styles.kicker}><Weave /><LocalizedText id="landing.region" fallback="From Assam, for the way we travel" /></p>
+          <h1 id="jaatri-home-title"><LocalizedText id="landing.titleFirst" fallback="Familiar roads." /><br /><span className={styles.titleAccent}><LocalizedText id="landing.titleSecond" fallback="New journeys." /></span></h1>
+          <p className={styles.intro}><LocalizedText id="landing.intro" fallback="A ride to the station, a weekend in the hills, or a parcel across town. Start wherever you are." /></p>
           <LandingBooking />
-          <div className={styles.shortcuts} aria-label={t("landing.shortcuts", "Quick destinations")}>
-            <button type="button" onClick={() => goToSavedPlace("home")}><Home size={15} aria-hidden />{t("landing.home", "Home")}</button>
-            <button type="button" onClick={() => goToSavedPlace("work")}><BriefcaseBusiness size={15} aria-hidden />{t("landing.work", "Work")}</button>
-            <Link href={toBooking("Lokpriya Gopinath Bordoloi International Airport, Guwahati", 26.1061, 91.5859)}><Plane size={15} aria-hidden />{t("landing.airport", "Airport")}</Link>
+          <div className={styles.shortcuts} role="group" aria-label={t("landing.shortcuts", "Quick destinations")}>
+            <button type="button" onClick={() => goToSavedPlace("home")}><Home size={15} aria-hidden /><LocalizedText id="landing.home" fallback="Home" /></button>
+            <button type="button" onClick={() => goToSavedPlace("work")}><BriefcaseBusiness size={15} aria-hidden /><LocalizedText id="landing.work" fallback="Work" /></button>
+            <Link href={toBooking("Lokpriya Gopinath Bordoloi International Airport, Guwahati", 26.1061, 91.5859)}><Plane size={15} aria-hidden /><LocalizedText id="landing.airport" fallback="Airport" /></Link>
           </div>
         </div>
         <figure className={styles.heroArt}>
@@ -81,23 +81,23 @@ export default function PublicHome() {
             <div className={styles.artStamp} lang="as">নমস্কাৰ</div>
           </div>
           <figcaption>
-            <span className={styles.dayLocation}><MapPin size={16} aria-hidden />{t("landing.heroLocationDay", "Luit River, Majuli")}</span>
-            <span className={styles.nightLocation}><MapPin size={16} aria-hidden />{t("landing.heroLocationNight", "Brahmaputra River")}</span>
-            <small>{t("landing.assam", "Assam, India")}</small>
+            <span className={styles.dayLocation}><MapPin size={16} aria-hidden /><LocalizedText id="landing.heroLocationDay" fallback="Luit River, Majuli" /></span>
+            <span className={styles.nightLocation}><MapPin size={16} aria-hidden /><LocalizedText id="landing.heroLocationNight" fallback="Brahmaputra River" /></span>
+            <small><LocalizedText id="landing.assam" fallback="Assam, India" /></small>
           </figcaption>
         </figure>
       </section>
 
       <section className={styles.services} aria-labelledby="jaatri-ways-title">
         <div className={styles.sectionHead}>
-          <div><p className={styles.eyebrow}>{t("landing.services", "Ways to travel")}</p><h2 id="jaatri-ways-title">{t("landing.servicesTitle", "A ride for every kind of day.")}</h2></div>
-          <Link className={styles.textLink} href="/fleet">{t("landing.seeFleet", "See the fleet")} <ArrowRight size={16} aria-hidden /></Link>
+          <div><p className={styles.eyebrow}><LocalizedText id="landing.services" fallback="Ways to travel" /></p><h2 id="jaatri-ways-title"><LocalizedText id="landing.servicesTitle" fallback="A ride for every kind of day." /></h2></div>
+          <Link className={styles.textLink} href="/fleet"><LocalizedText id="landing.seeFleet" fallback="See the fleet" /> <ArrowRight size={16} aria-hidden /></Link>
         </div>
         <div className={styles.serviceGrid}>
           {services.map(({ key, title, detail, href, Icon }) => (
             <Link href={href} key={key} className={styles.service}>
               <Icon className={styles.serviceIcon} size={25} strokeWidth={1.55} aria-hidden />
-              <div><h3>{t(`landing.${key}Title`, title)}</h3><p>{t(`landing.${key}Detail`, detail)}</p></div>
+              <div><h3><LocalizedText id={`landing.${key}Title`} fallback={title} /></h3><p><LocalizedText id={`landing.${key}Detail`} fallback={detail} /></p></div>
               <ArrowUpRight className={styles.serviceArrow} size={19} aria-hidden />
             </Link>
           ))}
@@ -106,15 +106,15 @@ export default function PublicHome() {
 
       <section className={styles.destinations} aria-labelledby="jaatri-destination-title">
         <div className={styles.sectionHead}>
-          <div><p className={styles.eyebrow}>{t("landing.destinations", "Closer than you think")}</p><h2 id="jaatri-destination-title">{t("landing.destinationsTitle", "Take the long way home.")}</h2></div>
-          <Link className={styles.textLink} href="/explore">{t("landing.explore", "Explore with Jaatri")} <ArrowRight size={16} aria-hidden /></Link>
+          <div><p className={styles.eyebrow}><LocalizedText id="landing.destinations" fallback="Closer than you think" /></p><h2 id="jaatri-destination-title"><LocalizedText id="landing.destinationsTitle" fallback="Take the long way home." /></h2></div>
+          <Link className={styles.textLink} href="/explore"><LocalizedText id="landing.explore" fallback="Explore with Jaatri" /> <ArrowRight size={16} aria-hidden /></Link>
         </div>
         <div className={styles.destinationGrid}>
           {destinations.map((destination) => (
             <Link className={styles.destination} key={destination.id} href={toBooking(destination.name, destination.lat, destination.lng)}>
               <div className={styles.destinationImage}><Image src={`/mobile-home/dest_${destination.id}.webp?v=photo-1`} alt="" fill sizes="(max-width: 760px) 45vw, 25vw" className={styles.cover} /></div>
               <div className={styles.destinationLabel}>
-                <div><h3>{t(`landing.${destination.id}`, destination.name)}</h3><p>{t(`landing.${destination.id}Detail`, destination.detail)}</p></div>
+                <div><h3><LocalizedText id={`landing.${destination.id}`} fallback={destination.name} /></h3><p><LocalizedText id={`landing.${destination.id}Detail`} fallback={destination.detail} /></p></div>
                 <ArrowUpRight size={18} aria-hidden />
               </div>
             </Link>
@@ -125,16 +125,16 @@ export default function PublicHome() {
       <section className={styles.partnerGroup} aria-label={t("landing.community", "Our community")}>
         <div className={styles.partner}>
           <Weave className={styles.partnerWeave} />
-          <p className={styles.eyebrow}>{t("landing.driverLabel", "For drivers")}</p>
-          <h2>{t("landing.driverTitle", "Drive on roads you know.")}</h2>
-          <p>{t("landing.driverDetail", "Join Jaatri as a driver partner and choose when you work.")}</p>
-          <Link href="/partner/onboard/vehicle" className={styles.partnerLink}>{t("landing.drive", "Drive with Jaatri")} <ArrowUpRight size={18} aria-hidden /></Link>
+          <p className={styles.eyebrow}><LocalizedText id="landing.driverLabel" fallback="For drivers" /></p>
+          <h2><LocalizedText id="landing.driverTitle" fallback="Drive on roads you know." /></h2>
+          <p><LocalizedText id="landing.driverDetail" fallback="Join Jaatri as a driver partner and choose when you work." /></p>
+          <Link href="/partner/onboard/vehicle" className={styles.partnerLink}><LocalizedText id="landing.drive" fallback="Drive with Jaatri" /> <ArrowUpRight size={18} aria-hidden /></Link>
         </div>
         <div className={styles.safety}>
           <ShieldCheck size={29} strokeWidth={1.6} aria-hidden />
-          <h2>{t("landing.safetyTitle", "Look out for each other.")}</h2>
-          <p>{t("landing.safetyDetail", "See how driver verification, trip sharing and pickup PINs work.")}</p>
-          <Link href="/safety" className={styles.textLink}>{t("landing.safety", "Ride safety")} <ArrowDownRight size={17} aria-hidden /></Link>
+          <h2><LocalizedText id="landing.safetyTitle" fallback="Look out for each other." /></h2>
+          <p><LocalizedText id="landing.safetyDetail" fallback="See how driver verification, trip sharing and pickup PINs work." /></p>
+          <Link href="/safety" className={styles.textLink}><LocalizedText id="landing.safety" fallback="Ride safety" /> <ArrowDownRight size={17} aria-hidden /></Link>
         </div>
       </section>
       </div>

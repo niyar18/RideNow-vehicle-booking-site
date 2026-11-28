@@ -3,8 +3,10 @@ import SearchPageContent from "./SearchPageContent";
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<p role="status">Loading rides…</p>}>
       <SearchPageContent />
     </Suspense>
   );
 }
+
+export const metadata = { title: "Search rides" };

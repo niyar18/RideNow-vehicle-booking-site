@@ -55,7 +55,7 @@ function GroupJoinContent() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex items-center justify-center p-4">
+    <main tabIndex={-1} className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -160,7 +160,7 @@ function GroupJoinContent() {
           </motion.div>
         )}
       </motion.div>
-    </div>
+    </main>
   );
 }
 
