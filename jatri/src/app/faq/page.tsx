@@ -29,7 +29,7 @@ const faqs = [
   },
   {
     q: "What should I do if I forget an item in a Jaatri vehicle?",
-    a: "Go to your Bookings history in your account, open the specific ride receipt, and click 'Report Lost Item'. You can also contact our 24×7 Guwahati Care Desk at support@ridenow.com with your booking reference.",
+    a: "If your completed ride screen is still open, select ‘Report Safety Concern or Lost Item’ to file an in-app report. You can also find your trip details in Bookings. Do not send your booking reference to an unverified email address.",
   },
   {
     q: "Can I book cargo or logistics vehicles for freight?",
