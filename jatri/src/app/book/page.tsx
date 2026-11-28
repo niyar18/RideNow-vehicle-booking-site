@@ -1534,10 +1534,8 @@ export default function BookPage() {
         <AnimatePresence>
           {activeSearchField === "pickup" && (
             <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[14px] shadow-2xl max-h-72 overflow-y-auto z-50 divide-y divide-[var(--border-default)]/60 dark:divide-[var(--border-default)]/50 ring-1 ring-black/5"
+              initial={false}
+              className="relative md:absolute md:left-0 md:right-0 md:top-full mt-2 bg-white dark:bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[14px] shadow-2xl max-h-[min(16rem,32dvh)] overflow-y-auto z-50 divide-y md:max-h-72 divide-[var(--border-default)]/60 dark:divide-[var(--border-default)]/50 ring-1 ring-black/5"
             >
               {/* Option to set location on interactive map */}
               <button
@@ -1782,10 +1780,8 @@ export default function BookPage() {
         <AnimatePresence>
           {activeSearchField === "drop" && (
             <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[14px] shadow-2xl max-h-72 overflow-y-auto z-50 divide-y divide-[var(--border-default)]/60 dark:divide-[var(--border-default)]/50 ring-1 ring-black/5"
+              initial={false}
+              className="relative md:absolute md:left-0 md:right-0 md:top-full mt-2 bg-white dark:bg-[var(--surface-subtle)] border border-[var(--border-default)] rounded-[14px] shadow-2xl max-h-[min(16rem,32dvh)] overflow-y-auto z-50 divide-y md:max-h-72 divide-[var(--border-default)]/60 dark:divide-[var(--border-default)]/50 ring-1 ring-black/5"
             >
               {/* Option to set location on interactive map */}
               <button
@@ -1801,10 +1797,10 @@ export default function BookPage() {
                   <MapPin size={14} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-black text-rose-900 dark:text-[var(--accent-vermilion)] leading-none">Set destination point on map</p>
+                  <p className="text-xs font-black text-rose-900 dark:text-[#ffc0c7] leading-none">Set destination point on map</p>
                   <p className="text-[10px] text-rose-700 dark:text-[var(--text-secondary)] font-semibold mt-0.5">Move map to pinpoint exact location</p>
                 </div>
-                <span className="text-[10px] font-black uppercase text-rose-700 dark:text-[var(--accent-vermilion)] bg-white dark:bg-[var(--surface-subtle)] px-2 py-0.5 rounded-full border border-rose-200 dark:border-[var(--accent-vermilion)]/50 flex-shrink-0">
+                <span className="text-[10px] font-black uppercase text-rose-700 dark:text-[#ffc0c7] bg-white dark:bg-[var(--surface-subtle)] px-2 py-0.5 rounded-full border border-rose-200 dark:border-[var(--accent-vermilion)]/50 flex-shrink-0">
                   Pinpoint
                 </span>
               </button>
