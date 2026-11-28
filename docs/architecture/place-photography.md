@@ -2,26 +2,37 @@
 
 These local WebP assets are cropped and resized from real Wikimedia Commons photographs. The source pages describe the place or subject; the visible fleet and service images illustrate vehicle categories rather than specific Jaatri vehicles or partners. The Tata Ace photo is illustrative and was taken outside Northeast India. Creative Commons licenses in the table apply to the respective photos and their WebP adaptations, not the app code.
 
+## Photos in use
+
+The public credits page lists these sources once per original photo.
+
 | Public asset | Scene | Photographer | License | Wikimedia Commons |
 | --- | --- | --- | --- | --- |
 | `/hero/luit-morning-desktop.webp` | Misty morning on the Luit River, Majuli | Shikhers | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Misty_Morning_at_Luit.jpg) |
 | `/hero/luit-morning-mobile.webp` | Misty morning on the Luit River, Majuli | Shikhers | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Misty_Morning_at_Luit.jpg) |
 | `/hero/brahmaputra-night-desktop.webp` | The Brahmaputra River at night, Assam | Hemchandra Mili, Dergaon | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Night_view_of_the_Brahmaputra_River,_Assam.jpg) |
 | `/hero/brahmaputra-night-mobile.webp` | The Brahmaputra River at night, Assam | Hemchandra Mili, Dergaon | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Night_view_of_the_Brahmaputra_River,_Assam.jpg) |
-| `/mobile-home/hero_landscape.webp` | Saraighat Bridge at sunset, Assam | Shivshant Tripathi | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Sunset_at_Saraighat_Bridge.jpg) |
-| `/mobile-home/hero_landscape_dark.webp` | Twilight over the Brahmaputra, Guwahati | Srabanti.basak | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Sunset_from_the_bank_of_Brahmaputra.jpg) |
 | `/mobile-home/dest_guwahati.webp` | The Brahmaputra at Guwahati | VINOYBLOG | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:River_Brahmaputra,_Guwahati,_Assam,_India.jpg) |
 | `/mobile-home/dest_majuli.webp` | Luhit River, Majuli | Joli Rumi | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Sunrise_at_Luhit_River,_Majuli,_Assam.jpg) |
 | `/mobile-home/dest_kaziranga.webp` | One-horned rhinoceros at Kaziranga National Park | BhuyanBhaskar | [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:The_one-horned_rhinoceros_of_Kaziranga_National_Park.jpg) |
 | `/mobile-home/dest_shillong.webp` | Shillong at dusk | Narayanrai011 | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:City_Shillong.jpg) |
+| `/explore/explore_outstation.webp` | The Shillong–Jowai road, Meghalaya | RMehra | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Shillong-Jowai_Road.JPG) |
+| `/explore/explore_airport.webp` | Inside Guwahati’s Lokpriya Gopinath Bordoloi International Airport | BhuyanBhaskar | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Lokpriya_Gopinath_Bordoloi_International_Airport,_Guwahati,_Assam.jpg) |
+| `/explore/explore_schedule.webp` | A highway in Dhemaji, Assam | Joli | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:National_highway_in_Dhemaji,_Assam1.jpg) |
+| `/explore/explore_weekend_getaways.webp` | Tea garden near NIT Silchar, Assam | Dipayan Choudhury | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:The_Way_through_the_Gardens.jpg) |
+
+## Retired photos
+
+Preserved here for attribution and provenance. These images are no longer shown in the site interface.
+
+| Public asset | Scene | Photographer | License | Wikimedia Commons |
+| --- | --- | --- | --- | --- |
+| `/mobile-home/hero_landscape.webp` | Saraighat Bridge at sunset, Assam | Shivshant Tripathi | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Sunset_at_Saraighat_Bridge.jpg) |
+| `/mobile-home/hero_landscape_dark.webp` | Twilight over the Brahmaputra, Guwahati | Srabanti.basak | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Sunset_from_the_bank_of_Brahmaputra.jpg) |
 | `/mobile-home/jaatri-car-rides.webp` | Toyota Glanza hatchback | Agratsa | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Toyota_Glanza_(front).jpg) |
 | `/mobile-home/jaatri-outstation.webp` | The Shillong–Jowai road, Meghalaya | RMehra | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Shillong-Jowai_Road.JPG) |
 | `/mobile-home/jaatri-parcel-cargo.webp` | Tata Ace mini truck | JUNGAL9992 | [CC BY 2.5](https://creativecommons.org/licenses/by/2.5/) | [Original photo](https://commons.wikimedia.org/wiki/File:Tata_ACE_HT.jpg) |
 | `/mobile-home/jaatri-schedule-booking.webp` | A highway in Dhemaji, Assam | Joli | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:National_highway_in_Dhemaji,_Assam1.jpg) |
 | `/explore/explore_daily_rides.webp` | Auto-rickshaw in Guwahati, Assam | PJeganathan | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Auto-rickshaw_in_Assam_Guwahati_IMG_3858.jpg) |
-| `/explore/explore_outstation.webp` | The Shillong–Jowai road, Meghalaya | RMehra | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Shillong-Jowai_Road.JPG) |
-| `/explore/explore_airport.webp` | Inside Guwahati’s Lokpriya Gopinath Bordoloi International Airport | BhuyanBhaskar | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Lokpriya_Gopinath_Bordoloi_International_Airport,_Guwahati,_Assam.jpg) |
-| `/explore/explore_schedule.webp` | A highway in Dhemaji, Assam | Joli | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:National_highway_in_Dhemaji,_Assam1.jpg) |
 | `/explore/explore_group.webp` | Toyota Innova Crysta people carrier | Premnath Kudva | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:Toyota_Innova_Crysta_2.4_Z_front_right.jpg) |
 | `/explore/explore_cargo.webp` | Tata Ace mini truck | JUNGAL9992 | [CC BY 2.5](https://creativecommons.org/licenses/by/2.5/) | [Original photo](https://commons.wikimedia.org/wiki/File:Tata_ACE_HT.jpg) |
-| `/explore/explore_weekend_getaways.webp` | Tea garden near NIT Silchar, Assam | Dipayan Choudhury | [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) | [Original photo](https://commons.wikimedia.org/wiki/File:The_Way_through_the_Gardens.jpg) |

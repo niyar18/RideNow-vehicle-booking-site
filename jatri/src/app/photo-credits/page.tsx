@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { ArrowUpRight } from "lucide-react";
 import { PublicHeading, PublicPage } from "@/shared/components/public/PublicPage";
 import places from "@/lib/photoCreditsPlaces.json";
-import vehicles from "@/lib/photoCreditsVehicles.json";
 
 export const metadata: Metadata = {
   title: "Photo credits",
@@ -48,7 +47,7 @@ function CreditList({ title, credits }: { title: string; credits: Credit[] }) {
 export default function PhotoCreditsPage() {
   return <PublicPage>
     <PublicHeading label="Images & credits" title="Behind the pictures.">
-      The location photographs below were shared under open licences. Some were cropped or resized for the site.
+      These are the openly licensed photographs currently shown on Jaatri. Some were cropped or resized for the site.
     </PublicHeading>
     <CreditList title="Places and journeys" credits={places} />
     <section className="mb-10 max-w-2xl">
@@ -57,6 +56,5 @@ export default function PhotoCreditsPage() {
         The fleet catalogue and some ride options use original AI-generated vehicle illustrations, separate from the real photos credited here. They show vehicle categories, not the exact model assigned to a ride.
       </p>
     </section>
-    <CreditList title="Vehicle photography archive" credits={vehicles} />
   </PublicPage>;
 }

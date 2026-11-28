@@ -1,6 +1,6 @@
 # Vehicle photography
 
-Jaatri's fleet images are real photographs of representative vehicles, not pictures of specific vehicles available to book and not endorsements by the photographers or pictured people. Availability, assigned vehicle and capacity can vary. For the on-site credits, see [Photo credits](/photo-credits).
+The fleet photos below are archived. The fleet catalogue and booking options now use original vehicle illustrations. Photos displayed elsewhere, such as on the homepage and Explore, are listed in the [current photography credits](./place-photography.md#photos-in-use).
 
 Each derivative in `jatri/public/fleet/` retains its source photo's Creative Commons license. The WebP files are cropped, resized and re-encoded; some also blur faces or license plates for privacy. Machine-readable credits live in [photoCreditsVehicles.json](../../jatri/src/lib/photoCreditsVehicles.json). The licenses listed here apply to the individual photographs, not the rest of the application.
 
@@ -16,4 +16,4 @@ Each derivative in `jatri/public/fleet/` retains its source photo's Creative Com
 | `express-mini.webp`, `truck.webp` | [Ashok Leyland Dost mini truck in Chennai](https://commons.wikimedia.org/wiki/File:Ashok_Leyland_Dost_%281%29.JPG) | Ask27 | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0) |
 | `freight.webp`, `heavy.webp` | [Indian tea-freight lorry](https://commons.wikimedia.org/wiki/File:A_typical_Indian_lorry_waits_for_it%27s_load_of_CTC_tea_%2828145808723%29.jpg) | shankar s. from Dubai, united arab emirates | [CC BY 2.0](https://creativecommons.org/licenses/by/2.0) |
 
-The second filename in some rows is a legacy alias for the same photograph. Vehicle icons still serve as compact controls and map/status markers.
+The second filename in some rows is a legacy alias for the same photograph. Each category is represented by an illustration in the current fleet catalogue.
