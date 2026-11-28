@@ -8,7 +8,7 @@ import {
   Star, MessageCircle, Clock, Zap,
   IndianRupee, XCircle, AlertCircle, AlertTriangle,
   CheckCircle2, Mic, MicOff, Volume2, PhoneOff,
-  ShieldAlert, ShieldCheck, Siren, PhoneCall, Share2, Navigation, KeyRound
+  ShieldCheck, Siren, PhoneCall, Share2, Navigation, KeyRound
 } from "lucide-react";
 import { HomeIcon } from "@/shared/components/icons/AppIcons";
 import Link from "next/link";
@@ -22,7 +22,7 @@ import { getMinDistanceToPolyline, haversineKm } from "@/lib/routeUtils";
 import { useTranslation } from "@/context/LanguageContext";
 import RideCompletedView from "@/features/rides/components/RideCompletedView";
 import RideFailedView from "@/features/rides/components/RideFailedView";
-import RideSafetyAlert from "@/features/rides/components/RideSafetyAlert";
+import { Call112, EmergencySosDialog, SosStatus, emergencyAction, recordRideSos } from "@/features/rides/components/EmergencySos";
 import { calculateCancellationPenalty } from "@/lib/cancellationRules";
 import { loadRazorpayScript } from "@/lib/loadRazorpay";
 
@@ -163,7 +163,6 @@ export default function RidePage() {
   const [cancellationQuote, setCancellationQuote] = useState<any | null>(null);
   const [fetchingQuote, setFetchingQuote] = useState<boolean>(false);
   const [showPanicConfirm, setShowPanicConfirm] = useState(false);
-  const [panicLoading, setPanicLoading] = useState(false);
 
   /* ── IN-PAGE PAYMENT STATE (FOR AWAITING_PAYMENT) ── */
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "online" | "wallet">("cash");
@@ -310,63 +309,36 @@ export default function RidePage() {
   const [safetyStatus, setSafetyStatus] = useState<string>("normal");
   const [deviationDistance, setDeviationDistance] = useState<number | null>(null);
   const [safetyLoading, setSafetyLoading] = useState(false);
+  const [safetyCheckInError, setSafetyCheckInError] = useState(false);
+  const checkInDismissed = useRef(false);
   const [routePolyline, setRoutePolyline] = useState<[number, number][]>([]);
   const [isSocketConnected, setIsSocketConnected] = useState<boolean>(true);
 
   const handleConfirmSafe = async () => {
+    if (safetyLoading) return;
+    setSafetyLoading(true);
+    setSafetyCheckInError(false);
     try {
-      setSafetyLoading(true);
       const res = await fetch(`/api/booking/${id}/safety-checkin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "confirm_safe", notes: "Passenger confirmed safe on detour" }),
       });
       const data = await res.json();
-      if (data.success) {
-        setSafetyStatus("passenger_confirmed_safe");
-        setShowSafetyCheckIn(false);
-      }
-    } catch (err) {
-      console.error("Safety checkin confirm error:", err);
-    } finally {
-      setSafetyLoading(false);
-    }
-  };
-
-  const handleTriggerSosFromCheckin = async () => {
-    try {
-      setSafetyLoading(true);
-      const res = await fetch(`/api/booking/${id}/safety-checkin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "trigger_sos", notes: "Emergency SOS triggered from Route Deviation check-in" }),
-      });
-      const data = await res.json();
-      if (data.success) {
-        setSafetyStatus("sos_activated");
-        setBooking(prev => prev ? { ...prev, isPanicActive: true } : null);
-        setShowSafetyCheckIn(false);
-      }
-    } catch (err) {
-      console.error("SOS trigger error:", err);
+      if (!res.ok || !data.success) throw new Error("Check-in not confirmed");
+      setSafetyStatus("passenger_confirmed_safe");
+      setShowSafetyCheckIn(false);
+    } catch {
+      setSafetyCheckInError(true);
     } finally {
       setSafetyLoading(false);
     }
   };
 
   const triggerPanic = async () => {
-    try {
-      setPanicLoading(true);
-      const res = await fetch(`/api/booking/${id}/panic`, { method: "POST" });
-      if (res.ok) {
-        setBooking(prev => prev ? { ...prev, isPanicActive: true } : null);
-      }
-    } catch (err) {
-      console.error("Panic trigger error:", err);
-    } finally {
-      setPanicLoading(false);
-      setShowPanicConfirm(false);
-    }
+    await recordRideSos(String(id), showSafetyCheckIn);
+    setSafetyStatus("sos_activated");
+    setBooking(prev => prev ? { ...prev, isPanicActive: true } : null);
   };
 
   /* Secure VoIP Call State */
@@ -728,7 +700,7 @@ export default function RidePage() {
       const distMeters = getMinDistanceToPolyline(driverPos, routePolyline);
       setDeviationDistance(distMeters);
 
-      if (distMeters > 500 && safetyStatus !== "passenger_confirmed_safe" && safetyStatus !== "sos_activated") {
+      if (distMeters > 500 && !checkInDismissed.current && safetyStatus !== "passenger_confirmed_safe" && safetyStatus !== "sos_activated") {
         setShowSafetyCheckIn(true);
       }
     }
@@ -1331,112 +1303,30 @@ export default function RidePage() {
         )}
       </AnimatePresence>
 
-      {/* Custom Panic / SOS Confirm Modal */}
-      <AnimatePresence>
-        {showPanicConfirm && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-xs flex items-center justify-center z-[9999] px-4"
-          >
-            <motion.div
-              initial={{ scale: 0.98, y: 15 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.98, y: 15 }}
-              transition={{ duration: 0.2 }}
-              className="bg-[var(--surface-raised)] border border-[var(--border-default)] w-full max-w-sm rounded-[16px] shadow-2xl overflow-hidden text-[var(--text-primary)]"
-            >
-              <div className="p-6 text-center space-y-4">
-                <div className="w-12 h-12 bg-[#E34222] text-white rounded-[10px] flex items-center justify-center mx-auto shadow-xs">
-                  <Siren size={24} />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-base font-bold tracking-tight text-[var(--text-primary)]">Activate Emergency SOS?</h3>
-                  <p className="text-[var(--text-secondary)] text-xs font-medium leading-relaxed">
-                    This will immediately alert our emergency security response team, log your live location, and notify emergency contacts.
-                  </p>
-                </div>
+      {(showPanicConfirm || showSafetyCheckIn) && (
+        <EmergencySosDialog
+          alreadyActive={booking.isPanicActive}
+          onRecord={triggerPanic}
+          onClose={() => {
+            if (showSafetyCheckIn) checkInDismissed.current = true;
+            setShowPanicConfirm(false);
+            setShowSafetyCheckIn(false);
+          }}
+          checkIn={showSafetyCheckIn ? (
+            <p>The ride appears to be off the planned route{deviationDistance ? ` (${deviationDistance} m away)` : ""}. Are you safe?</p>
+          ) : undefined}
+          otherAction={showSafetyCheckIn ? (
+            <>
+              <button type="button" onClick={handleConfirmSafe} aria-disabled={safetyLoading || undefined} className={emergencyAction}>
+                {safetyLoading ? "Confirming…" : "I’m safe"}
+              </button>
+              <div role="alert">
+                {safetyCheckInError && "Jaatri could not confirm your check-in. Please try again."}
               </div>
-              <div className="px-6 pb-6 pt-2 flex flex-col gap-2">
-                <button
-                  onClick={triggerPanic}
-                  disabled={panicLoading}
-                  className="w-full py-3 bg-[#E34222] hover:bg-[#a0321e] active:scale-[0.98] text-white rounded-[8px] text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                >
-                  {panicLoading ? (
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <>
-                      <ShieldAlert size={16} /> Confirm Emergency Alert
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowPanicConfirm(false)}
-                  disabled={panicLoading}
-                  className="w-full py-2.5 bg-[var(--surface-raised)] hover:bg-[#f3f8f6] dark:hover:bg-[#25362C] text-[var(--text-primary)] rounded-[8px] text-xs font-bold uppercase tracking-wider border border-[var(--border-default)] transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* ── SAFETY CHECK-IN OVERLAY MODAL ── */}
-      <AnimatePresence>
-        {showSafetyCheckIn && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-black/60 flex items-center justify-center p-5"
-          >
-            <motion.div
-              initial={{ scale: 0.98, y: 15 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.98, y: 15 }}
-              transition={{ duration: 0.2 }}
-              className="bg-[var(--surface-raised)] rounded-[16px] p-6 max-w-sm w-full shadow-2xl border border-[var(--border-default)] text-center relative overflow-hidden"
-            >
-              <div className="w-12 h-12 rounded-[10px] bg-[#E34222]/10 border border-[#E34222]/20 text-[#E34222] dark:text-[#E06A50] mx-auto flex items-center justify-center mb-4">
-                <ShieldAlert size={24} />
-              </div>
-
-              <div className="inline-flex items-center gap-1.5 bg-[#E34222]/10 border border-[#E34222]/20 px-3 py-1 rounded-[6px] text-[#E34222] dark:text-[#E06A50] text-[10px] font-bold uppercase tracking-wider mb-2">
-                Route Deviation Detected
-              </div>
-
-              <h3 className="text-base font-bold tracking-tight text-[var(--text-primary)] mb-1">Are You Safe?</h3>
-              <p className="text-[var(--text-secondary)] text-xs leading-relaxed font-medium mb-5">
-                Your driver appears to have taken an unexpected route
-                {deviationDistance ? ` (${deviationDistance}m off planned route)` : ""}.
-                Please confirm your safety status.
-              </p>
-
-              <div className="space-y-2">
-                <button
-                  onClick={handleConfirmSafe}
-                  disabled={safetyLoading}
-                  className="w-full bg-[var(--brand-primary)] hover:bg-[var(--brand-strong)] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                >
-                  <CheckCircle2 size={15} /> I&apos;m Safe (Road Detour)
-                </button>
-
-                <button
-                  onClick={handleTriggerSosFromCheckin}
-                  disabled={safetyLoading}
-                  className="w-full bg-[#E34222] hover:bg-[#a0321e] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer shadow-xs"
-                >
-                  <Siren size={15} /> Get Help / Emergency SOS
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </>
+          ) : undefined}
+        />
+      )}
 
       {/* SECURE MASKED VOIP CALL OVERLAY */}
       <AnimatePresence>
@@ -1555,7 +1445,7 @@ export default function RidePage() {
    ACTION BAR (Pinned persistent footer matching /partner/active-ride)
 ══════════════════════════════════════════════════════════════════════ */
 function ActionBar({
-  booking, status, onCancel, onPanicClick, paymentProcessing, onPayNow, paymentMethod,
+  status, onCancel, onPanicClick, paymentProcessing, onPayNow, paymentMethod,
 }: any) {
   if (status === "awaiting_payment") {
     return (
@@ -1595,17 +1485,12 @@ function ActionBar({
 
   if (["confirmed", "started"].includes(status)) {
     return (
-      <div className="flex-shrink-0 border-t border-[var(--border-default)] bg-[var(--surface-raised)] p-3 pb-[max(14px,env(safe-area-inset-bottom))] sm:p-4 flex gap-2">
-        {!booking?.isPanicActive && (
-          <button
-            type="button"
-            onClick={onPanicClick}
-            className="flex-1 bg-[#E34222] hover:bg-[#a0321e] text-white font-bold py-3 rounded-[8px] text-xs uppercase tracking-wider transition flex items-center justify-center gap-1.5 active:scale-[0.99] cursor-pointer shadow-xs"
-          >
-            <Siren size={15} className="animate-pulse" />
-            <span>Emergency SOS</span>
-          </button>
-        )}
+      <div className="flex-shrink-0 border-t border-[var(--border-default)] bg-[var(--surface-raised)] p-3 pb-[max(14px,env(safe-area-inset-bottom))] sm:p-4 flex flex-wrap gap-2">
+        <Call112 />
+        <button type="button" data-emergency-options onClick={onPanicClick} className={`${emergencyAction} flex-1`}>
+          <Siren size={15} aria-hidden="true" className="shrink-0" />
+          Emergency options
+        </button>
         <button
           type="button"
           onClick={onCancel}
@@ -1643,39 +1528,9 @@ function PanelContent({
         </div>
       )}
 
-      {/* PANIC ALERT ACTIVE BANNER */}
-      {booking?.isPanicActive && (
-        <div className="mx-4 lg:mx-6">
-          <div className="bg-[#E34222]/10 border-2 border-[#E34222] rounded-[12px] p-4 text-[var(--text-primary)]">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-8 h-8 rounded-[8px] bg-[#E34222] text-white flex items-center justify-center flex-shrink-0">
-                <Siren size={18} className="text-white" />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#E34222] dark:text-[#E06A50]">Emergency SOS Triggered</p>
-                <p className="text-xs font-bold uppercase tracking-wide text-[var(--text-primary)]">Security Dispatch Notified</p>
-              </div>
-            </div>
-            <p className="text-xs text-[var(--text-secondary)] leading-relaxed mb-3">
-              Your live location is actively being tracked by safety dispatch. Local law enforcement hotline is available below.
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <a
-                href="tel:112"
-                className="min-h-[44px] flex items-center justify-center gap-1.5 bg-[#E34222] hover:bg-[#a0321e] text-white font-bold uppercase tracking-wider px-3 py-2.5 rounded-[8px] text-xs transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E34222] focus-visible:ring-offset-2"
-              >
-                <PhoneCall size={13} /> Call 112
-              </a>
-              <a
-                href="tel:18001234567"
-                className="min-h-[44px] flex items-center justify-center gap-1.5 bg-[var(--surface-raised)] hover:bg-[#f3f8f6] dark:hover:bg-[#25362C] text-[var(--text-primary)] font-bold uppercase tracking-wider px-3 py-2.5 rounded-[8px] text-xs border border-[var(--border-default)] transition cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#213650] focus-visible:ring-offset-2"
-              >
-                <ShieldAlert size={13} className="text-[#142238] dark:text-[#D7AC62]" /> Security Desk
-              </a>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className={booking?.isPanicActive ? "mx-4 rounded-xl border border-[#a56270] bg-[#fff0f2] p-4 text-sm text-[#661629] dark:bg-[#382332] dark:text-[#ffc0c7] lg:mx-6" : undefined}>
+        <SosStatus active={Boolean(booking?.isPanicActive)} />
+      </div>
 
       {/* ⏰ ADVANCE SCHEDULED RIDE CARD */}
       {status === "scheduled" && (

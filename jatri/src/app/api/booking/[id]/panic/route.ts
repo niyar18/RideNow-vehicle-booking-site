@@ -61,12 +61,12 @@ export async function POST(
       isPanicActive: true,
       incidentId: result.incidentId,
       shareUrl: result.shareUrl,
-      emergencyContactsAlerted: result.emergencyContactsAlerted,
+      incidentRecorded: true,
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("POST /api/booking/[id]/panic error:", error);
     return NextResponse.json(
-      { error: error?.message || "Failed to trigger emergency SOS" },
+      { error: "Jaatri could not confirm the SOS was recorded. For immediate help, call 112 directly." },
       { status: 500 }
     );
   }

@@ -34,6 +34,10 @@ export async function POST(
     return NextResponse.json({ message: "Booking not found" }, { status: 404 });
   }
 
+  if (booking.user?.toString() !== session.user.id.toString()) {
+    return NextResponse.json({ message: "Only the rider can update this safety check-in" }, { status: 403 });
+  }
+
   const body = await req.json();
   const { action, notes, deviationDistanceMeters } = body;
 
@@ -46,17 +50,26 @@ export async function POST(
     booking.safetyNotes = notes || `Confirmed safe by passenger (${now.toLocaleTimeString()})`;
   } else if (action === "trigger_sos") {
     const { triggerEmergencySos } = await import("@/lib/safetyEngine");
-    await triggerEmergencySos({
-      bookingId: booking._id,
-      reporterId: session.user.id,
-      reporterRole: "user",
-      reason: notes || "Passenger triggered emergency SOS via safety check-in prompt",
-    });
-    return NextResponse.json({
-      success: true,
-      isPanicActive: true,
-      message: "Emergency SOS triggered and authorities/contacts alerted",
-    });
+    try {
+      const result = await triggerEmergencySos({
+        bookingId: booking._id,
+        reporterId: session.user.id,
+        reporterRole: "user",
+        reason: notes || "Passenger triggered emergency SOS via safety check-in prompt",
+      });
+      return NextResponse.json({
+        success: true,
+        isPanicActive: true,
+        incidentRecorded: true,
+        incidentId: result.incidentId,
+      });
+    } catch (error) {
+      console.error("Safety check-in SOS recording failed:", error);
+      return NextResponse.json(
+        { message: "Jaatri could not confirm the SOS was recorded. For immediate help, call 112 directly." },
+        { status: 500 }
+      );
+    }
   } else if (action === "report_deviation") {
     booking.safetyStatus = "deviation_detected";
     booking.isRouteDeviated = true;

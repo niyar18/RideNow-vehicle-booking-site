@@ -893,7 +893,7 @@ export default function SettingsPage() {
                   <div className="space-y-3 mb-4">
                     <ToggleOption
                       title="Route Telemetry Sharing"
-                      description="Shares live coordinates with emergency contacts and cloud dispatchers"
+                      description="Saves your telemetry preference on this device. It does not send your location to emergency contacts."
                       checked={shareTelemetry}
                       onChange={() => {
                         const next = !shareTelemetry;

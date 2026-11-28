@@ -169,7 +169,7 @@ export default function PublicTrackPage() {
               <p className="flex items-center gap-2 text-sm font-semibold">
                 <Siren size={17} aria-hidden="true" /> Emergency SOS activated
               </p>
-              <p className="mt-1 text-sm leading-relaxed">The passenger has raised a safety alert on this trip.</p>
+              <p className="mt-1 text-sm leading-relaxed">An SOS is active for this trip in Jaatri. The app does not contact emergency services. In India, call 112 directly for immediate help.</p>
             </aside>
           )}
 
