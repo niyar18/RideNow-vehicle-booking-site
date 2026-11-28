@@ -141,3 +141,5 @@ function FleetGroup({ title, caption, variants }: { title: string; caption: stri
     </section>
   );
 }
+
+export const metadata = { title: "Our fleet" };

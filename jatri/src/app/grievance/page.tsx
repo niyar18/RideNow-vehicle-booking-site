@@ -97,3 +97,5 @@ export default function GrievancePage() {
     </PolicyPage>
   );
 }
+
+export const metadata = { title: "Grievance and company details" };

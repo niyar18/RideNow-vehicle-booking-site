@@ -65,3 +65,5 @@ export default function FAQPage() {
     </PublicPage>
   );
 }
+
+export const metadata = { title: "Frequently asked questions" };

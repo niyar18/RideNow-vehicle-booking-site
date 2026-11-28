@@ -143,7 +143,7 @@ export default function MyBookingsPage() {
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col">
       <Nav />
-      <div className="mx-auto w-full max-w-[70rem] flex-1 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
+      <main tabIndex={-1} className="mx-auto w-full max-w-[70rem] flex-1 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
         <RiderPageHead
           current="/bookings"
           title="Your trips"
@@ -293,7 +293,7 @@ export default function MyBookingsPage() {
             )}
           </section>
         )}
-      </div>
+      </main>
 
       {/* ══ TRIP DETAILS MODAL (UBER STYLE ROUTE & RECEIPT) ══ */}
       <TripDetailsModal

@@ -1475,7 +1475,11 @@ export default function BookPage() {
               debouncedSearchAddress("pickup", e.target.value, setPickupResults, pickupCountry || "in");
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && pickupResults.length > 0) {
+              if (e.key === "Escape" && activeSearchField === "pickup") {
+                e.preventDefault();
+                setActiveSearchField(null);
+              }
+              if (e.key === "Enter" && activeSearchField === "pickup" && pickupResults.length > 0) {
                 e.preventDefault();
                 selectPlace(pickupResults[0], true);
               }
@@ -1522,6 +1526,10 @@ export default function BookPage() {
           </motion.button>
         </div>
 
+        <p className="sr-only" role="status" aria-atomic="true">
+          {activeSearchField === "pickup" && (isSearchingPickup ? "Searching for locations…" :
+            pickupResults.length > 0 ? `${pickupResults.length} suggestions available. Press Tab to review them.` : "")}
+        </p>
         {/* Pickup Autocomplete Results */}
         <AnimatePresence>
           {activeSearchField === "pickup" && (
@@ -1534,8 +1542,8 @@ export default function BookPage() {
               {/* Option to set location on interactive map */}
               <button
                 type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
                   setActiveSearchField(null);
                   setMapSelectionMode("pickup");
                 }}
@@ -1556,8 +1564,8 @@ export default function BookPage() {
               {/* Use current GPS location */}
               <button
                 type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
                   setActiveSearchField(null);
                   locateCurrentLocation();
                 }}
@@ -1593,8 +1601,8 @@ export default function BookPage() {
                   <button
                     key={p.id}
                     type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
                       selectPlace(p, true);
                     }}
                     className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-[var(--surface-subtle)] active:bg-[var(--surface-subtle)] dark:active:bg-[var(--surface-subtle)] transition rounded-[10px] cursor-pointer"
@@ -1631,8 +1639,8 @@ export default function BookPage() {
                   <p className="text-[11px] text-[var(--text-secondary)]/80 dark:text-[var(--text-secondary)]">Can&apos;t find your place? Move the pin to pick on the interactive map.</p>
                   <button
                     type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
                       setActiveSearchField(null);
                       setMapSelectionMode("pickup");
                     }}
@@ -1724,7 +1732,11 @@ export default function BookPage() {
               debouncedSearchAddress("drop", e.target.value, setDropResults, pickupCountry || "in");
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && dropResults.length > 0) {
+              if (e.key === "Escape" && activeSearchField === "drop") {
+                e.preventDefault();
+                setActiveSearchField(null);
+              }
+              if (e.key === "Enter" && activeSearchField === "drop" && dropResults.length > 0) {
                 e.preventDefault();
                 selectPlace(dropResults[0], false);
               }
@@ -1762,6 +1774,10 @@ export default function BookPage() {
           </motion.button>
         </div>
 
+        <p className="sr-only" role="status" aria-atomic="true">
+          {activeSearchField === "drop" && (isSearchingDrop ? "Searching for locations…" :
+            dropResults.length > 0 ? `${dropResults.length} suggestions available. Press Tab to review them.` : "")}
+        </p>
         {/* Drop Autocomplete Results & Recent Destinations */}
         <AnimatePresence>
           {activeSearchField === "drop" && (
@@ -1774,8 +1790,8 @@ export default function BookPage() {
               {/* Option to set location on interactive map */}
               <button
                 type="button"
-                onMouseDown={(e) => {
-                  e.preventDefault();
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
                   setActiveSearchField(null);
                   setMapSelectionMode("drop");
                 }}
@@ -1814,8 +1830,8 @@ export default function BookPage() {
                   <button
                     key={p.id}
                     type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
                       selectPlace(p, false);
                     }}
                     className="group flex items-center gap-3 w-full px-3.5 py-2.5 text-left hover:bg-[var(--surface-subtle)] active:bg-[var(--surface-subtle)] dark:active:bg-[var(--surface-subtle)] transition rounded-[10px] cursor-pointer"
@@ -1856,8 +1872,8 @@ export default function BookPage() {
                     <button
                       key={recent.id}
                       type="button"
-                      onMouseDown={(e) => {
-                        e.preventDefault();
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => {
                         selectPlace(
                           {
                             id: recent.id,
@@ -1894,8 +1910,8 @@ export default function BookPage() {
                   <p className="text-[11px] text-[var(--text-secondary)]/80 dark:text-[var(--text-secondary)]">Can&apos;t find your place? Move the pin to pick on the interactive map.</p>
                   <button
                     type="button"
-                    onMouseDown={(e) => {
-                      e.preventDefault();
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
                       setActiveSearchField(null);
                       setMapSelectionMode("drop");
                     }}
@@ -2335,7 +2351,7 @@ export default function BookPage() {
   };
 
   return (
-    <div className="relative w-full h-dvh overflow-hidden bg-[var(--background)] text-[var(--text-primary)] font-sans flex flex-col md:flex-row">
+    <main tabIndex={-1} className="relative w-full h-dvh overflow-hidden bg-[var(--background)] text-[var(--text-primary)] font-sans flex flex-col md:flex-row">
       
       {/* ══ 1. DESKTOP / TABLET UNIFIED EDITORIAL PANEL (BOOKING SIDE) ══ */}
       <div inert={mapSelectionMode !== "none"} className={`hidden md:flex w-full md:w-[min(46%,30rem)] h-full flex-col bg-[var(--surface-raised)] border-r border-[var(--border-default)] z-10 rounded-none overflow-hidden transition-all duration-300 flex-shrink-0 ${
@@ -2407,7 +2423,7 @@ export default function BookPage() {
         </div>
 
         {/* Scrollable Card Body */}
-        <div className="min-h-0 flex-1 overflow-y-auto p-4 [scroll-padding-block:0.75rem] xl:px-6">
+        <div tabIndex={0} role="region" aria-label="Ride booking details" className="min-h-0 flex-1 overflow-y-auto p-4 [scroll-padding-block:0.75rem] xl:px-6">
           {!hasRoute ? (
             <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--surface-raised)] p-5 xl:p-6">
               <div className="mb-4 grid h-10 w-10 place-items-center rounded-[8px] bg-[var(--surface-subtle)]">
@@ -2674,7 +2690,7 @@ export default function BookPage() {
                 </div>
                 {mobileSheetState !== "down" && (
                   <>
-                    <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-2.5 [scroll-padding-block:0.75rem]">
+                    <div tabIndex={0} role="region" aria-label="Ride booking details" className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-2.5 [scroll-padding-block:0.75rem]">
                       {isEditingRoute && <div className="mb-3 border-b border-[var(--border-default)] pb-3">{renderLocationInputs()}</div>}
                       {renderRideSelection()}
                     </div>
@@ -2825,6 +2841,6 @@ export default function BookPage() {
         onSelectVehicle={handleSelectFromAssistant}
       />
 
-    </div>
+    </main>
   );
 }

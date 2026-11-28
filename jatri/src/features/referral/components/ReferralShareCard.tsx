@@ -161,7 +161,7 @@ export default function ReferralShareCard() {
       {/* Header */}
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-[10px] bg-[#046A38]/10 dark:bg-[#046A38]/25 text-[#046A38] dark:text-[#52B788] flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-[10px] bg-[#046A38]/10 dark:bg-[#046A38]/25 text-[#046a38] dark:text-[#91f2ce] flex items-center justify-center shrink-0">
             <Gift className="w-6 h-6" />
           </div>
           <div>
@@ -173,7 +173,7 @@ export default function ReferralShareCard() {
                 <Sparkles className="w-3 h-3" /> Live
               </span>
             </div>
-            <p className="text-xs text-[#5C6F64] dark:text-[#8FA89B] mt-0.5">
+            <p className="text-xs text-[#42564b] dark:text-[#b8ccc2] mt-0.5">
               Invite friends: they get ₹{data.stats.refereeDiscount} off their 1st ride, you earn ₹{data.stats.rewardPerReferral} wallet credit.
             </p>
           </div>
@@ -181,10 +181,10 @@ export default function ReferralShareCard() {
 
         {/* Lifetime Earnings Badge */}
         <div className="hidden sm:flex flex-col items-end shrink-0">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-[#5C6F64] dark:text-[#8FA89B]">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-[#42564b] dark:text-[#b8ccc2]">
             Total Earned
           </span>
-          <span className="text-lg font-bold text-[#046A38] dark:text-[#52B788]">
+          <span className="text-lg font-bold text-[#046a38] dark:text-[#91f2ce]">
             ₹{data.stats.totalEarnings}
           </span>
         </div>
@@ -193,28 +193,28 @@ export default function ReferralShareCard() {
       {/* Share Box & WhatsApp CTA */}
       <div className="bg-[#F2ECE1] dark:bg-[#173026] border border-[#E2D8C3] dark:border-[#204537] rounded-[12px] p-4 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold uppercase tracking-wider text-[#5C6F64] dark:text-[#8FA89B]">
+          <span className="text-xs font-bold uppercase tracking-wider text-[#42564b] dark:text-[#b8ccc2]">
             Your Invite Code
           </span>
-          <span className="text-xs font-medium text-[#046A38] dark:text-[#52B788]">
+          <span className="text-xs font-medium text-[#046a38] dark:text-[#91f2ce]">
             {data.monthlyAllowance.remainingThisMonth} bonus slots left this month
           </span>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
-          <div className="flex items-center justify-between flex-1 bg-white dark:bg-[#0B1A14] border border-[#D5CAAF] dark:border-[#274D3D] rounded-[10px] px-3.5 py-2.5">
-            <span className="font-mono font-bold text-lg tracking-widest text-[#10251C] dark:text-[#F7F1E5]">
+          <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 flex-1 bg-white dark:bg-[#0B1A14] border border-[#D5CAAF] dark:border-[#274D3D] rounded-[10px] px-3.5 py-2.5">
+            <span className="min-w-0 break-all font-mono font-bold text-lg tracking-widest text-[#10251C] dark:text-[#F7F1E5]">
               {data.referralCode}
             </span>
             <button
               onClick={handleCopy}
               type="button"
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-semibold bg-[#E7E0CE] dark:bg-[#1B352A] hover:bg-[#DDD5BF] dark:hover:bg-[#234335] text-[#10251C] dark:text-[#F7F1E5] transition-colors min-h-[38px]"
-              aria-label="Copy Referral Code"
+              aria-label={copied ? "Copied! Referral code" : "Copy referral code"}
             >
               {copied ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-[#046A38] dark:text-[#52B788]" />
+                  <Check className="w-3.5 h-3.5 text-[#046a38] dark:text-[#91f2ce]" />
                   <span>Copied!</span>
                 </>
               ) : (
@@ -229,7 +229,7 @@ export default function ReferralShareCard() {
           <button
             onClick={handleWhatsAppShare}
             type="button"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[10px] text-sm font-semibold bg-[#25D366] hover:bg-[#20BE5B] text-white shadow-sm transition-all min-h-[44px]"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-[10px] text-sm font-semibold bg-[#046a38] hover:bg-[#03532c] text-white shadow-sm transition-all min-h-[44px]"
           >
             <Share2 className="w-4 h-4" />
             <span>Share via WhatsApp</span>
@@ -241,10 +241,10 @@ export default function ReferralShareCard() {
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs font-medium text-[#10251C] dark:text-[#F7F1E5]">
           <span className="flex items-center gap-1.5">
-            <Calendar className="w-3.5 h-3.5 text-[#5C6F64] dark:text-[#8FA89B]" />
+            <Calendar className="w-3.5 h-3.5 text-[#42564b] dark:text-[#b8ccc2]" />
             Monthly Referral Cap: {monthlyCompleted} of {maxMonthly} Completed
           </span>
-          <span className="font-bold text-[#046A38] dark:text-[#52B788]">
+          <span className="font-bold text-[#046a38] dark:text-[#91f2ce]">
             {progressPercent}%
           </span>
         </div>
@@ -254,7 +254,7 @@ export default function ReferralShareCard() {
             style={{ width: `${progressPercent}%` }}
           />
         </div>
-        <p className="text-[11px] text-[#5C6F64] dark:text-[#8FA89B]">
+        <p className="text-[11px] text-[#42564b] dark:text-[#b8ccc2]">
           Earn up to ₹{maxMonthly * data.stats.rewardPerReferral} every month. Counter resets at the start of each calendar month (IST).
         </p>
       </div>
@@ -268,7 +268,7 @@ export default function ReferralShareCard() {
           >
             Have a friend&apos;s invite code?
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2 sm:flex-nowrap">
             <input
               id="friend-referral-code"
               type="text"
@@ -276,7 +276,7 @@ export default function ReferralShareCard() {
               value={inputCode}
               onChange={(e) => setInputCode(e.target.value.toUpperCase())}
               maxLength={12}
-              className="flex-1 bg-white dark:bg-[#0B1A14] border border-[#D5CAAF] dark:border-[#274D3D] rounded-[10px] px-3.5 py-2 text-sm uppercase font-mono tracking-wider text-[#10251C] dark:text-[#F7F1E5] placeholder:normal-case placeholder:font-sans placeholder:text-[#8F8D82] focus:outline-none focus:ring-2 focus:ring-[#046A38] min-h-[44px]"
+              className="w-full min-w-0 flex-1 bg-white dark:bg-[#0B1A14] border border-[#D5CAAF] dark:border-[#274D3D] rounded-[10px] px-3.5 py-2 text-sm uppercase font-mono tracking-wider text-[#10251C] dark:text-[#F7F1E5] placeholder:normal-case placeholder:font-sans placeholder:text-[var(--text-secondary)] focus:outline-none focus:ring-2 focus:ring-[#046A38] min-h-[44px]"
             />
             <button
               type="submit"
@@ -316,7 +316,7 @@ export default function ReferralShareCard() {
       {/* My Active First-Ride Benefit Status */}
       {data.myReferralStatus && (
         <div className="bg-[#FAF7F0] dark:bg-[#0B1A14] border border-[#046A38]/30 rounded-[10px] p-3 text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2 text-[#046A38] dark:text-[#52B788]">
+          <div className="flex items-center gap-2 text-[#046a38] dark:text-[#91f2ce]">
             <Sparkles className="w-4 h-4 shrink-0" />
             <span>
               {data.myReferralStatus.discountUsed
@@ -324,7 +324,7 @@ export default function ReferralShareCard() {
                 : `₹${data.myReferralStatus.discountAmount} First-Ride Discount active (min fare ₹${data.stats.minFareRequired})`}
             </span>
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#5C6F64] dark:text-[#8FA89B]">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-[#42564b] dark:text-[#b8ccc2]">
             {data.myReferralStatus.status}
           </span>
         </div>
@@ -338,7 +338,7 @@ export default function ReferralShareCard() {
           </span>
           <div>
             <p className="font-semibold text-[#10251C] dark:text-[#F7F1E5]">Share code</p>
-            <p className="text-[11px] text-[#5C6F64] dark:text-[#8FA89B]">Send your invite code or WhatsApp link to friends.</p>
+            <p className="text-[11px] text-[#42564b] dark:text-[#b8ccc2]">Send your invite code or WhatsApp link to friends.</p>
           </div>
         </div>
 
@@ -348,7 +348,7 @@ export default function ReferralShareCard() {
           </span>
           <div>
             <p className="font-semibold text-[#10251C] dark:text-[#F7F1E5]">They save ₹30</p>
-            <p className="text-[11px] text-[#5C6F64] dark:text-[#8FA89B]">Friend gets ₹30 off their 1st ride (min fare ₹100).</p>
+            <p className="text-[11px] text-[#42564b] dark:text-[#b8ccc2]">Friend gets ₹30 off their 1st ride (min fare ₹100).</p>
           </div>
         </div>
 
@@ -358,7 +358,7 @@ export default function ReferralShareCard() {
           </span>
           <div>
             <p className="font-semibold text-[#10251C] dark:text-[#F7F1E5]">You get ₹50</p>
-            <p className="text-[11px] text-[#5C6F64] dark:text-[#8FA89B]">Credited to your wallet when trip is completed.</p>
+            <p className="text-[11px] text-[#42564b] dark:text-[#b8ccc2]">Credited to your wallet when trip is completed.</p>
           </div>
         </div>
       </div>

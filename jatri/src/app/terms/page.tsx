@@ -113,3 +113,5 @@ export default function TermsAndConditionsPage() {
     </PolicyPage>
   );
 }
+
+export const metadata = { title: "Terms and conditions" };

@@ -33,12 +33,14 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (keyPath: string, fallback?: string) => string;
+  textLanguage: (keyPath: string) => Language;
 }
 
 const LanguageContext = createContext<LanguageContextType>({
   language: "en",
   setLanguage: () => {},
   t: (key: string, fallback?: string) => fallback || key,
+  textLanguage: () => "en",
 });
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
@@ -71,42 +73,31 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     } catch {}
   };
 
-  const t = (keyPath: string, fallback?: string): string => {
-    const keys = keyPath.split(".");
-    
-    // 1. Try current language dictionary
-    let current: any = DICTIONARIES[language];
-    for (const k of keys) {
-      if (current && typeof current === "object" && k in current) {
-        current = current[k];
-      } else {
-        current = undefined;
-        break;
-      }
+  const readKey = (lang: Language, keyPath: string): string | undefined => {
+    let value: unknown = DICTIONARIES[lang];
+    for (const key of keyPath.split(".")) {
+      value = value && typeof value === "object"
+        ? (value as Record<string, unknown>)[key]
+        : undefined;
     }
-    if (typeof current === "string") return current;
-
-    // 2. Fallback to English dictionary
-    let enFallback: any = DICTIONARIES.en;
-    for (const k of keys) {
-      if (enFallback && typeof enFallback === "object" && k in enFallback) {
-        enFallback = enFallback[k];
-      } else {
-        enFallback = undefined;
-        break;
-      }
-    }
-    if (typeof enFallback === "string") return enFallback;
-
-    // 3. Fallback to provided string or key
-    return fallback !== undefined ? fallback : keyPath;
+    return typeof value === "string" ? value : undefined;
   };
+  const t = (keyPath: string, fallback?: string) =>
+    readKey(language, keyPath) ?? readKey("en", keyPath) ?? fallback ?? keyPath;
+  const textLanguage = (keyPath: string): Language =>
+    readKey(language, keyPath) === undefined ? "en" : language;
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, textLanguage }}>
       {children}
     </LanguageContext.Provider>
   );
+}
+
+/** Annotate translated text, including English fallback within a mixed-language view. */
+export function LocalizedText({ id, fallback }: { id: string; fallback?: string }) {
+  const { t, textLanguage } = useTranslation();
+  return <span lang={textLanguage(id)}>{t(id, fallback)}</span>;
 }
 
 export function useTranslation() {

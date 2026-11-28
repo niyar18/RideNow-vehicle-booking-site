@@ -32,7 +32,7 @@ import axios from "axios";
 import LanguageSelector from "./LanguageSelector";
 import NotificationToggle from "./NotificationToggle";
 import ThemeToggle from "./ThemeToggle";
-import { useTranslation } from "@/context/LanguageContext";
+import { LocalizedText, useTranslation } from "@/context/LanguageContext";
 
 const NAV_ITEMS = ["Home", "Bookings", "Fleet", "FAQ", "Contact"];
 const NAV_ROUTES: Record<string, string> = {
@@ -196,7 +196,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
-            {t("nav.dashboard", "Dashboard")}
+            <LocalizedText id="nav.dashboard" fallback="Dashboard" />
           </Link>
 
           <Link
@@ -207,7 +207,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
-            {t("nav.activeRide", "Active Ride")}
+            <LocalizedText id="nav.activeRide" fallback="Active Ride" />
             {pendingCount > 0 && (
               <span className="absolute -top-1 -right-2 w-5 h-5 bg-[#E34222] dark:bg-[#E06A50] text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {pendingCount}
@@ -223,7 +223,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
-            {t("nav.requests", "Requests")}
+            <LocalizedText id="nav.requests" fallback="Requests" />
             {pendingCount > 0 && (
               <span className="absolute -top-1 -right-2 w-5 h-5 bg-[#E34222] dark:bg-[#E06A50] text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {pendingCount}
@@ -239,7 +239,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
-            {t("nav.bookings", "Bookings")}
+            <LocalizedText id="nav.bookings" fallback="Bookings" />
             {activeCount > 0 && (
               <span className="absolute -top-1 -right-2 w-5 h-5 bg-emerald-600 dark:bg-emerald-500 text-white text-[11px] rounded-full flex items-center justify-center font-black">
                 {activeCount}
@@ -255,7 +255,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                 : "text-[#142238]/80 dark:text-[#f3f8f6]/80 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 rounded-[8px]"
             }`}
           >
-            {t("nav.wallet", "Wallet")}
+            <LocalizedText id="nav.wallet" fallback="Wallet" />
           </Link>
         </nav>
       );
@@ -277,7 +277,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   : "text-[#142238]/85 dark:text-[#f3f8f6]/85 hover:text-[#142238] dark:hover:text-[#F3F1E8] hover:bg-black/5 dark:hover:bg-white/5 font-semibold rounded-[8px]"
               }`}
             >
-              {t(NAV_KEYS[item] || item, item)}
+              <LocalizedText id={NAV_KEYS[item] || item} fallback={item} />
             </Link>
           );
         })}
@@ -285,7 +285,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
         {currentUser?.role === "admin" && (
           <Link
             href="/admin/dashboard"
-            className="text-base sm:text-[17px] lg:text-[18px] font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-[8px] text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 hover:bg-black/5 dark:hover:bg-white/5 transition active:scale-95"
+            className="text-base sm:text-[17px] lg:text-[18px] font-bold px-4 sm:px-5 py-2 sm:py-2.5 rounded-[8px] text-amber-900 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-300 hover:bg-black/5 dark:hover:bg-white/5 transition active:scale-95"
           >
             Admin Panel
           </Link>
@@ -398,7 +398,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   data-shell-primary
                   className="px-6 py-2.5 rounded-[8px] font-bold text-[15px] sm:text-[16px] transition shadow-xs active:scale-95 bg-[#213650] hover:bg-[#142238] dark:bg-[#354f68] dark:hover:bg-[#213650] text-white"
                 >
-                  {t("nav.signIn", "Sign In")}
+                  <LocalizedText id="nav.signIn" fallback="Sign In" />
                 </button>
               )}
             </div>
@@ -424,7 +424,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   data-shell-primary
                   className="px-3.5 py-1.5 rounded-[8px] text-xs font-extrabold shadow-2xs active:scale-[0.97] transition bg-[#213650] hover:bg-[#142238] dark:bg-[#354f68] dark:hover:bg-[#213650] text-white"
                 >
-                  {t("nav.signIn", "Sign In")}
+                  <LocalizedText id="nav.signIn" fallback="Sign In" />
                 </button>
               )}
 
@@ -533,7 +533,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partners/dashboard" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
-                      {t("nav.dashboard", "Dashboard")}
+                      <LocalizedText id="nav.dashboard" fallback="Dashboard" />
                     </Link>
 
                     <Link
@@ -543,7 +543,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partner/active-ride" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
-                      <span>{t("nav.activeRide", "Active Ride")}</span>
+                      <span><LocalizedText id="nav.activeRide" fallback="Active Ride" /></span>
                       {pendingCount > 0 && (
                         <span className="px-2.5 py-0.5 rounded-full bg-[#E34222] dark:bg-[#E06A50] text-white text-xs font-sans font-extrabold">
                           {pendingCount}
@@ -558,7 +558,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partner/pending-requests" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
-                      <span>{t("nav.requests", "Requests")}</span>
+                      <span><LocalizedText id="nav.requests" fallback="Requests" /></span>
                       {pendingCount > 0 && (
                         <span className="px-2.5 py-0.5 rounded-full bg-[#E34222] dark:bg-[#E06A50] text-white text-xs font-sans font-extrabold">
                           {pendingCount}
@@ -573,7 +573,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partner/bookings" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
-                      <span>{t("nav.bookings", "Bookings")}</span>
+                      <span><LocalizedText id="nav.bookings" fallback="Bookings" /></span>
                       {activeCount > 0 && (
                         <span className="px-2.5 py-0.5 rounded-full bg-emerald-600 dark:bg-emerald-500 text-white text-xs font-sans font-extrabold">
                           {activeCount}
@@ -588,7 +588,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/partner/wallet" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
-                      {t("nav.walletEarnings", "Wallet & Earnings")}
+                      <LocalizedText id="nav.walletEarnings" fallback="Wallet & Earnings" />
                     </Link>
                   </>
                 ) : (
@@ -598,7 +598,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       onClick={() => setMenuOpen(false)}
                       className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-[#142238] dark:text-[#f3f8f6] hover:text-[#142238] dark:hover:text-[#388463] transition active:scale-98"
                     >
-                      {t("nav.ride", "Ride")}
+                      <LocalizedText id="nav.ride" fallback="Ride" />
                     </Link>
 
                     <Link
@@ -608,7 +608,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/bookings" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
-                      {t("nav.bookings", "Bookings")}
+                      <LocalizedText id="nav.bookings" fallback="Bookings" />
                     </Link>
 
                     <Link
@@ -616,7 +616,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                       onClick={() => setMenuOpen(false)}
                       className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8] transition active:scale-98"
                     >
-                      {t("nav.drive", "Drive")}
+                      <LocalizedText id="nav.drive" fallback="Drive" />
                     </Link>
 
                     <Link
@@ -626,7 +626,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/fleet" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
-                      {t("nav.fleet", "Fleet")}
+                      <LocalizedText id="nav.fleet" fallback="Fleet" />
                     </Link>
 
                     <Link
@@ -636,7 +636,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/faq" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
-                      {t("nav.help", "Help")}
+                      <LocalizedText id="nav.help" fallback="Help" />
                     </Link>
 
                     <Link
@@ -646,14 +646,14 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                         pathname === "/contact" ? "text-[#142238] dark:text-[#388463] font-semibold" : "text-[#142238]/75 dark:text-[#f3f8f6]/75 hover:text-[#142238] dark:hover:text-[#F3F1E8]"
                       }`}
                     >
-                      {t("nav.contact", "Contact")}
+                      <LocalizedText id="nav.contact" fallback="Contact" />
                     </Link>
 
                     {currentUser?.role === "admin" && (
                       <Link
                         href="/admin/dashboard"
                         onClick={() => setMenuOpen(false)}
-                        className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition active:scale-98"
+                        className="text-2xl sm:text-3xl font-normal tracking-tight py-2.5 text-amber-900 dark:text-amber-300 hover:text-amber-950 dark:hover:text-amber-300 transition active:scale-98"
                       >
                         Admin Panel
                       </Link>
@@ -702,7 +702,7 @@ export default function Nav({ user: propUser }: { user?: any } = {}) {
                   }}
                   className="w-full py-3.5 rounded-[8px] bg-[#213650] hover:bg-[#142238] dark:bg-[#354f68] dark:hover:bg-[#213650] text-white font-bold text-base flex items-center justify-center gap-2 active:scale-98 transition shadow-xs hover:bg-[#101c2f] dark:hover:bg-[#406780]"
                 >
-                  <span>{t("nav.signIn", "Login or Sign Up")}</span>
+                  <span><LocalizedText id="nav.signIn" fallback="Login or Sign Up" /></span>
                   <ArrowRight size={18} />
                 </button>
               )}

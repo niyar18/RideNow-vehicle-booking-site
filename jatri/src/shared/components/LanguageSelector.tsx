@@ -1,203 +1,62 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Globe, Check, ChevronDown, X } from "lucide-react";
-import { useTranslation, SUPPORTED_LANGUAGES, Language } from "@/context/LanguageContext";
-import { motion, AnimatePresence } from "framer-motion";
+import { useId, useState } from "react";
+import { Check, ChevronDown, Globe, X } from "lucide-react";
+import { useTranslation, SUPPORTED_LANGUAGES } from "@/context/LanguageContext";
+import AccessibleDialog from "./AccessibleDialog";
 
 export default function LanguageSelector({
-  variant = "pill",
-  className = "",
-}: {
-  variant?: "pill" | "minimal" | "footer";
-  className?: string;
-}) {
+  variant = "pill", className = "",
+}: { variant?: "pill" | "minimal" | "footer"; className?: string }) {
   const { language, setLanguage } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [dropdownAlign, setDropdownAlign] = useState<"right" | "left">("right");
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const currentOption =
-    SUPPORTED_LANGUAGES.find((l) => l.code === language) || SUPPORTED_LANGUAGES[0];
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Compute best dropdown alignment when opening to avoid viewport overflow
-  useEffect(() => {
-    if (open && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const screenWidth = window.innerWidth;
-      const dropdownWidth = 190; // approx dropdown width
-
-      if (rect.right + dropdownWidth > screenWidth && rect.left >= dropdownWidth) {
-        setDropdownAlign("right");
-      } else if (rect.left < dropdownWidth) {
-        setDropdownAlign("left");
-      } else {
-        setDropdownAlign("right");
-      }
-    }
-  }, [open]);
-
-  const handleSelect = (code: Language) => {
-    setLanguage(code);
-    setOpen(false);
-  };
+  const title = useId();
+  const current = SUPPORTED_LANGUAGES.find((item) => item.code === language) ?? SUPPORTED_LANGUAGES[0];
 
   if (variant === "footer") {
     return (
-      <div className={`relative inline-block text-left ${className}`} ref={containerRef}>
-        <div className="flex items-center gap-1 sm:gap-1.5 flex-nowrap shrink-0">
-          <Globe size={14} className="text-[#c4d7df]/70 dark:text-[#b3cbd1]/70 mr-0.5 shrink-0" />
-          {SUPPORTED_LANGUAGES.map((lang) => {
-            const isSelected = lang.code === language;
-            return (
-              <button
-                key={lang.code}
-                type="button"
-                onClick={() => handleSelect(lang.code)}
-                className={`text-xs px-2 sm:px-2.5 py-1 rounded-[6px] transition-all font-medium active:scale-[0.97] cursor-pointer whitespace-nowrap shrink-0 ${
-                  isSelected
-                    ? "bg-[#101c2f] dark:bg-[#263d54] text-[#e8f2ef] dark:text-[#f3f8f6] font-bold border border-[#607f90]/80 dark:border-[#4e697f] shadow-2xs"
-                    : "text-[#c4d7df] dark:text-[#b3cbd1] hover:text-[#e8f2ef] dark:hover:text-[#F3F1E8] hover:bg-[#101c2f]/50 dark:hover:bg-[#263d54] border border-transparent"
-                }`}
-              >
-                {lang.nativeName}
-              </button>
-            );
-          })}
-        </div>
+      <div role="group" aria-label="Site language" className={`flex flex-wrap items-center gap-1 ${className}`}>
+        <Globe size={14} aria-hidden="true" className="text-[#c4d7df]" />
+        {SUPPORTED_LANGUAGES.map((item) => (
+          <button key={item.code} type="button" aria-pressed={item.code === language} lang={item.code}
+            onClick={() => setLanguage(item.code)}
+            className={`min-h-8 rounded-md border px-2 text-xs font-semibold text-[#e8f2ef] hover:bg-[#263d54] focus-visible:outline-white ${item.code === language ? "border-[#b3cbd1] bg-[#263d54]" : "border-transparent"}`}>
+            {item.nativeName}
+          </button>
+        ))}
       </div>
     );
   }
 
   return (
-    <div className={`relative inline-block text-left ${className}`} ref={containerRef}>
-      <button
-        type="button"
-        onClick={() => setOpen(!open)}
-        className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-[8px] border border-stone-200/90 dark:border-[#4e697f] hover:border-stone-300 dark:hover:border-[#607f90] bg-white/95 dark:bg-[#1a2d45] hover:bg-white dark:hover:bg-[#263d54] text-stone-800 dark:text-[#f3f8f6] text-xs sm:text-sm font-bold transition-all shadow-xs active:scale-[0.97]"
-        title="Change Language"
-        aria-expanded={open}
-      >
-        <Globe size={15} className="text-stone-600 dark:text-[#b3cbd1] shrink-0" />
-        <span className="font-extrabold truncate max-w-[90px]">{currentOption.nativeName}</span>
-        <ChevronDown
-          size={13}
-          className={`text-stone-500 dark:text-[#b3cbd1] shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
-        />
+    <div className={className}>
+      <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog"
+        className="flex min-h-11 items-center gap-2 rounded-lg border border-[var(--border-interactive)] bg-[var(--surface-raised)] px-3 text-sm font-semibold text-[var(--text-primary)] hover:bg-[var(--surface-subtle)]">
+        <Globe size={15} aria-hidden="true" />
+        <span lang={current.code}>{current.nativeName}</span><span className="sr-only">, change language</span>
+        <ChevronDown size={13} aria-hidden="true" />
       </button>
-
-      {/* ─── DESKTOP / TABLET DROPDOWN (Auto-aligned & Screen-bounded) ─── */}
       {open && (
-        <div
-          className={`hidden sm:block absolute ${
-            dropdownAlign === "left" ? "left-0" : "right-0"
-          } mt-2 w-48 max-w-[calc(100vw-2rem)] rounded-2xl bg-white dark:bg-[#1a2d45] shadow-2xl border border-zinc-200/90 dark:border-[#4e697f] py-1.5 z-[9999] focus:outline-none animate-in fade-in zoom-in-95 duration-100`}
-        >
-          <div className="px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-zinc-400 dark:text-[#b3cbd1] border-b border-zinc-100 dark:border-[#425b73] mb-1 flex items-center justify-between">
-            <span>Select Language</span>
-            <Globe size={11} className="text-zinc-400 dark:text-[#b3cbd1]" />
+        <AccessibleDialog labelledBy={title} onClose={() => setOpen(false)}
+          className="fixed inset-0 m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-sm overflow-auto rounded-xl border border-[var(--border-interactive)] bg-[var(--surface-raised)] p-4 text-[var(--text-primary)] shadow-2xl backdrop:bg-black/70">
+          <div className="flex items-center justify-between gap-3">
+            <h2 id={title} data-dialog-heading tabIndex={-1} className="text-lg font-bold">Choose a language</h2>
+            <button type="button" aria-label="Close language options" onClick={() => setOpen(false)} className="grid min-h-11 min-w-11 place-items-center rounded-lg hover:bg-[var(--surface-subtle)]">
+              <X size={18} aria-hidden="true" />
+            </button>
           </div>
-          {SUPPORTED_LANGUAGES.map((lang) => {
-            const isSelected = lang.code === language;
-            return (
-              <button
-                key={lang.code}
-                type="button"
-                onClick={() => handleSelect(lang.code)}
-                className={`w-full text-left px-3 py-2 text-xs flex items-center justify-between transition-colors ${
-                  isSelected
-                    ? "bg-zinc-100 dark:bg-[#263d54] font-bold text-zinc-900 dark:text-[#f3f8f6]"
-                    : "text-zinc-700 dark:text-[#b3cbd1] hover:bg-zinc-50 dark:hover:bg-[#263d54] hover:text-zinc-950 dark:hover:text-[#F3F1E8]"
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold">{lang.nativeName}</span>
-                  <span className="text-[11px] text-zinc-400 dark:text-[#b3cbd1]">({lang.name})</span>
-                </div>
-                {isSelected && <Check size={14} className="text-zinc-900 dark:text-[#f3f8f6]" />}
+          <div className="mt-2 grid gap-2">
+            {SUPPORTED_LANGUAGES.map((item) => (
+              <button key={item.code} type="button" aria-pressed={item.code === language}
+                onClick={() => { setLanguage(item.code); setOpen(false); }}
+                className="flex min-h-11 items-center justify-between gap-2 rounded-md border border-[var(--border-interactive)] px-3 py-2 text-left text-sm hover:bg-[var(--surface-subtle)]">
+                <span><span lang={item.code} className="font-semibold">{item.nativeName}</span>{item.code !== "en" && ` (${item.name})`}</span>
+                {item.code === language && <Check size={16} aria-hidden="true" />}
               </button>
-            );
-          })}
-        </div>
-      )}
-
-      {/* ─── MOBILE BOTTOM-SHEET MODAL (100% Guaranteed Zero Viewport Overflow) ─── */}
-      <AnimatePresence>
-        {open && (
-          <div className="sm:hidden fixed inset-0 z-[99999] flex flex-col justify-end bg-black/60 backdrop-blur-xs">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setOpen(false)}
-              className="absolute inset-0"
-            />
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="relative bg-white dark:bg-[#1a2d45] rounded-t-3xl p-5 shadow-2xl border-t border-zinc-200 dark:border-[#4e697f] w-full max-h-[85vh] overflow-y-auto"
-            >
-              <div className="w-12 h-1.5 bg-zinc-200 dark:bg-zinc-700 rounded-full mx-auto mb-4" />
-              <div className="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-[#425b73] mb-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl bg-zinc-100 dark:bg-[#263d54] flex items-center justify-center text-zinc-800 dark:text-[#f3f8f6]">
-                    <Globe size={16} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-black text-zinc-900 dark:text-[#f3f8f6]">Select Language</h3>
-                    <p className="text-[11px] text-zinc-500 dark:text-[#b3cbd1] font-medium">Choose your preferred language</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="w-8 h-8 rounded-full bg-zinc-100 dark:bg-[#263d54] text-zinc-500 dark:text-[#b3cbd1] flex items-center justify-center hover:bg-zinc-200 dark:hover:bg-[#2a425a] active:scale-95"
-                >
-                  <X size={15} />
-                </button>
-              </div>
-
-              <div className="space-y-1.5 pt-1">
-                {SUPPORTED_LANGUAGES.map((lang) => {
-                  const isSelected = lang.code === language;
-                  return (
-                    <button
-                      key={lang.code}
-                      type="button"
-                      onClick={() => handleSelect(lang.code)}
-                      className={`w-full text-left px-4 py-3 rounded-2xl text-sm flex items-center justify-between transition-colors ${
-                        isSelected
-                          ? "bg-zinc-900 dark:bg-[#365671] text-white font-bold shadow-sm"
-                          : "bg-zinc-50 dark:bg-[#263d54] hover:bg-zinc-100 dark:hover:bg-[#2a425a] text-zinc-800 dark:text-[#f3f8f6]"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <span className="font-bold text-base">{lang.nativeName}</span>
-                        <span className={`text-xs ${isSelected ? "text-zinc-300" : "text-zinc-500 dark:text-[#b3cbd1]"}`}>
-                          ({lang.name})
-                        </span>
-                      </div>
-                      {isSelected && <Check size={18} className="text-white" />}
-                    </button>
-                  );
-                })}
-              </div>
-            </motion.div>
+            ))}
           </div>
-        )}
-      </AnimatePresence>
+        </AccessibleDialog>
+      )}
     </div>
   );
 }

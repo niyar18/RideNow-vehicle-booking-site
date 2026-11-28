@@ -92,7 +92,7 @@ export default function SearchPageContent() {
   }, []);
 
   return (
-    <div className="min-h-dvh bg-[var(--background)] text-[var(--text-primary)]">
+    <main tabIndex={-1} className="min-h-dvh bg-[var(--background)] text-[var(--text-primary)]">
       <header className="border-b border-[var(--border-default)] bg-[var(--surface-raised)]">
         <div className="mx-auto flex max-w-[86rem] items-center gap-3 px-4 py-4 sm:px-7">
           <button
@@ -295,6 +295,6 @@ export default function SearchPageContent() {
         </div>
       </motion.section>
       </div>
-    </div>
+    </main>
   );
 }

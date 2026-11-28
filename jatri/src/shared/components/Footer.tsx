@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import LanguageSelector from "./LanguageSelector";
 import ThemeToggle from "./ThemeToggle";
-import { useTranslation } from "@/context/LanguageContext";
+import { LocalizedText } from "@/context/LanguageContext";
 import styles from "./footer.module.css";
 
 const sections = [
@@ -26,7 +26,6 @@ const sections = [
 ];
 
 export default function Footer() {
-  const { t } = useTranslation();
 
   return (
     <footer className="relative bg-[#142238] text-[#fcfaef]">
@@ -36,18 +35,18 @@ export default function Footer() {
           <Link href="/" aria-label="Jaatri Home" className="inline-flex">
             <Image src="/logojatri.webp" alt="Jaatri, by RideNow" width={240} height={76} className="h-11 w-auto object-contain brightness-0 invert" />
           </Link>
-          <p className="my-3 text-[26px] leading-tight tracking-tight [font-family:var(--font-serif)]">{t("footer.tagline", "More than a ride.")}</p>
-          <p className="max-w-68 text-sm leading-relaxed text-[#d8e4d8]">{t("footer.aboutText", "Assam's local mobility platform for everyday journeys, vehicle rentals and deliveries.")}</p>
+          <p className="my-3 text-[26px] leading-tight tracking-tight [font-family:var(--font-serif)]"><LocalizedText id="footer.tagline" fallback="More than a ride." /></p>
+          <p className="max-w-68 text-sm leading-relaxed text-[#d8e4d8]"><LocalizedText id="footer.aboutText" fallback="Assam's local mobility platform for everyday journeys, vehicle rentals and deliveries." /></p>
           <Link href="/partner/onboard/vehicle" className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-[#aaf5da] hover:underline">
-            {t("footer.becomePartner", "Become a partner")} <ArrowUpRight size={15} aria-hidden />
+            <LocalizedText id="footer.becomePartner" fallback="Become a partner" /> <ArrowUpRight size={15} aria-hidden />
           </Link>
         </div>
         {sections.map(({ title, fallback, links }) => (
           <div key={title}>
-            <h2 className="mb-3 text-[11px] font-bold tracking-[.12em] text-[#aaf5da] uppercase">{t(title, fallback)}</h2>
+            <h2 className="mb-3 text-[11px] font-bold tracking-[.12em] text-[#aaf5da] uppercase"><LocalizedText id={title} fallback={fallback} /></h2>
             <ul className="space-y-1.5">
               {links.map(([key, label, href]) => <li key={key}>
-                <Link href={href} className="inline-flex min-h-8 items-center text-sm leading-snug text-[#d8e4d8] hover:text-white hover:underline">{t(key, label)}</Link>
+                <Link href={href} className="inline-flex min-h-8 items-center text-sm leading-snug text-[#d8e4d8] hover:text-white hover:underline"><LocalizedText id={key} fallback={label} /></Link>
               </li>)}
             </ul>
           </div>

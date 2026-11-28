@@ -166,3 +166,5 @@ export default function PrivacyPolicyPage() {
     </PolicyPage>
   );
 }
+
+export const metadata = { title: "Privacy policy" };

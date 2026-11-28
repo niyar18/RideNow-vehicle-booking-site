@@ -210,7 +210,7 @@ export default function WalletPage() {
     <div className="min-h-screen bg-[var(--background)] text-[var(--text-primary)] flex flex-col font-sans transition-colors duration-200">
       <Nav />
 
-      <div className="relative z-10 mx-auto w-full max-w-[68rem] flex-1 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
+      <main tabIndex={-1} className="relative z-10 mx-auto w-full max-w-[68rem] flex-1 px-4 pb-16 pt-24 sm:px-7 sm:pt-28">
         <RiderPageHead current="/wallet"
           title={t("wallet.rideNowCash", "Jaatri Cash")}
           description="Manage your ride balance and review payments and refunds."
@@ -590,7 +590,7 @@ export default function WalletPage() {
             </div>
           )}
         </AnimatePresence>
-      </div>
+      </main>
 
       <Footer />
     </div>

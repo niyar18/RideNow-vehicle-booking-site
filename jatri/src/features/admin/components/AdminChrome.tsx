@@ -16,7 +16,7 @@ export default function AdminChrome({ children }: { children: ReactNode }) {
       <a href="#admin-content" className={styles.skipLink}>Skip to main content</a>
       <header className={styles.header}>
         <div className={styles.headerInner}>
-          <Link href="/admin/dashboard" className={styles.brand} aria-label="Jaatri Operations">
+          <Link href="/admin/dashboard" className={styles.brand}>
             <span className={styles.brandGlyph} lang="as" aria-hidden="true">য</span>
             <span className={styles.brandText}>
               Jaatri <small>Operations</small>

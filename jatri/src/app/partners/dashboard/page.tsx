@@ -72,3 +72,5 @@ export default async function PartnersDashboardPage() {
     </div>
   );
 }
+
+export const metadata = { title: "Driver workspace" };

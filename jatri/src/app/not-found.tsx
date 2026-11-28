@@ -14,7 +14,7 @@ export default function NotFound() {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#E5EBDD] dark:bg-[#143D32] text-[#123D32] dark:text-[#A3E635] text-xs font-semibold uppercase tracking-wider mb-6">
             <Compass className="w-3.5 h-3.5" />
-            <span>404 • Destination Not Found • যাত্ৰা অব্যাহত ৰাখক</span>
+            <span>404 • Destination Not Found • <span lang="as">যাত্ৰা অব্যাহত ৰাখক</span></span>
           </div>
 
           {/* Large Hero Number */}
@@ -53,7 +53,7 @@ export default function NotFound() {
 
           {/* Helpful Quick Links Grid */}
           <div className="pt-8 border-t border-[#DED7CA]/60 dark:border-[#24483D]/60">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#889088] dark:text-[#B9C8BF] mb-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#505e53] dark:text-[#B9C8BF] mb-4">
               Explore Jaatri Services
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-left">
@@ -64,7 +64,7 @@ export default function NotFound() {
                 <span className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED] block group-hover:text-[#123D32] dark:group-hover:text-[#A3E635]">
                   Book Ride
                 </span>
-                <span className="text-[11px] text-[#889088] dark:text-[#B9C8BF]">
+                <span className="text-[11px] text-[#505e53] dark:text-[#B9C8BF]">
                   Instant dispatch
                 </span>
               </Link>
@@ -75,7 +75,7 @@ export default function NotFound() {
                 <span className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED] block group-hover:text-[#123D32] dark:group-hover:text-[#A3E635]">
                   Our Fleet
                 </span>
-                <span className="text-[11px] text-[#889088] dark:text-[#B9C8BF]">
+                <span className="text-[11px] text-[#505e53] dark:text-[#B9C8BF]">
                   Bike, Auto, Cab
                 </span>
               </Link>
@@ -86,8 +86,8 @@ export default function NotFound() {
                 <span className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED] block group-hover:text-[#123D32] dark:group-hover:text-[#A3E635]">
                   Safety Hub
                 </span>
-                <span className="text-[11px] text-[#889088] dark:text-[#B9C8BF]">
-                  24x7 Emergency
+                <span className="text-[11px] text-[#505e53] dark:text-[#B9C8BF]">
+                  Emergency guidance
                 </span>
               </Link>
               <Link
@@ -97,7 +97,7 @@ export default function NotFound() {
                 <span className="text-xs font-semibold text-[#10251C] dark:text-[#F7F5ED] block group-hover:text-[#123D32] dark:group-hover:text-[#A3E635]">
                   Support
                 </span>
-                <span className="text-[11px] text-[#889088] dark:text-[#B9C8BF]">
+                <span className="text-[11px] text-[#505e53] dark:text-[#B9C8BF]">
                   Help & Grievance
                 </span>
               </Link>

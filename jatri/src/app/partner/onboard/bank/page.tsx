@@ -269,7 +269,7 @@ function InputFieldMinimal({
           {label}
         </label>
         {optional && (
-          <span className="text-[10px] tabular-nums text-[#475a65]/70 dark:text-[#c9d8df]/70">
+          <span className="text-[10px] tabular-nums text-[var(--text-secondary)]">
             Optional
           </span>
         )}

@@ -49,6 +49,7 @@ export default function GroupRideCard({
         <button
           type="button"
           onClick={onToggle}
+          role="switch" aria-checked={isGroupRide} aria-label="Group ride"
           className={`w-12 h-7 rounded-full transition-colors flex items-center p-1 ${
             isGroupRide ? "bg-[#123D32] dark:bg-[#28664D] justify-end" : "bg-[#DED7CA] dark:bg-[#34443A] justify-start"
           }`}

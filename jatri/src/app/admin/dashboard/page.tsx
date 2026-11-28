@@ -13,3 +13,5 @@ export default async function AdminDashboardPage() {
 
   return <AdminDashboardClient />;
 }
+
+export const metadata = { title: "Operations overview" };
