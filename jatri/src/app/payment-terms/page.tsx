@@ -96,7 +96,7 @@ export default function PaymentTermsPage() {
               <div>
                 <p className="text-[var(--policy-inverse-text)]">Platform Convenience Fee</p>
                 <p className="text-xl font-bold text-[var(--accent-mint)] mt-0.5">10% Commission</p>
-                <p className="text-[11px] text-[var(--policy-inverse-text)] mt-1">Covers cloud routing, 24×7 safety response, and gateway fees.</p>
+                <p className="text-[11px] text-[var(--policy-inverse-text)] mt-1">Covers cloud routing, in-app safety features, and gateway fees.</p>
               </div>
             </div>
           </div>

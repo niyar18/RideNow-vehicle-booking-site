@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "How does Jaatri ensure passenger safety?",
-    a: "All driver partners undergo strict background checks, vehicle commercial registration vetting, and valid licensing checks. Every live trip is monitored via real-time GPS telemetry with an in-app emergency SOS button linked directly to the State Police Control Room (112) and our 24×7 Safety Response Desk.",
+    a: "All driver partners undergo strict background checks, vehicle commercial registration vetting, and valid licensing checks. For immediate help, call 112 directly. Jaatri’s in-app SOS records a safety incident; it does not call emergency services or notify emergency contacts.",
   },
   {
     q: "What is Jaatri's cancellation policy?",

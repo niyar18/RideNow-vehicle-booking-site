@@ -3,7 +3,7 @@
  *
  * Implements:
  * 1. Independent immutable safety incident logging (SafetyIncident)
- * 2. Real-time Emergency SOS panic triggers with emergency contact alerts
+ * 2. In-app Emergency SOS incident recording with best-effort app updates
  * 3. Automated ride anomaly telemetry checks (unexpected stops, route deviations, GPS signal drops)
  * 4. Masked contact privacy & secure trip sharing
  * 5. Incident lifecycle resolution (active -> investigating -> resolved / false_alarm)
@@ -11,7 +11,6 @@
 import connectDb from "@/lib/db";
 import Booking from "@/models/booking.model";
 import User from "@/models/user.model";
-import FamilyAccount from "@/models/family.model";
 import SafetyIncident, {
   ISafetyIncident,
   IncidentType,
@@ -56,8 +55,7 @@ export interface SafetyReportParams {
 }
 
 /**
- * Triggers full-scale Emergency SOS panic protocol.
- * Notifies emergency contacts, marks booking panic active, and creates an immutable incident.
+ * Records an in-app SOS incident. No external emergency dispatch or contact messaging.
  */
 export async function triggerEmergencySos(params: TriggerSosParams) {
   await connectDb();
@@ -78,29 +76,7 @@ export async function triggerEmergencySos(params: TriggerSosParams) {
   booking.safetyNotes = reason || `Emergency SOS triggered by ${reporterRole} at ${now.toLocaleTimeString()}`;
   await booking.save();
 
-  // 2. Fetch User's Emergency Contacts from FamilyAccount
-  let notifiedContactsCount = 0;
-  const emergencyContactsAlerted: string[] = [];
-
-  try {
-    const family = await FamilyAccount.findOne({ owner: booking.user._id || booking.user });
-    if (family && family.members && family.members.length > 0) {
-      for (const member of family.members) {
-        if (member.phone) {
-          emergencyContactsAlerted.push(`${member.name} (${member.phone})`);
-          notifiedContactsCount++;
-          // In production: trigger SMS / WhatsApp via WhatsApp/SMS service
-          console.info(
-            `[SAFETY SOS] Dispatched SMS alert to emergency contact: ${member.name} (${member.phone}) for trip #${booking._id.toString().slice(-6)}`
-          );
-        }
-      }
-    }
-  } catch (contactErr) {
-    console.warn("Failed to query emergency contacts:", contactErr);
-  }
-
-  // 3. Create Immutable Safety Incident
+  // 2. Record the incident without claiming any external delivery.
   const incident = await SafetyIncident.create({
     incidentId,
     booking: booking._id,
@@ -117,15 +93,15 @@ export async function triggerEmergencySos(params: TriggerSosParams) {
           address: booking.pickupAddress,
         }
       : undefined,
-    emergencyContactsNotified: notifiedContactsCount > 0,
-    notifiedContactsCount,
+    emergencyContactsNotified: false,
+    notifiedContactsCount: 0,
   });
 
   const shareUrl = booking.shareToken
     ? `${process.env.NEXT_PUBLIC_APP_URL || ""}/track/${booking.shareToken}`
     : undefined;
 
-  // 4. Broadcast Real-time WebSocket Events
+  // 3. Broadcast Real-time WebSocket Events
   const socketServer = process.env.NEXT_PUBLIC_SOCKET_SERVER;
   if (socketServer) {
     const payload = {
@@ -160,12 +136,12 @@ export async function triggerEmergencySos(params: TriggerSosParams) {
     }
   }
 
-  // 5. Send Web Push alerts
+  // 4. Send Web Push alerts
   try {
     if (booking.user) {
       await sendPushToUser((booking.user._id || booking.user).toString(), {
-        title: "EMERGENCY SOS ACTIVE 🚨",
-        body: "Police (112) helpline and emergency contacts have been alerted with live tracking.",
+        title: "SOS recorded in Jaatri",
+        body: "Jaatri did not contact emergency services or your emergency contacts. For immediate help, call 112 directly.",
         url: `/ride/${booking._id}`,
         tag: `sos-${booking._id}`,
       });
@@ -179,8 +155,6 @@ export async function triggerEmergencySos(params: TriggerSosParams) {
     incidentId,
     incident,
     shareUrl,
-    emergencyContactsAlerted,
-    notifiedContactsCount,
   };
 }
 

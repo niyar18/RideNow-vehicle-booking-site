@@ -291,7 +291,7 @@ export default function RideCompletedView({ booking }: RideCompletedViewProps) {
                 <h3 className="text-base font-bold text-[var(--text-primary)]">Trust & Safety Report</h3>
               </div>
               <p className="text-xs text-[var(--text-secondary)] mb-4">
-                Your report will be reviewed by our 24/7 Safety & Operations team.
+                This submits a report for in-app review. For immediate emergency help, call 112 directly.
               </p>
 
               {reportSubmitted ? (

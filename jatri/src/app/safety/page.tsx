@@ -23,7 +23,7 @@ export default function SafetyPolicyPage() {
     >
         <div className={styles.emergency}>
           <strong>Need emergency help?</strong>
-          <p className="text-sm text-[var(--text-secondary)]">Call India’s emergency helpline or use SOS for an active ride.</p>
+          <p className="text-sm text-[var(--text-secondary)]">Call 112 directly for immediate help. Jaatri’s in-app SOS does not contact emergency services or emergency contacts.</p>
           <a href="tel:112"><PhoneCall size={16} aria-hidden="true" />Call 112</a>
         </div>
 
@@ -33,16 +33,16 @@ export default function SafetyPolicyPage() {
             <PhoneCall size={20} className="text-[var(--policy-danger)]" /> In-Ride Emergency Assistance & SOS
           </h2>
           <p className="text-xs text-[var(--policy-danger)] leading-relaxed">
-            Every active ride in Jaatri features an integrated emergency protocol. In an unexpected safety or medical event:
+            Calling 112 and recording SOS in Jaatri are separate actions:
           </p>
           <div className="grid sm:grid-cols-2 gap-3 text-xs pt-1">
             <div className="bg-[var(--surface-raised)] p-4 rounded-[10px] border border-[var(--policy-danger-border)] dark:border-[var(--border-default)]">
-              <strong className="text-[var(--policy-danger)] block mb-1">State Police Emergency (112):</strong>
-              <p className="text-[var(--policy-danger)] dark:text-[var(--text-secondary)] leading-relaxed">Instant one-tap dialer connecting directly to the nearest State Police Control Room (112 Emergency Response Support System).</p>
+              <strong className="text-[var(--policy-danger)] block mb-1">India’s emergency number (112):</strong>
+              <p className="text-[var(--policy-danger)] dark:text-[var(--text-secondary)] leading-relaxed">Call 112 to reach India’s Emergency Response Support System for police, fire, or medical help.</p>
             </div>
             <div className="bg-[var(--surface-raised)] p-4 rounded-[10px] border border-[var(--policy-danger-border)] dark:border-[var(--border-default)]">
-              <strong className="text-[var(--policy-danger)] block mb-1">Jaatri 24×7 Safety Response Desk:</strong>
-              <p className="text-[var(--policy-danger)] dark:text-[var(--text-secondary)] leading-relaxed">Real-time emergency telemetry dispatch that notifies our dedicated incident response team with live vehicle coordinates.</p>
+              <strong className="text-[var(--policy-danger)] block mb-1">In-app SOS record:</strong>
+              <p className="text-[var(--policy-danger)] dark:text-[var(--text-secondary)] leading-relaxed">Recording SOS flags the ride in Jaatri. It is not a request for emergency dispatch and does not notify emergency contacts.</p>
             </div>
           </div>
         </section>

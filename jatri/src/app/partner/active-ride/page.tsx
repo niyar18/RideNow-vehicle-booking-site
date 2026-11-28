@@ -3,13 +3,14 @@
 
 
 import nextDynamic from "next/dynamic";
+import { Call112, EmergencySosDialog, SosStatus, emergencyAction, recordRideSos } from "@/features/rides/components/EmergencySos";
 import {
   Phone, User2, Car, IndianRupee,
   ChevronUp, Clock, Zap,
   CheckCircle2, KeyRound, ArrowRight,
   MapPin, Navigation, MessageCircle,
   AlertCircle, XCircle, AlertTriangle,
-  Mic, MicOff, Volume2, PhoneOff, PhoneCall, Siren, ShieldAlert,
+  Mic, MicOff, Volume2, PhoneOff, PhoneCall, Siren,
   ExternalLink
 } from "lucide-react";
 import { HomeIcon } from "@/shared/components/icons/AppIcons";
@@ -27,7 +28,7 @@ import FareCollectionModal from "@/features/rides/components/FareCollectionModal
 
 const LiveRideMap = nextDynamic(() => import("@/features/maps/components/LiveTrackingMap"), { ssr: false });
 
-export const DRIVER_CANCELLATION_REASONS = [
+const DRIVER_CANCELLATION_REASONS = [
   "Vehicle breakdown / Mechanical issue",
   "Heavy traffic / Impassable route",
   "Rider requested cancellation",
@@ -1378,6 +1379,9 @@ function PanelContent({
   booking, status, isActive, canChat, displayEta, chatOpen, onChatToggle, onCancel, onCallClick,
   onAcceptRide, onDeclineRide, actionPending,
 }: any) {
+  const [showEmergency, setShowEmergency] = useState(false);
+  const [recordedBookingId, setRecordedBookingId] = useState<string | null>(null);
+  const sosActive = Boolean(booking?.isPanicActive || (recordedBookingId && recordedBookingId === booking?._id));
   return (
     <div className="flex flex-col pt-4 pb-4 gap-3">
 
@@ -1421,20 +1425,9 @@ function PanelContent({
         </div>
       )}
 
-      {/* DRIVER PANIC ALERT BANNER */}
-      {booking?.isPanicActive && (
-        <div className="mx-4 lg:mx-6">
-          <div className="bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-[12px] p-4 text-[#992f22] dark:text-[#ffab9c] flex items-center gap-3">
-            <div className="w-8 h-8 rounded-[8px] bg-[#992f22] flex items-center justify-center flex-shrink-0 text-white">
-              <Siren size={18} />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-[#992f22] dark:text-[#ffab9c]">Emergency SOS Triggered</p>
-              <p className="text-xs font-medium text-red-900 dark:text-red-200">Passenger requested emergency safety assistance. Please adhere to standard safety guidelines.</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className={sosActive ? "mx-4 rounded-xl border border-[#a56270] bg-[#fff0f2] p-4 text-sm text-[#661629] dark:bg-[#382332] dark:text-[#ffc0c7] lg:mx-6" : undefined}>
+        <SosStatus active={sosActive} />
+      </div>
 
       {/* ETA + GUARANTEED EARNINGS */}
       {isActive && (
@@ -1621,38 +1614,23 @@ function PanelContent({
         </div>
       )}
 
-      {/* DRIVER EMERGENCY SOS & HELPLINE */}
       {["confirmed", "started"].includes(status) && (
-        <div className="mx-4 lg:mx-6 mt-2 pt-2 border-t border-[var(--border-default)] flex gap-2">
-          <a
-            href="tel:112"
-            className="flex-1 bg-red-50 hover:bg-red-100 dark:bg-red-950/40 dark:hover:bg-red-950/60 border border-red-200 dark:border-red-900/60 text-[#992f22] dark:text-[#ffab9c] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99]"
-          >
-            <Siren size={14} className="text-[#992f22] dark:text-[#ffab9c]" />
-            Police (112)
-          </a>
-          <button
-            type="button"
-            onClick={async () => {
-              if (confirm("Trigger Driver Emergency Assistance? This will alert RideNow Dispatch & Safety.")) {
-                try {
-                  await fetch(`/api/booking/${booking._id}/panic`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ reason: "Driver triggered emergency safety assistance" }),
-                  });
-                  alert("Emergency assistance alert dispatched. Operations team alerted.");
-                } catch (e) {
-                  console.error("Driver panic error:", e);
-                }
-              }
-            }}
-            className="flex-1 bg-[var(--midnight)] hover:bg-black dark:bg-[#243751] dark:hover:bg-[#263b56] text-[var(--ice)] py-3 min-h-[44px] rounded-[8px] text-xs font-semibold border border-[var(--midnight)] dark:border-[#465c70] transition flex items-center justify-center gap-1.5 cursor-pointer active:scale-[0.99] "
-          >
-            <ShieldAlert size={14} className="text-amber-400" />
-            Safety SOS
+        <div className="mx-4 mt-2 flex flex-wrap gap-2 border-t border-[var(--border-default)] pt-2 lg:mx-6">
+          <Call112 />
+          <button type="button" data-emergency-options onClick={() => setShowEmergency(true)} className={emergencyAction}>
+            <Siren size={15} aria-hidden="true" /> Emergency options
           </button>
         </div>
+      )}
+      {showEmergency && (
+        <EmergencySosDialog
+          alreadyActive={sosActive}
+          onClose={() => setShowEmergency(false)}
+          onRecord={async () => {
+            await recordRideSos(booking._id);
+            setRecordedBookingId(booking._id);
+          }}
+        />
       )}
 
     </div>
